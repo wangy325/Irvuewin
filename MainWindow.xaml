@@ -5,10 +5,11 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Irvue_win"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="IrvueWin" Height="450" Width="800"
+        Closing="MainWindow_Closing">
     <Grid>
         <Button>
-            <Button x:Name="setWallPaperButton" Content="设置壁纸" FontFamily="Noto Sans SC" HorizontalAlignment="Center" VerticalAlignment="Center" Width="150" Height="40" FontSize="20" Background="{x:Null}" Click="setWallPaperButton_Click"/>
+            <Button x:Name="setWallPaperButton" Content="设置壁纸" FontFamily="Noto Sans SC" HorizontalAlignment="Center" VerticalAlignment="Center" Width="150" Height="40" FontSize="20" Background="{x:Null}" Click="SetWallPaperButton_Click"/>
         </Button>
 
     </Grid>
