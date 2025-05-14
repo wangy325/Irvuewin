@@ -4,8 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
-using Windows;
-using System.Windows.Forms;
 
 namespace Irvue_win.src.notify
 {
@@ -16,7 +14,8 @@ namespace Irvue_win.src.notify
         internal static void ChangeCurrentWallpaperMenuItem_Click(object? sender, EventArgs e)
         {
             // TODO: 切换壁纸
-            string imageUrl = "https://hbimg.huaban.com/beeedb5ac346014d36570c37b504e9bc58f980f94d722b-3cEvg7";
+            //string imageUrl = "https://hbimg.huaban.com/beeedb5ac346014d36570c37b504e9bc58f980f94d722b-3cEvg7";
+            string imageUrl = "https://gd-hbimg.huaban.com/4d7cf515c2bb64e3c01fd1296051d73b4af17383373d09-Xq5iSg";
 
             WallpaperUtil wpu = new();
             wpu.SetWallpaper(imageUrl, FetchMode.Random, OS.Windows);
@@ -25,27 +24,9 @@ namespace Irvue_win.src.notify
         internal static void LoadPreviousWallpaperMenuItem_Click(object? sender, EventArgs e)
         {
             // TODO: 加载上一个壁纸
-            System.Windows.MessageBox.Show("To be implemented...");
+            MessageBox.Show("To be implemented...");
         }
 
-        internal static void IntervalMenuItem_Click(object? sender, EventArgs e)
-        {
-            if (sender is ToolStripMenuItem menuItem && menuItem.Tag is int minutes)
-            {
-                if (menuItem.OwnerItem is ToolStripMenuItem parent)
-                {
-                    foreach (ToolStripMenuItem item in parent.DropDownItems)
-                    {
-                        item.Checked = false;
-                    }
-                }
-                // 选中当前项
-                menuItem.Checked = true;
-                currentInterval = minutes;
-                // TODO: 设置壁纸更换间隔
-
-            }
-        }
 
         internal static void SettingsMenuItem_Click(object? sender, EventArgs e)
         {
@@ -62,21 +43,19 @@ namespace Irvue_win.src.notify
 
         internal static void ExitMenuItem_Click(object? sender, EventArgs e)
         {
-            System.Windows.Application.Current.Shutdown();
+            Application.Current.Shutdown();
         }
 
         internal static void NotifyIcon_MouseLeftClick(object? sender, EventArgs e)
         {
-            if (e is System.Windows.Forms.MouseEventArgs mouseEventArgs && mouseEventArgs.Button == MouseButtons.Left)
+            var mainWindow = Application.Current.MainWindow as MainWindow;
+            if (mainWindow != null)
             {
-                var mainWindow = System.Windows.Application.Current.MainWindow as MainWindow;
-                if (mainWindow != null)
-                {
-                    mainWindow.Show();
-                    mainWindow.WindowState = WindowState.Normal;
-                    mainWindow.Activate();
-                }
+                mainWindow.Show();
+                mainWindow.WindowState = WindowState.Normal;
+                mainWindow.Activate();
             }
+
         }
 
     }
