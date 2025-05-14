@@ -16,6 +16,7 @@ using System.ComponentModel; // 用于 CancelEventArgs
 using System.Threading.Tasks; // 用于异步操作 (async/await)
 
 using Irvue_win.src;
+using Irvue_win.src.notify;
 
 namespace Irvue_win
 {
@@ -27,8 +28,6 @@ namespace Irvue_win
 
         // system tray icon 
         private NotifyIcon? notifyIcon;
-
-        
 
         public MainWindow()
         {
@@ -45,68 +44,109 @@ namespace Irvue_win
             wpu.SetWallpaper(imageUrl, FetchMode.Random, OS.Windows);
         }
 
-
-
-
-
+        // 通知栏（状态栏图标）
         private void SetNotifyIcon()
         {
             notifyIcon = new NotifyIcon();
 
+            // TODO 下次更新壁纸的时间
+
             // icons
-            try
-            {
-                notifyIcon.Icon = new Icon("icons\\application.ico");
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Loading icon error: {ex.Message}");
-                notifyIcon.Icon = SystemIcons.Application;
-            }
+            notifyIcon.Icon = new Icon("icons\\tray.ico");
 
             // mouse hover prompt
             notifyIcon.Text = "IrvueWin";
             ContextMenuStrip contextMenu = new();
 
-            // settings
-            ToolStripMenuItem settingsMenuItem = new("setting");
-            settingsMenuItem.Click += SettingsMenuItem_Click;
+            WallpaperGroupMenuItems(contextMenu);
 
-            // change wallpaper now
-            ToolStripMenuItem changeCurrentWallpaperMenuItem = new("change current wallpaper");
-            changeCurrentWallpaperMenuItem.Click += ChangeCurrentWallpaperMenuItem_Click;
 
-            // separator line
-            ToolStripSeparator separator = new();
+            ChannelGroupMenuItems(contextMenu);
 
-            // exit
-            ToolStripMenuItem exitMenuItem = new("exit");
-            exitMenuItem.Click += ExitMenuItem_Click;
 
-            contextMenu.Items.Add(settingsMenuItem);
-            contextMenu.Items.Add(changeCurrentWallpaperMenuItem);
-            contextMenu.Items.Add(separator);
-            contextMenu.Items.Add(exitMenuItem);
+            SettingsAndExitMenuItems(contextMenu);
+            
 
             notifyIcon.ContextMenuStrip = contextMenu;
 
+            SetMenuItemPadding(contextMenu.Items, new Padding(4, 8, 4, 8));
+
             // handle mouse click events
-            notifyIcon.Click += NotifyIcon_MouseLeftClick;
+            notifyIcon.Click += NotifyClicks.NotifyIcon_MouseLeftClick;
 
             notifyIcon.Visible = true;
             System.Windows.Application.Current.Exit += Application_Exit;
         }
 
-        private void NotifyIcon_MouseLeftClick(object? sender, EventArgs e)
+        private void SettingsAndExitMenuItems(ContextMenuStrip contextMenu)
         {
-            if (e is System.Windows.Forms.MouseEventArgs mouseEventArgs 
-                && mouseEventArgs.Button == MouseButtons.Left)
+            // settings
+            ToolStripMenuItem settingsMenuItem = new("Settings");
+            settingsMenuItem.Click += NotifyClicks.SettingsMenuItem_Click;
+
+            ToolStripSeparator separator= new();
+
+            // exit
+            ToolStripMenuItem exitMenuItem = new("Exit");
+            exitMenuItem.Click += NotifyClicks.ExitMenuItem_Click;
+
+            contextMenu.Items.Add(settingsMenuItem);
+            contextMenu.Items.Add(separator);
+            contextMenu.Items.Add(exitMenuItem);
+        }
+
+        private void ChannelGroupMenuItems(ContextMenuStrip cms)
+        {
+            // 壁纸更换间隔设置
+            ToolStripMenuItem intervalMenuItem = new("Wallpaper Change interval");
+            int[] intervals = { 30, 60, 120 };
+            foreach (var minutes in intervals)
             {
-                this.Show();
-                this.WindowState = WindowState.Normal;
-                this.Activate();
+                var subItem = new ToolStripMenuItem($"{minutes} minutes");
+                subItem.Tag = minutes;
+                subItem.Click += NotifyClicks.IntervalMenuItem_Click;
+                if (minutes == NotifyClicks.currentInterval)
+                    subItem.Checked = true;
+                intervalMenuItem.DropDownItems.Add(subItem);
+            }
+            // separator
+            ToolStripSeparator separator = new();
+
+            cms.Items.Add(intervalMenuItem);
+            cms.Items.Add(separator);
+        }
+
+        private void WallpaperGroupMenuItems(ContextMenuStrip cms)
+        {
+            // change wallpaper now
+            ToolStripMenuItem changeCurrentWallpaperMenuItem = new("Change current wallpaper");
+            changeCurrentWallpaperMenuItem.Click += NotifyClicks.ChangeCurrentWallpaperMenuItem_Click;
+            cms.Items.Add(changeCurrentWallpaperMenuItem);
+            // load previous wallpaper
+            ToolStripMenuItem loadPreviousWallpaperMenuItem = new("Load previous wallpaper");
+            loadPreviousWallpaperMenuItem.Click += NotifyClicks.LoadPreviousWallpaperMenuItem_Click;
+            cms.Items.Add(loadPreviousWallpaperMenuItem);
+
+            ToolStripSeparator separaotr = new();
+            cms.Items.Add(separaotr);
+        }
+
+        private void SetMenuItemPadding(ToolStripItemCollection items, Padding padding)
+        {
+            foreach (ToolStripItem item in items)
+            {
+                if (item is ToolStripMenuItem menuItem)
+                {
+                    menuItem.Padding = padding;
+                    // 递归设置子菜单
+                    if (menuItem.HasDropDownItems)
+                    {
+                        SetMenuItemPadding(menuItem.DropDownItems, padding);
+                    }
+                }
             }
         }
+
 
         private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
@@ -124,22 +164,6 @@ namespace Irvue_win
                 notifyIcon.Dispose();
                 notifyIcon = null;
             }
-        }
-
-        private void ExitMenuItem_Click(object? sender, EventArgs e)
-        {
-            System.Windows.Application.Current.Shutdown();
-        }
-
-        private void ChangeCurrentWallpaperMenuItem_Click(object? sender, EventArgs e)
-        {
-            SetWallPaperButton_Click(null, null);
-        }
-
-        private void SettingsMenuItem_Click(object? sender, EventArgs e)
-        {
-            // TODO open setting window
-            System.Windows.MessageBox.Show("Setting window not implement yet~");
         }
     }
 }

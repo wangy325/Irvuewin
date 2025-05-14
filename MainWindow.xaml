@@ -6,6 +6,7 @@
         xmlns:local="clr-namespace:Irvue_win"
         mc:Ignorable="d"
         Title="IrvueWin" Height="450" Width="800"
+        Icon="icons/application_256.ico"
         Closing="MainWindow_Closing">
     <Grid>
         <Button>
