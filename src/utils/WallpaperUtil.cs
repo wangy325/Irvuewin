@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 using System.IO;
 using System.Net.Http;
-using System.Windows.Media.Animation;
 
-namespace Irvue_win.src
+namespace Irvue_win.src.utils
 {
     public class WallpaperUtil
     {
@@ -32,7 +26,7 @@ namespace Irvue_win.src
                 case OS.Windows:
                     // 组合标志位，表示设置壁纸，并更新配置和通知其他应用
                     uint flags = SPIF_UPDATEINIFILE | SPIF_SENDCHANGE;
-                    String imagePath = await GetWallpaper(channel, mode);
+                    string imagePath = await GetWallpaper(channel, mode);
                     // 调用 Windows API 函数
                     // 参数1: 要执行的动作 (设置壁纸)
                     // 参数2: 附加参数 (通常为0，除非有特定需求)
@@ -62,7 +56,7 @@ namespace Irvue_win.src
         /// <param name="channel"> unsplash wallpaper channel</param>
         /// <param name="mode">load previous or next wallpaper</param>
         /// <returns>file path if succeed, or null</returns>
-        private async Task<String?> GetWallpaper(string channel, Enum mode)
+        private async Task<string?> GetWallpaper(string channel, Enum mode)
         {
 
             if (mode.Equals(FetchMode.Previous))
@@ -74,11 +68,11 @@ namespace Irvue_win.src
             {
                 // TODO: Fetch wall paper from unsplash
                 // 创建一个零字节的临时文件
-                string tempFilePath = System.IO.Path.GetTempFileName();
+                string tempFilePath = Path.GetTempFileName();
                 // 获取 URL 的文件扩展名 (.jpg, .png 等)
-                string fileExtension = System.IO.Path.GetExtension(channel);
+                string fileExtension = Path.GetExtension(channel);
                 // 将临时文件扩展名改为下载文件的扩展名
-                string localImagePath = System.IO.Path.ChangeExtension(tempFilePath, fileExtension);
+                string localImagePath = Path.ChangeExtension(tempFilePath, fileExtension);
 
                 using HttpClient httpClient = new();
                 try
