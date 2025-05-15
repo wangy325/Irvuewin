@@ -5,6 +5,115 @@
              xmlns:tb="http://www.hardcodet.net/taskbar"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
+        <!-- 自定义ContextMenu样式 -->
+        <Style x:Key="CustomContextMenuStyle" TargetType="ContextMenu">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Foreground" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="White"/>
+            <Setter Property="Width" Value="Auto"/>
+            <Setter Property="MaxWidth" Value="200"/>
+            <Setter Property="MinWidth" Value="150"/>
+            <Setter Property="Height" Value="Auto"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ContextMenu">
+                        <Border 
+                            Background="{TemplateBinding Background}" 
+                            BorderBrush="{TemplateBinding BorderBrush}" 
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="5">
+                            <StackPanel IsItemsHost="True" />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- 自定义MenuItem样式 -->
+        <Style x:Key="CustomMenuItemStyle" TargetType="MenuItem">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="MaxWidth" Value="200"/>
+            <Setter Property="MinWidth" Value="150"/>
+            <Setter Property="Height" Value="25"/>
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Cursor" Value="Arrow"/>
+            <Setter Property="MenuItem.Icon" Value="{x:Null}"/>
+            <Setter Property="MenuItem.Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="MenuItem">
+                        <Grid>
+                            <Border x:Name="MenuItemBorder"
+                                    Background="{TemplateBinding Background}" 
+                                    BorderBrush="{TemplateBinding BorderBrush}" 
+                                    BorderThickness="{TemplateBinding BorderThickness}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="20"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <!-- 复选框区域 -->
+                                    <ContentControl x:Name="CheckIcon"
+                                                    Grid.Column="0"
+                                                    VerticalAlignment="Center"
+                                                    HorizontalAlignment="Center"
+                                                    Visibility="Collapsed">
+                                        <Path Data="M0,5 L2,7 L7,2" Stroke="Black" StrokeThickness="2" />
+                                    </ContentControl>
+                                    <!-- 标题区域 -->
+                                    <ContentPresenter ContentSource="Header" VerticalAlignment="Center" Grid.Column="1" Margin="5,2"/>
+                                </Grid>
+                            </Border>
+                            <!-- 关键：用于显示子菜单 -->
+                            <Popup x:Name="PART_Popup"
+                                   Placement="Right"
+                                   IsOpen="{TemplateBinding IsSubmenuOpen}"
+                                   AllowsTransparency="True"
+                                   Focusable="False"
+                                   PopupAnimation="Fade">
+                                <Border SnapsToDevicePixels="True"
+                                        Background="White"
+                                        BorderBrush="White"
+                                        Width="Auto"
+                                        MaxWidth="120"
+                                        HorizontalAlignment="Left"
+                                        CornerRadius="5"
+                                        BorderThickness="1">
+                                    <StackPanel IsItemsHost="True" />
+                                </Border>
+                            </Popup>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsHighlighted" Value="True">
+                                <Setter Property="Background" Value="LightSkyBlue"/>
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="CheckIcon" Property="Visibility" Value="Visible"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- 自定义Separator样式 -->
+        <Style x:Key="CustomSeparatorStyle" TargetType="Separator">
+            <Setter Property="Margin" Value="0,2,0,2"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Separator">
+                        <Grid Margin="0">
+                            <Rectangle Height="1" Fill="#FFD3D3D3" HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
         <tb:TaskbarIcon
             x:Key="NotifyIcon"  
             ToolTipText="Irvuewin" 
@@ -12,15 +121,61 @@
             TrayLeftMouseUp="NotifyIcon_TrayMouseClick">
 
             <tb:TaskbarIcon.ContextMenu>
-                <ContextMenu>
-                    <MenuItem Header="立即更换壁纸" Name="ChangeNowMenuItem" Click="ChangeWallpaperNowMenuItem_Click"/>
-                    <MenuItem Header="使用上一张壁纸" Name="LoadPreviousWallpaper" Click="LoadPreviousWallpaper_Click"/>
-                    <Separator/>
-                    <MenuItem Header="壁纸更换间隔" Name="WallpaperChangeInterval" Click="WallpaperChangeInterval_Click"/>
-                    <Separator/>
-                    <MenuItem Header="设置" Name="SettingsMenuItem" Click="SettingsMenuItem_Click"/>
-                    <Separator/>
-                    <MenuItem Header="退出" Name="ExitMenuItem" Click="ExitMenuItem_Click"/>
+                <ContextMenu Style="{StaticResource CustomContextMenuStyle}">
+                    <MenuItem Header="关于当前壁纸" Name="AboutCurrentWallpaper" Click="AboutCurrentWallpaper_Click" Margin="0, 10, 0 0" Style="{StaticResource CustomMenuItemStyle}"/>
+                    <Separator Style="{StaticResource CustomSeparatorStyle}"/>
+                    <MenuItem Header="更换当前壁纸" Name="ChangeCurrentWallpaper" Click="ChangeCurrentWallpaper_Click" Style="{StaticResource CustomMenuItemStyle}"/>
+                    <MenuItem Header="更换所有壁纸" Name="ChangeAllWallpaper" Click="ChangeAllWallpaper_Click" Style="{StaticResource CustomMenuItemStyle}"/>
+                    <MenuItem Header="使用上一张壁纸" Name="LoadPreviousWallpaper" Click="LoadPreviousWallpaper_Click" Style="{StaticResource CustomMenuItemStyle}"/>
+                    <MenuItem Header="下载当前壁纸" Name="DownloadCurrentWallpaper" Click="DownloadCurrentWallpaper_Click" Style="{StaticResource CustomMenuItemStyle}"/>
+                    <Separator Style="{StaticResource CustomSeparatorStyle}"/>
+                    <MenuItem Name="UnsplashChannel" Style="{StaticResource CustomMenuItemStyle}">
+                        <MenuItem.Header>
+                            <StackPanel Orientation="Horizontal">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="90"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="频道" Grid.Column="0"/>
+                                    <TextBlock Text=" >" Grid.Column="1" Foreground="Gray" FontWeight="Bold" TextAlignment="Right"/>
+                                </Grid>
+                            </StackPanel>
+                        </MenuItem.Header>
+                        <MenuItem Header="自然风光" Margin="0,10,0,0" Name="ChannelNature" IsCheckable="True" StaysOpenOnClick="True" Style="{StaticResource CustomMenuItemStyle}" Click="ChannelRadio_Click"/>
+                        <MenuItem Header="自然风光" Name="ChannelNature1" IsCheckable="True" StaysOpenOnClick="True" Style="{StaticResource CustomMenuItemStyle}" Click="ChannelRadio_Click"/>
+                        <MenuItem Header="自然风光" Name="ChannelNature2" IsCheckable="True" StaysOpenOnClick="True" Style="{StaticResource CustomMenuItemStyle}" Click="ChannelRadio_Click"/>
+                        <MenuItem Header="自然风光" Name="ChannelNature3" IsCheckable="True" StaysOpenOnClick="True" Style="{StaticResource CustomMenuItemStyle}" Click="ChannelRadio_Click"/>
+                        <Separator Style="{StaticResource CustomSeparatorStyle}"/>
+                        <MenuItem Header="+ 添加新频道" Margin="0,0,0,10" Name="AddNewChannel" Style="{StaticResource CustomMenuItemStyle}"/>
+
+                    </MenuItem>
+                    <MenuItem Header="管理频道" Name="UnsplashChannelManage" Click="UnsplashChannelManage_Click" Style="{StaticResource CustomMenuItemStyle}"/>
+                    <MenuItem Name="WallpaperChangeInterval" Style="{StaticResource CustomMenuItemStyle}">
+                        <MenuItem.Header>
+                            <StackPanel Orientation="Horizontal">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="40" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="壁纸更换间隔" Grid.Column="0"/>
+                                    <TextBlock Text=" >" Grid.Column="1" Foreground="Gray" FontWeight="Bold" TextAlignment="Right"/>
+                                </Grid>
+                            </StackPanel>
+                        </MenuItem.Header>
+                        <MenuItem Header="10 分钟" Margin="0,10,0,0" Name="Minutes" Click="WallpaperChangeInterval_Click" IsCheckable="True" StaysOpenOnClick="True" Style="{StaticResource CustomMenuItemStyle}"/>
+                        <MenuItem Header="30 分钟" Name="HalfHour" Click="WallpaperChangeInterval_Click" IsCheckable="True" StaysOpenOnClick="True" Style="{StaticResource CustomMenuItemStyle}"/>
+                        <MenuItem Header="1 小时" Name="AnHour" Click="WallpaperChangeInterval_Click" IsCheckable="True" StaysOpenOnClick="True" Style="{StaticResource CustomMenuItemStyle}"/>
+                        <MenuItem Header="2 小时" Name="TwoHours" Click="WallpaperChangeInterval_Click" IsCheckable="True" StaysOpenOnClick="True" Style="{StaticResource CustomMenuItemStyle}"/>
+                        <MenuItem Header="3 小时" Name="ThreeHours" Click="WallpaperChangeInterval_Click" IsCheckable="True" StaysOpenOnClick="True" Style="{StaticResource CustomMenuItemStyle}"/>
+                        <MenuItem Header="手动更新" Margin="0,0,0,10"  Name="UpdateManually" Click="WallpaperChangeInterval_Click" IsCheckable="True" StaysOpenOnClick="True" Style="{StaticResource CustomMenuItemStyle}"/>
+                    </MenuItem>
+                    <MenuItem Header="随机更换壁纸" Name="RandomSwitch" IsCheckable="True" StaysOpenOnClick="True" Style="{StaticResource CustomMenuItemStyle}"/>
+                    <Separator Style="{StaticResource CustomSeparatorStyle}"/>
+                    <MenuItem Header="设置" Name="Settings" Click="Settings_Click" Style="{StaticResource CustomMenuItemStyle}"/>
+                    <Separator Style="{StaticResource CustomSeparatorStyle}"/>
+                    <MenuItem Header="退出" Name="Exit" Click="Exit_Click" Margin="0,0,0,10"  Style="{StaticResource CustomMenuItemStyle}"/>
                 </ContextMenu>
             </tb:TaskbarIcon.ContextMenu>
         </tb:TaskbarIcon>

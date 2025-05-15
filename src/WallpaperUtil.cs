@@ -67,7 +67,7 @@ namespace Irvue_win.src
 
             if (mode.Equals(FetchMode.Previous))
             {
-                // TODO: Fetch wall paper from cache
+                // TODO: Fetch wallpaper from cache
                 return null;
             }
             else
