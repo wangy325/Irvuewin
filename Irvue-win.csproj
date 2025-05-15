@@ -16,6 +16,8 @@
     <None Remove="icons\application_256.ico" />
     <None Remove="icons\application_48.ico" />
     <None Remove="icons\application_64.ico" />
+    <None Remove="icons\settings\about.ico" />
+    <None Remove="icons\settings\filter.ico" />
     <None Remove="icons\tray.ico" />
   </ItemGroup>
 
@@ -25,6 +27,15 @@
     </Resource>
     <Resource Include="icons\application_64.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="icons\settings\about.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="icons\settings\filter.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="icons\settings\general.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
     <Resource Include="icons\tray.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

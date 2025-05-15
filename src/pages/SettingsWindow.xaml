@@ -4,13 +4,16 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Irvue_win"
+        xmlns:hp="clr-namespace:Irvue_win.src.helper"
         mc:Ignorable="d"
         Title="Settings" Icon="/icons/application_64.ico" Height="450" Width="500"
         ShowInTaskbar="False" ResizeMode="NoResize">
     <Window.Resources>
+
         <Style x:Key="LabelStyle" TargetType="Label">
             <Setter Property="Margin" Value="0, 5"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="HorizontalContentAlignment" Value="Right"/>
         </Style>
         <Style x:Key="RadioStyle" TargetType="RadioButton">
             <Setter Property="Margin" Value="5,10"/>
@@ -24,7 +27,7 @@
                                     Width="13" Height="13"
                                     CornerRadius="7.5"
                                     Background="White"
-                                    BorderBrush="Gray"
+                                    BorderBrush="LightGray"
                                     BorderThickness="1"
                                     VerticalAlignment="Center"
                                     Margin="0,0,5,0">
@@ -68,7 +71,7 @@
                                     Width="15" Height="15"
                                     CornerRadius="2"
                                     Background="White"
-                                    BorderBrush="Gray"
+                                    BorderBrush="LightGray"
                                     BorderThickness="1"
                                     VerticalAlignment="Center"
                                     Margin="0,0,5,0">
@@ -136,17 +139,58 @@
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Margin" Value="0, 5"/>
             <Setter Property="Background" Value="AntiqueWhite"/>
+            <Setter Property="IsEnabled" Value="False"/>
+        </Style>
+        <Style x:Key="TabStyle" TargetType="TabItem">
+            <Setter Property="Height" Value="Auto"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TabItem">
+                        <Border x:Name="Bd"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="Gray"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="5"
+                                Padding="10,0">
+                            <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <Image x:Name="TabItemIconImage"
+                                       Width="35" Height="35"
+                                       Source="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(hp:TabItemHelper.IconSource)}"
+                                       Margin="44,0"/>
+
+                                <ContentPresenter x:Name="ContentSite"
+                                              VerticalAlignment="Center"
+                                              HorizontalAlignment="Center"
+                                              ContentSource="Header"/>
+                            </StackPanel>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <!--<Setter TargetName="Bd" Property="Background" Value="LightGray"/>-->
+                                <Setter Property="Foreground" Value="#3585FF"/>
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="#3585FF"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Foreground" Value="#FF888888"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="auto"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-           
-        <TabControl Grid.Row="0" Margin="20">
-            <TabItem Header="General">
-                <Grid Margin="20, 10">
+
+        <TabControl Grid.Row="0" Margin="20" BorderThickness="0">
+            <TabItem Header="通用设置" hp:TabItemHelper.IconSource="/icons/settings/general.ico" Style="{StaticResource TabStyle}">
+                <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
@@ -155,56 +199,49 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="200"/>
                         <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
 
-                    <Label Grid.Row="0" Grid.Column="0" Content="多显示器:" Style="{StaticResource LabelStyle}"/>
-                    <RadioButton Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" Name="SameWallpaperButton" Content="相同壁纸" GroupName="multiDisplay" Style="{StaticResource RadioStyle}"/>
-                    <RadioButton Grid.Row="0" Grid.Column="3" Grid.ColumnSpan="2" Name="DifferentWallpaperButton" Content="不同壁纸" GroupName="multiDisplay" Style="{StaticResource RadioStyle}"/>
-                    
-                    <Label Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="1" Content="壁纸显示模式:" Style="{StaticResource LabelStyle}"/>
 
-                    <RadioButton Grid.Row="1" Grid.Column="1" Name="FillRadioButton" Content="填充" GroupName="DisplayStyle" Style="{StaticResource RadioStyle}"/>
-                    <RadioButton Grid.Row="1" Grid.Column="2" Name="FitRadioButton" Content="适应" GroupName="DisplayStyle" Style="{StaticResource RadioStyle}"/>
-                    <RadioButton Grid.Row="1" Grid.Column="3"  Name="StretchRadioButton" Content="拉伸" GroupName="DisplayStyle" Style="{StaticResource RadioStyle}"/>
-                    <RadioButton Grid.Row="1" Grid.Column="4" Name="CenterRadioButton" Content="居中" GroupName="DisplayStyle" Style="{StaticResource RadioStyle}"/>
-                    <RadioButton Grid.Row="1" Grid.Column="5" Name="TileRadioButton" Content="平铺" GroupName="DisplayStyle" Style="{StaticResource RadioStyle}"/>
+                    <Separator Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="6" Margin="0, 10"/>
+                    <Label Grid.Row="1" Grid.Column="0" Content="多显示器:" Style="{StaticResource LabelStyle}"/>
+                    <RadioButton Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Name="SameWallpaperButton" Content="相同壁纸" GroupName="multiDisplay" Style="{StaticResource RadioStyle}"/>
+                    <RadioButton Grid.Row="1" Grid.Column="3" Grid.ColumnSpan="2" Name="DifferentWallpaperButton" Content="不同壁纸" GroupName="multiDisplay" Style="{StaticResource RadioStyle}"/>
 
-                    <Label Grid.Row="2" Grid.Column="0" Content="打开保存的壁纸:" Style="{StaticResource LabelStyle}"/>
-                    <CheckBox Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" Name="OpenSavedWapppaper" Content="Enable" Style="{StaticResource CheckBoxStyle}" />
+                    <Label Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="1" Content="壁纸显示模式:" Style="{StaticResource LabelStyle}"/>
 
-                    <Label Grid.Row="3" Grid.Column="0" Content="壁纸保存路径:" Style="{StaticResource LabelStyle}"/>
-                    <Button Grid.Row="3" Grid.Column="1" Name="BrowseWallpaperSavePathButton" Content="浏览..." Style="{StaticResource ButtonStyle}"/>
-                    <TextBox Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="6" Name="WallpaperSavePathTextBox" Style="{StaticResource TextBoxstyle}"/>
-                    <Separator Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="6"/>
-                    <Label Grid.Row="6" Grid.Column="0" Content="随Windows启动:" Style="{StaticResource LabelStyle}"/>
-                    <CheckBox Grid.Row="6" Grid.Column="1" Grid.ColumnSpan="2" Name="LaunchAtLoginCheckBox" Content="Enable" Style="{StaticResource CheckBoxStyle}"/>
+                    <RadioButton Grid.Row="2" Grid.Column="1" Name="FillRadioButton" Content="填充" GroupName="DisplayStyle" Style="{StaticResource RadioStyle}"/>
+                    <RadioButton Grid.Row="2" Grid.Column="2" Name="FitRadioButton" Content="适应" GroupName="DisplayStyle" Style="{StaticResource RadioStyle}"/>
+                    <RadioButton Grid.Row="2" Grid.Column="3"  Name="StretchRadioButton" Content="拉伸" GroupName="DisplayStyle" Style="{StaticResource RadioStyle}"/>
+                    <!--<RadioButton Grid.Row="1" Grid.Column="4" Name="CenterRadioButton" Content="居中" GroupName="DisplayStyle" Style="{StaticResource RadioStyle}"/>-->
+                    <!--<RadioButton Grid.Row="1" Grid.Column="5" Name="TileRadioButton" Content="平铺" GroupName="DisplayStyle" Style="{StaticResource RadioStyle}"/>-->
+
+                    <Label Grid.Row="3" Grid.Column="0" Content="打开保存的壁纸:" Style="{StaticResource LabelStyle}"/>
+                    <CheckBox Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" Name="OpenSavedWapppaper" Content="Enable" Style="{StaticResource CheckBoxStyle}" />
+
+                    <Label Grid.Row="4" Grid.Column="0" Content="壁纸保存路径:" Style="{StaticResource LabelStyle}"/>
+                    <Button Grid.Row="4" Grid.Column="1" Name="BrowseWallpaperSavePathButton" Content="浏览..." Style="{StaticResource ButtonStyle}"/>
+                    <TextBox Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="6" Name="WallpaperSavePathTextBox" Style="{StaticResource TextBoxstyle}"/>
+                    <Separator Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="6" Margin="0, 10"/>
+                    <Label Grid.Row="7" Grid.Column="0" Content="随Windows启动:" Style="{StaticResource LabelStyle}"/>
+                    <CheckBox Grid.Row="7" Grid.Column="1" Grid.ColumnSpan="2" Name="LaunchAtLoginCheckBox" Content="Enable" Style="{StaticResource CheckBoxStyle}"/>
                 </Grid>
             </TabItem>
-
-            <TabItem Header="Sources">
-                <Grid Margin="10">
-                    <Label Content="Unsplash 来源设置 UI 将在这里..."/>
-                </Grid>
-            </TabItem>
-
-            <TabItem Header="History">
-                <Grid Margin="10">
-                    <Label Content="壁纸历史记录 UI 将在这里..."/>
-                </Grid>
-            </TabItem>
-
-            <TabItem Header="About">
+            <TabItem Header="关于" hp:TabItemHelper.IconSource="/icons/settings/about.ico" Style="{StaticResource TabStyle}">
                 <Grid Margin="10">
                     <Label Content="关于软件的信息将在这里..."/>
+                </Grid>
+            </TabItem>
+            <TabItem  Header="壁纸过滤" hp:TabItemHelper.IconSource="/icons/settings/filter.ico" Style="{StaticResource TabStyle}">
+                <Grid Margin="10">
+                    <Label Content="Unsplash 来源设置 UI 将在这里..."/>
                 </Grid>
             </TabItem>
         </TabControl>
