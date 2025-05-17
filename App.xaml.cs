@@ -4,6 +4,7 @@ using System.Windows;
 using System.Windows.Controls;
 using Hardcodet.Wpf.TaskbarNotification;
 using Irvue_win.src.notify;
+using Windows.Devices.PointOfService;
 
 namespace Irvue_win
 {
@@ -14,6 +15,7 @@ namespace Irvue_win
     public partial class App : Application
     {
         private TaskbarIcon? _taskbarIcon;
+        private bool _Is_Exit;
 
         protected override void OnStartup(StartupEventArgs e)
         {
@@ -22,9 +24,14 @@ namespace Irvue_win
 
         }
 
-        private void NotifyIcon_TrayMouseClick(Object sender, RoutedEventArgs args)
+        protected override void OnExit(ExitEventArgs e)
         {
-            NotifyClicks.NotifyIconClick(sender, args);
+            base.OnExit(e);
+            if (!_Is_Exit)
+            { 
+                _taskbarIcon?.Dispose();
+                Application.Current.Shutdown();
+            }
         }
 
         private void Settings_Click(Object sender, RoutedEventArgs args)
@@ -34,6 +41,8 @@ namespace Irvue_win
 
         private void Exit_Click(Object sender, RoutedEventArgs args)
         {
+            _Is_Exit = true;
+            _taskbarIcon?.Dispose();
             NotifyClicks.Exit(sender, args);
         }
 

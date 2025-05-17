@@ -53,17 +53,5 @@ namespace Irvue_win.src.notify
             Application.Current.Shutdown();
         }
 
-        internal static void NotifyIconClick(object? sender, EventArgs e)
-        {
-            var mainWindow = Application.Current.MainWindow as MainWindow;
-            if (mainWindow != null)
-            {
-                mainWindow.Show();
-                mainWindow.WindowState = WindowState.Normal;
-                mainWindow.Activate();
-            }
-
-        }
-
     }
 }

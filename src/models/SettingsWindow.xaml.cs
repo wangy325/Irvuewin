@@ -33,5 +33,10 @@ namespace Irvue_win
         {
 
         }
+
+        private void CancelSettingsButton_Click(object sender, RoutedEventArgs e)
+        {
+            this.Hide();
+        }
     }
 }

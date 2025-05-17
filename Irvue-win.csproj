@@ -83,7 +83,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="src\wps\" />
+    <Folder Include="src\unsplash\" />
   </ItemGroup>
 
 </Project>
