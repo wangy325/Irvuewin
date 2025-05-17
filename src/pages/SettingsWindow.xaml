@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:Irvue_win"
         xmlns:hp="clr-namespace:Irvue_win.src.helper"
         mc:Ignorable="d"
-        Title="Settings" Icon="/icons/application_64.ico" Height="450" Width="500"
+        Title="Settings" Icon="/icons/application_64.ico" Height="450" Width="350" Background="WhiteSmoke"
         ShowInTaskbar="False" ResizeMode="NoResize">
     <Window.Resources>
 
@@ -33,7 +33,7 @@
                                     Margin="0,0,5,0">
                                 <Grid>
                                     <Ellipse x:Name="RadioDot"
-                                             Width="10" Height="10"
+                                             Width="8" Height="8"
                                              Fill="Transparent"
                                              HorizontalAlignment="Center"
                                              VerticalAlignment="Center"/>
@@ -44,7 +44,7 @@
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsChecked" Value="True">
                                 <!--<Setter TargetName="RadioBorder" Property="Background" Value="#3585FF"/>-->
-                                <Setter TargetName="RadioDot" Property="Fill" Value="#3585FF"/>
+                                <Setter TargetName="RadioDot" Property="Fill" Value="#FF3585FF"/>
                             </Trigger>
                             <!-- 失焦时样式变化 -->
                             <MultiDataTrigger>
@@ -110,7 +110,7 @@
         <Style x:Key="ButtonStyle" TargetType="Button">
             <Setter Property="Margin" Value="5, 10"/>
             <Setter Property="Height" Value="20"/>
-            <Setter Property="Background" Value="White"/>
+            <Setter Property="Background" Value="WhiteSmoke"/>
             <Setter Property="Foreground" Value="DarkBlue"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Cursor" Value="Hand"/>
@@ -119,14 +119,14 @@
                     <ControlTemplate TargetType="Button">
                         <Border x:Name="xFileButton"
                                 Background="{TemplateBinding Background}"
-                                CornerRadius="2"
+                                CornerRadius="3"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="xFileButton" Property="Background" Value="#FFBEE6FD"/>
+                                <Setter TargetName="xFileButton" Property="Background" Value="LightGray"/>
                                 <Setter Property="Cursor" Value="Hand"/>
                                 <Setter Property="Foreground" Value="Black"/>
                             </Trigger>
@@ -138,7 +138,7 @@
         <Style x:Key="TextBoxstyle" TargetType="TextBox">
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Margin" Value="0, 5"/>
-            <Setter Property="Background" Value="AntiqueWhite"/>
+            <Setter Property="Background" Value="WhiteSmoke"/>
             <Setter Property="IsEnabled" Value="False"/>
         </Style>
         <Style x:Key="TabStyle" TargetType="TabItem">
@@ -154,12 +154,12 @@
                                 BorderBrush="Gray"
                                 BorderThickness="{TemplateBinding BorderThickness}"
                                 CornerRadius="5"
-                                Padding="10,0">
+                                Padding="0,0,0,5">
                             <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
                                 <Image x:Name="TabItemIconImage"
-                                       Width="35" Height="35"
+                                       Width="27" Height="27"
                                        Source="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(hp:TabItemHelper.IconSource)}"
-                                       Margin="44,0"/>
+                                       Margin="15, 5, 15, 0"/>
 
                                 <ContentPresenter x:Name="ContentSite"
                                               VerticalAlignment="Center"
@@ -169,9 +169,9 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsSelected" Value="True">
-                                <!--<Setter TargetName="Bd" Property="Background" Value="LightGray"/>-->
-                                <Setter Property="Foreground" Value="#3585FF"/>
-                                <Setter TargetName="Bd" Property="BorderBrush" Value="#3585FF"/>
+                                <Setter TargetName="Bd" Property="Background" Value="LightGray"/>
+                                <!--<Setter Property="Foreground" Value="DarkBlue"/>-->
+                                <!--<Setter TargetName="Bd" Property="BorderBrush" Value="#3585FF"/>-->
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
                                 <Setter Property="Foreground" Value="#FF888888"/>
@@ -181,6 +181,34 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <Style x:Key="BottomButtonStyle" TargetType="Button" BasedOn="{StaticResource ButtonStyle}">
+            <Setter Property="Width" Value="60"/>
+            <Setter Property="Height" Value="25"/>
+            <Setter Property="Background" Value="LightGray"/>
+            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="Button.Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="xWindowButton"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="3"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="xWindowButton" Property="Background" Value="#cbcbcb"/>
+                                <Setter Property="Cursor" Value="Arrow"/>
+                                <Setter Property="Foreground" Value="DarkBlue"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+
+        </Style>
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -188,8 +216,8 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <TabControl Grid.Row="0" Margin="20" BorderThickness="0">
-            <TabItem Header="通用设置" hp:TabItemHelper.IconSource="/icons/settings/general.ico" Style="{StaticResource TabStyle}">
+        <TabControl Grid.Row="0" Margin="20" BorderThickness="0" Background="WhiteSmoke">
+            <TabItem Header="通用" hp:TabItemHelper.IconSource="/icons/settings/general.ico" Style="{StaticResource TabStyle}">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -202,7 +230,7 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="200"/>
+                        <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="Auto"/>
@@ -234,21 +262,21 @@
                     <CheckBox Grid.Row="7" Grid.Column="1" Grid.ColumnSpan="2" Name="LaunchAtLoginCheckBox" Content="Enable" Style="{StaticResource CheckBoxStyle}"/>
                 </Grid>
             </TabItem>
+            <TabItem  Header="过滤" hp:TabItemHelper.IconSource="/icons/settings/filter.ico" Style="{StaticResource TabStyle}">
+                <Grid Margin="10">
+                    <Label Content="Unsplash 来源设置 UI 将在这里..."/>
+                </Grid>
+            </TabItem>
             <TabItem Header="关于" hp:TabItemHelper.IconSource="/icons/settings/about.ico" Style="{StaticResource TabStyle}">
                 <Grid Margin="10">
                     <Label Content="关于软件的信息将在这里..."/>
                 </Grid>
             </TabItem>
-            <TabItem  Header="壁纸过滤" hp:TabItemHelper.IconSource="/icons/settings/filter.ico" Style="{StaticResource TabStyle}">
-                <Grid Margin="10">
-                    <Label Content="Unsplash 来源设置 UI 将在这里..."/>
-                </Grid>
-            </TabItem>
         </TabControl>
 
-        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="10">
-            <Button Content="取消" Name="CancelSettingsButton" Width="80" Margin="0,0,10,0"/>
-            <Button Content="保存" Name="SaveSettingsButton" Width="80"/>
+        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,20,20">
+            <Button Content="取消" Name="CancelSettingsButton" Style="{StaticResource BottomButtonStyle}"/>
+            <Button Content="保存" Name="SaveSettingsButton" Style="{StaticResource BottomButtonStyle}"/>
         </StackPanel>
 
     </Grid>
