@@ -3,7 +3,7 @@ using System.Data;
 using System.Windows;
 using System.Windows.Controls;
 using Hardcodet.Wpf.TaskbarNotification;
-using Irvue_win.src.notify;
+using Irvue_win.src.utils;
 using Windows.Devices.PointOfService;
 
 namespace Irvue_win
@@ -16,6 +16,8 @@ namespace Irvue_win
     {
         private TaskbarIcon? _taskbarIcon;
         private bool _Is_Exit;
+        private readonly WallpaperUtil _WallpaperUtil = new();
+
 
         protected override void OnStartup(StartupEventArgs e)
         {
@@ -36,14 +38,22 @@ namespace Irvue_win
 
         private void Settings_Click(Object sender, RoutedEventArgs args)
         {
-            NotifyClicks.Settings(sender, args);
+            // 创建设置窗口的实例
+            SettingsWindow settingsWindow = new();
+
+            // 以模态方式显示设置窗口
+            // ShowDialog() 会阻塞主窗口，直到设置窗口关闭
+            settingsWindow.ShowDialog();
+
+            // 当设置窗口关闭后，代码会继续执行到这里
+            // TODO: 在用户点击“保存”后，这里可能需要处理设置窗口返回的结果
         }
 
         private void Exit_Click(Object sender, RoutedEventArgs args)
         {
             _Is_Exit = true;
             _taskbarIcon?.Dispose();
-            NotifyClicks.Exit(sender, args);
+            Application.Current.Shutdown();
         }
 
         private void LoadPreviousWallpaper_Click(object sender, RoutedEventArgs e)
@@ -72,7 +82,11 @@ namespace Irvue_win
 
         private void ChangeCurrentWallpaper_Click(Object sender, RoutedEventArgs args)
         {
-            NotifyClicks.ChangeCurrentWallpaper(sender, args);
+            // TODO: 切换壁纸
+            //string imageUrl = "https://hbimg.huaban.com/beeedb5ac346014d36570c37b504e9bc58f980f94d722b-3cEvg7";
+            string imageUrl = "https://gd-hbimg.huaban.com/4d7cf515c2bb64e3c01fd1296051d73b4af17383373d09-Xq5iSg";
+
+            _WallpaperUtil.SetWallpaper(imageUrl, FetchMode.Random, OS.Windows);
         }
 
         private void DownloadCurrentWallpaper_Click(object sender, RoutedEventArgs e)

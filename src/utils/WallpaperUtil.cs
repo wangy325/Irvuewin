@@ -4,7 +4,7 @@ using System.Net.Http;
 
 namespace Irvue_win.src.utils
 {
-    public class WallpaperUtil
+    public sealed class WallpaperUtil
     {
 
         // 声明需要导入的 Windows API 函数 (来自 user32.dll)
@@ -26,7 +26,7 @@ namespace Irvue_win.src.utils
                 case OS.Windows:
                     // 组合标志位，表示设置壁纸，并更新配置和通知其他应用
                     uint flags = SPIF_UPDATEINIFILE | SPIF_SENDCHANGE;
-                    string imagePath = await GetWallpaper(channel, mode);
+                    string? imagePath = await GetWallpaper(channel, mode);
                     // 调用 Windows API 函数
                     // 参数1: 要执行的动作 (设置壁纸)
                     // 参数2: 附加参数 (通常为0，除非有特定需求)
