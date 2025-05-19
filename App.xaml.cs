@@ -14,7 +14,7 @@ namespace Irvue_win
     /// 
     public partial class App : Application
     {
-        private TaskbarIcon? _taskbarIcon;
+        private TaskbarIcon? _TaskbarIcon;
         private bool _Is_Exit;
         private readonly WallpaperUtil _WallpaperUtil = new();
 
@@ -22,7 +22,7 @@ namespace Irvue_win
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
-            _taskbarIcon = (TaskbarIcon)FindResource("NotifyIcon");
+            _TaskbarIcon = (TaskbarIcon)FindResource("NotifyIcon");
 
         }
 
@@ -31,7 +31,7 @@ namespace Irvue_win
             base.OnExit(e);
             if (!_Is_Exit)
             { 
-                _taskbarIcon?.Dispose();
+                _TaskbarIcon?.Dispose();
                 Application.Current.Shutdown();
             }
         }
@@ -40,6 +40,9 @@ namespace Irvue_win
         {
             // 创建设置窗口的实例
             SettingsWindow settingsWindow = new();
+
+            // 
+            //settingsWindow.Owner = this;
 
             // 以模态方式显示设置窗口
             // ShowDialog() 会阻塞主窗口，直到设置窗口关闭
@@ -52,7 +55,7 @@ namespace Irvue_win
         private void Exit_Click(Object sender, RoutedEventArgs args)
         {
             _Is_Exit = true;
-            _taskbarIcon?.Dispose();
+            _TaskbarIcon?.Dispose();
             Application.Current.Shutdown();
         }
 
@@ -130,6 +133,20 @@ namespace Irvue_win
                     }
                     clickedItem.IsChecked = true;
                 }
+            }
+        }
+
+        /// <summary>
+        /// 试图在菜单栏弹出后单击鼠标左键（不选中任何内容）时隐藏菜单栏
+        /// 貌似是冗余
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void TrayMouseLeft_Click(object sender, RoutedEventArgs e)
+        {
+            if (_TaskbarIcon != null && _TaskbarIcon.IsVisible)
+            {
+                _TaskbarIcon.ContextMenu.IsOpen = false;
             }
         }
     }

@@ -6,7 +6,9 @@
         xmlns:local="clr-namespace:Irvue_win"
         xmlns:hp="clr-namespace:Irvue_win.src.helper"
         mc:Ignorable="d"
-        Title="Settings" Icon="/icons/application_64.ico" Height="450" Width="Auto" MinWidth="200" MaxWidth="350" Background="WhiteSmoke"
+        Title="Settings" Icon="/icons/application_64.ico" 
+        Height="450" Width="350" MinWidth="200" MaxWidth="350" 
+        Background="WhiteSmoke"
         ShowInTaskbar="False" ResizeMode="NoResize">
     <Window.Resources>
 
@@ -43,17 +45,29 @@
                         </StackPanel>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsChecked" Value="True">
-                                <!--<Setter TargetName="RadioBorder" Property="Background" Value="#3585FF"/>-->
-                                <Setter TargetName="RadioDot" Property="Fill" Value="#FF3585FF"/>
+                                <!--<Setter TargetName="RadioBorder" 
+                                        Property="Background" 
+                                        Value="#3585FF"/>-->
+                                <Setter TargetName="RadioDot" 
+                                        Property="Fill" 
+                                        Value="#FF3585FF"/>
                             </Trigger>
                             <!-- 失焦时样式变化 -->
                             <MultiDataTrigger>
                                 <MultiDataTrigger.Conditions>
-                                    <Condition Binding="{Binding IsActive, RelativeSource={RelativeSource AncestorType=Window}}" Value="False"/>
-                                    <Condition Binding="{Binding IsChecked, RelativeSource={RelativeSource Self}}" Value="True"/>
+                                    <Condition Binding="{Binding IsActive,
+                                        RelativeSource={RelativeSource AncestorType=Window}}" 
+                                                Value="False"/>
+                                    <Condition Binding="{Binding IsChecked, 
+                                        RelativeSource={RelativeSource Self}}" 
+                                               Value="True"/>
                                 </MultiDataTrigger.Conditions>
-                                <!--<Setter TargetName="RadioBorder" Property="Background" Value="#FFC0C0C0"/>-->
-                                <Setter TargetName="RadioDot" Property="Fill" Value="#FF888888"/>
+                                <!--<Setter TargetName="RadioBorder" 
+                                        Property="Background" 
+                                        Value="#FFC0C0C0"/>-->
+                                <Setter TargetName="RadioDot" 
+                                        Property="Fill" 
+                                        Value="#FF888888"/>
                             </MultiDataTrigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -90,17 +104,29 @@
                         </StackPanel>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsChecked" Value="True">
-                                <Setter TargetName="Border" Property="Background" Value="#3585FF"/>
-                                <Setter TargetName="CheckMark" Property="Stroke" Value="white"/>
+                                <Setter TargetName="Border" 
+                                        Property="Background" 
+                                        Value="#3585FF"/>
+                                <Setter TargetName="CheckMark" 
+                                        Property="Stroke" 
+                                        Value="white"/>
                             </Trigger>
                             <!-- 失焦时样式变化 -->
                             <MultiDataTrigger>
                                 <MultiDataTrigger.Conditions>
-                                    <Condition Binding="{Binding IsActive, RelativeSource={RelativeSource AncestorType=Window}}" Value="False"/>
-                                    <Condition Binding="{Binding IsChecked, RelativeSource={RelativeSource Self}}" Value="True"/>
+                                    <Condition Binding="{Binding IsActive, 
+                                        RelativeSource={RelativeSource AncestorType=Window}}" 
+                                               Value="False"/>
+                                    <Condition Binding="{Binding IsChecked, 
+                                        RelativeSource={RelativeSource Self}}" 
+                                               Value="True"/>
                                 </MultiDataTrigger.Conditions>
-                                <Setter TargetName="Border" Property="Background" Value="#FFC0C0C0"/>
-                                <Setter TargetName="CheckMark" Property="Stroke" Value="#FF888888"/>
+                                <Setter TargetName="Border" 
+                                        Property="Background" 
+                                        Value="#FFC0C0C0"/>
+                                <Setter TargetName="CheckMark" 
+                                        Property="Stroke" 
+                                        Value="#FF888888"/>
                             </MultiDataTrigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -122,11 +148,14 @@
                                 CornerRadius="3"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <ContentPresenter HorizontalAlignment="Center" 
+                                              VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="xFileButton" Property="Background" Value="LightGray"/>
+                                <Setter TargetName="xFileButton" 
+                                        Property="Background" 
+                                        Value="LightGray"/>
                                 <Setter Property="Cursor" Value="Hand"/>
                                 <Setter Property="Foreground" Value="Black"/>
                             </Trigger>
@@ -155,10 +184,14 @@
                                 BorderThickness="{TemplateBinding BorderThickness}"
                                 CornerRadius="5"
                                 Padding="0,0,0,5">
-                            <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <StackPanel Orientation="Vertical" 
+                                        HorizontalAlignment="Center" 
+                                        VerticalAlignment="Center">
                                 <Image x:Name="TabItemIconImage"
                                        Width="27" Height="27"
-                                       Source="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(hp:TabItemHelper.IconSource)}"
+                                       Source="{Binding 
+                                    RelativeSource={RelativeSource TemplatedParent}, 
+                                    Path=(hp:TabItemHelper.IconSource)}"
                                        Margin="15, 5, 15, 0"/>
 
                                 <ContentPresenter x:Name="ContentSite"
@@ -182,7 +215,9 @@
             </Setter>
         </Style>
 
-        <Style x:Key="BottomButtonStyle" TargetType="Button" BasedOn="{StaticResource ButtonStyle}">
+        <Style x:Key="BottomButtonStyle" 
+               TargetType="Button" 
+               BasedOn="{StaticResource ButtonStyle}">
             <Setter Property="Width" Value="60"/>
             <Setter Property="Height" Value="25"/>
             <Setter Property="Background" Value="LightGray"/>
@@ -195,11 +230,14 @@
                                 CornerRadius="3"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <ContentPresenter HorizontalAlignment="Center" 
+                                              VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="xWindowButton" Property="Background" Value="#cbcbcb"/>
+                                <Setter TargetName="xWindowButton" 
+                                        Property="Background" 
+                                        Value="#cbcbcb"/>
                                 <Setter Property="Cursor" Value="Arrow"/>
                                 <Setter Property="Foreground" Value="DarkBlue"/>
                             </Trigger>
@@ -207,7 +245,82 @@
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
+        </Style>
 
+        <Style x:Key="ComboBoxStyle" TargetType="ComboBox">
+            <Setter Property="Margin" Value="0,5"/>
+            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="ComboBox.Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBox">
+                        <Grid>
+                            <ToggleButton
+                                Name="ToggleButton"
+                                Focusable="false"
+                                IsChecked="{Binding Path=IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                ClickMode="Press"
+                                Background="Transparent"
+                                BorderThickness="1"
+                                BorderBrush="LightGray">
+                                <ToggleButton.Template>
+                                    <ControlTemplate TargetType="ToggleButton">
+                                        <Border x:Name="Border"
+                                                Background="{TemplateBinding Background}"
+                                                BorderBrush="{TemplateBinding BorderBrush}"
+                                                BorderThickness="{TemplateBinding BorderThickness}"
+                                                CornerRadius="5">
+                                        <Path x:Name="Arrow"
+                                                Margin="5,0"
+                                                HorizontalAlignment="Right"
+                                                VerticalAlignment="Center"
+                                                Data="M 0 0 L 4 4 L 8 0 Z"
+                                                Fill="Gray"/>
+                                        </Border>
+                                    </ControlTemplate>
+                                </ToggleButton.Template>
+                            </ToggleButton>
+
+                            <ContentPresenter
+                                Name="ContentSite"
+                                IsHitTestVisible="False"
+                                Content="{TemplateBinding SelectionBoxItem}"
+                                Margin="10,0"
+                                VerticalAlignment="Center"
+                                ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
+                                HorizontalAlignment="left" >
+                            </ContentPresenter>
+
+                            <Popup
+                                Name="Popup"
+                                Placement="Bottom"
+                                IsOpen="{TemplateBinding IsDropDownOpen}"
+                                AllowsTransparency="True"
+                                Focusable="False"
+                                PopupAnimation="Slide">
+                                <Border
+                                    SnapsToDevicePixels="True"
+                                    Background="WhiteSmoke"
+                                    BorderBrush="LightGray"
+                                    BorderThickness="1"
+                                    Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=ComboBox}}"
+                                    CornerRadius="5">
+                                    <ScrollViewer Margin="4,6,4,6" SnapsToDevicePixels="True">
+                                        <StackPanel IsItemsHost="True" 
+                                                    KeyboardNavigation.DirectionalNavigation="Contained" />
+                                    </ScrollViewer>
+                                </Border>
+                            </Popup>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Foreground" Value="Yellow"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
     </Window.Resources>
     <Grid>
@@ -217,7 +330,9 @@
         </Grid.RowDefinitions>
 
         <TabControl Grid.Row="0" Margin="20" BorderThickness="0" Background="WhiteSmoke">
-            <TabItem Header="通用" hp:TabItemHelper.IconSource="/icons/settings/general.ico" Style="{StaticResource TabStyle}">
+            <TabItem Header="通用" 
+                     hp:TabItemHelper.IconSource="/icons/settings/general.ico" 
+                     Style="{StaticResource TabStyle}">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -230,7 +345,7 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="110"/>
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="Auto"/>
@@ -239,45 +354,167 @@
 
 
                     <Separator Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="6" Margin="0, 10"/>
-                    <Label Grid.Row="1" Grid.Column="0" Content="多显示器:" Style="{StaticResource LabelStyle}"/>
-                    <RadioButton Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Name="SameWallpaperButton" Content="相同壁纸" GroupName="multiDisplay" Style="{StaticResource RadioStyle}"/>
-                    <RadioButton Grid.Row="1" Grid.Column="3" Grid.ColumnSpan="2" Name="DifferentWallpaperButton" Content="不同壁纸" GroupName="multiDisplay" Style="{StaticResource RadioStyle}"/>
+                    <Label Grid.Row="1" Grid.Column="0" 
+                           Content="多显示器:" 
+                           Style="{StaticResource LabelStyle}"/>
+                    <RadioButton Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" 
+                                 Name="SameWallpaperButton" 
+                                 Content="相同壁纸" 
+                                 GroupName="multiDisplay" 
+                                 Style="{StaticResource RadioStyle}"/>
+                    <RadioButton Grid.Row="1" Grid.Column="3" Grid.ColumnSpan="2" 
+                                 Name="DifferentWallpaperButton" 
+                                 Content="不同壁纸" 
+                                 GroupName="multiDisplay" 
+                                 Style="{StaticResource RadioStyle}"/>
 
-                    <Label Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="1" Content="壁纸显示模式:" Style="{StaticResource LabelStyle}"/>
+                    <Label Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="1" 
+                           Content="壁纸显示模式:" 
+                           Style="{StaticResource LabelStyle}"/>
+                    <RadioButton Grid.Row="2" Grid.Column="1" 
+                                 Name="FillRadioButton" 
+                                 Content="填充" 
+                                 GroupName="DisplayStyle" 
+                                 Style="{StaticResource RadioStyle}"/>
+                    <RadioButton Grid.Row="2" Grid.Column="2" 
+                                 Name="FitRadioButton" Content="适应" 
+                                 GroupName="DisplayStyle" 
+                                 Style="{StaticResource RadioStyle}"/>
+                    <RadioButton Grid.Row="2" Grid.Column="3"  
+                                 Name="StretchRadioButton" 
+                                 Content="拉伸" 
+                                 GroupName="DisplayStyle" 
+                                 Style="{StaticResource RadioStyle}"/>
+                    <!--<RadioButton Grid.Row="1" Grid.Column="4" 
+                                 Name="CenterRadioButton" 
+                                 Content="居中" 
+                                 GroupName="DisplayStyle" 
+                                 Style="{StaticResource RadioStyle}"/>
+                    <RadioButton Grid.Row="1" Grid.Column="5" 
+                                 Name="TileRadioButton" 
+                                 Content="平铺" 
+                                 GroupName="DisplayStyle" 
+                                 Style="{StaticResource RadioStyle}"/>-->
 
-                    <RadioButton Grid.Row="2" Grid.Column="1" Name="FillRadioButton" Content="填充" GroupName="DisplayStyle" Style="{StaticResource RadioStyle}"/>
-                    <RadioButton Grid.Row="2" Grid.Column="2" Name="FitRadioButton" Content="适应" GroupName="DisplayStyle" Style="{StaticResource RadioStyle}"/>
-                    <RadioButton Grid.Row="2" Grid.Column="3"  Name="StretchRadioButton" Content="拉伸" GroupName="DisplayStyle" Style="{StaticResource RadioStyle}"/>
-                    <!--<RadioButton Grid.Row="1" Grid.Column="4" Name="CenterRadioButton" Content="居中" GroupName="DisplayStyle" Style="{StaticResource RadioStyle}"/>-->
-                    <!--<RadioButton Grid.Row="1" Grid.Column="5" Name="TileRadioButton" Content="平铺" GroupName="DisplayStyle" Style="{StaticResource RadioStyle}"/>-->
+                    <Label Grid.Row="3" Grid.Column="0" 
+                           Content="打开保存的壁纸:" 
+                           Style="{StaticResource LabelStyle}"/>
+                    <CheckBox Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" 
+                              Name="OpenSavedWapppaper" 
+                              Content="Enable" 
+                              Style="{StaticResource CheckBoxStyle}" />
 
-                    <Label Grid.Row="3" Grid.Column="0" Content="打开保存的壁纸:" Style="{StaticResource LabelStyle}"/>
-                    <CheckBox Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" Name="OpenSavedWapppaper" Content="Enable" Style="{StaticResource CheckBoxStyle}" />
+                    <Label Grid.Row="4" Grid.Column="0" 
+                           Content="壁纸保存路径:" 
+                           Style="{StaticResource LabelStyle}"/>
+                    <Button Grid.Row="4" Grid.Column="1" 
+                            Name="BrowseWallpaperSavePathButton" 
+                            Content="浏览..." 
+                            Style="{StaticResource ButtonStyle}" 
+                            Click="BrowseWallpaperSavePathButton_Click"/>
+                    <TextBox Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="6"
+                             Name="WallpaperSavePathTextBox" 
+                             Style="{StaticResource TextBoxstyle}"/>
 
-                    <Label Grid.Row="4" Grid.Column="0" Content="壁纸保存路径:" Style="{StaticResource LabelStyle}"/>
-                    <Button Grid.Row="4" Grid.Column="1" Name="BrowseWallpaperSavePathButton" Content="浏览..." Style="{StaticResource ButtonStyle}"/>
-                    <TextBox Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="6" Name="WallpaperSavePathTextBox" Style="{StaticResource TextBoxstyle}"/>
                     <Separator Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="6" Margin="0, 10"/>
-                    <Label Grid.Row="7" Grid.Column="0" Content="随Windows启动:" Style="{StaticResource LabelStyle}"/>
-                    <CheckBox Grid.Row="7" Grid.Column="1" Grid.ColumnSpan="2" Name="LaunchAtLoginCheckBox" Content="Enable" Style="{StaticResource CheckBoxStyle}"/>
+
+                    <Label Grid.Row="7" Grid.Column="0" 
+                           Content="随Windows启动:" 
+                           Style="{StaticResource LabelStyle}"/>
+                    <CheckBox Grid.Row="7" Grid.Column="1" Grid.ColumnSpan="2" 
+                              Name="LaunchAtLoginCheckBox" 
+                              Content="Enable" 
+                              Style="{StaticResource CheckBoxStyle}"/>
                 </Grid>
             </TabItem>
-            <TabItem  Header="过滤" hp:TabItemHelper.IconSource="/icons/settings/filter.ico" Style="{StaticResource TabStyle}">
-                <Grid Margin="10">
-                    <Label Content="Unsplash 来源设置 UI 将在这里..."/>
+            <TabItem  Header="过滤" 
+                      hp:TabItemHelper.IconSource="/icons/settings/filter.ico" 
+                      Style="{StaticResource TabStyle}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="110"/>
+                        <ColumnDefinition Width="Auto" MinWidth="80" />
+                        <ColumnDefinition Width="Auto" MinWidth="80" />
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Separator Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="6" Margin="0, 10"/>
+
+                    <Label Grid.Row="1" Grid.Column="0" 
+                           Content="壁纸比例偏好:" 
+                           Style="{StaticResource LabelStyle}"/>
+                    <ComboBox Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" 
+                              Name="ImageOritentationPreference"
+                              Style="{StaticResource ComboBoxStyle}"
+                              SelectedIndex="0"
+                              SelectionChanged="ImageOritentationPreference_SelectionChanged">
+                        <ComboBoxItem Content="横向" />
+                        <ComboBoxItem Content="纵向" />
+                        <ComboBoxItem Content="横向和纵向" />
+                    </ComboBox>
+
+                    <Label Grid.Row="2" Grid.Column="0" 
+                           Content="智能过滤:" 
+                           Style="{StaticResource LabelStyle}"/>
+                    <ComboBox Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" 
+                              Name="SmartFilter"
+                              Style="{StaticResource ComboBoxStyle}"
+                              SelectedIndex="2"
+                              SelectionChanged="SmartFilter_SelectionChanged">
+                        <ComboBoxItem Content="无"/>
+                        <ComboBoxItem Content="过滤人像"/>
+                        <ComboBoxItem Content="过滤人像和全身照"/>
+                    </ComboBox>
+
+                    <Label Grid.Row="3" Grid.Column="0" 
+                           Content="壁纸最小分辨率:" 
+                           Style="{StaticResource LabelStyle}"/>
+                    <ComboBox Grid.Row="3" Grid.Column="1" 
+                              Name="MinmiumResolution" 
+                              Style="{StaticResource ComboBoxStyle}"
+                              SelectedIndex="1" 
+                              SelectionChanged="MinmiumResolution_SelectionChanged">
+                        <ComboBoxItem Content="100%"/>
+                        <ComboBoxItem Content="90%"/>
+                        <ComboBoxItem Content="80%"/>
+                    </ComboBox>
+                    <Label Grid.Row="3" Grid.Column="2" 
+                           Content="显示器分辨率" 
+                           Style="{StaticResource LabelStyle}"
+                           HorizontalAlignment="Left"/>
+
                 </Grid>
             </TabItem>
-            <TabItem Header="关于" hp:TabItemHelper.IconSource="/icons/settings/about.ico" Style="{StaticResource TabStyle}">
+            <TabItem Header="关于" 
+                     hp:TabItemHelper.IconSource="/icons/settings/about.ico" 
+                     Style="{StaticResource TabStyle}">
                 <Grid Margin="10">
-                    <Label Content="关于软件的信息将在这里..."/>
+                    <Label Content="An Irvue like application for Window..."/>
                 </Grid>
             </TabItem>
         </TabControl>
 
-        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,20,20">
-            <Button Content="取消" Name="CancelSettingsButton" Style="{StaticResource BottomButtonStyle}" Click="CancelSettingsButton_Click"/>
-            <Button Content="保存" Name="SaveSettingsButton" Style="{StaticResource BottomButtonStyle}"/>
-        </StackPanel>
+        <!--<StackPanel Grid.Row="1" 
+                    Orientation="Horizontal" 
+                    HorizontalAlignment="Right" 
+                    Margin="0,0,20,20">
+            <Button Content="取消" 
+                    Name="CancelSettingsButton" 
+                    Style="{StaticResource BottomButtonStyle}" 
+                    Click="CancelSettingsButton_Click"/>
+            <Button Content="保存" 
+                    Name="SaveSettingsButton" 
+                    Style="{StaticResource BottomButtonStyle}" 
+                    Click="SaveSettingsButton_Click"/>
+        </StackPanel>-->
 
     </Grid>
 </Window>
