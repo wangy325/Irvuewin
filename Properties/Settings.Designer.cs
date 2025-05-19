@@ -22,5 +22,125 @@ namespace Irvue_win.Properties {
                 return defaultInstance;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        public byte MultiDisplay {
+            get {
+                return ((byte)(this["MultiDisplay"]));
+            }
+            set {
+                this["MultiDisplay"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public byte WallpaperMode {
+            get {
+                return ((byte)(this["WallpaperMode"]));
+            }
+            set {
+                this["WallpaperMode"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool OpenSavedWallpaper {
+            get {
+                return ((bool)(this["OpenSavedWallpaper"]));
+            }
+            set {
+                this["OpenSavedWallpaper"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string WallpaperSavedPath {
+            get {
+                return ((string)(this["WallpaperSavedPath"]));
+            }
+            set {
+                this["WallpaperSavedPath"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool LaunchAtLogin {
+            get {
+                return ((bool)(this["LaunchAtLogin"]));
+            }
+            set {
+                this["LaunchAtLogin"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public byte WallpaperRatio {
+            get {
+                return ((byte)(this["WallpaperRatio"]));
+            }
+            set {
+                this["WallpaperRatio"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public byte SmartFilter {
+            get {
+                return ((byte)(this["SmartFilter"]));
+            }
+            set {
+                this["SmartFilter"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0.9")]
+        public float MinResolution {
+            get {
+                return ((float)(this["MinResolution"]));
+            }
+            set {
+                this["MinResolution"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("30")]
+        public ushort WallpaperChangeInterval {
+            get {
+                return ((ushort)(this["WallpaperChangeInterval"]));
+            }
+            set {
+                this["WallpaperChangeInterval"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool RandomWallpaper {
+            get {
+                return ((bool)(this["RandomWallpaper"]));
+            }
+            set {
+                this["RandomWallpaper"] = value;
+            }
+        }
     }
 }

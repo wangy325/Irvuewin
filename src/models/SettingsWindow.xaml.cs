@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,6 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using Hardcodet.Wpf.TaskbarNotification;
+using Irvue_win.src.controls;
 
 namespace Irvue_win
 {
@@ -58,7 +60,15 @@ namespace Irvue_win
                         return;
                     }
                     // TODO: 美化
-                    WallpaperSavePathTextBox.Text = selectedPath;
+                    // WallpaperSavePathTextBox.Text = selectedPath;
+
+                    // 获取 PathDisplayControl 的 BindingExpression
+                    PathDisplayControl pathDisplayControl = (PathDisplayControl)this.FindName("PathDisplayControl");
+                    Debug.WriteLine($"====>{pathDisplayControl}");
+                    pathDisplayControl.FullPath = selectedPath;
+
+                    Properties.Settings.Default.WallpaperSavedPath = selectedPath;
+                    Properties.Settings.Default.Save();
                 }
             }
         }
@@ -100,5 +110,6 @@ namespace Irvue_win
         {
 
         }
+
     }
 }

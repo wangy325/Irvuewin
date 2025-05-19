@@ -18,6 +18,7 @@
     <None Remove="icons\application_64.ico" />
     <None Remove="icons\settings\about.ico" />
     <None Remove="icons\settings\filter.ico" />
+    <None Remove="icons\settings\folder.ico" />
     <None Remove="icons\tray.ico" />
   </ItemGroup>
 
@@ -34,6 +35,9 @@
     <Resource Include="icons\settings\filter.ico">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
+    <Resource Include="icons\settings\folder.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
     <Resource Include="icons\settings\general.ico">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
@@ -44,6 +48,7 @@
 
   <ItemGroup>
     <PackageReference Include="Hardcodet.NotifyIcon.Wpf" Version="2.0.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="WindowsAPICodePack" Version="8.0.6" />
   </ItemGroup>
 
