@@ -59,13 +59,20 @@ namespace Irvue_win
                         MessageBox.Show("不能选择系统文件夹，请选择其他文件夹。", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
                         return;
                     }
-                    // TODO: 美化
                     // WallpaperSavePathTextBox.Text = selectedPath;
 
                     // 获取 PathDisplayControl 的 BindingExpression
+                    // 更新回显
                     PathDisplayControl pathDisplayControl = (PathDisplayControl)this.FindName("PathDisplayControl");
-                    Debug.WriteLine($"====>{pathDisplayControl}");
+                    //Debug.WriteLine($"====>{pathDisplayControl}");
                     pathDisplayControl.FullPath = selectedPath;
+                    if (pathDisplayControl.ToolTip is ToolTip toolTip)
+                    {
+                        if (toolTip.Content is TextBlock textBlock)
+                        {
+                            textBlock.Text = selectedPath;
+                        }
+                    }
 
                     Properties.Settings.Default.WallpaperSavedPath = selectedPath;
                     Properties.Settings.Default.Save();

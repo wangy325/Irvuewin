@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
 namespace Irvue_win.src.controls
@@ -63,36 +64,63 @@ namespace Irvue_win.src.controls
 
             if (string.IsNullOrEmpty(FullPath)) return;
 
-            string[] directories = FullPath.Split(Path.DirectorySeparatorChar);
+            // page width
+            // TODO: 首次打开窗口读数为0
+            double contentWidth = this.ActualWidth == 0 ? 286 : this.ActualWidth;
+            //Debug.WriteLine($"page width: {contentWidth}");
+
+            string[] directories = FullPath.Split(System.IO.Path.DirectorySeparatorChar);
 
             // 取后半部分路径
-            for (int i = (directories.Length - 3); i < directories.Length; i++)
+            double _accumulatedWidth = 0;
+            int _iconSize = 14;
+           
+            Stack<TextBlock> _stackBlocks = new();
+            for (int i = (directories.Length - 1); i >= 0; i--)
             {
                 string directory = directories[i];
                 if (string.IsNullOrEmpty(directory)) continue;
-
-                // 添加图标
-                Image icon = new()
-                {
-                    Source = new BitmapImage(new Uri("pack://application:,,,/Irvue-win;component/icons/settings/folder.ico")),
-                    Width = 14,
-                    Height = 14,
-                    Margin = new Thickness(0, 0, 2, 0)
-                };
-                _panel.Children.Add(icon);
 
                 // 添加目录名
                 TextBlock textBlock = new()
                 {
                     Text = directory,
-                    Margin = new Thickness(5, 0, 5, 0),
-                    FontFamily = new System.Windows.Media.FontFamily("Cascadia Code"),
+                    Margin = new Thickness(3, 0, 3, 0),
+                    //FontFamily = new FontFamily("YaHei UI"),
                     HorizontalAlignment = HorizontalAlignment.Center,
                     //FontSize = 14,
                 };
+                textBlock.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+                textBlock.Arrange(new Rect(textBlock.DesiredSize));
 
-                _panel.Children.Add(textBlock);
+                // magic number is margin
+                _accumulatedWidth += textBlock.ActualWidth + 6 + _iconSize;
+                //Debug.WriteLine($"_accumulateWidth: {_accumulatedWidth}");
+
+
+                if (_accumulatedWidth > contentWidth)
+                    break;
+                _stackBlocks.Push(textBlock);
             }
+
+            //Debug.WriteLine($"block length: {_textBlocks.Count}");
+
+            foreach (TextBlock item in _stackBlocks)
+            {
+                // Image不能复用~ （WPF不允许）
+                Image icon = new()
+                {
+                    Source = new BitmapImage(new Uri("pack://application:,,,/Irvue-win;component/icons/settings/folder.ico")),
+                    Width = _iconSize,
+                    Height = _iconSize,
+                    Margin = new Thickness(0, 0, 0, 0)
+                };
+                _panel.Children.Add(icon);
+
+                // 添加目录名
+                _panel.Children.Add(item);
+            }
+
 
             // 添加最后一个图标 (如果需要)
             //Image lastIcon = new Image();
@@ -102,4 +130,5 @@ namespace Irvue_win.src.controls
             //_panel.Children.Add(lastIcon);
         }
     }
+
 }

@@ -144,8 +144,7 @@
         <Style x:Key="ButtonStyle" TargetType="Button">
             <Setter Property="Margin" Value="5, 10"/>
             <Setter Property="Height" Value="20"/>
-            <Setter Property="Background" Value="WhiteSmoke"/>
-            <Setter Property="Foreground" Value="DarkBlue"/>
+            <Setter Property="Background" Value="LightGray"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Button.Template">
@@ -165,7 +164,7 @@
                                         Property="Background" 
                                         Value="LightGray"/>
                                 <Setter Property="Cursor" Value="Hand"/>
-                                <Setter Property="Foreground" Value="Black"/>
+                                <Setter Property="Foreground" Value="DarkBlue"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -331,6 +330,27 @@
                 </Setter.Value>
             </Setter>
         </Style>
+        <Style x:Key="ToolTipStyle" TargetType="ToolTip">
+            <Setter Property="Background" Value="LightGray"/>
+            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="FontSize" Value="10"/>
+            <Setter Property="Margin" Value="10,5"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="BorderBrush" Value="Black"/>
+            <Setter Property="HorizontalOffset" Value="10"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ToolTip">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="5">
+                            <ContentPresenter Margin="{TemplateBinding Margin}"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -445,9 +465,9 @@
                     <Label Grid.Row="4" Grid.Column="0" 
                            Content="壁纸保存路径:" 
                            Style="{StaticResource LabelStyle}"/>
-                    <Button Grid.Row="4" Grid.Column="1" 
+                    <Button Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="2"
                             Name="BrowseWallpaperSavePathButton" 
-                            Content="浏览..." 
+                            Content="选择..." 
                             Style="{StaticResource ButtonStyle}" 
                             Click="BrowseWallpaperSavePathButton_Click"/>
                     <!--<Image Grid.Row="5" Grid.Column="0" 
@@ -461,17 +481,25 @@
                                     Mode=OneWay,
                                     UpdateSourceTrigger=PropertyChanged}"
                              Style="{StaticResource TextBoxstyle}"/>-->
-                    <lc:PathDisplayControl Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="4"
+                    <lc:PathDisplayControl Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="5"
                                           x:Name="PathDisplayControl"
-                                          HorizontalAlignment="Center"
-                                          FullPath="{Binding WallpaperSavedPath, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" />
+                                          HorizontalAlignment="Left"
+                                          VerticalAlignment="Center"
+                                          Width="286"
+                                          FullPath="{Binding WallpaperSavedPath}">
+                        <lc:PathDisplayControl.ToolTip>
+                            <ToolTip Style="{StaticResource ToolTipStyle}">
+                                <TextBlock Text="{Binding WallpaperSavedPath}"/>
+                            </ToolTip>
+                        </lc:PathDisplayControl.ToolTip>
+                    </lc:PathDisplayControl>
 
-                    <Separator Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="5" Margin="0, 10"/>
+                    <Separator Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="5" Margin="0, 10"/>
 
-                    <Label Grid.Row="7" Grid.Column="0" 
+                    <Label Grid.Row="8" Grid.Column="0" 
                            Content="随Windows启动:" 
                            Style="{StaticResource LabelStyle}"/>
-                    <CheckBox Grid.Row="7" Grid.Column="1" Grid.ColumnSpan="2" 
+                    <CheckBox Grid.Row="8" Grid.Column="1" Grid.ColumnSpan="2" 
                               Name="LaunchAtLoginCheckBox" 
                               Content="Enable" 
                               IsChecked="{Binding LuanchAtLogin,
@@ -482,7 +510,7 @@
 
                 </Grid>
             </TabItem>
-            <TabItem  Header="过滤" 
+            <TabItem Header="过滤" 
                       hp:TabItemHelper.IconSource="/icons/settings/filter.ico" 
                       Style="{StaticResource TabStyle}">
                 <Grid>
