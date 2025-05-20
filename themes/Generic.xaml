@@ -2,7 +2,7 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:local="clr-namespace:Irvue_win.src.controls"
                     >
-
+    
     <Style TargetType="{x:Type local:PathDisplayControl}">
         <Setter Property="Foreground" Value="Gray"/>
         <Setter Property="Background" Value="Transparent"/>

@@ -19,6 +19,7 @@
 
     <Window.Resources>
         <hp:ByteToBooleanConverter x:Key="Byte2BoolConverter"/>
+        <hp:FloatToStringConverter x:Key="Float2StringConverter"/>
 
         <Style x:Key="LabelStyle" TargetType="Label">
             <Setter Property="Margin" Value="0, 5"/>
@@ -537,8 +538,9 @@
                     <ComboBox Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" 
                               Name="ImageOritentationPreference"
                               Style="{StaticResource ComboBoxStyle}"
-                              SelectedIndex="0"
-                              SelectionChanged="ImageOritentationPreference_SelectionChanged">
+                              SelectedIndex="{Binding WallpaperOrientation, 
+                                                      Mode=TwoWay, 
+                                                      UpdateSourceTrigger=PropertyChanged}">
                         <ComboBoxItem Content="横向" />
                         <ComboBoxItem Content="纵向" />
                         <ComboBoxItem Content="横向和纵向" />
@@ -550,8 +552,9 @@
                     <ComboBox Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" 
                               Name="SmartFilter"
                               Style="{StaticResource ComboBoxStyle}"
-                              SelectedIndex="2"
-                              SelectionChanged="SmartFilter_SelectionChanged">
+                              SelectedIndex="{Binding SmartFilter,
+                                                      Mode=TwoWay,
+                                                      UpdateSourceTrigger=PropertyChanged}">
                         <ComboBoxItem Content="无"/>
                         <ComboBoxItem Content="过滤人像"/>
                         <ComboBoxItem Content="过滤人像和全身照"/>
@@ -563,8 +566,11 @@
                     <ComboBox Grid.Row="3" Grid.Column="1" 
                               Name="MinmiumResolution" 
                               Style="{StaticResource ComboBoxStyle}"
-                              SelectedIndex="1" 
-                              SelectionChanged="MinmiumResolution_SelectionChanged">
+                              SelectedValue="{Binding MinResolution,
+                                                     Mode=TwoWay,
+                                                     Converter={StaticResource Float2StringConverter},
+                                                     UpdateSourceTrigger=PropertyChanged}"
+                              SelectedValuePath="Content">
                         <ComboBoxItem Content="100%"/>
                         <ComboBoxItem Content="90%"/>
                         <ComboBoxItem Content="80%"/>
@@ -573,6 +579,9 @@
                            Content="显示器分辨率" 
                            Style="{StaticResource LabelStyle}"
                            HorizontalAlignment="Left"/>
+
+                    <TextBox Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="4" 
+                           Text="{Binding MinResolution}"/>
 
                 </Grid>
             </TabItem>

@@ -103,20 +103,5 @@ namespace Irvue_win
             this.Hide();
         }
 
-        private void MinmiumResolution_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-
-        }
-
-        private void ImageOritentationPreference_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-
-        }
-
-        private void SmartFilter_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-
-        }
-
     }
 }

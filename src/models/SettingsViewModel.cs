@@ -32,6 +32,21 @@ namespace Irvue_win.src.models
 
         private string _wallpaperSavedPath;
 
+        /// <summary>
+        /// 0-both, 1-landscape, 2-protrait
+        /// </summary>
+        private byte _wallpaperOrientation;
+
+        /// <summary>
+        /// 0-none 1-face 2-face and body
+        /// </summary>
+        private byte _smartFilter;
+
+        /// <summary>
+        /// ratio of system display resolution
+        /// </summary>
+        private float _minResolution;
+
         public SettingsViewModel()
         {
             _openSavedWallpaper = Properties.Settings.Default.OpenSavedWallpaper;
@@ -39,6 +54,9 @@ namespace Irvue_win.src.models
             _wallpaperMode = Properties.Settings.Default.WallpaperMode;
             _launchAtLogin = Properties.Settings.Default.LaunchAtLogin;
             _wallpaperSavedPath = Properties.Settings.Default.WallpaperSavedPath;
+            _wallpaperOrientation = Properties.Settings.Default.WallpaperOrientation;
+            _smartFilter = Properties.Settings.Default.SmartFilter;
+            _minResolution = Properties.Settings.Default.MinResolution;
         }
 
         public bool OpenSavedWallpaper
@@ -109,6 +127,50 @@ namespace Irvue_win.src.models
                     Properties.Settings.Default.Save();
                     OnPropertyChanged();
 
+                }
+            }
+        }
+
+        public byte WallpaperOrientation
+        {
+            get { return _wallpaperOrientation; }
+            set
+            {
+                if (_wallpaperOrientation != value)
+                {
+                    _wallpaperOrientation = value;
+                    Properties.Settings.Default.WallpaperOrientation = _wallpaperOrientation;
+                    Properties.Settings.Default.Save();
+                    OnPropertyChanged();
+                }
+            }
+        }
+        public byte SmartFilter
+        {
+            get { return _smartFilter; }
+            set
+            {
+                if (_smartFilter != value)
+                {
+                    _smartFilter = value;
+                    Properties.Settings.Default.SmartFilter = _smartFilter;
+                    Properties.Settings.Default.Save();
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        public float MinResolution
+        {
+            get { return _minResolution; }
+            set
+            {
+                if (_minResolution != value)
+                {
+                    _minResolution = value;
+                    Properties.Settings.Default.MinResolution = _minResolution;
+                    Properties.Settings.Default.Save();
+                    OnPropertyChanged();
                 }
             }
         }

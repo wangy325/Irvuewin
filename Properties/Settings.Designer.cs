@@ -86,12 +86,12 @@ namespace Irvue_win.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("0")]
-        public byte WallpaperRatio {
+        public byte WallpaperOrientation {
             get {
-                return ((byte)(this["WallpaperRatio"]));
+                return ((byte)(this["WallpaperOrientation"]));
             }
             set {
-                this["WallpaperRatio"] = value;
+                this["WallpaperOrientation"] = value;
             }
         }
         

@@ -120,14 +120,6 @@ namespace Irvue_win.src.controls
                 // 添加目录名
                 _panel.Children.Add(item);
             }
-
-
-            // 添加最后一个图标 (如果需要)
-            //Image lastIcon = new Image();
-            //lastIcon.Source = new BitmapImage(new Uri("pack://application:,,,/Irvue-win;component/icons/settings/folder.ico")); 
-            //lastIcon.Width = 16;
-            //lastIcon.Height = 16;
-            //_panel.Children.Add(lastIcon);
         }
     }
 
