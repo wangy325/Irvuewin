@@ -331,6 +331,44 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <Style x:Key="ComboBoxItemStyle" TargetType="ComboBoxItem">
+            <Setter Property="Background" Value="WhiteSmoke"/>
+            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="Padding" Value="5,5"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBoxItem">
+                        <Border x:Name="Bd"
+                            Background="{TemplateBinding Background}"
+                            Padding="{TemplateBinding Padding}"
+                            CornerRadius="5"
+                            SnapsToDevicePixels="True">
+                        <ContentPresenter
+                            HorizontalAlignment="Stretch"
+                            VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                            SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsHighlighted" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#FF3585FF"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="LightGray"/>
+                                <Setter Property="Foreground" Value="Black"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Foreground" Value="#FF888888"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
         <Style x:Key="ToolTipStyle" TargetType="ToolTip">
             <Setter Property="Background" Value="LightGray"/>
             <Setter Property="Foreground" Value="Black"/>
@@ -541,9 +579,9 @@
                               SelectedIndex="{Binding WallpaperOrientation, 
                                                       Mode=TwoWay, 
                                                       UpdateSourceTrigger=PropertyChanged}">
-                        <ComboBoxItem Content="横向" />
-                        <ComboBoxItem Content="纵向" />
-                        <ComboBoxItem Content="横向和纵向" />
+                        <ComboBoxItem Content="横向" Style="{StaticResource ComboBoxItemStyle}"/>
+                        <ComboBoxItem Content="纵向" Style="{StaticResource ComboBoxItemStyle}"/>
+                        <ComboBoxItem Content="横向和纵向" Style="{StaticResource ComboBoxItemStyle}"/>
                     </ComboBox>
 
                     <Label Grid.Row="2" Grid.Column="0" 
@@ -555,9 +593,9 @@
                               SelectedIndex="{Binding SmartFilter,
                                                       Mode=TwoWay,
                                                       UpdateSourceTrigger=PropertyChanged}">
-                        <ComboBoxItem Content="无"/>
-                        <ComboBoxItem Content="过滤人像"/>
-                        <ComboBoxItem Content="过滤人像和全身照"/>
+                        <ComboBoxItem Content="无" Style="{StaticResource ComboBoxItemStyle}"/>
+                        <ComboBoxItem Content="过滤人像" Style="{StaticResource ComboBoxItemStyle}"/>
+                        <ComboBoxItem Content="过滤人像和全身照" Style="{StaticResource ComboBoxItemStyle}"/>
                     </ComboBox>
 
                     <Label Grid.Row="3" Grid.Column="0" 
@@ -571,9 +609,9 @@
                                                      Converter={StaticResource Float2StringConverter},
                                                      UpdateSourceTrigger=PropertyChanged}"
                               SelectedValuePath="Content">
-                        <ComboBoxItem Content="100%"/>
-                        <ComboBoxItem Content="90%"/>
-                        <ComboBoxItem Content="80%"/>
+                        <ComboBoxItem Content="100%" Style="{StaticResource ComboBoxItemStyle}"/>
+                        <ComboBoxItem Content="90%" Style="{StaticResource ComboBoxItemStyle}"/>
+                        <ComboBoxItem Content="80%" Style="{StaticResource ComboBoxItemStyle}"/>
                     </ComboBox>
                     <Label Grid.Row="3" Grid.Column="2" 
                            Content="显示器分辨率" 

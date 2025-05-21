@@ -19,7 +19,7 @@ namespace Irvue_win.src.helper
             {
                 return $"{percentage:P0}";
             }
-            Debug.WriteLine($"Convert: {value}");
+            //Debug.WriteLine($"Convert: {value}");
             return string.Empty;
         }
 
@@ -29,7 +29,7 @@ namespace Irvue_win.src.helper
         {
             if (value is string str && float.TryParse(str.Trim('%'), out float result))
             {
-                Debug.WriteLine($"ConvertBack: {result/100f}");
+                //Debug.WriteLine($"ConvertBack: {result/100f}");
                 return result / 100f;
             }
             return 1.0f; 
