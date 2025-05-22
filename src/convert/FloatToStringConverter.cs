@@ -32,7 +32,7 @@ namespace Irvue_win.src.convert
                 //Debug.WriteLine($"ConvertBack: {result/100f}");
                 return result / 100f;
             }
-            return 1.0f; 
+            return Binding.DoNothing; 
         }
     }
 }

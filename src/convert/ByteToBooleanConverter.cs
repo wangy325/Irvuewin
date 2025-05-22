@@ -22,7 +22,7 @@ namespace Irvue_win.src.convert
         {
             if (value is byte val && parameter is string p && byte.TryParse(p, out byte res))
             {
-                System.Diagnostics.Debug.WriteLine($"ByteToBooleanConverter.convert: val: {val}, res: {res}, p: {p}");
+                System.Diagnostics.Debug.WriteLine($"source -> target: val: {val}, res: {res}, p: {p}");
                 return val == res;
             }
             return false; // 默认返回 false
@@ -40,11 +40,11 @@ namespace Irvue_win.src.convert
         {
             if (value is bool val && parameter is string p && byte.TryParse(p, out byte res))
             {
-                System.Diagnostics.Debug.WriteLine($"ByteToBooleanConverter.convertBack: val: {val}, p: {p}, res: {res}");
-                // 如果选中，返回 parameterByte，否则返回 0 
-                return val ? res : (byte)0; 
+                System.Diagnostics.Debug.WriteLine($"target -> source: val: {val}, p: {p}, res: {res}");
+                // 如果选中，返回 转换参数的值（byte），否则返回 0 
+                return val ? res : Binding.DoNothing; 
             }
-            return (byte)0;
+            return Binding.DoNothing;
         }
     }
 }

@@ -142,5 +142,29 @@ namespace Irvue_win.Properties {
                 this["RandomWallpaper"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("500")]
+        public double SettingsWindowLeft {
+            get {
+                return ((double)(this["SettingsWindowLeft"]));
+            }
+            set {
+                this["SettingsWindowLeft"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("100")]
+        public double SettingsWindowTop {
+            get {
+                return ((double)(this["SettingsWindowTop"]));
+            }
+            set {
+                this["SettingsWindowTop"] = value;
+            }
+        }
     }
 }

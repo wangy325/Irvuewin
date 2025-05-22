@@ -11,7 +11,10 @@
         Title="Settings" Icon="/icons/application_64.ico" 
         Height="450" Width="350" MinWidth="200" MaxWidth="350" 
         Background="WhiteSmoke"
-        ShowInTaskbar="False" ResizeMode="NoResize">
+        ShowInTaskbar="False" ResizeMode="NoResize"
+        WindowStartupLocation="CenterScreen"
+        Loaded="SettingsWindow_Loaded"
+        Closing="SettingsWindow_Closing">
 
     <Window.DataContext>
         <models:SettingsViewModel/>
@@ -172,7 +175,7 @@
                                          UpdateSourceTrigger=PropertyChanged}"
                               Style="{StaticResource CheckBoxStyle}"/>
 
-                    <!--<Label Grid.Row="10" Grid.Column="0" Margin="0,30"
+                    <!--<Label Grid.Row="10" Grid.Column="4"
                            Content="{Binding WallpaperMode, Mode=OneWay}" 
                            Style="{StaticResource LabelStyle}"/>-->
 
@@ -248,8 +251,8 @@
                            Style="{StaticResource LabelStyle}"
                            HorizontalAlignment="Left"/>
 
-                    <TextBox Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="4" 
-                           Text="{Binding MinResolution}"/>
+                    <!--<TextBox Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="4" 
+                           Text="{Binding MinResolution}"/>-->
 
                 </Grid>
             </TabItem>

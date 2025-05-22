@@ -39,7 +39,7 @@ namespace Irvue_win.src.convert
         {
             if (value is bool isChecked && parameter is string p && ushort.TryParse(p, out ushort res))
             {
-                // 如果选中，返回 parameterByte，否则返回 0 
+                // 如果选中，返回 转换参数的值，否则返回 0 
                 return isChecked ? res : (byte)0;
             }
             return (byte)0;

@@ -95,8 +95,8 @@ namespace Irvue_win.src.models
                     _wallpaperMode = value;
                     Properties.Settings.Default.WallpaperMode = _wallpaperMode;
                     Properties.Settings.Default.Save();
-                    System.Diagnostics.Debug.WriteLine($"WallpaperMode saved: {_wallpaperMode}");
                     OnPropertyChanged();
+                    System.Diagnostics.Debug.WriteLine($"WallpaperMode saved: {_wallpaperMode}");
                 }
             }
         }
