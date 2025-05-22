@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Data;
 
-namespace Irvue_win.src.helper
+namespace Irvue_win.src.convert
 {
     class ByteToBooleanConverter : IValueConverter
     {
@@ -39,7 +39,7 @@ namespace Irvue_win.src.helper
         {
             if (value is bool boolValue && parameter is string parameterString && byte.TryParse(parameterString, out byte parameterByte))
             {
-                // 如果选中，返回 parameterByte，否则返回 0 (或者其他默认值)
+                // 如果选中，返回 parameterByte，否则返回 0 
                 return boolValue ? parameterByte : (byte)0; 
             }
             return (byte)0;

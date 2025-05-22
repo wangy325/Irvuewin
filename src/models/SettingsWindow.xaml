@@ -1,12 +1,13 @@
-﻿<Window x:Class="Irvue_win.SettingsWindow"
+﻿<Window x:Class="Irvue_win.src.models.SettingsWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Irvue_win"
-        xmlns:hp="clr-namespace:Irvue_win.src.helper"
-        xmlns:mod="clr-namespace:Irvue_win.src.models"
-        xmlns:lc="clr-namespace:Irvue_win.src.controls"
+        xmlns:src="clr-namespace:Irvue_win.src"
+        xmlns:models="clr-namespace:Irvue_win.src.models"
+        xmlns:converts="clr-namespace:Irvue_win.src.convert"
+        xmlns:controls="clr-namespace:Irvue_win.src.controls"
         mc:Ignorable="d"
         Title="Settings" Icon="/icons/application_64.ico" 
         Height="450" Width="350" MinWidth="200" MaxWidth="350" 
@@ -14,12 +15,12 @@
         ShowInTaskbar="False" ResizeMode="NoResize">
 
     <Window.DataContext>
-        <mod:SettingsViewModel/>
+        <models:SettingsViewModel/>
     </Window.DataContext>
 
     <Window.Resources>
-        <hp:ByteToBooleanConverter x:Key="Byte2BoolConverter"/>
-        <hp:FloatToStringConverter x:Key="Float2StringConverter"/>
+        <converts:ByteToBooleanConverter x:Key="Byte2BoolConverter"/>
+        <converts:FloatToStringConverter x:Key="Float2StringConverter"/>
 
         <Style x:Key="LabelStyle" TargetType="Label">
             <Setter Property="Margin" Value="0, 5"/>
@@ -199,8 +200,8 @@
                                 <Image x:Name="TabItemIconImage"
                                        Width="27" Height="27"
                                        Source="{Binding 
-                                    RelativeSource={RelativeSource TemplatedParent}, 
-                                    Path=(hp:TabItemHelper.IconSource)}"
+                                                RelativeSource={RelativeSource TemplatedParent}, 
+                                                Path=(src:TabItemHelper.IconSource)}"
                                        Margin="15, 5, 15, 0"/>
 
                                 <ContentPresenter x:Name="ContentSite"
@@ -399,7 +400,7 @@
 
         <TabControl Grid.Row="0" Margin="20" BorderThickness="0" Background="WhiteSmoke">
             <TabItem Header="通用" 
-                     hp:TabItemHelper.IconSource="/icons/settings/general.ico" 
+                     src:TabItemHelper.IconSource="/icons/settings/general.ico" 
                      Style="{StaticResource TabStyle}">
                 <Grid>
                     <Grid.RowDefinitions>
@@ -520,18 +521,18 @@
                                     Mode=OneWay,
                                     UpdateSourceTrigger=PropertyChanged}"
                              Style="{StaticResource TextBoxstyle}"/>-->
-                    <lc:PathDisplayControl Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="5"
+                    <controls:PathDisplayControl Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="5"
                                           x:Name="PathDisplayControl"
                                           HorizontalAlignment="Left"
                                           VerticalAlignment="Center"
                                           Width="286"
                                           FullPath="{Binding WallpaperSavedPath}">
-                        <lc:PathDisplayControl.ToolTip>
+                        <controls:PathDisplayControl.ToolTip>
                             <ToolTip Style="{StaticResource ToolTipStyle}">
                                 <TextBlock Text="{Binding WallpaperSavedPath}"/>
                             </ToolTip>
-                        </lc:PathDisplayControl.ToolTip>
-                    </lc:PathDisplayControl>
+                        </controls:PathDisplayControl.ToolTip>
+                    </controls:PathDisplayControl>
 
                     <Separator Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="5" Margin="0, 10"/>
 
@@ -550,7 +551,7 @@
                 </Grid>
             </TabItem>
             <TabItem Header="过滤" 
-                      hp:TabItemHelper.IconSource="/icons/settings/filter.ico" 
+                      src:TabItemHelper.IconSource="/icons/settings/filter.ico" 
                       Style="{StaticResource TabStyle}">
                 <Grid>
                     <Grid.RowDefinitions>
@@ -624,7 +625,7 @@
                 </Grid>
             </TabItem>
             <TabItem Header="关于" 
-                     hp:TabItemHelper.IconSource="/icons/settings/about.ico" 
+                     src:TabItemHelper.IconSource="/icons/settings/about.ico" 
                      Style="{StaticResource TabStyle}">
                 <Grid Margin="10">
                     <Label Content="An Irvue like application for Window..."/>

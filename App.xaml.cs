@@ -1,10 +1,9 @@
-﻿using System.Configuration;
-using System.Data;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using Hardcodet.Wpf.TaskbarNotification;
 using Irvue_win.src.utils;
-using Windows.Devices.PointOfService;
+using Irvue_win.Properties;
+using Irvue_win.src.models;
 
 namespace Irvue_win
 {
@@ -81,6 +80,9 @@ namespace Irvue_win
                     clickedItem.IsChecked = true;
                 }
             }
+            // save configure
+            Irvue_win.Properties.Settings.Default.Save();
+            System.Diagnostics.Debug.WriteLine($"Current Interval: {Irvue_win.Properties.Settings.Default.WallpaperChangeInterval} ");
         }
 
         private void ChangeCurrentWallpaper_Click(Object sender, RoutedEventArgs args)
@@ -148,6 +150,12 @@ namespace Irvue_win
             {
                 _TaskbarIcon.ContextMenu.IsOpen = false;
             }
+        }
+
+        private void RandomSwitch_Click(object sender, RoutedEventArgs e)
+        {
+            System.Diagnostics.Debug.WriteLine($"RandomSwitch: {Settings.Default.RandomWallpaper}");
+            Settings.Default.Save();
         }
     }
 

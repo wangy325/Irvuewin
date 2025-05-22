@@ -15,7 +15,7 @@ using System.Windows.Shapes;
 using Hardcodet.Wpf.TaskbarNotification;
 using Irvue_win.src.controls;
 
-namespace Irvue_win
+namespace Irvue_win.src.models
 {
     /// <summary>
     /// Window1.xaml 的交互逻辑

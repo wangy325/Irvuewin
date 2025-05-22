@@ -12,14 +12,14 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 
-namespace Irvue_win.src.pages
+namespace Irvue_win
 {
     /// <summary>
     /// Window1.xaml 的交互逻辑
     /// </summary>
-    public partial class Window1 : Window
+    public partial class ChannelsWindow: Window
     {
-        public Window1()
+        public ChannelsWindow()
         {
             InitializeComponent();
         }

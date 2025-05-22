@@ -27,7 +27,7 @@
       <Value Profile="(Default)">0.9</Value>
     </Setting>
     <Setting Name="WallpaperChangeInterval" Type="System.UInt16" Scope="User">
-      <Value Profile="(Default)">30</Value>
+      <Value Profile="(Default)">0</Value>
     </Setting>
     <Setting Name="RandomWallpaper" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>

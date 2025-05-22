@@ -8,8 +8,9 @@ using System.Windows;
 using System.Globalization;
 using System.Windows.Data;
 
-namespace Irvue_win.src.helper
+namespace Irvue_win.src
 {
+    // 设置页面TabItem图标文件帮助类
     public static class TabItemHelper
     {
         public static readonly DependencyProperty IconSourceProperty =
