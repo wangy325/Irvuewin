@@ -5,10 +5,11 @@
              xmlns:tb="http://www.hardcodet.net/taskbar"
              xmlns:properties="clr-namespace:Irvue_win.Properties"
              xmlns:cv="clr-namespace:Irvue_win.src.convert"
+             xmlns:src="clr-namespace:Irvue_win.src"
              ShutdownMode="OnExplicitShutdown">
     <Application.Resources>
         <cv:UshortToBooleanConverter x:Key="Ushort2BoolConverter"/>
-        
+
         <Style x:Key="CustomContextMenuStyle" TargetType="ContextMenu">
             <Setter Property="Background" Value="White"/>
             <Setter Property="Foreground" Value="Transparent"/>
@@ -291,5 +292,7 @@
                 </ContextMenu>
             </tb:TaskbarIcon.ContextMenu>
         </tb:TaskbarIcon>
+
+        <Window x:Key="TrayWindow"/>
     </Application.Resources>
 </Application>

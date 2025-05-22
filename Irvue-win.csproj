@@ -89,6 +89,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="src\models\Themes\" />
     <Folder Include="src\unsplash\" />
   </ItemGroup>
 

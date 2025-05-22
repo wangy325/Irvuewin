@@ -6,7 +6,6 @@
         xmlns:local="clr-namespace:Irvue_win"
         xmlns:src="clr-namespace:Irvue_win.src"
         xmlns:models="clr-namespace:Irvue_win.src.models"
-        xmlns:converts="clr-namespace:Irvue_win.src.convert"
         xmlns:controls="clr-namespace:Irvue_win.src.controls"
         mc:Ignorable="d"
         Title="Settings" Icon="/icons/application_64.ico" 
@@ -19,380 +18,16 @@
     </Window.DataContext>
 
     <Window.Resources>
-        <converts:ByteToBooleanConverter x:Key="Byte2BoolConverter"/>
-        <converts:FloatToStringConverter x:Key="Float2StringConverter"/>
-
-        <Style x:Key="LabelStyle" TargetType="Label">
-            <Setter Property="Margin" Value="0, 5"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="HorizontalContentAlignment" Value="Right"/>
-        </Style>
-        <Style x:Key="RadioStyle" TargetType="RadioButton">
-            <Setter Property="Margin" Value="5,10"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="HorizontalAlignment" Value="Left"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="RadioButton">
-                        <StackPanel Orientation="Horizontal">
-                            <Border x:Name="RadioBorder"
-                                    Width="13" Height="13"
-                                    CornerRadius="7.5"
-                                    Background="White"
-                                    BorderBrush="LightGray"
-                                    BorderThickness="1"
-                                    VerticalAlignment="Center"
-                                    Margin="0,0,5,0">
-                                <Grid>
-                                    <Ellipse x:Name="RadioDot"
-                                             Width="8" Height="8"
-                                             Fill="Transparent"
-                                             HorizontalAlignment="Center"
-                                             VerticalAlignment="Center"/>
-                                </Grid>
-                            </Border>
-                            <ContentPresenter VerticalAlignment="Center" />
-                        </StackPanel>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsChecked" Value="True">
-                                <!--<Setter TargetName="RadioBorder" 
-                                        Property="Background" 
-                                        Value="#3585FF"/>-->
-                                <Setter TargetName="RadioDot" 
-                                        Property="Fill" 
-                                        Value="#FF3585FF"/>
-                            </Trigger>
-                            <!-- 失焦时样式变化 -->
-                            <MultiDataTrigger>
-                                <MultiDataTrigger.Conditions>
-                                    <Condition Binding="{Binding IsActive,
-                                        RelativeSource={RelativeSource AncestorType=Window}}" 
-                                                Value="False"/>
-                                    <Condition Binding="{Binding IsChecked, 
-                                        RelativeSource={RelativeSource Self}}" 
-                                               Value="True"/>
-                                </MultiDataTrigger.Conditions>
-                                <!--<Setter TargetName="RadioBorder" 
-                                        Property="Background" 
-                                        Value="#FFC0C0C0"/>-->
-                                <Setter TargetName="RadioDot" 
-                                        Property="Fill" 
-                                        Value="#FF888888"/>
-                            </MultiDataTrigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-        <Style x:Key="CheckBoxStyle" TargetType="CheckBox">
-            <Setter Property="Margin" Value="5, 5"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="CheckBox.Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="CheckBox">
-                        <StackPanel Orientation="Horizontal">
-                            <Border x:Name="Border"
-                                    Width="15" Height="15"
-                                    CornerRadius="2"
-                                    Background="White"
-                                    BorderBrush="LightGray"
-                                    BorderThickness="1"
-                                    VerticalAlignment="Center"
-                                    Margin="0,0,5,0">
-                                <Grid>
-                                    <Path x:Name="CheckMark"
-                                          Data="M 2 7 L 6 11 L 12 3"
-                                          Stroke="Transparent"
-                                          StrokeThickness="2"
-                                          StrokeEndLineCap="Round"
-                                          StrokeStartLineCap="Round"
-                                          HorizontalAlignment="Center"
-                                          VerticalAlignment="Center"/>
-                                </Grid>
-                            </Border>
-                            <ContentPresenter VerticalAlignment="Center" />
-                        </StackPanel>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsChecked" Value="True">
-                                <Setter TargetName="Border" 
-                                        Property="Background" 
-                                        Value="#3585FF"/>
-                                <Setter TargetName="CheckMark" 
-                                        Property="Stroke" 
-                                        Value="white"/>
-                            </Trigger>
-                            <!-- 失焦时样式变化 -->
-                            <MultiDataTrigger>
-                                <MultiDataTrigger.Conditions>
-                                    <Condition Binding="{Binding IsActive, 
-                                        RelativeSource={RelativeSource AncestorType=Window}}" 
-                                               Value="False"/>
-                                    <Condition Binding="{Binding IsChecked, 
-                                        RelativeSource={RelativeSource Self}}" 
-                                               Value="True"/>
-                                </MultiDataTrigger.Conditions>
-                                <Setter TargetName="Border" 
-                                        Property="Background" 
-                                        Value="#FFC0C0C0"/>
-                                <Setter TargetName="CheckMark" 
-                                        Property="Stroke" 
-                                        Value="#FF888888"/>
-                            </MultiDataTrigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-        <Style x:Key="ButtonStyle" TargetType="Button">
-            <Setter Property="Margin" Value="5, 10"/>
-            <Setter Property="Height" Value="20"/>
-            <Setter Property="Background" Value="LightGray"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Button.Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="xFileButton"
-                                Background="{TemplateBinding Background}"
-                                CornerRadius="3"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}">
-                            <ContentPresenter HorizontalAlignment="Center" 
-                                              VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="xFileButton" 
-                                        Property="Background" 
-                                        Value="LightGray"/>
-                                <Setter Property="Cursor" Value="Hand"/>
-                                <Setter Property="Foreground" Value="DarkBlue"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-        <Style x:Key="TextBoxstyle" TargetType="TextBox">
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Margin" Value="0, 5"/>
-            <Setter Property="Background" Value="WhiteSmoke"/>
-            <Setter Property="IsReadOnly" Value="True"/>
-            <Setter Property="FontFamily" Value="Cascadia Code"/>
-        </Style>
-        <Style x:Key="TabStyle" TargetType="TabItem">
-            <Setter Property="Height" Value="Auto"/>
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="Black"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="TabItem">
-                        <Border x:Name="Bd"
-                                Background="{TemplateBinding Background}"
-                                BorderBrush="Gray"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="5"
-                                Padding="0,0,0,5">
-                            <StackPanel Orientation="Vertical" 
-                                        HorizontalAlignment="Center" 
-                                        VerticalAlignment="Center">
-                                <Image x:Name="TabItemIconImage"
-                                       Width="27" Height="27"
-                                       Source="{Binding 
-                                                RelativeSource={RelativeSource TemplatedParent}, 
-                                                Path=(src:TabItemHelper.IconSource)}"
-                                       Margin="15, 5, 15, 0"/>
-
-                                <ContentPresenter x:Name="ContentSite"
-                                              VerticalAlignment="Center"
-                                              HorizontalAlignment="Center"
-                                              ContentSource="Header"/>
-                            </StackPanel>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsSelected" Value="True">
-                                <Setter TargetName="Bd" Property="Background" Value="LightGray"/>
-                                <!--<Setter Property="Foreground" Value="DarkBlue"/>-->
-                                <!--<Setter TargetName="Bd" Property="BorderBrush" Value="#3585FF"/>-->
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter Property="Foreground" Value="#FF888888"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <Style x:Key="BottomButtonStyle" 
-               TargetType="Button" 
-               BasedOn="{StaticResource ButtonStyle}">
-            <Setter Property="Width" Value="60"/>
-            <Setter Property="Height" Value="25"/>
-            <Setter Property="Background" Value="LightGray"/>
-            <Setter Property="Foreground" Value="Black"/>
-            <Setter Property="Button.Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="xWindowButton"
-                                Background="{TemplateBinding Background}"
-                                CornerRadius="3"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}">
-                            <ContentPresenter HorizontalAlignment="Center" 
-                                              VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="xWindowButton" 
-                                        Property="Background" 
-                                        Value="#cbcbcb"/>
-                                <Setter Property="Cursor" Value="Arrow"/>
-                                <Setter Property="Foreground" Value="DarkBlue"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <Style x:Key="ComboBoxStyle" TargetType="ComboBox">
-            <Setter Property="Margin" Value="0,5"/>
-            <Setter Property="Foreground" Value="Black"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="ComboBox.Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="ComboBox">
-                        <Grid>
-                            <ToggleButton
-                                Name="ToggleButton"
-                                Focusable="false"
-                                IsChecked="{Binding Path=IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
-                                ClickMode="Press"
-                                Background="Transparent"
-                                BorderThickness="1"
-                                BorderBrush="LightGray">
-                                <ToggleButton.Template>
-                                    <ControlTemplate TargetType="ToggleButton">
-                                        <Border x:Name="Border"
-                                                Background="{TemplateBinding Background}"
-                                                BorderBrush="{TemplateBinding BorderBrush}"
-                                                BorderThickness="{TemplateBinding BorderThickness}"
-                                                CornerRadius="5">
-                                            <Path x:Name="Arrow"
-                                                Margin="5,0"
-                                                HorizontalAlignment="Right"
-                                                VerticalAlignment="Center"
-                                                Data="M 0 0 L 4 4 L 8 0 Z"
-                                                Fill="Gray"/>
-                                        </Border>
-                                    </ControlTemplate>
-                                </ToggleButton.Template>
-                            </ToggleButton>
-
-                            <ContentPresenter
-                                Name="ContentSite"
-                                IsHitTestVisible="False"
-                                Content="{TemplateBinding SelectionBoxItem}"
-                                Margin="10,0"
-                                VerticalAlignment="Center"
-                                ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
-                                ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
-                                HorizontalAlignment="left" >
-                            </ContentPresenter>
-
-                            <Popup
-                                Name="Popup"
-                                Placement="Bottom"
-                                IsOpen="{TemplateBinding IsDropDownOpen}"
-                                AllowsTransparency="True"
-                                Focusable="False"
-                                PopupAnimation="Slide">
-                                <Border
-                                    SnapsToDevicePixels="True"
-                                    Background="WhiteSmoke"
-                                    BorderBrush="LightGray"
-                                    BorderThickness="1"
-                                    Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=ComboBox}}"
-                                    CornerRadius="5">
-                                    <ScrollViewer Margin="4,6,4,6" SnapsToDevicePixels="True">
-                                        <StackPanel IsItemsHost="True" 
-                                                    KeyboardNavigation.DirectionalNavigation="Contained" />
-                                    </ScrollViewer>
-                                </Border>
-                            </Popup>
-                        </Grid>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter Property="Foreground" Value="Yellow"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <Style x:Key="ComboBoxItemStyle" TargetType="ComboBoxItem">
-            <Setter Property="Background" Value="WhiteSmoke"/>
-            <Setter Property="Foreground" Value="Black"/>
-            <Setter Property="Padding" Value="5,5"/>
-            <Setter Property="HorizontalContentAlignment" Value="Left"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="ComboBoxItem">
-                        <Border x:Name="Bd"
-                            Background="{TemplateBinding Background}"
-                            Padding="{TemplateBinding Padding}"
-                            CornerRadius="5"
-                            SnapsToDevicePixels="True">
-                        <ContentPresenter
-                            HorizontalAlignment="Stretch"
-                            VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
-                            SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsHighlighted" Value="True">
-                                <Setter TargetName="Bd" Property="Background" Value="#FF3585FF"/>
-                                <Setter Property="Foreground" Value="White"/>
-                            </Trigger>
-                            <Trigger Property="IsSelected" Value="True">
-                                <Setter TargetName="Bd" Property="Background" Value="LightGray"/>
-                                <Setter Property="Foreground" Value="Black"/>
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter Property="Foreground" Value="#FF888888"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <Style x:Key="ToolTipStyle" TargetType="ToolTip">
-            <Setter Property="Background" Value="LightGray"/>
-            <Setter Property="Foreground" Value="Black"/>
-            <Setter Property="FontSize" Value="10"/>
-            <Setter Property="Margin" Value="10,5"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="BorderBrush" Value="Black"/>
-            <Setter Property="HorizontalOffset" Value="10"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="ToolTip">
-                        <Border Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="5">
-                            <ContentPresenter Margin="{TemplateBinding Margin}"/>
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
+        <!--合并资源-->
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/src/models/Themes/Generic.xaml"/>
+                <ResourceDictionary Source="/src/controls/Themes/Generic.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
     </Window.Resources>
-    <Grid>
+
+        <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
@@ -510,23 +145,13 @@
                             Content="选择..." 
                             Style="{StaticResource ButtonStyle}" 
                             Click="BrowseWallpaperSavePathButton_Click"/>
-                    <!--<Image Grid.Row="5" Grid.Column="0" 
-                           Source="/icons/settings/folder.ico" 
-                           Width="20" Height="20"
-                           Margin="0 0 10 0"
-                           HorizontalAlignment="Right"/>
-                    <TextBox Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="4"
-                             Name="WallpaperSavePathTextBox" 
-                             Text="{Binding WallpaperSavedPath,
-                                    Mode=OneWay,
-                                    UpdateSourceTrigger=PropertyChanged}"
-                             Style="{StaticResource TextBoxstyle}"/>-->
-                    <controls:PathDisplayControl Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="5"
-                                          x:Name="PathDisplayControl"
-                                          HorizontalAlignment="Left"
-                                          VerticalAlignment="Center"
-                                          Width="286"
-                                          FullPath="{Binding WallpaperSavedPath}">
+
+                    <controls:PathDisplayControl  Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="5"
+                                                  x:Name="PathDisplayControl"
+                                                  HorizontalAlignment="Left"
+                                                  VerticalAlignment="Center"
+                                                  Width="286"
+                                                  FullPath="{Binding WallpaperSavedPath}">
                         <controls:PathDisplayControl.ToolTip>
                             <ToolTip Style="{StaticResource ToolTipStyle}">
                                 <TextBlock Text="{Binding WallpaperSavedPath}"/>
@@ -546,6 +171,10 @@
                                          Mode=TwoWay,
                                          UpdateSourceTrigger=PropertyChanged}"
                               Style="{StaticResource CheckBoxStyle}"/>
+
+                    <!--<Label Grid.Row="10" Grid.Column="0" Margin="0,30"
+                           Content="{Binding WallpaperMode, Mode=OneWay}" 
+                           Style="{StaticResource LabelStyle}"/>-->
 
 
                 </Grid>

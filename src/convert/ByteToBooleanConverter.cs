@@ -20,9 +20,10 @@ namespace Irvue_win.src.convert
         /// <returns></returns>
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is byte byteValue && parameter is string parameterString && byte.TryParse(parameterString, out byte parameterByte))
+            if (value is byte val && parameter is string p && byte.TryParse(p, out byte res))
             {
-                return byteValue == parameterByte;
+                System.Diagnostics.Debug.WriteLine($"ByteToBooleanConverter.convert: val: {val}, res: {res}, p: {p}");
+                return val == res;
             }
             return false; // 默认返回 false
         }
@@ -37,10 +38,11 @@ namespace Irvue_win.src.convert
         /// <returns></returns>
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is bool boolValue && parameter is string parameterString && byte.TryParse(parameterString, out byte parameterByte))
+            if (value is bool val && parameter is string p && byte.TryParse(p, out byte res))
             {
+                System.Diagnostics.Debug.WriteLine($"ByteToBooleanConverter.convertBack: val: {val}, p: {p}, res: {res}");
                 // 如果选中，返回 parameterByte，否则返回 0 
-                return boolValue ? parameterByte : (byte)0; 
+                return val ? res : (byte)0; 
             }
             return (byte)0;
         }

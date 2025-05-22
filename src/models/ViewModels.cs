@@ -95,6 +95,7 @@ namespace Irvue_win.src.models
                     _wallpaperMode = value;
                     Properties.Settings.Default.WallpaperMode = _wallpaperMode;
                     Properties.Settings.Default.Save();
+                    System.Diagnostics.Debug.WriteLine($"WallpaperMode saved: {_wallpaperMode}");
                     OnPropertyChanged();
                 }
             }
@@ -181,57 +182,5 @@ namespace Irvue_win.src.models
         }
 
 
-    }
-
-    class TrayViewModel : INotifyPropertyChanged
-    {
-        public event PropertyChangedEventHandler? PropertyChanged;
-
-        private bool _randomWallpaper;
-
-        private ushort _wallpaperChangeInterval;
-
-        public TrayViewModel()
-        {
-            _randomWallpaper = Properties.Settings.Default.RandomWallpaper;
-            _wallpaperChangeInterval = Properties.Settings.Default.WallpaperChangeInterval;
-        }
-
-        public  bool RandomWallpaper
-        {
-            get { return _randomWallpaper; }
-            set
-            {
-                if (_randomWallpaper != value)
-                {
-                    _randomWallpaper = value;
-                    Properties.Settings.Default.RandomWallpaper = _randomWallpaper;
-                    Properties.Settings.Default.Save();
-                    OnPropertyChanged();
-                    MessageBox.Show($"Ramdom wallpapaer: {Properties.Settings.Default.RandomWallpaper}");
-                }
-            }
-        }
-
-        public ushort WallpaperChangeInterval
-        {
-            get { return _wallpaperChangeInterval; }
-            set
-            {
-                if (_wallpaperChangeInterval != value)
-                {
-                    _wallpaperChangeInterval = value;
-                    Properties.Settings.Default.WallpaperChangeInterval = _wallpaperChangeInterval;
-                    Properties.Settings.Default.Save();
-                    OnPropertyChanged();
-                    MessageBox.Show($"");
-                }
-            }
-        }
-
-        protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
     }
 }

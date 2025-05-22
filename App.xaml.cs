@@ -17,6 +17,9 @@ namespace Irvue_win
         private bool _Is_Exit;
         private readonly WallpaperUtil _WallpaperUtil = new();
 
+        private WeakReference<SettingsWindow?> _SettingsWindowRef = new(null);
+
+
 
         protected override void OnStartup(StartupEventArgs e)
         {
@@ -37,18 +40,19 @@ namespace Irvue_win
 
         private void Settings_Click(Object sender, RoutedEventArgs args)
         {
-            // 创建设置窗口的实例
-            SettingsWindow settingsWindow = new();
+            if (_SettingsWindowRef.TryGetTarget(out var window)
+                && window.IsLoaded)
+            {
+                window.Activate();
+                return;
+            }
 
-            // 
-            //settingsWindow.Owner = this;
+            var newWindow = new SettingsWindow();
+            _SettingsWindowRef.SetTarget(newWindow);
 
-            // 以模态方式显示设置窗口
-            // ShowDialog() 会阻塞主窗口，直到设置窗口关闭
-            settingsWindow.ShowDialog();
-
-            // 当设置窗口关闭后，代码会继续执行到这里
-            // TODO: 在用户点击“保存”后，这里可能需要处理设置窗口返回的结果
+            // 窗口关闭事件
+            newWindow.Closed += (s, e) => _SettingsWindowRef.SetTarget(null);
+            newWindow.Show();
         }
 
         private void Exit_Click(Object sender, RoutedEventArgs args)
@@ -114,9 +118,11 @@ namespace Irvue_win
 
         }
 
+        // 打开频道管理页
         private void UnsplashChannelManage_Click(object sender, RoutedEventArgs e)
         {
-
+            Window window = new ChannelsWindow();
+            window.Show();
         }
 
         private void ChannelRadio_Click(object sender, RoutedEventArgs e)
