@@ -78,7 +78,7 @@
                 </Grid>
             </Label>
             <ScrollViewer Grid.Row="2">
-                <ItemsControl ItemsSource="{Binding ImageUrls}">
+                <ItemsControl ItemsSource="{Binding Photos}">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
                             <WrapPanel Orientation="Horizontal" />
@@ -91,10 +91,14 @@
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
-                                <Image Grid.Row="0" Source="{Binding}" Width="200" Margin="20, 20, 20, 0"/>
+                                <Image Grid.Row="0" Source="{Binding Urls.Small}" Width="200" Margin="20, 20, 20, 0"/>
                                 <StackPanel Grid.Row="1" Orientation="Horizontal" VerticalAlignment="Center">
-                                    <Image Source="{Binding AuthorImageUrl}" Width="24" Height="24" Margin="0,0,5,0"/>
-                                    <TextBox Text="{Binding Author}" Width="170" Style="{StaticResource TextBoxstyle}"/>
+                                    <Image Width="24" Height="24" Margin="20,5,5,0" Source="{Binding User.ProfileImage.Small}">
+                                        <Image.Clip>
+                                            <EllipseGeometry Center="12,12" RadiusX="12" RadiusY="12"/>
+                                        </Image.Clip>
+                                    </Image>
+                                    <TextBox Text="{Binding User.Name}" Margin="0,10, 0, 0" Style="{StaticResource TextBoxstyle}"/>
                                 </StackPanel>
                             </Grid>
                         </DataTemplate>
