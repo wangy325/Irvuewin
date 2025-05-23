@@ -166,5 +166,29 @@ namespace Irvue_win.Properties {
                 this["SettingsWindowTop"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public double ChannelsWindowLeft {
+            get {
+                return ((double)(this["ChannelsWindowLeft"]));
+            }
+            set {
+                this["ChannelsWindowLeft"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public double ChannelsWindowTop {
+            get {
+                return ((double)(this["ChannelsWindowTop"]));
+            }
+            set {
+                this["ChannelsWindowTop"] = value;
+            }
+        }
     }
 }

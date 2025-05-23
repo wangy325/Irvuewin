@@ -1,0 +1,4 @@
+﻿[*.cs]
+
+# CA1050: 在命名空间中声明类型
+dotnet_diagnostic.CA1050.severity = suggestion
