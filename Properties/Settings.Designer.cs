@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Irvue_win.Properties {
+namespace Irvuewin.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
@@ -140,54 +140,6 @@ namespace Irvue_win.Properties {
             }
             set {
                 this["RandomWallpaper"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("500")]
-        public double SettingsWindowLeft {
-            get {
-                return ((double)(this["SettingsWindowLeft"]));
-            }
-            set {
-                this["SettingsWindowLeft"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("100")]
-        public double SettingsWindowTop {
-            get {
-                return ((double)(this["SettingsWindowTop"]));
-            }
-            set {
-                this["SettingsWindowTop"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0")]
-        public double ChannelsWindowLeft {
-            get {
-                return ((double)(this["ChannelsWindowLeft"]));
-            }
-            set {
-                this["ChannelsWindowLeft"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0")]
-        public double ChannelsWindowTop {
-            get {
-                return ((double)(this["ChannelsWindowTop"]));
-            }
-            set {
-                this["ChannelsWindowTop"] = value;
             }
         }
     }

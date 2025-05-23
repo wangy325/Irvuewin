@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Data;
 
-namespace Irvue_win.src.convert
+namespace Irvuewin.src.convert
 {
     class ByteToBooleanConverter : IValueConverter
     {

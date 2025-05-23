@@ -8,10 +8,10 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
-using Irvue_win.Properties;
-using Irvue_win.src.controls;
+using Irvuewin.Properties;
+using Irvuewin.src.controls;
 
-namespace Irvue_win.src.models
+namespace Irvuewin.src
 {
     class SettingsViewModel : INotifyPropertyChanged
     {

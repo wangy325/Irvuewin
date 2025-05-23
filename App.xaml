@@ -1,11 +1,11 @@
-﻿<Application x:Class="Irvue_win.App"
+﻿<Application x:Class="Irvuewin.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:Irvue_win"
+             xmlns:local="clr-namespace:Irvuewin"
              xmlns:tb="http://www.hardcodet.net/taskbar"
-             xmlns:properties="clr-namespace:Irvue_win.Properties"
-             xmlns:cv="clr-namespace:Irvue_win.src.convert"
-             xmlns:src="clr-namespace:Irvue_win.src"
+             xmlns:properties="clr-namespace:Irvuewin.Properties"
+             xmlns:cv="clr-namespace:Irvuewin.src.convert"
+             xmlns:src="clr-namespace:Irvuewin.src"
              ShutdownMode="OnExplicitShutdown">
     <Application.Resources>
         <cv:UshortToBooleanConverter x:Key="Ushort2BoolConverter"/>

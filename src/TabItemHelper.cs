@@ -8,7 +8,7 @@ using System.Windows;
 using System.Globalization;
 using System.Windows.Data;
 
-namespace Irvue_win.src
+namespace Irvuewin.src
 {
     // 设置页面TabItem图标文件帮助类
     public static class TabItemHelper

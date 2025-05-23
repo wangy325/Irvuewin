@@ -10,7 +10,7 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
-namespace Irvue_win.src.controls
+namespace Irvuewin.src.controls
 {
     class PathDisplayControl : ContentControl
     {

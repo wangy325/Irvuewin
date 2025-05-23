@@ -1,11 +1,11 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 using Hardcodet.Wpf.TaskbarNotification;
-using Irvue_win.src.utils;
-using Irvue_win.Properties;
-using Irvue_win.src.models;
+using Irvuewin.src.utils;
+using Irvuewin.Properties;
+using Irvuewin.src.models;
 
-namespace Irvue_win
+namespace Irvuewin
 {
     /// <summary>
     /// Interaction logic for App.xaml
@@ -85,8 +85,8 @@ namespace Irvue_win
                 }
             }
             // save configure
-            Irvue_win.Properties.Settings.Default.Save();
-            System.Diagnostics.Debug.WriteLine($"Current Interval: {Irvue_win.Properties.Settings.Default.WallpaperChangeInterval} ");
+            Irvuewin.Properties.Settings.Default.Save();
+            System.Diagnostics.Debug.WriteLine($"Current Interval: {Irvuewin.Properties.Settings.Default.WallpaperChangeInterval} ");
         }
 
         private void ChangeCurrentWallpaper_Click(Object sender, RoutedEventArgs args)

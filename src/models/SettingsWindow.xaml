@@ -1,26 +1,22 @@
-﻿<Window x:Class="Irvue_win.src.models.SettingsWindow"
+﻿<src:LocationAwareWindow xmlns:src="clr-namespace:Irvuewin.src" x:Class="Irvuewin.src.models.SettingsWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Irvue_win"
-        xmlns:src="clr-namespace:Irvue_win.src"
-        xmlns:models="clr-namespace:Irvue_win.src.models"
-        xmlns:controls="clr-namespace:Irvue_win.src.controls"
+        xmlns:local="clr-namespace:Irvuewin"
+        xmlns:controls="clr-namespace:Irvuewin.src.controls" 
         mc:Ignorable="d"
         Title="Settings" Icon="/icons/application_64.ico" 
         Height="450" Width="350" MinWidth="200" MaxWidth="350" 
         Background="WhiteSmoke"
         ShowInTaskbar="False" ResizeMode="NoResize"
-        WindowStartupLocation="CenterScreen"
-        Loaded="SettingsWindow_Loaded"
-        Closing="SettingsWindow_Closing">
+        WindowStartupLocation="CenterScreen">
 
-    <Window.DataContext>
-        <models:SettingsViewModel/>
-    </Window.DataContext>
+    <src:LocationAwareWindow.DataContext>
+        <src:SettingsViewModel/>
+    </src:LocationAwareWindow.DataContext>
 
-    <Window.Resources>
+    <src:LocationAwareWindow.Resources>
         <!--合并资源-->
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -28,7 +24,7 @@
                 <ResourceDictionary Source="/src/controls/Themes/Generic.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
-    </Window.Resources>
+    </src:LocationAwareWindow.Resources>
 
         <Grid>
         <Grid.RowDefinitions>
@@ -280,4 +276,4 @@
         </StackPanel>-->
 
     </Grid>
-</Window>
+</src:LocationAwareWindow>

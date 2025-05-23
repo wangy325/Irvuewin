@@ -1,8 +1,8 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:local="clr-namespace:Irvue_win.src.models"
-                    xmlns:src="clr-namespace:Irvue_win.src"
-                    xmlns:cv="clr-namespace:Irvue_win.src.convert">
+                    xmlns:local="clr-namespace:Irvuewin.src.models"
+                    xmlns:src="clr-namespace:Irvuewin.src"
+                    xmlns:cv="clr-namespace:Irvuewin.src.convert">
 
     <cv:ByteToBooleanConverter x:Key="Byte2BoolConverter"/>
     <cv:FloatToStringConverter x:Key="Float2StringConverter"/>

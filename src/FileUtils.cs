@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Irvue_win.src
+namespace Irvuewin.src
 {
     public static class FileUtils
     {

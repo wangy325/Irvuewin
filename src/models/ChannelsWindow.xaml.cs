@@ -13,14 +13,13 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
-using Irvue_win.Properties;
 
-namespace Irvue_win.src.models
+namespace Irvuewin.src.models
 {
 
     // Ensure there is no conflicting partial class declaration for ChannelsWindow in the project.  
     // This class should inherit from LocationAwareWindow only.  
-    public partial class ChannelsWindow : LocationAwareWindow
+    public partial class ChannelsWindow: LocationAwareWindow
     {
         public ObservableCollection<string> ImageUrls { get; set; } = [];
 

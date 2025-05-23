@@ -13,43 +13,17 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using Hardcodet.Wpf.TaskbarNotification;
-using Irvue_win.Properties;
-using Irvue_win.src.controls;
+using Irvuewin.Properties;
+using Irvuewin.src.controls;
 
-namespace Irvue_win.src.models
+namespace Irvuewin.src.models
 {
-    /// <summary>
-    /// Window1.xaml 的交互逻辑
-    /// </summary>
-    public partial class SettingsWindow : Window
+    public partial class SettingsWindow : LocationAwareWindow
     {
         public SettingsWindow()
         {
             InitializeComponent();
-        }
-
-
-        private void SettingsWindow_Loaded(object sender, RoutedEventArgs e)
-        {
-            // 加载保存的位置和大小
-            this.Left = Settings.Default.SettingsWindowLeft;
-            this.Top = Settings.Default.SettingsWindowTop;
-
-            // 防止窗口初始启动时不在屏幕内
-            if (this.Left < 0 || this.Top < 0 
-                || this.Left > SystemParameters.VirtualScreenWidth - this.Width 
-                || this.Top > SystemParameters.VirtualScreenHeight - this.Height)
-            {
-                this.WindowStartupLocation = WindowStartupLocation.CenterScreen;
-            }
-        }
-
-        private void SettingsWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
-        {
-            // 保存窗口的位置和大小
-            Settings.Default.SettingsWindowLeft = this.Left;
-            Settings.Default.SettingsWindowTop = this.Top;
-            Settings.Default.Save();
+            //this.DataContext = this;
         }
 
 

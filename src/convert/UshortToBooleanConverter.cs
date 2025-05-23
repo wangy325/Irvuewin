@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
 
-namespace Irvue_win.src.convert
+namespace Irvuewin.src.convert
 
 {
     /// <summary>

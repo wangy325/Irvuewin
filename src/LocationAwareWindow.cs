@@ -5,9 +5,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
-using Irvue_win.src;
 
-namespace Irvue_win.src
+namespace Irvuewin.src
 {
     public class LocationAwareWindow: Window
     {
