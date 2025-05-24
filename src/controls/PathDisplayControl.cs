@@ -1,31 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
-namespace Irvuewin.src.controls
+namespace Irvuewin.controls
 {
-    class PathDisplayControl : ContentControl
+    public class PathDisplayControl : ContentControl
     {
         // 用于水平排列图标和文本
         private StackPanel? _panel;
 
         public static readonly DependencyProperty FullPathProperty =
-            DependencyProperty.Register("FullPath", typeof(string), typeof(PathDisplayControl),
+            DependencyProperty.Register(nameof(FullPath), typeof(string), typeof(PathDisplayControl),
                 new FrameworkPropertyMetadata(string.Empty, FrameworkPropertyMetadataOptions.AffectsRender,
                     OnFullPathChanged));
-
         public string FullPath
         {
-            get { return (string)GetValue(FullPathProperty); }
-            set { SetValue(FullPathProperty, value); }
+            get => (string)GetValue(FullPathProperty);
+            set => SetValue(FullPathProperty, value);
         }
 
         static PathDisplayControl()
@@ -50,7 +41,7 @@ namespace Irvuewin.src.controls
             UpdateDisplay();
         }
 
-        public static void OnFullPathChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        private static void OnFullPathChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             PathDisplayControl control = (PathDisplayControl)d;
             control.UpdateDisplay();
@@ -66,19 +57,18 @@ namespace Irvuewin.src.controls
 
             // page width
             // TODO: 首次打开窗口读数为0
-            double contentWidth = this.ActualWidth == 0 ? 286 : this.ActualWidth;
+            var contentWidth = ActualWidth == 0 ? 286 : ActualWidth;
             //Debug.WriteLine($"page width: {contentWidth}");
-
-            string[] directories = FullPath.Split(System.IO.Path.DirectorySeparatorChar);
+            var directories = FullPath.Split(System.IO.Path.DirectorySeparatorChar);
 
             // 取后半部分路径
-            double _accumulatedWidth = 0;
-            int _iconSize = 14;
+            double accumulatedWidth = 0;
+            const int iconSize = 14;
            
-            Stack<TextBlock> _stackBlocks = new();
-            for (int i = (directories.Length - 1); i >= 0; i--)
+            Stack<TextBlock> stackBlocks = new();
+            for (var i = (directories.Length - 1); i >= 0; i--)
             {
-                string directory = directories[i];
+                var directory = directories[i];
                 if (string.IsNullOrEmpty(directory)) continue;
 
                 // 添加目录名
@@ -94,29 +84,27 @@ namespace Irvuewin.src.controls
                 textBlock.Arrange(new Rect(textBlock.DesiredSize));
 
                 // magic number is margin
-                _accumulatedWidth += textBlock.ActualWidth + 6 + _iconSize;
+                accumulatedWidth += textBlock.ActualWidth + 6 + iconSize;
                 //Debug.WriteLine($"_accumulateWidth: {_accumulatedWidth}");
-
-
-                if (_accumulatedWidth > contentWidth)
+                
+                if (accumulatedWidth > contentWidth)
                     break;
-                _stackBlocks.Push(textBlock);
+                stackBlocks.Push(textBlock);
             }
 
             //Debug.WriteLine($"block length: {_textBlocks.Count}");
 
-            foreach (TextBlock item in _stackBlocks)
+            foreach (var item in stackBlocks)
             {
                 // Image不能复用~ （WPF不允许）
                 Image icon = new()
                 {
-                    Source = new BitmapImage(new Uri("pack://application:,,,/Irvue-win;component/icons/settings/folder.ico")),
-                    Width = _iconSize,
-                    Height = _iconSize,
+                    Source = new BitmapImage(new Uri("pack://application:,,,/Irvuewin;component/icons/settings/folder.ico")),
+                    Width = iconSize,
+                    Height = iconSize,
                     Margin = new Thickness(0, 0, 0, 0)
                 };
                 _panel.Children.Add(icon);
-
                 // 添加目录名
                 _panel.Children.Add(item);
             }

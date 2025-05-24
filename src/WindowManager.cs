@@ -2,7 +2,7 @@ using System.IO;
 using System.Windows;
 using System.Xml.Serialization;
 
-namespace Irvuewin.src
+namespace Irvuewin
 {
     public static class WindowManager
     {

@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Irvuewin.src.unsplash.collections;
+﻿
+using Irvuewin.unsplash.collections;
 
-namespace Irvuewin.src.unsplash.photos
+namespace Irvuewin.unsplash.photos
 {
 
     public abstract class Photo

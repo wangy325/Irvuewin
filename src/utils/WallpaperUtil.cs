@@ -2,7 +2,7 @@
 using System.IO;
 using System.Net.Http;
 
-namespace Irvuewin.src.utils
+namespace Irvuewin.utils
 {
     public sealed class WallpaperUtil
     {

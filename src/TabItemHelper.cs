@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿
 using System.Windows.Media;
 using System.Windows;
-using System.Globalization;
-using System.Windows.Data;
 
-namespace Irvuewin.src
+
+namespace Irvuewin
 {
     // 设置页面TabItem图标文件帮助类
     public static class TabItemHelper

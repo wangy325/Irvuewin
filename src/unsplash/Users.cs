@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Irvuewin.src.unsplash
+﻿
+namespace Irvuewin.unsplash
 {
 
     public abstract class User 
@@ -57,7 +52,7 @@ namespace Irvuewin.src.unsplash
     {
         public string? InstagramUsername { get; set; }
         public string? PortfolioUrl { get; set; }
-        public object? TwitterUsername { get; set; }
-        public object? PaypalEmail { get; set; }
+        public string? TwitterUsername { get; set; }
+        public string? PaypalEmail { get; set; }
     }
 }

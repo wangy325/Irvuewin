@@ -1,9 +1,9 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 using Hardcodet.Wpf.TaskbarNotification;
-using Irvuewin.src.utils;
+using Irvuewin.utils;
 using Irvuewin.Properties;
-using Irvuewin.src.models;
+using Irvuewin.models;
 
 namespace Irvuewin
 {
@@ -11,54 +11,38 @@ namespace Irvuewin
     /// Interaction logic for App.xaml
     /// </summary>
     /// 
-    public partial class App : Application
+    public partial class App
     {
-        private TaskbarIcon? _TaskbarIcon;
-        private bool _Is_Exit;
-        private readonly WallpaperUtil _WallpaperUtil = new();
-
-        private WeakReference<SettingsWindow?> _SettingsWindowRef = new(null);
-
-
-
+        private TaskbarIcon? _taskbarIcon;
+        private bool _isExit;
+        private readonly WallpaperUtil _wallpaperUtil = new();
+        
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
-            _TaskbarIcon = (TaskbarIcon)FindResource("NotifyIcon");
-
+            if (FindResource("NotifyIcon") is TaskbarIcon taskbarIcon)
+                _taskbarIcon = taskbarIcon;
         }
 
         protected override void OnExit(ExitEventArgs e)
         {
             base.OnExit(e);
-            if (!_Is_Exit)
+            if (!_isExit)
             { 
-                _TaskbarIcon?.Dispose();
-                Application.Current.Shutdown();
+                _taskbarIcon?.Dispose();
+                Current.Shutdown();
             }
         }
 
-        private void Settings_Click(Object sender, RoutedEventArgs args)
+        private void Settings_Click(object sender, RoutedEventArgs args)
         {
-            if (_SettingsWindowRef.TryGetTarget(out var window)
-                && window.IsLoaded)
-            {
-                window.Activate();
-                return;
-            }
-
-            var newWindow = new SettingsWindow();
-            _SettingsWindowRef.SetTarget(newWindow);
-
-            // 窗口关闭事件
-            newWindow.Closed += (s, e) => _SettingsWindowRef.SetTarget(null);
-            newWindow.Show();
+            WindowManager.ShowWindow("SettingsWindow", () => new SettingsWindow());
         }
 
-        private void Exit_Click(Object sender, RoutedEventArgs args)
+        private void Exit_Click(object sender, RoutedEventArgs args)
         {
-            _Is_Exit = true;
-            _TaskbarIcon?.Dispose();
+            _isExit = true;
+            _taskbarIcon?.Dispose();
             Application.Current.Shutdown();
         }
 
@@ -85,17 +69,17 @@ namespace Irvuewin
                 }
             }
             // save configure
-            Irvuewin.Properties.Settings.Default.Save();
-            System.Diagnostics.Debug.WriteLine($"Current Interval: {Irvuewin.Properties.Settings.Default.WallpaperChangeInterval} ");
+            Settings.Default.Save();
+            System.Diagnostics.Debug.WriteLine($"Current Interval: {Settings.Default.WallpaperChangeInterval} ");
         }
 
-        private void ChangeCurrentWallpaper_Click(Object sender, RoutedEventArgs args)
+        private void ChangeCurrentWallpaper_Click(object sender, RoutedEventArgs args)
         {
             // TODO: 切换壁纸
             //string imageUrl = "https://hbimg.huaban.com/beeedb5ac346014d36570c37b504e9bc58f980f94d722b-3cEvg7";
             string imageUrl = "https://gd-hbimg.huaban.com/4d7cf515c2bb64e3c01fd1296051d73b4af17383373d09-Xq5iSg";
 
-            _WallpaperUtil.SetWallpaper(imageUrl, FetchMode.Random, OS.Windows);
+            _wallpaperUtil.SetWallpaper(imageUrl, FetchMode.Random, OS.Windows);
         }
 
         private void DownloadCurrentWallpaper_Click(object sender, RoutedEventArgs e)
@@ -115,14 +99,13 @@ namespace Irvuewin
 
         private void UnsplashChannel_Click(object sender, RoutedEventArgs e)
         {
-
+            
         }
 
         // 打开频道管理页
         private void UnsplashChannelManage_Click(object sender, RoutedEventArgs e)
         {
-            Window window = new ChannelsWindow();
-            window.Show();
+            WindowManager.ShowWindow("ChannelsWindow", () => new ChannelsWindow());
         }
 
         private void ChannelRadio_Click(object sender, RoutedEventArgs e)
@@ -152,10 +135,8 @@ namespace Irvuewin
         /// <param name="e"></param>
         private void TrayMouseLeft_Click(object sender, RoutedEventArgs e)
         {
-            if (_TaskbarIcon != null && _TaskbarIcon.IsVisible)
-            {
-                _TaskbarIcon.ContextMenu.IsOpen = false;
-            }
+            if (_taskbarIcon is not { IsVisible: true }) return;
+            if (_taskbarIcon.ContextMenu != null) _taskbarIcon.ContextMenu.IsOpen = false;
         }
 
         private void RandomSwitch_Click(object sender, RoutedEventArgs e)

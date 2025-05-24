@@ -1,17 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
+﻿
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Irvuewin.src
+
+namespace Irvuewin
 {
     public static class FileUtils
     {
-        public static readonly String AppDataFolder = Path.Combine(
+        public static readonly string AppDataFolder = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            System.Reflection.Assembly.GetExecutingAssembly().GetName().Name ?? "Irvue-win"
+            System.Reflection.Assembly.GetExecutingAssembly().GetName().Name ?? "Irvuewin"
         );
 
         static FileUtils()
@@ -20,10 +17,9 @@ namespace Irvuewin.src
         }
 
         // key -> window's tile (unique)  
-        public static String WindowPositionPath(String key)
+        public static string WindowPositionPath(string key)
         {
-            string fileName = $"{key}.position.xml";
-
+            var fileName = $"{key}.position.xml";
             return Path.Combine(AppDataFolder, fileName);
         }
     }

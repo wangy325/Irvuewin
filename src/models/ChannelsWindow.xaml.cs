@@ -1,22 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿
 using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-using Irvuewin.src.unsplash;
-using Irvuewin.src.unsplash.photos;
+using Irvuewin.unsplash;
+using Irvuewin.unsplash.photos;
 
-namespace Irvuewin.src.models
+namespace Irvuewin.models
 {
 
     // Ensure there is no conflicting partial class declaration for ChannelsWindow in the project.  

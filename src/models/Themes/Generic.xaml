@@ -1,8 +1,7 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:local="clr-namespace:Irvuewin.src.models"
-                    xmlns:src="clr-namespace:Irvuewin.src"
-                    xmlns:cv="clr-namespace:Irvuewin.src.convert">
+                    xmlns:local="clr-namespace:Irvuewin"
+                    xmlns:cv="clr-namespace:Irvuewin.convert">
 
     <cv:ByteToBooleanConverter x:Key="Byte2BoolConverter"/>
     <cv:FloatToStringConverter x:Key="Float2StringConverter"/>
@@ -163,7 +162,6 @@
         <Setter Property="Margin" Value="0, 5"/>
         <Setter Property="Background" Value="WhiteSmoke"/>
         <Setter Property="IsReadOnly" Value="True"/>
-        <Setter Property="FontFamily" Value="Cascadia Code"/>
     </Style>
     <Style x:Key="TabStyle" TargetType="TabItem">
         <Setter Property="Height" Value="Auto"/>
@@ -186,7 +184,7 @@
                      Width="27" Height="27"
                      Source="{Binding 
                               RelativeSource={RelativeSource TemplatedParent}, 
-                              Path=(src:TabItemHelper.IconSource)}"
+                              Path=(local:TabItemHelper.IconSource)}"
                      Margin="15, 5, 15, 0"/>
 
                             <ContentPresenter x:Name="ContentSite"
@@ -221,18 +219,18 @@
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
                     <Border x:Name="xWindowButton"
-                  Background="{TemplateBinding Background}"
-                  CornerRadius="3"
-                  BorderBrush="{TemplateBinding BorderBrush}"
-                  BorderThickness="{TemplateBinding BorderThickness}">
+                          Background="{TemplateBinding Background}"
+                          CornerRadius="3"
+                          BorderBrush="{TemplateBinding BorderBrush}"
+                          BorderThickness="{TemplateBinding BorderThickness}">
                         <ContentPresenter HorizontalAlignment="Center"
                               VerticalAlignment="Center"/>
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter TargetName="xWindowButton"
-                      Property="Background"
-                      Value="#cbcbcb"/>
+                                    Property="Background"
+                                    Value="#bcbcbc"/>
                             <Setter Property="Cursor" Value="Arrow"/>
                             <Setter Property="Foreground" Value="DarkBlue"/>
                         </Trigger>
@@ -251,56 +249,56 @@
                 <ControlTemplate TargetType="ComboBox">
                     <Grid>
                         <ToggleButton
-                Name="ToggleButton"
-                Focusable="false"
-                IsChecked="{Binding Path=IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
-                ClickMode="Press"
-                Background="Transparent"
-                BorderThickness="1"
-                BorderBrush="LightGray">
+                                Name="ToggleButton"
+                                Focusable="false"
+                                IsChecked="{Binding Path=IsDropDownOpen, 
+                                            Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                ClickMode="Press"
+                                Background="Transparent"
+                                BorderThickness="1"
+                                BorderBrush="LightGray">
                             <ToggleButton.Template>
                                 <ControlTemplate TargetType="ToggleButton">
                                     <Border x:Name="Border"
-                          Background="{TemplateBinding Background}"
-                          BorderBrush="{TemplateBinding BorderBrush}"
-                          BorderThickness="{TemplateBinding BorderThickness}"
-                          CornerRadius="5">
+                                              Background="{TemplateBinding Background}"
+                                              BorderBrush="{TemplateBinding BorderBrush}"
+                                              BorderThickness="{TemplateBinding BorderThickness}"
+                                              CornerRadius="5">
                                         <Path x:Name="Arrow"
-                        Margin="5,0"
-                        HorizontalAlignment="Right"
-                        VerticalAlignment="Center"
-                        Data="M 0 0 L 4 4 L 8 0 Z"
-                        Fill="Gray"/>
+                                                Margin="5,0"
+                                                HorizontalAlignment="Right"
+                                                VerticalAlignment="Center"
+                                                Data="M 0 0 L 4 4 L 8 0 Z"
+                                                Fill="Gray"/>
                                     </Border>
                                 </ControlTemplate>
                             </ToggleButton.Template>
                         </ToggleButton>
 
                         <ContentPresenter
-                Name="ContentSite"
-                IsHitTestVisible="False"
-                Content="{TemplateBinding SelectionBoxItem}"
-                Margin="10,0"
-                VerticalAlignment="Center"
-                ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
-                ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
-                HorizontalAlignment="left" >
+                            Name="ContentSite"
+                            IsHitTestVisible="False"
+                            Content="{TemplateBinding SelectionBoxItem}"
+                            Margin="10,0"
+                            VerticalAlignment="Center"
+                            ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                            ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
+                            HorizontalAlignment="left" >
                         </ContentPresenter>
 
-                        <Popup
-                Name="Popup"
-                Placement="Bottom"
-                IsOpen="{TemplateBinding IsDropDownOpen}"
-                AllowsTransparency="True"
-                Focusable="False"
-                PopupAnimation="Slide">
+                        <Popup Name="Popup"
+                            Placement="Bottom"
+                            IsOpen="{TemplateBinding IsDropDownOpen}"
+                            AllowsTransparency="True"
+                            Focusable="False"
+                            PopupAnimation="Slide">
                             <Border
-                  SnapsToDevicePixels="True"
-                  Background="WhiteSmoke"
-                  BorderBrush="LightGray"
-                  BorderThickness="1"
-                  Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=ComboBox}}"
-                  CornerRadius="5">
+                                  SnapsToDevicePixels="True"
+                                  Background="WhiteSmoke"
+                                  BorderBrush="LightGray"
+                                  BorderThickness="1"
+                                  Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=ComboBox}}"
+                                  CornerRadius="5">
                                 <ScrollViewer Margin="4,6,4,6" SnapsToDevicePixels="True">
                                     <StackPanel IsItemsHost="True"
                               KeyboardNavigation.DirectionalNavigation="Contained" />
@@ -328,14 +326,14 @@
             <Setter.Value>
                 <ControlTemplate TargetType="ComboBoxItem">
                     <Border x:Name="Bd"
-              Background="{TemplateBinding Background}"
-              Padding="{TemplateBinding Padding}"
-              CornerRadius="5"
-              SnapsToDevicePixels="True">
+                              Background="{TemplateBinding Background}"
+                              Padding="{TemplateBinding Padding}"
+                              CornerRadius="5"
+                              SnapsToDevicePixels="True">
                         <ContentPresenter
-            HorizontalAlignment="Stretch"
-            VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
-            SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+                            HorizontalAlignment="Stretch"
+                            VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                            SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsHighlighted" Value="True">
@@ -367,11 +365,76 @@
             <Setter.Value>
                 <ControlTemplate TargetType="ToolTip">
                     <Border Background="{TemplateBinding Background}"
-                  BorderBrush="{TemplateBinding BorderBrush}"
-                  BorderThickness="{TemplateBinding BorderThickness}"
-                  CornerRadius="5">
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="5">
                         <ContentPresenter Margin="{TemplateBinding Margin}"/>
                     </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="ListBoxStyle" TargetType="ListBox">
+        <Setter Property="Background" Value="LightGray"/>
+        <Setter Property="Margin" Value="0,0"/>
+        <Setter Property="SelectionMode"  Value="Single"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="BorderBrush" Value="LightGray"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ListBox">
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="0">
+                        <ItemsPresenter/>
+                        
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="ListBoxItemStyle" TargetType="ListBoxItem">
+        <!-- 基础属性设置 -->
+        <Setter Property="Background" Value="LightGray"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Height" Value="40"/>
+        <Setter Property="Margin" Value="5"/>
+        <Setter Property="HorizontalContentAlignment" Value="Left"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ListBoxItem">
+                    <Border x:Name="Bd"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="5"
+                            SnapsToDevicePixels="True">
+                        <ContentPresenter x:Name="ContentPresenter"
+                                        Content="{TemplateBinding Content}"
+                                        ContentTemplate="{TemplateBinding ContentTemplate}"
+                                        HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                        VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                        Margin="{TemplateBinding Padding}"
+                                        SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+                    </Border>
+                    <!-- 视觉状态管理 -->
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bd" Property="Background" Value="#FF3585FF"/>
+                            <Setter TargetName="ContentPresenter" Property="TextElement.Foreground" Value="White"/>
+                        </Trigger>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter TargetName="Bd" Property="Background" Value="#bcbcbc"/>
+                            <Setter TargetName="ContentPresenter" Property="TextElement.Foreground" Value="Black"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="ContentPresenter" Property="TextElement.Foreground" Value="#FF888888"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
