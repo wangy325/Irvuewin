@@ -157,11 +157,10 @@
             </Setter.Value>
         </Setter>
     </Style>
-    <Style x:Key="TextBoxstyle" TargetType="TextBox">
-        <Setter Property="BorderThickness" Value="0"/>
-        <Setter Property="Margin" Value="0, 5"/>
+    <Style x:Key="TextBlockStyle" TargetType="TextBlock">
+        <Setter Property="Margin" Value="0, 0"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
         <Setter Property="Background" Value="WhiteSmoke"/>
-        <Setter Property="IsReadOnly" Value="True"/>
     </Style>
     <Style x:Key="TabStyle" TargetType="TabItem">
         <Setter Property="Height" Value="Auto"/>
@@ -181,12 +180,11 @@
                         HorizontalAlignment="Center"
                         VerticalAlignment="Center">
                             <Image x:Name="TabItemIconImage"
-                     Width="27" Height="27"
-                     Source="{Binding 
-                              RelativeSource={RelativeSource TemplatedParent}, 
-                              Path=(local:TabItemHelper.IconSource)}"
-                     Margin="15, 5, 15, 0"/>
-
+                                    Width="27" Height="27"
+                                    Source="{Binding 
+                                        RelativeSource={RelativeSource TemplatedParent}, 
+                                        Path=(local:TabItemHelper.IconSource)}"
+                                    Margin="15, 5, 15, 0"/>
                             <ContentPresenter x:Name="ContentSite"
                             VerticalAlignment="Center"
                             HorizontalAlignment="Center"
@@ -232,7 +230,7 @@
                                     Property="Background"
                                     Value="#bcbcbc"/>
                             <Setter Property="Cursor" Value="Arrow"/>
-                            <Setter Property="Foreground" Value="DarkBlue"/>
+                            <!-- <Setter Property="Foreground" Value="DarkBlue"/> -->
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -376,7 +374,7 @@
     </Style>
 
     <Style x:Key="ListBoxStyle" TargetType="ListBox">
-        <Setter Property="Background" Value="LightGray"/>
+        <Setter Property="Background" Value="WhiteSmoke"/>
         <Setter Property="Margin" Value="0,0"/>
         <Setter Property="SelectionMode"  Value="Single"/>
         <Setter Property="BorderThickness" Value="0"/>
@@ -398,7 +396,7 @@
 
     <Style x:Key="ListBoxItemStyle" TargetType="ListBoxItem">
         <!-- 基础属性设置 -->
-        <Setter Property="Background" Value="LightGray"/>
+        <Setter Property="Background" Value="WhiteSmoke"/>
         <Setter Property="BorderThickness" Value="0"/>
         <Setter Property="Height" Value="40"/>
         <Setter Property="Margin" Value="5"/>
@@ -424,11 +422,11 @@
                     <!-- 视觉状态管理 -->
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Bd" Property="Background" Value="#FF3585FF"/>
-                            <Setter TargetName="ContentPresenter" Property="TextElement.Foreground" Value="White"/>
+                            <Setter TargetName="Bd" Property="Background" Value="LightGray"/>
+                            <Setter TargetName="ContentPresenter" Property="TextElement.Foreground" Value="Black"/>
                         </Trigger>
                         <Trigger Property="IsSelected" Value="True">
-                            <Setter TargetName="Bd" Property="Background" Value="#bcbcbc"/>
+                            <Setter TargetName="Bd" Property="Background" Value="LightGray"/>
                             <Setter TargetName="ContentPresenter" Property="TextElement.Foreground" Value="Black"/>
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
@@ -439,4 +437,138 @@
             </Setter.Value>
         </Setter>
     </Style>
+
+
+    <Style x:Key="ScrollBarPageButton" TargetType="{x:Type RepeatButton}">
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="OverridesDefaultStyle" Value="true" />
+        <Setter Property="IsTabStop" Value="false" />
+        <Setter Property="Focusable" Value="false" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type RepeatButton}">
+                    <Border Background="Transparent" />
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="ScrollBarThumb" TargetType="{x:Type Thumb}">
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="OverridesDefaultStyle" Value="true" />
+        <Setter Property="IsTabStop" Value="false" />
+        <Setter Property="Focusable" Value="false" />
+        <Setter Property="Background">
+            <Setter.Value>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                    <GradientStop Color="#bcbcbc" Offset="0.0" />
+                    <GradientStop Color="#bcbcbc" Offset="1.0" />
+                </LinearGradientBrush>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Thumb}">
+                    <Border x:Name="ThumbBorder"
+                            CornerRadius="2"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="1" />
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="ThumbBorder" Property="Background">
+                                <Setter.Value>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                        <GradientStop Color="#888888" Offset="0.0" />
+                                        <GradientStop Color="#888888" Offset="1.0" />
+                                    </LinearGradientBrush>
+                                </Setter.Value>
+                            </Setter>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <ControlTemplate x:Key="VerticalScrollBar" TargetType="{x:Type ScrollBar}">
+        <Grid x:Name="ScrollBarGrid" Visibility="Visible">
+            <Grid.RowDefinitions>
+                <RowDefinition />
+            </Grid.RowDefinitions>
+            <Border Grid.RowSpan="3"
+                    CornerRadius="2"
+                    Background="LightGray" />
+            <Track x:Name="PART_Track"
+                    Grid.Row="1"
+                    IsDirectionReversed="true">
+                <Track.DecreaseRepeatButton>
+                    <RepeatButton Style="{StaticResource ScrollBarPageButton}"
+                                  Command="ScrollBar.PageUpCommand" />
+                </Track.DecreaseRepeatButton>
+                <Track.Thumb>
+                    <Thumb Style="{StaticResource ScrollBarThumb}" Margin="1,0"/>
+                </Track.Thumb>
+                <Track.IncreaseRepeatButton>
+                    <RepeatButton Style="{StaticResource ScrollBarPageButton}"
+                                  Command="ScrollBar.PageDownCommand" />
+                </Track.IncreaseRepeatButton>
+            </Track>
+        </Grid>
+    </ControlTemplate>
+
+    <Style x:Key="{x:Type ScrollBar}" TargetType="{x:Type ScrollBar}">
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="OverridesDefaultStyle" Value="true" />
+        <Style.Triggers>
+            <Trigger Property="Orientation" Value="Vertical">
+                <Setter Property="Width" Value="10" />
+                <Setter Property="Height" Value="Auto" />
+                <Setter Property="Template" Value="{StaticResource VerticalScrollBar}" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="ScrollViewerStyle" TargetType="{x:Type ScrollViewer}">
+        <Setter Property="OverridesDefaultStyle" Value="True"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ScrollViewer}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition />
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <!--<Border Grid.Column="0" Grid.ColumnSpan="2"
+                                BorderThickness="1,1,1,1">
+                            <Border.BorderBrush>
+                                <SolidColorBrush Color="Red"/>
+                            </Border.BorderBrush>
+                        </Border>-->
+                            <ScrollContentPresenter CanContentScroll="{TemplateBinding CanContentScroll}" />
+
+
+                        <!-- 垂直滚动条 -->
+                        <ScrollBar Grid.Row="0" Grid.Column="1" x:Name="PART_VerticalScrollBar"
+                                   Value="{TemplateBinding VerticalOffset}"
+                                   Maximum="{TemplateBinding ScrollableHeight}"
+                                   ViewportSize="{TemplateBinding ViewportHeight}"
+                                   Visibility="{TemplateBinding ComputedVerticalScrollBarVisibility}"
+                                   >
+                        </ScrollBar>
+                        <ScrollBar x:Name="HorizontalScrollBar"
+                                   Orientation="Horizontal"
+                                   IsEnabled="False"
+                                   Visibility="Hidden"/>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
 </ResourceDictionary>

@@ -24,6 +24,7 @@
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="200"/>
+            <ColumnDefinition Width="10"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
@@ -34,7 +35,7 @@
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="45"/>
             </Grid.RowDefinitions>
-            <ListBox Grid.Column="0" Grid.Row="0"
+            <ListBox Grid.Row="0"
                      ItemContainerStyle="{StaticResource ListBoxItemStyle}"
                      Style="{StaticResource ListBoxStyle}"
                      >
@@ -52,19 +53,26 @@
                 <ListBoxItem Content="频道2"/>
                 <ListBoxItem Content="频道3"/>
             </ListBox>
-            <StackPanel Grid.Column="0" Grid.Row="1"
-                        Orientation="Horizontal"
-                        HorizontalAlignment="Right">
-                <Button Content="+" Width="35"
-                        Style="{StaticResource BottomButtonStyle}"/>
-                <Button Content="-" Width="35"
-                        Style="{StaticResource BottomButtonStyle}"/>
-            </StackPanel>
+                <StackPanel Grid.Row="1"
+                            Orientation="Horizontal"
+                            HorizontalAlignment="Right">
+                    <Button Content="+" Width="35"
+                            Style="{StaticResource BottomButtonStyle}"/>
+                    <Button Content="-" Width="35"
+                            Style="{StaticResource BottomButtonStyle}"/>
+                </StackPanel>
         </Grid>
+        
+        <Separator  Grid.Column="1" >
+            <Separator.LayoutTransform>
+                <RotateTransform Angle="90" />
+            </Separator.LayoutTransform>
+        </Separator>
 
-        <Grid Grid.Column="1">
+        <Grid Grid.Column="2">
             <Grid.RowDefinitions>
                 <RowDefinition Height="40"/>
+                <RowDefinition Height="10"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
@@ -72,22 +80,30 @@
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="50" />
+                        <ColumnDefinition Width="100" />
                     </Grid.ColumnDefinitions>
-                    <Label Grid.Column="0" Content="壁纸预览" 
-                           Margin="0"
-                           VerticalContentAlignment="Center"
+                    <Label Grid.Column="0"
+                           Padding="20,0"
                            HorizontalContentAlignment="Left"
-                           Style="{StaticResource LabelStyle}"/>
+                           Style="{StaticResource LabelStyle}">
+                        <Label.Content>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="频道1" Style="{StaticResource TextBlockStyle}"/>
+                                <Image Source="/icons/application_48.ico" />
+                            </StackPanel>
+                        </Label.Content>
+                    </Label>
                     <Button Grid.Column="1"
                             Content="刷新" 
                             Width="50" Height="20"
-                            Margin="0"
                             Style="{StaticResource BottomButtonStyle}"/>
                 </Grid>
             </Grid>
             
-            <ScrollViewer Grid.Row="1" Margin="0,0,0,10">
+            <Separator Grid.Row="1" Margin="0,0,10,0"/> 
+            
+            <ScrollViewer Grid.Row="2" Margin="0,0,0,10" 
+                          Style="{StaticResource ScrollViewerStyle}">
                 <ItemsControl ItemsSource="{Binding Photos}">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
@@ -102,11 +118,22 @@
                                     <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
                                 <Image Grid.Row="0" 
-                                       Source="{Binding Urls.Small}" 
-                                       Width="200" Margin="10, 10, 20, 0"/>
+                                       Margin="10, 10, 20, 0"
+                                       Width="200"
+                                       Source="{Binding Urls.Small}">
+                                    <Image.Style>
+                                        <Style TargetType="Image">
+                                            <Setter Property="Clip">
+                                                <Setter.Value>
+                                                    <RectangleGeometry RadiusX="5" RadiusY="5" Rect="0,0,200,130"/>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Style>
+                                    </Image.Style>
+                                </Image>
                                 <StackPanel Grid.Row="1" Orientation="Horizontal" 
                                             VerticalAlignment="Center">
-                                    <Image Width="24" Height="24" Margin="20,5,5,5" 
+                                    <Image Width="24" Height="24" Margin="20,0,5,0" 
                                            Source="{Binding User.ProfileImage.Small}">
                                         <Image.Clip>
                                             <EllipseGeometry Center="12,12" RadiusX="12" RadiusY="12"/>
