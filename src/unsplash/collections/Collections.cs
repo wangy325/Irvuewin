@@ -3,7 +3,7 @@ using Irvuewin.unsplash.photos;
 
 namespace Irvuewin.unsplash.collections
 {
-    public class Collection
+    public class UCollection
     {
         public required string Id { get; set; }
         public required string Title { get; set; }
@@ -17,7 +17,7 @@ namespace Irvuewin.unsplash.collections
         public string? ShareKey { get; set; }
         public required Links Links { get; set; }
         public required User User { get; set; }
-        public required UnsplashPhoto CoverPhoto { get; set; }
+        public required UPhoto CoverPhoto { get; set; }
         public required List<PreviewPhoto> PreviewPhotos { get; set; }
     }
 

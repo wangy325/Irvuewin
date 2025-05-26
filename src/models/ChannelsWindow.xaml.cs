@@ -2,60 +2,93 @@
 using System.Collections.ObjectModel;
 using Irvuewin.unsplash;
 using Irvuewin.unsplash.photos;
+using Irvuewin.unsplash.collections;
+using System.Windows;
+using System.Windows.Controls;
+using Irvuewin.Properties;
 
 namespace Irvuewin.models
 {
 
-    // Ensure there is no conflicting partial class declaration for ChannelsWindow in the project.  
-    // This class should inherit from LocationAwareWindow only.  
-    public partial class ChannelsWindow: LocationAwareWindow
+    public partial class ChannelsWindow : LocationAwareWindow
     {
-        public ObservableCollection<UnsplashPhoto> Photos { get; set; } = [];
 
+        private bool _isInitialized = false;
         public ChannelsWindow()
         {
             InitializeComponent();
+            this.Loaded += ChannelsWindow_Loaded;
+            this.Loaded += (s, e) => _isInitialized = true;
+            this.Closing += ChannelsWindow_Closing;
 
-            var photo = new UnsplashPhoto()
+        }
+
+
+        /// <summary>
+        /// 频道页
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Channel_Page_Click(object sender, RoutedEventArgs e)
+        {
+            var viewModel = DataContext as ChannelsViewModel;
+
+            if (viewModel?.SelectedChannel is UCollection sc)
             {
-                Links = new Links()
+                System.Diagnostics.Debug.WriteLine($"Selected Channel: {sc.Title}");
+                if (sc.Links.Html is string url)
                 {
-                    Html = "https://unsplash.com/photos/1",
-                    Download = "https://unsplash.com/photos/1/download",
-                },
-                Urls = new Urls()
-                {
-                    Small = "https://images.unsplash.com/photo-1500917293891-ef795e70e1f6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NTIzNjZ8MHwxfHNlYXJjaHwxfHxiZWF1dHklMjBnaXJsfGVufDB8MHx8fDE3NDc5MjYwNDh8MA&ixlib=rb-4.1.0&q=80&w=200",
-
-                },
-                User = new UnsplashUser()
-                {
-                    Id = "1",
-                    Name = "John Bakator",
-                    Username = "jxb511",
-                    ProfileImage = new ProfileImage()
+                    System.Diagnostics.Debug.WriteLine($"Opening URL: {url}");
+                    try
                     {
-                        Small = "https://images.unsplash.com/profile-fb-1504194982-405c65f1fb61.jpg?ixlib=rb-4.0.3&crop=faces&fit=crop&w=32&h=32",
-                    },
-                    Links = new UserLinks()
+                        // 使用默认浏览器打开链接
+                        System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                        {
+                            FileName = url,
+                            UseShellExecute = true
+                        });
+                    }
+                    catch (Exception ex)
                     {
-                        Html = "https://unsplash.com/@jxb511",
-                        Photos = "https://unsplash.com/photos/1",
-                        Likes = "https://unsplash.com/photos/1",
-                        Portfolio = "https://unsplash.com/photos/1",
+                        System.Diagnostics.Debug.WriteLine($"打开链接失败: {ex.Message}");
                     }
                 }
-                
+            }
+        }
 
-            };
+        private void ListBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        {
+            if (!_isInitialized) return;
 
+            if (sender is ListBox listBox && DataContext is ChannelsViewModel viewModel)
+            {
+                var selectedItem = listBox.SelectedItem;
+                System.Diagnostics.Debug.WriteLine($"ListBox_SelectionChanged: {selectedItem}");
+                viewModel.ItemSelected.Execute(selectedItem);
+                // 更新index
+                Settings.Default.SelectedChannelIndex = (sbyte)listBox.SelectedIndex;
+                Settings.Default.Save();
+                System.Diagnostics.Debug.WriteLine($"ListBox_Selection_Index saved: {listBox.SelectedIndex}");
+            }
+        }
 
-            Photos.Add(photo);
-            Photos.Add(photo);
-            Photos.Add(photo);
-            Photos.Add(photo);
-            Photos.Add(photo);
-            this.DataContext = this;
+        private void ChannelsWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+
+            System.Diagnostics.Debug.WriteLine($"Window_Loaded: ------------------ ");
+            if (DataContext is ChannelsViewModel viewModel)
+            {
+                var selectedChannelIndex = Settings.Default.SelectedChannelIndex;
+                System.Diagnostics.Debug.WriteLine($"Window_Loaded: Selected channel Index: {selectedChannelIndex}");
+                if (selectedChannelIndex > 0)
+                    viewModel.SelectedIndex = selectedChannelIndex;
+            }
+        }
+
+        private void ChannelsWindow_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
+        {
+            System.Diagnostics.Debug.WriteLine($"Window Closing...");
+            _isInitialized = false;
         }
     }
 }

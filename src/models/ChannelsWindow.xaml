@@ -8,10 +8,10 @@
         Height="450" Width="800" MinWidth="500"
         Background="WhiteSmoke" ShowInTaskbar="False" ResizeMode="CanResize"
         WindowStartupLocation="CenterScreen">
-    
-    <!--<local:LocationAwareWindow.DataContext>
-        <models:ChannelsWindow/>
-    </local:LocationAwareWindow.DataContext>-->
+
+    <local:LocationAwareWindow.DataContext>
+        <local:ChannelsViewModel x:Name="channels"/>
+    </local:LocationAwareWindow.DataContext>
 
     <local:LocationAwareWindow.Resources>
         <ResourceDictionary>
@@ -36,33 +36,23 @@
                 <RowDefinition Height="45"/>
             </Grid.RowDefinitions>
             <ListBox Grid.Row="0"
+                     ItemsSource="{Binding Collections}"
+                     SelectedItem="{Binding SelectedChannel}"
+                     SelectedIndex="{Binding SelectedIndex, Mode=OneWay}"
+                     SelectionChanged="ListBox_SelectionChanged"
                      ItemContainerStyle="{StaticResource ListBoxItemStyle}"
-                     Style="{StaticResource ListBoxStyle}"
-                     >
-                <ListBoxItem Height="40">
-                    <StackPanel Orientation="Horizontal">
-                        <Image Source="/icons/application_64.ico" />
-                        <Label Style="{StaticResource LabelStyle}">
-                            <Label.Content>
-                                <TextBlock Text="频道1" />
-                            </Label.Content>
-                        </Label>
-                        <RadioButton IsEnabled="True" Style="{StaticResource RadioStyle}"/>
-                    </StackPanel>
-                </ListBoxItem>
-                <ListBoxItem Content="频道2"/>
-                <ListBoxItem Content="频道3"/>
+                     Style="{StaticResource ListBoxStyle}">
             </ListBox>
-                <StackPanel Grid.Row="1"
-                            Orientation="Horizontal"
-                            HorizontalAlignment="Right">
-                    <Button Content="+" Width="35"
-                            Style="{StaticResource BottomButtonStyle}"/>
-                    <Button Content="-" Width="35"
-                            Style="{StaticResource BottomButtonStyle}"/>
-                </StackPanel>
+            <StackPanel Grid.Row="1"
+                        Orientation="Horizontal"
+                        HorizontalAlignment="Right">
+                <Button Content="+" Width="35"
+                        Style="{StaticResource BottomButtonStyle}"/>
+                <Button Content="-" Width="35"
+                        Style="{StaticResource BottomButtonStyle}"/>
+            </StackPanel>
         </Grid>
-        
+
         <Separator  Grid.Column="1" >
             <Separator.LayoutTransform>
                 <RotateTransform Angle="90" />
@@ -88,8 +78,18 @@
                            Style="{StaticResource LabelStyle}">
                         <Label.Content>
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="频道1" Style="{StaticResource TextBlockStyle}"/>
-                                <Image Source="/icons/application_48.ico" />
+                                <TextBlock Text="{Binding SelectedChannel.Title}" Style="{StaticResource TextBlockStyle}"/>
+                                <Button Width="15" Height="15" Margin="0,0,0,5" 
+                                        VerticalAlignment="Top" 
+                                        HorizontalAlignment="Right"
+                                        Background="WhiteSmoke"
+                                        Click="Channel_Page_Click"
+                                        Style="{StaticResource ButtonStyle}">
+                                    <Image Source="/icons/channels/link.ico" Width="10"/>
+
+                                </Button>
+
+
                             </StackPanel>
                         </Label.Content>
                     </Label>
@@ -99,12 +99,12 @@
                             Style="{StaticResource BottomButtonStyle}"/>
                 </Grid>
             </Grid>
-            
-            <Separator Grid.Row="1" Margin="0,0,10,0"/> 
-            
+
+            <Separator Grid.Row="1" Margin="0,0,10,0"/>
+
             <ScrollViewer Grid.Row="2" Margin="0,0,0,10" 
                           Style="{StaticResource ScrollViewerStyle}">
-                <ItemsControl ItemsSource="{Binding Photos}">
+                <ItemsControl ItemsSource="{Binding PhotoCollection}">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
                             <WrapPanel Orientation="Horizontal" />
@@ -121,15 +121,15 @@
                                        Margin="10, 10, 20, 0"
                                        Width="200"
                                        Source="{Binding Urls.Small}">
-                                    <Image.Style>
-                                        <Style TargetType="Image">
-                                            <Setter Property="Clip">
-                                                <Setter.Value>
-                                                    <RectangleGeometry RadiusX="5" RadiusY="5" Rect="0,0,200,130"/>
-                                                </Setter.Value>
-                                            </Setter>
-                                        </Style>
-                                    </Image.Style>
+                                    <!-- <Image.Style> -->
+                                    <!--     <Style TargetType="Image"> -->
+                                    <!--         <Setter Property="Clip"> -->
+                                    <!--             <Setter.Value> -->
+                                    <!--                 <RectangleGeometry RadiusX="5" RadiusY="5" Rect="0,0,200,100"/> -->
+                                    <!--             </Setter.Value> -->
+                                    <!--         </Setter> -->
+                                    <!--     </Style> -->
+                                    <!-- </Image.Style> -->
                                 </Image>
                                 <StackPanel Grid.Row="1" Orientation="Horizontal" 
                                             VerticalAlignment="Center">

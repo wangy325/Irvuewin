@@ -142,5 +142,17 @@ namespace Irvuewin.Properties {
                 this["RandomWallpaper"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("-1")]
+        public sbyte SelectedChannelIndex {
+            get {
+                return ((sbyte)(this["SelectedChannelIndex"]));
+            }
+            set {
+                this["SelectedChannelIndex"] = value;
+            }
+        }
     }
 }

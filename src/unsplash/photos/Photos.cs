@@ -17,7 +17,7 @@ namespace Irvuewin.unsplash.photos
         public required Urls Urls { get; set; }
     }
 
-    public class UnsplashPhoto : Photo
+    public class UPhoto : Photo
     {
         public string? Slug { get; set; }
         public string? Color { get; set; }
@@ -96,7 +96,7 @@ namespace Irvuewin.unsplash.photos
     {
         public int Total { get; set; }
         public string? Type { get; set; }
-        public List<Collection>? Results { get; set; }
+        public List<UCollection>? Results { get; set; }
     }
 
     
