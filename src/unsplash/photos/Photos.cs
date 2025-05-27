@@ -14,7 +14,7 @@ namespace Irvuewin.unsplash.photos
         public int Height { get; set; }
         public string? Description { get; set; }
         public string? AltDescription { get; set; }
-        public required Urls Urls { get; set; }
+        public Urls Urls { get; set; }
     }
 
     public class UPhoto : Photo
@@ -22,11 +22,11 @@ namespace Irvuewin.unsplash.photos
         public string? Slug { get; set; }
         public string? Color { get; set; }
         public string? BlurHash { get; set; }
-        public required Links Links { get; set; }
+        public Links Links { get; set; }
         public int Likes { get; set; }
         public bool LikedByUser { get; set; }
         public string? AssetType { get; set; }
-        public required User User { get; set; }
+        public User User { get; set; }
         public Exif? Exif { get; set; }
         public Location? Location { get; set; }
         public Meta? Meta { get; set; }
@@ -88,8 +88,8 @@ namespace Irvuewin.unsplash.photos
 
     public class Tag
     {
-        public required string Type { get; set; }
-        public required string Title { get; set; }
+        public string Type { get; set; }
+        public string Title { get; set; }
     }
 
     public class RelatedCollections

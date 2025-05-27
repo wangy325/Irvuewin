@@ -1,8 +1,6 @@
-﻿
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using System.Windows;
 using System.Windows.Input;
 using Irvuewin.Properties;
 using Irvuewin.unsplash;
@@ -17,10 +15,12 @@ namespace Irvuewin
         public event PropertyChangedEventHandler? PropertyChanged;
 
         private bool _openSavedWallpaper = Properties.Settings.Default.OpenSavedWallpaper;
+
         /// <summary>
         /// 0-same wallpaper, 1-different wallpaper
         /// </summary>
         private byte _multiDisplay = Properties.Settings.Default.MultiDisplay;
+
         /// <summary>
         /// 0-fill, 1-fit, 2-stretch
         /// </summary>
@@ -122,6 +122,7 @@ namespace Irvuewin
                 OnPropertyChanged();
             }
         }
+
         public byte SmartFilter
         {
             get => _smartFilter;
@@ -153,7 +154,6 @@ namespace Irvuewin
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
-
     }
 
 
@@ -195,6 +195,7 @@ namespace Irvuewin
                 }
             }
         }
+
         public ObservableCollection<UPhoto> PhotoCollection
         {
             get => _photos;
@@ -227,8 +228,8 @@ namespace Irvuewin
                 },
                 Urls = new Urls()
                 {
-                    Small = "https://images.unsplash.com/photo-1500917293891-ef795e70e1f6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NTIzNjZ8MHwxfHNlYXJjaHwxfHxiZWF1dHklMjBnaXJsfGVufDB8MHx8fDE3NDc5MjYwNDh8MA&ixlib=rb-4.1.0&q=80&w=200",
-
+                    Small =
+                        "https://images.unsplash.com/photo-1500917293891-ef795e70e1f6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NTIzNjZ8MHwxfHNlYXJjaHwxfHxiZWF1dHklMjBnaXJsfGVufDB8MHx8fDE3NDc5MjYwNDh8MA&ixlib=rb-4.1.0&q=80&w=200",
                 },
                 User = new UnsplashUser()
                 {
@@ -237,7 +238,8 @@ namespace Irvuewin
                     Username = "jxb511",
                     ProfileImage = new ProfileImage()
                     {
-                        Small = "https://images.unsplash.com/profile-fb-1504194982-405c65f1fb61.jpg?ixlib=rb-4.0.3&crop=faces&fit=crop&w=32&h=32",
+                        Small =
+                            "https://images.unsplash.com/profile-fb-1504194982-405c65f1fb61.jpg?ixlib=rb-4.0.3&crop=faces&fit=crop&w=32&h=32",
                     },
                     Links = new UserLinks()
                     {
@@ -247,8 +249,6 @@ namespace Irvuewin
                         Portfolio = "https://unsplash.com/photos/1",
                     }
                 }
-
-
             };
 
             var previewphoto = new PreviewPhoto()
@@ -256,13 +256,12 @@ namespace Irvuewin
                 Id = "1",
                 Urls = new Urls()
                 {
-                    Small = "https://images.unsplash.com/photo-1500917293891-ef795e70e1f6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NTIzNjZ8MHwxfHNlYXJjaHwxfHxiZWF1dHklMjBnaXJsfGVufDB8MHx8fDE3NDc5MjYwNDh8MA&ixlib=rb-4.1.0&q=80&w=200",
-
+                    Small =
+                        "https://images.unsplash.com/photo-1500917293891-ef795e70e1f6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NTIzNjZ8MHwxfHNlYXJjaHwxfHxiZWF1dHklMjBnaXJsfGVufDB8MHx8fDE3NDc5MjYwNDh8MA&ixlib=rb-4.1.0&q=80&w=200",
                 },
             };
 
             var uCollection = new UCollection()
-
             {
                 Id = "1",
                 Title = "Beautiful",
@@ -282,7 +281,8 @@ namespace Irvuewin
                     Username = "jxb511",
                     ProfileImage = new ProfileImage()
                     {
-                        Small = "https://images.unsplash.com/profile-fb-1504194982-405c65f1fb61.jpg?ixlib=rb-4.0.3&crop=faces&fit=crop&w=32&h=32",
+                        Small =
+                            "https://images.unsplash.com/profile-fb-1504194982-405c65f1fb61.jpg?ixlib=rb-4.0.3&crop=faces&fit=crop&w=32&h=32",
                     },
                     Links = new UserLinks()
                     {
@@ -292,11 +292,9 @@ namespace Irvuewin
                 },
                 CoverPhoto = photo,
                 PreviewPhotos = [previewphoto, previewphoto, previewphoto, previewphoto, previewphoto, previewphoto]
-
             };
 
             var uCollection2 = new UCollection()
-
             {
                 Id = "1",
                 Title = "AcanTara Very Long Title",
@@ -316,7 +314,8 @@ namespace Irvuewin
                     Username = "jxb511",
                     ProfileImage = new ProfileImage()
                     {
-                        Small = "https://images.unsplash.com/profile-fb-1504194982-405c65f1fb61.jpg?ixlib=rb-4.0.3&crop=faces&fit=crop&w=32&h=32",
+                        Small =
+                            "https://images.unsplash.com/profile-fb-1504194982-405c65f1fb61.jpg?ixlib=rb-4.0.3&crop=faces&fit=crop&w=32&h=32",
                     },
                     Links = new UserLinks()
                     {
@@ -326,10 +325,8 @@ namespace Irvuewin
                 },
                 CoverPhoto = photo,
                 PreviewPhotos = [previewphoto, previewphoto, previewphoto, previewphoto, previewphoto, previewphoto]
-
             };
             var uCollection3 = new UCollection()
-
             {
                 Id = "1",
                 Title = "Babyface",
@@ -349,7 +346,8 @@ namespace Irvuewin
                     Username = "jxb511",
                     ProfileImage = new ProfileImage()
                     {
-                        Small = "https://images.unsplash.com/profile-fb-1504194982-405c65f1fb61.jpg?ixlib=rb-4.0.3&crop=faces&fit=crop&w=32&h=32",
+                        Small =
+                            "https://images.unsplash.com/profile-fb-1504194982-405c65f1fb61.jpg?ixlib=rb-4.0.3&crop=faces&fit=crop&w=32&h=32",
                     },
                     Links = new UserLinks()
                     {
@@ -359,10 +357,8 @@ namespace Irvuewin
                 },
                 CoverPhoto = photo,
                 PreviewPhotos = [previewphoto, previewphoto, previewphoto, previewphoto, previewphoto, previewphoto]
-
             };
             var uCollection4 = new UCollection()
-
             {
                 Id = "1",
                 Title = "Carplay",
@@ -382,7 +378,8 @@ namespace Irvuewin
                     Username = "jxb511",
                     ProfileImage = new ProfileImage()
                     {
-                        Small = "https://images.unsplash.com/profile-fb-1504194982-405c65f1fb61.jpg?ixlib=rb-4.0.3&crop=faces&fit=crop&w=32&h=32",
+                        Small =
+                            "https://images.unsplash.com/profile-fb-1504194982-405c65f1fb61.jpg?ixlib=rb-4.0.3&crop=faces&fit=crop&w=32&h=32",
                     },
                     Links = new UserLinks()
                     {
@@ -392,14 +389,12 @@ namespace Irvuewin
                 },
                 CoverPhoto = photo,
                 PreviewPhotos = [previewphoto, previewphoto, previewphoto, previewphoto, previewphoto, previewphoto]
-
             };
 
             _photos = [photo, photo, photo, photo, photo, photo];
             _selectedChannel = uCollection;
-            _collections = [uCollection, uCollection2, uCollection3,uCollection4];
+            _collections = [uCollection, uCollection2, uCollection3, uCollection4];
             ItemSelected = new RelayCommand<UCollection>(OnItemSelected);
-
         }
 
         private void OnItemSelected(Object param)

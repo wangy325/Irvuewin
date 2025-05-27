@@ -111,7 +111,7 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="Separator">
                         <Grid Margin="0">
-                            <Rectangle Height="1" Fill="#FFD3D3D3" 
+                            <Rectangle Height="1" Fill="LightGray" 
                        HorizontalAlignment="Stretch" 
                        VerticalAlignment="Center"/>
                         </Grid>

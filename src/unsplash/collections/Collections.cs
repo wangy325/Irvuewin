@@ -5,9 +5,9 @@ namespace Irvuewin.unsplash.collections
 {
     public class UCollection
     {
-        public required string Id { get; set; }
-        public required string Title { get; set; }
-        public required object Description { get; set; }
+        public string Id { get; set; }
+        public string Title { get; set; }
+        public object Description { get; set; }
         public DateTime PublishedAt { get; set; }
         public DateTime LastCollectedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
@@ -15,10 +15,10 @@ namespace Irvuewin.unsplash.collections
         public int TotalPhotos { get; set; }
         public bool Private { get; set; }
         public string? ShareKey { get; set; }
-        public required Links Links { get; set; }
-        public required User User { get; set; }
-        public required UPhoto CoverPhoto { get; set; }
-        public required List<PreviewPhoto> PreviewPhotos { get; set; }
+        public Links Links { get; set; }
+        public User User { get; set; }
+        public UPhoto CoverPhoto { get; set; }
+        public List<PreviewPhoto> PreviewPhotos { get; set; }
     }
 
     public class Links
@@ -32,13 +32,13 @@ namespace Irvuewin.unsplash.collections
 
     public class PreviewPhoto
     {
-        public required string Id { get; set; }
+        public  string Id { get; set; }
         public string? Slug { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
         public string? BlurHash { get; set; }
         public string? AssetType { get; set; }
-        public required Urls Urls { get; set; }
+        public Urls Urls { get; set; }
     }
 
 }
