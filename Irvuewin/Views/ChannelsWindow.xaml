@@ -1,0 +1,160 @@
+﻿<helpers:LocationAwareWindow
+    x:Class="Irvuewin.Views.ChannelsWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:local="clr-namespace:Irvuewin"
+    xmlns:helpers="clr-namespace:Irvuewin.Helpers"
+    xmlns:viewModels="clr-namespace:Irvuewin.ViewModels"
+    mc:Ignorable="d"
+    Title="Channels" Icon="/Icons/application_64.ico"
+    Height="450" Width="800" MinWidth="500"
+    Background="WhiteSmoke" ShowInTaskbar="False" ResizeMode="CanResize"
+    WindowStartupLocation="CenterScreen">
+
+    <helpers:LocationAwareWindow.DataContext>
+        <viewModels:ChannelsViewModel />
+    </helpers:LocationAwareWindow.DataContext>
+
+    <helpers:LocationAwareWindow.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Themes/Generic.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </helpers:LocationAwareWindow.Resources>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="200" />
+            <ColumnDefinition Width="10" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+
+        <Grid Grid.Column="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="45" />
+            </Grid.RowDefinitions>
+            <ListBox Grid.Row="0"
+                     ItemsSource="{Binding Collections}"
+                     SelectedItem="{Binding SelectedChannel}"
+                     SelectedIndex="{Binding SelectedIndex, Mode=OneWay}"
+                     SelectionChanged="ListBox_SelectionChanged"
+                     ItemContainerStyle="{StaticResource ListBoxItemStyle}"
+                     Style="{StaticResource ListBoxStyle}">
+            </ListBox>
+            <StackPanel Grid.Row="1"
+                        Orientation="Horizontal"
+                        HorizontalAlignment="Right">
+                <Button Content="+" Width="35"
+                        Style="{StaticResource BottomButtonStyle}" />
+                <Button Content="-" Width="35"
+                        Style="{StaticResource BottomButtonStyle}" />
+            </StackPanel>
+        </Grid>
+
+        <Separator Grid.Column="1" Background="LightGray">
+            <Separator.LayoutTransform>
+                <RotateTransform Angle="90" />
+            </Separator.LayoutTransform>
+        </Separator>
+
+        <Grid Grid.Column="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="40" />
+                <RowDefinition Height="10" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <Grid Grid.Row="0">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="100" />
+                    </Grid.ColumnDefinitions>
+                    <Label Grid.Column="0"
+                           Padding="20,0"
+                           HorizontalContentAlignment="Left"
+                           Style="{StaticResource LabelStyle}">
+                        <Label.Content>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{Binding SelectedChannel.Title}"
+                                           Style="{StaticResource TextBlockStyle}" />
+                                <Button Width="15" Height="15" Margin="0,0,0,5"
+                                        VerticalAlignment="Top"
+                                        HorizontalAlignment="Right"
+                                        Background="WhiteSmoke"
+                                        Click="Channel_Page_Click"
+                                        Style="{StaticResource ButtonStyle}">
+                                    <Image Source="/Icons/channels/link.ico" Width="10" />
+
+                                </Button>
+
+
+                            </StackPanel>
+                        </Label.Content>
+                    </Label>
+                    <Button Grid.Column="1"
+                            Content="刷新"
+                            Width="50" Height="20"
+                            Style="{StaticResource BottomButtonStyle}" />
+                </Grid>
+            </Grid>
+
+            <Separator Grid.Row="1" Margin="0,0,10,0" />
+
+            <ScrollViewer Grid.Row="2" Margin="0,0,0,10"
+                          Style="{StaticResource ScrollViewerStyle}">
+                <ItemsControl ItemsSource="{Binding PhotoCollection}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+                                <Image Grid.Row="0"
+                                       Margin="10, 10, 20, 0"
+                                       Width="200"
+                                       Source="{Binding Urls.Small}">
+                                    <Image.Style>
+                                        <Style TargetType="Image">
+                                            <Setter Property="Stretch" Value="UniformToFill" />
+                                            <Setter Property="Clip">
+                                                <Setter.Value>
+                                                    <RectangleGeometry RadiusX="5" RadiusY="5" Rect="0,0,200,130"/>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Style>
+                                    </Image.Style>
+                                </Image>
+                                <StackPanel Grid.Row="1" Orientation="Horizontal"
+                                            VerticalAlignment="Center">
+                                    <Image Width="24" Height="24" Margin="20,0,5,0"
+                                           Source="{Binding User.ProfileImage.Small}">
+                                        <Image.Clip>
+                                            <EllipseGeometry Center="12,12" RadiusX="12" RadiusY="12" />
+                                        </Image.Clip>
+                                    </Image>
+                                    <Label Content="{Binding User.Name}"
+                                           Foreground="Gray"
+                                           FontStyle="Italic"
+                                           FontFamily="Segoe UI"
+                                           Style="{StaticResource LabelStyle}" />
+                                </StackPanel>
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </Grid>
+    </Grid>
+</helpers:LocationAwareWindow>
