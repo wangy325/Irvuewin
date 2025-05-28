@@ -1,15 +1,18 @@
 ﻿using Irvuewin.Models.Unsplash;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Net.Http;
+using System.Threading.Tasks;
+using Moq;
+using Newtonsoft.Json;
+using System.Net;
+using Irvuewin.Helpers;
+using Irvuewin.Models.Unsplash;
+using JetBrains.Annotations;
 
 namespace Irvuewin.Tests.Models.Unsplash
 {
-    using System.Net.Http;
-    using System.Threading.Tasks;
-    using Moq;
-    using Newtonsoft.Json;
-    using System.Net;
-    using JetBrains.Annotations;
 
-    [TestSubject(typeof(UnsplashApi))]
+    // [TestSubject(typeof(UnsplashApi))]
     [TestClass]
     public class UnsplashApiTests
     {
@@ -17,8 +20,7 @@ namespace Irvuewin.Tests.Models.Unsplash
         public async Task GetPhotoById_ReturnUPhoto()
         {
             // Arrange
-            var mockHttpClient = new Mock<HttpClient>();
-            var expectedPhoto = new UPhoto()
+            var expectedPhoto = new UnsplashPhoto()
             {
                 Id = "0RbbLWm6rLk",
                 Width = 5944,
@@ -26,16 +28,10 @@ namespace Irvuewin.Tests.Models.Unsplash
                 Slug = "woman-in-white-tank-top-wearing-black-sunglasses-0RbbLWm6rLk"
             };
 
+            var wrapper = new HttpClientWrapper();
+           
 
-            var mockResponse = new HttpResponseMessage(HttpStatusCode.OK)
-            {
-                Content = new StringContent(JsonConvert.SerializeObject(expectedPhoto))
-            };
-
-            mockHttpClient.Setup(client => client.GetAsync(It.IsAny<string>()))
-                .ReturnsAsync(mockResponse);
-
-            var helper = new UnsplashApi(mockHttpClient.Object);
+            var helper = new UnsplashApi(wrapper);
 
             // Act
             var actualPhoto = await helper.GetPhotoInfoById("0RbbLWm6rLk");
@@ -51,14 +47,14 @@ namespace Irvuewin.Tests.Models.Unsplash
         public async Task GetAsync_HttpRequestError_ReturnsDefault()
         {
             // Arrange
-            var mockHttpClient = new Mock<HttpClient>();
+            var mockHttpClient = new Mock<IHttpService>();
             mockHttpClient.Setup(client => client.GetAsync(It.IsAny<string>()))
                 .ThrowsAsync(new HttpRequestException("Simulated network error"));
 
             var helper = new UnsplashApi(mockHttpClient.Object);
 
             // Act
-            var result = await helper.GetAsync<UPhoto>("photos/random");
+            var result = await helper.GetAsync<UnsplashPhoto>("photos/random");
 
             // Assert
             Assert.IsNull(result);
@@ -68,7 +64,7 @@ namespace Irvuewin.Tests.Models.Unsplash
         public async Task GetAsync_InvalidJsonResponse_ReturnsDefault()
         {
             // Arrange
-            var mockHttpClient = new Mock<HttpClient>();
+            var mockHttpClient = new Mock<IHttpService>();
             var mockResponse = new HttpResponseMessage(HttpStatusCode.OK)
             {
                 Content = new StringContent("{\"invalid\":\"json\"}")
@@ -80,7 +76,7 @@ namespace Irvuewin.Tests.Models.Unsplash
             var helper = new UnsplashApi(mockHttpClient.Object);
 
             // Act
-            var result = await helper.GetAsync<UPhoto>("photos/random");
+            var result = await helper.GetAsync<UnsplashPhoto>("photos/random");
 
             // Assert
             Assert.IsNull(result);

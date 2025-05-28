@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using Irvuewin.Helpers;
 using Newtonsoft.Json;
 
 namespace Irvuewin.Models.Unsplash
@@ -11,19 +12,23 @@ namespace Irvuewin.Models.Unsplash
     ///Date: 2020/01/01 18:12:10
     ///Desc: 
     ///</summary>
-
     public class UnsplashApi
     {
         private readonly string _apiKey = "Client-ID gOjCXnSXiHRasWqeABszxQQCsBJgceXSjHdZYVTfZR8";
-        private readonly HttpClient _httpClient;
-        private const string BaseUrl = "https://api.unsplash.com/";
+        private readonly IHttpService _service;
+        private const string BaseUrl = "https://api.unsplash.com";
 
-        public UnsplashApi( HttpClient? httpClient = null)
+        public UnsplashApi(IHttpService service)
         {
-            _httpClient = httpClient?? new HttpClient();
-            _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Authorization", _apiKey);
-            _httpClient.DefaultRequestHeaders.Add("Accept-Version", "v1");
+            // if (service is not HttpClientWrapper wrapper) return;
+            _service = service;
+            var client = service.Client();
+            client.DefaultRequestHeaders.Accept.Add(
+                new MediaTypeWithQualityHeaderValue("application/json"));
+            client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Authorization", _apiKey);
+            client.DefaultRequestHeaders.Add("Accept-Version", "v1");
+            Debug.WriteLine("UnsplashApi initialized.");
         }
 
         public async Task<T?> GetAsync<T>(string endpoint, string? query = null)
@@ -36,7 +41,7 @@ namespace Irvuewin.Models.Unsplash
 
             try
             {
-                var response = await _httpClient.GetAsync(url);
+                var response = await _service.GetAsync(url);
                 response.EnsureSuccessStatusCode();
                 var content = await response.Content.ReadAsStringAsync();
                 return JsonConvert.DeserializeObject<T>(content);
@@ -52,12 +57,11 @@ namespace Irvuewin.Models.Unsplash
                 return default(T);
             }
         }
-        
-        public async Task<UPhoto?> GetPhotoInfoById(string id)
+
+        public async Task<UnsplashPhoto?> GetPhotoInfoById(string id)
         {
-            return await GetAsync<UPhoto>(id);
+            var url = $"photos/{id}";
+            return await GetAsync<UnsplashPhoto>(url);
         }
     }
-    
-    
 }

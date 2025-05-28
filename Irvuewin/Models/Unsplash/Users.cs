@@ -1,58 +1,81 @@
-﻿
+﻿using Irvuewin.Helpers;
+using Newtonsoft.Json;
+
 namespace Irvuewin.Models.Unsplash
 {
-
-    public abstract class User 
-    { 
-        public required string Id { get; set; }
-        public required string Username { get; set; }
-        public required string Name { get; set; }
-        public string? FirstName { get; set; }
-        public string? LastName { get; set; }
-        public string? Bio { get; set; }
-        public string? Location { get; set; }
-        public ProfileImage? ProfileImage { get; set; }
-        public DateTime? UpdatedAt { get; set; }
-
-    }
-    public class UnsplashUser : User
+    public partial class UnsplashUser
     {
-        public object? TwitterUsername { get; set; }
-        public string? PortfolioUrl { get; set; }
-        public required UserLinks Links { get; set; }
-        public string? InstagramUsername { get; set; }
-        public int TotalCollections { get; set; }
-        public int TotalLikes { get; set; }
-        public int TotalPhotos { get; set; }
-        public int TotalPromotedPhotos { get; set; }
-        public int TotalIllustrations { get; set; }
-        public int TotalPromotedIllustrations { get; set; }
-        public bool AcceptedTos { get; set; }
-        public bool ForHire { get; set; }
-        public Social? Social { get; set; }
-    }
+        [JsonProperty("id")] public string Id { get; set; }
 
-    public class UserLinks
-    {
-        public string? Self { get; set; }
-        public string? Html { get; set; }
-        public string? Photos { get; set; }
-        public string? Likes { get; set; }
-        public string? Portfolio { get; set; }
-    }
+        [JsonProperty("updated_at")] public DateTimeOffset UpdatedAt { get; set; }
 
-    public class ProfileImage
-    {
-        public string? Small { get; set; }
-        public string? Medium { get; set; }
-        public string?  Large { get; set; }
+        [JsonProperty("username")] public string Username { get; set; }
+
+        [JsonProperty("name")] public string Name { get; set; }
+
+        [JsonProperty("first_name")] public string FirstName { get; set; }
+
+        [JsonProperty("last_name")] public string LastName { get; set; }
+
+        [JsonProperty("portfolio_url")] public Uri PortfolioUrl { get; set; }
+
+        [JsonProperty("bio")] public string Bio { get; set; }
+
+        [JsonProperty("location")] public string Location { get; set; }
+
+        [JsonProperty("links")] public UserLinks Links { get; set; }
+
+        [JsonProperty("profile_image")] public ProfileImage ProfileImage { get; set; }
+
+        [JsonProperty("total_collections")] public long TotalCollections { get; set; }
+
+        [JsonProperty("total_likes")] public long TotalLikes { get; set; }
+
+        [JsonProperty("total_photos")] public long TotalPhotos { get; set; }
+
+        [JsonProperty("total_promoted_photos")]
+        public long TotalPromotedPhotos { get; set; }
+
+        [JsonProperty("total_promoted_illustrations")]
+        public long TotalPromotedIllustrations { get; set; }
+
+        [JsonProperty("total_illustrations")] public long TotalIllustrations { get; set; }
+
+        [JsonProperty("instagram_username")] public string InstagramUsername { get; set; }
     }
 
-    public class Social
+    public partial class UserLinks
     {
-        public string? InstagramUsername { get; set; }
-        public string? PortfolioUrl { get; set; }
-        public string? TwitterUsername { get; set; }
-        public string? PaypalEmail { get; set; }
+        [JsonProperty("portfolio")] public Uri Portfolio { get; set; }
+
+        [JsonProperty("self")] public Uri Self { get; set; }
+
+        [JsonProperty("html")] public Uri Html { get; set; }
+
+        [JsonProperty("photos")] public Uri Photos { get; set; }
+
+        [JsonProperty("likes")] public Uri Likes { get; set; }
+    }
+
+    public partial class ProfileImage
+    {
+        [JsonProperty("small")] public Uri Small { get; set; }
+
+        [JsonProperty("large")] public Uri Large { get; set; }
+
+        [JsonProperty("medium")] public Uri Medium { get; set; }
+    }
+    
+    public partial class UnsplashUser
+    {
+        public static UnsplashUser? FromJson(string json) =>
+            JsonConvert.DeserializeObject<UnsplashUser>(json, JsonHelper.Settings);
+    }
+    
+    public static class SerializeUnsplashUser
+    {
+        public static string ToJson(this UnsplashUser self) =>
+            JsonConvert.SerializeObject(self, JsonHelper.Settings);
+        
     }
 }

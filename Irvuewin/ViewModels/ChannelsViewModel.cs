@@ -7,14 +7,13 @@ using Irvuewin.Models.Unsplash;
 
 namespace Irvuewin.ViewModels;
 
-
 public class ChannelsViewModel : INotifyPropertyChanged
 {
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    private ObservableCollection<UPhoto> _photos = [];
-    private ObservableCollection<UCollection> _collections = [];
-    private UCollection _selectedChannel = null;
+    private ObservableCollection<UnsplashPhoto> _photos = [];
+    private ObservableCollection<UnsplashCollection> _collections = [];
+    private UnsplashCollection _selectedChannel = null;
     public ICommand ItemSelected { get; }
 
     private sbyte _selectedIndex = Properties.Settings.Default.SelectedChannelIndex;
@@ -33,7 +32,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
         }
     }
 
-    public UCollection SelectedChannel
+    public UnsplashCollection SelectedChannel
     {
         get => _selectedChannel;
         set
@@ -47,7 +46,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
         }
     }
 
-    public ObservableCollection<UPhoto> PhotoCollection
+    public ObservableCollection<UnsplashPhoto> PhotoCollection
     {
         get => _photos;
         set
@@ -57,7 +56,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
         }
     }
 
-    public ObservableCollection<UCollection> Collections
+    public ObservableCollection<UnsplashCollection> Collections
     {
         get => _collections;
         set
@@ -70,17 +69,12 @@ public class ChannelsViewModel : INotifyPropertyChanged
 
     public ChannelsViewModel()
     {
-        var photo = new UPhoto()
+        var photo = new UnsplashPhoto()
         {
-            Links = new PhotoLinks()
-            {
-                Html = "https://unsplash.com/photos/1",
-                Download = "https://unsplash.com/photos/1/download",
-            },
             Urls = new Urls()
             {
-                Small =
-                    "https://images.unsplash.com/photo-1500917293891-ef795e70e1f6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NTIzNjZ8MHwxfHNlYXJjaHwxfHxiZWF1dHklMjBnaXJsfGVufDB8MHx8fDE3NDc5MjYwNDh8MA&ixlib=rb-4.1.0&q=80&w=200",
+                Small = new Uri(
+                    "https://images.unsplash.com/photo-1500917293891-ef795e70e1f6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NTIzNjZ8MHwxfHNlYXJjaHwxfHxiZWF1dHklMjBnaXJsfGVufDB8MHx8fDE3NDc5MjYwNDh8MA&ixlib=rb-4.1.0&q=80&w=200"),
             },
             User = new UnsplashUser()
             {
@@ -89,168 +83,82 @@ public class ChannelsViewModel : INotifyPropertyChanged
                 Username = "jxb511",
                 ProfileImage = new ProfileImage()
                 {
-                    Small =
-                        "https://images.unsplash.com/profile-fb-1504194982-405c65f1fb61.jpg?ixlib=rb-4.0.3&crop=faces&fit=crop&w=32&h=32",
+                    Small = new Uri(
+                        "https://images.unsplash.com/profile-fb-1504194982-405c65f1fb61.jpg?ixlib=rb-4.0.3&crop=faces&fit=crop&w=32&h=32"),
                 },
                 Links = new UserLinks()
                 {
-                    Html = "https://unsplash.com/@jxb511",
-                    Photos = "https://unsplash.com/photos/1",
-                    Likes = "https://unsplash.com/photos/1",
-                    Portfolio = "https://unsplash.com/photos/1",
+                    Html = new Uri("https://unsplash.com/@jxb511"),
+                   
                 }
             }
         };
-
-        var previewphoto = new PreviewPhoto()
-        {
-            Id = "1",
-            Urls = new Urls()
-            {
-                Small =
-                    "https://images.unsplash.com/photo-1500917293891-ef795e70e1f6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NTIzNjZ8MHwxfHNlYXJjaHwxfHxiZWF1dHklMjBnaXJsfGVufDB8MHx8fDE3NDc5MjYwNDh8MA&ixlib=rb-4.1.0&q=80&w=200",
-            },
-        };
-
-        var uCollection = new UCollection()
+        
+        var UnsplashCollection = new UnsplashCollection()
         {
             Id = "1",
             Title = "Beautiful",
             Description = "Beautiful things",
 
-            Links = new Models.Unsplash.CollectionLinks()
+            Links = new Models.Unsplash.Links()
             {
-                Html = "https://unsplash.com/collections/raoebyzOILQ/blue",
-                Photos = "https://unsplash.com/collections/1/photos",
-                Related = "https://unsplash.com/collections/1/related",
-            },
-
-            User = new UnsplashUser()
-            {
-                Id = "1",
-                Name = "John Bakator",
-                Username = "jxb511",
-                ProfileImage = new ProfileImage()
-                {
-                    Small =
-                        "https://images.unsplash.com/profile-fb-1504194982-405c65f1fb61.jpg?ixlib=rb-4.0.3&crop=faces&fit=crop&w=32&h=32",
-                },
-                Links = new UserLinks()
-                {
-                    Html = "https://unsplash.com/@jxb511",
-                    Photos = "https://unsplash.com/photos/1",
-                }
+                Html = new Uri("https://unsplash.com/collections/raoebyzOILQ/blue"),
             },
             CoverPhoto = photo,
-            PreviewPhotos = [previewphoto, previewphoto, previewphoto, previewphoto, previewphoto, previewphoto]
         };
 
-        var uCollection2 = new UCollection()
+        var uCollection2 = new UnsplashCollection()
         {
             Id = "1",
             Title = "AcanTara Very Long Title",
             Description = "Beautiful things",
 
-            Links = new Models.Unsplash.CollectionLinks()
+            Links = new Models.Unsplash.Links()
             {
-                Html = "https://google.com",
-                Photos = "https://unsplash.com/collections/1/photos",
-                Related = "https://unsplash.com/collections/1/related",
+                Html = new Uri("https://google.com"),
             },
 
-            User = new UnsplashUser()
-            {
-                Id = "1",
-                Name = "John Bakator",
-                Username = "jxb511",
-                ProfileImage = new ProfileImage()
-                {
-                    Small =
-                        "https://images.unsplash.com/profile-fb-1504194982-405c65f1fb61.jpg?ixlib=rb-4.0.3&crop=faces&fit=crop&w=32&h=32",
-                },
-                Links = new UserLinks()
-                {
-                    Html = "https://unsplash.com/@jxb511",
-                    Photos = "https://unsplash.com/photos/1",
-                }
-            },
+            
             CoverPhoto = photo,
-            PreviewPhotos = [previewphoto, previewphoto, previewphoto, previewphoto, previewphoto, previewphoto]
         };
-        var uCollection3 = new UCollection()
+        var uCollection3 = new UnsplashCollection()
         {
             Id = "1",
             Title = "Babyface",
             Description = "Beautiful things",
 
-            Links = new Models.Unsplash.CollectionLinks()
+            Links = new Models.Unsplash.Links()
             {
-                Html = "https://bing.com",
-                Photos = "https://unsplash.com/collections/1/photos",
-                Related = "https://unsplash.com/collections/1/related",
+                Html = new Uri("https://bing.com"),
             },
 
-            User = new UnsplashUser()
-            {
-                Id = "1",
-                Name = "John Bakator",
-                Username = "jxb511",
-                ProfileImage = new ProfileImage()
-                {
-                    Small =
-                        "https://images.unsplash.com/profile-fb-1504194982-405c65f1fb61.jpg?ixlib=rb-4.0.3&crop=faces&fit=crop&w=32&h=32",
-                },
-                Links = new UserLinks()
-                {
-                    Html = "https://unsplash.com/@jxb511",
-                    Photos = "https://unsplash.com/photos/1",
-                }
-            },
-            CoverPhoto = photo,
-            PreviewPhotos = [previewphoto, previewphoto, previewphoto, previewphoto, previewphoto, previewphoto]
+            CoverPhoto = photo
         };
-        var uCollection4 = new UCollection()
+        var uCollection4 = new UnsplashCollection()
         {
             Id = "1",
             Title = "Carplay",
             Description = "Beautiful things",
 
-            Links = new Models.Unsplash.CollectionLinks()
+            Links = new Models.Unsplash.Links()
             {
-                Html = "https://openai.com",
-                Photos = "https://unsplash.com/collections/1/photos",
-                Related = "https://unsplash.com/collections/1/related",
+                Html = new Uri("https://openai.com"),
+               
             },
-
-            User = new UnsplashUser()
-            {
-                Id = "1",
-                Name = "John Bakator",
-                Username = "jxb511",
-                ProfileImage = new ProfileImage()
-                {
-                    Small =
-                        "https://images.unsplash.com/profile-fb-1504194982-405c65f1fb61.jpg?ixlib=rb-4.0.3&crop=faces&fit=crop&w=32&h=32",
-                },
-                Links = new UserLinks()
-                {
-                    Html = "https://unsplash.com/@jxb511",
-                    Photos = "https://unsplash.com/photos/1",
-                }
-            },
-            CoverPhoto = photo,
-            PreviewPhotos = [previewphoto, previewphoto, previewphoto, previewphoto, previewphoto, previewphoto]
+        
+            CoverPhoto = photo
+           
         };
 
         _photos = [photo, photo, photo, photo, photo, photo];
-        _selectedChannel = uCollection;
-        _collections = [uCollection, uCollection2, uCollection3, uCollection4];
-        ItemSelected = new RelayCommand<UCollection>(OnItemSelected);
+        _selectedChannel = UnsplashCollection;
+        _collections = [UnsplashCollection, uCollection2, uCollection3, uCollection4];
+        ItemSelected = new RelayCommand<UnsplashCollection>(OnItemSelected);
     }
 
     private void OnItemSelected(Object param)
     {
-        if (param is UCollection item)
+        if (param is UnsplashCollection item)
             _selectedChannel = item;
     }
 

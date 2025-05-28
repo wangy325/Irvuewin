@@ -28,10 +28,10 @@ public partial class ChannelsWindow : LocationAwareWindow
     {
         var viewModel = DataContext as ChannelsViewModel;
 
-        if (viewModel?.SelectedChannel is UCollection sc)
+        if (viewModel?.SelectedChannel is UnsplashCollection sc)
         {
             System.Diagnostics.Debug.WriteLine($"Selected Channel: {sc.Title}");
-            if (sc.Links.Html is string url)
+            if (sc.Links.Html is { } url)
             {
                 System.Diagnostics.Debug.WriteLine($"Opening URL: {url}");
                 try
@@ -39,7 +39,7 @@ public partial class ChannelsWindow : LocationAwareWindow
                     // 使用默认浏览器打开链接
                     System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
                     {
-                        FileName = url,
+                        FileName = url.OriginalString,
                         UseShellExecute = true
                     });
                 }

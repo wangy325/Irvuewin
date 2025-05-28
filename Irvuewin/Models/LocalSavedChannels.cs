@@ -5,7 +5,7 @@ namespace Irvuewin.Models
 {
     public class LocalSavedChannels
     {
-        public ObservableCollection<UCollection> _savedChannels = [];
+        public ObservableCollection<UnsplashCollection> _savedChannels = [];
 
 
     }
