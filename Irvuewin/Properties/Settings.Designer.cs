@@ -153,5 +153,41 @@ namespace Irvuewin.Properties {
                 this["SelectedChannelIndex"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Client-ID gOjCXnSXiHRasWqeABszxQQCsBJgceXSjHdZYVTfZR8")]
+        public string DefaultUnsplashApiKey {
+            get {
+                return ((string)(this["DefaultUnsplashApiKey"]));
+            }
+            set {
+                this["DefaultUnsplashApiKey"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string UserUnsplashApiKey {
+            get {
+                return ((string)(this["UserUnsplashApiKey"]));
+            }
+            set {
+                this["UserUnsplashApiKey"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("default,")]
+        public string UserUnsplashChannels {
+            get {
+                return ((string)(this["UserUnsplashChannels"]));
+            }
+            set {
+                this["UserUnsplashChannels"] = value;
+            }
+        }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Windows.Documents;
 using Irvuewin.Models.Unsplash;
 using Newtonsoft.Json;
 
@@ -9,40 +10,33 @@ namespace Irvuewin.Helpers
     public interface IHttpClient
     {
         Task<HttpResponseMessage> GetAsync(string url);
-
-        HttpClient Client();
     }
 
-    public class HttpClientWrapper : IHttpClient
+    public class UnsplashHttpClientWrapper : IHttpClient
     {
         private readonly HttpClient _httpClient = new();
+        private readonly string _apiKey = Properties.Settings.Default.DefaultUnsplashApiKey;
+
+        public UnsplashHttpClientWrapper()
+        {
+            _httpClient.DefaultRequestHeaders.Accept.Add(
+                new MediaTypeWithQualityHeaderValue("application/json"));
+            _httpClient.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Authorization", _apiKey);
+            _httpClient.DefaultRequestHeaders.Add("Accept-Version", "v1");
+        }
 
         public Task<HttpResponseMessage> GetAsync(string url) => _httpClient.GetAsync(url);
-
-        public HttpClient Client()
-        {
-            return _httpClient;
-        }
     }
 
     public class UnsplashHttpService
     {
-        private readonly string _apiKey = "Client-ID gOjCXnSXiHRasWqeABszxQQCsBJgceXSjHdZYVTfZR8";
         private readonly IHttpClient _client;
         private const string BaseUrl = "https://api.unsplash.com";
 
         public UnsplashHttpService(IHttpClient service)
         {
             _client = service;
-            if (service.Client() is { } client)
-            {
-                client.DefaultRequestHeaders.Accept.Add(
-                    new MediaTypeWithQualityHeaderValue("application/json"));
-                client.DefaultRequestHeaders.Authorization =
-                    new AuthenticationHeaderValue("Authorization", _apiKey);
-                client.DefaultRequestHeaders.Add("Accept-Version", "v1");
-            }
-
             Debug.WriteLine("UnsplashApi initialized.");
         }
 
@@ -74,10 +68,37 @@ namespace Irvuewin.Helpers
             }
         }
 
+        /// <summary>
+        /// Get photo details by ID
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public async Task<UnsplashPhoto?> GetPhotoInfoById(string id)
         {
             var url = $"photos/{id}";
             return await GetAsync<UnsplashPhoto>(url);
         }
+        
+        // Get a single page from the Editorial feed
+        public async Task<List<UnsplashPhoto>?> GetEditorialFeed(UnsplashQueryParams query)
+        {
+            var url = $"photos?{query.ToQueryString()}";
+            return await GetAsync<List<UnsplashPhoto>>(url);
+        }
+        
+        // Get a single collection by ID
+        public async Task<UnsplashCollection?> GetCollectionById(string id)
+        {
+            var url = $"collections/{id}";
+            return await GetAsync<UnsplashCollection>(url);
+        }
+
+        // Get a single page of photos in a collection
+        public async Task<List<UnsplashPhoto>?> GetPhotosOfCollection(string collectionId, UnsplashQueryParams query)
+        {
+            var url = $"collections/{collectionId}/photos?{query.ToQueryString()}";
+            return await GetAsync<List<UnsplashPhoto>>(url);
+        }
+
     }
 }

@@ -29,7 +29,7 @@ public class SettingsViewModel: INotifyPropertyChanged
         private string _wallpaperSavedPath = Properties.Settings.Default.WallpaperSavedPath;
 
         /// <summary>
-        /// 0-both, 1-landscape, 2-protrait
+        /// 0-both, 1-landscape, 2-protrait 3-square
         /// </summary>
         private byte _wallpaperOrientation = Properties.Settings.Default.WallpaperOrientation;
 

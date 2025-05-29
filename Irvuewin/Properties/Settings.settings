@@ -1,4 +1,4 @@
-﻿<?xml version='1.0' encoding='utf-8'?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="Irvuewin.Properties" GeneratedClassName="Settings">
   <Profiles />
   <Settings>
@@ -35,5 +35,15 @@
     <Setting Name="SelectedChannelIndex" Type="System.SByte" Scope="User">
       <Value Profile="(Default)">-1</Value>
     </Setting>
+    <Setting Name="DefaultUnsplashApiKey" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Client-ID gOjCXnSXiHRasWqeABszxQQCsBJgceXSjHdZYVTfZR8</Value>
+    </Setting>
+    <Setting Name="UserUnsplashApiKey" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="UserUnsplashChannels" Type="System.String" Scope="User">
+      <Value Profile="(Default)">default,</Value>
+    </Setting>
   </Settings>
 </SettingsFile>
+
