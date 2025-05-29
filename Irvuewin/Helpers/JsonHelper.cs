@@ -5,17 +5,13 @@ using Newtonsoft.Json.Converters;
 
 namespace Irvuewin.Helpers
 {
-    ///<summary>
-    ///Author: wangy325
-    ///Date: 2020/01/01 18:18:01
-    ///Desc: 
-    ///</summary>
     public static class JsonHelper
     {
         public static readonly JsonSerializerSettings? Settings = new()
             {
                 MetadataPropertyHandling = MetadataPropertyHandling.Ignore,
                 DateParseHandling = DateParseHandling.None,
+                NullValueHandling = NullValueHandling.Ignore,
                 Converters =
                 {
                     AssetTypeConverter.Singleton,
