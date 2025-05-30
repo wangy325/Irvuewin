@@ -12,6 +12,7 @@ namespace Irvuewin.Helpers
                 MetadataPropertyHandling = MetadataPropertyHandling.Ignore,
                 DateParseHandling = DateParseHandling.None,
                 NullValueHandling = NullValueHandling.Ignore,
+                Formatting = Formatting.Indented,
                 Converters =
                 {
                     AssetTypeConverter.Singleton,

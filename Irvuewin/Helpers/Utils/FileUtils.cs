@@ -21,5 +21,12 @@ namespace Irvuewin.Helpers.Utils
             var fileName = $"{key}.position.xml";
             return Path.Combine(AppDataFolder, fileName);
         }
+        
+        // key -> cached file name
+        public static string CachePath(string key)
+        {
+            var fileName = $"{key}.cached.json";
+            return Path.Combine(AppDataFolder, fileName);
+        }
     }
 }

@@ -180,7 +180,7 @@ namespace Irvuewin.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("default,")]
+        [global::System.Configuration.DefaultSettingValueAttribute("317099,7282015,raoebyzOILQ,62652795")]
         public string UserUnsplashChannels {
             get {
                 return ((string)(this["UserUnsplashChannels"]));

@@ -1,7 +1,10 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
+using Irvuewin.Helpers;
+using Irvuewin.Models;
 using Irvuewin.Models.Unsplash;
 
 
@@ -11,12 +14,15 @@ public class ChannelsViewModel : INotifyPropertyChanged
 {
     public event PropertyChangedEventHandler? PropertyChanged;
 
+    // ,raoebyzOILQ,pY1RsqahQms,62652795
+    private string _savedChannels = Properties.Settings.Default.UserUnsplashChannels;
     private ObservableCollection<UnsplashPhoto> _photos = [];
-    private ObservableCollection<UnsplashCollection> _collections = [];
-    private UnsplashCollection _selectedChannel = null;
-    public ICommand ItemSelected { get; }
-
+    private ObservableCollection<UnsplashChannel> _channels = [];
+    private UnsplashChannel _selectedChannel = null;
     private sbyte _selectedIndex = Properties.Settings.Default.SelectedChannelIndex;
+
+
+    public ICommand ItemSelected { get; set; }
 
     public sbyte SelectedIndex
     {
@@ -27,26 +33,23 @@ public class ChannelsViewModel : INotifyPropertyChanged
             _selectedIndex = value;
             Properties.Settings.Default.SelectedChannelIndex = _selectedIndex;
             Properties.Settings.Default.Save();
-            System.Diagnostics.Debug.WriteLine($"Selected channel Index: {value}");
+            Debug.WriteLine($"Selected channel Index: {value}");
             OnPropertyChanged();
         }
     }
 
-    public UnsplashCollection SelectedChannel
+    public UnsplashChannel SelectedChannel
     {
         get => _selectedChannel;
         set
         {
             _selectedChannel = value;
             OnPropertyChanged();
-            if (value != null)
-            {
-                ItemSelected.Execute(value);
-            }
+            // ItemSelected.Execute(value);
         }
     }
 
-    public ObservableCollection<UnsplashPhoto> PhotoCollection
+    public ObservableCollection<UnsplashPhoto> Photos
     {
         get => _photos;
         set
@@ -56,113 +59,122 @@ public class ChannelsViewModel : INotifyPropertyChanged
         }
     }
 
-    public ObservableCollection<UnsplashCollection> Collections
+    public ObservableCollection<UnsplashChannel> Channels
     {
-        get => _collections;
+        get => _channels;
         set
         {
-            _collections = value;
+            _channels = value;
             OnPropertyChanged();
         }
     }
 
+    public string SavedChannels
+    {
+        get => _savedChannels;
+        set => _savedChannels = value;
+    }
 
     public ChannelsViewModel()
     {
-        var photo = new UnsplashPhoto()
-        {
-            Urls = new Urls()
-            {
-                Small = new Uri(
-                    "https://images.unsplash.com/photo-1500917293891-ef795e70e1f6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NTIzNjZ8MHwxfHNlYXJjaHwxfHxiZWF1dHklMjBnaXJsfGVufDB8MHx8fDE3NDc5MjYwNDh8MA&ixlib=rb-4.1.0&q=80&w=200"),
-            },
-            User = new UnsplashUser()
-            {
-                Id = "1",
-                Name = "John Bakator",
-                Username = "jxb511",
-                ProfileImage = new ProfileImage()
-                {
-                    Small = new Uri(
-                        "https://images.unsplash.com/profile-fb-1504194982-405c65f1fb61.jpg?ixlib=rb-4.0.3&crop=faces&fit=crop&w=32&h=32"),
-                },
-                Links = new UserLinks()
-                {
-                    Html = new Uri("https://unsplash.com/@jxb511"),
-                   
-                }
-            }
-        };
-        
-        var UnsplashCollection = new UnsplashCollection()
-        {
-            Id = "1",
-            Title = "Beautiful",
-            Description = "Beautiful things",
-
-            Links = new Models.Unsplash.Links()
-            {
-                Html = new Uri("https://unsplash.com/collections/raoebyzOILQ/blue"),
-            },
-            CoverPhoto = photo,
-        };
-
-        var uCollection2 = new UnsplashCollection()
-        {
-            Id = "1",
-            Title = "AcanTara Very Long Title",
-            Description = "Beautiful things",
-
-            Links = new Models.Unsplash.Links()
-            {
-                Html = new Uri("https://google.com"),
-            },
-
-            
-            CoverPhoto = photo,
-        };
-        var uCollection3 = new UnsplashCollection()
-        {
-            Id = "1",
-            Title = "Babyface",
-            Description = "Beautiful things",
-
-            Links = new Models.Unsplash.Links()
-            {
-                Html = new Uri("https://bing.com"),
-            },
-
-            CoverPhoto = photo
-        };
-        var uCollection4 = new UnsplashCollection()
-        {
-            Id = "1",
-            Title = "Carplay",
-            Description = "Beautiful things",
-
-            Links = new Models.Unsplash.Links()
-            {
-                Html = new Uri("https://openai.com"),
-               
-            },
-        
-            CoverPhoto = photo
-           
-        };
-
-        _photos = [photo, photo, photo, photo, photo, photo];
-        _selectedChannel = UnsplashCollection;
-        _collections = [UnsplashCollection, uCollection2, uCollection3, uCollection4];
-        ItemSelected = new RelayCommand<UnsplashCollection>(OnItemSelected);
+        Channels = [];
+        Photos = [];
+        SelectedChannel = new UnsplashChannel();
+        ItemSelected = new RelayCommand<UnsplashChannel>(OnItemSelected);
+        InitializeAsync();
     }
 
-    private void OnItemSelected(Object param)
+    private async void InitializeAsync()
     {
-        if (param is UnsplashCollection item)
-            _selectedChannel = item;
+        await LoadChannels();
+        SelectedChannel = Channels[SelectedIndex];
+
+        // channel Photos
+        var query = new UnsplashQueryParams
+        {
+            Page = 1,
+            PerPage = 10,
+            Orientation = Properties.Settings.Default.WallpaperOrientation
+        };
+        await LoadPhotos(SelectedChannel.Id, query);
     }
 
-    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+    private async Task LoadChannels()
+    {
+        var channelIds = SavedChannels.Split(',');
+        // load from cache
+        // var cachedChannels = await UnsplashCache.LoadChannelsAsync();
+        if (await UnsplashCache.LoadChannelsAsync() is { } cachedChannels
+            && cachedChannels.Any()
+            && cachedChannels.Count == channelIds.Length)
+        {
+            Channels = [..cachedChannels];
+        }
+        else
+        {
+            // load from web api
+            var httpService = new UnsplashHttpService(new UnsplashHttpClientWrapper());
+            foreach (var id in channelIds)
+            {
+                if (await httpService.GetChannelById(id) is { } channel)
+                    Channels.Add(channel);
+            }
+
+            Debug.WriteLine($"Loaded {Channels.Count} channels from web api.");
+            // cache channels
+            await UnsplashCache.SaveChannelsASync([..Channels]);
+        }
+    }
+
+    // 自动分页刷新
+    private async Task LoadPhotos(string channelId, UnsplashQueryParams query)
+    {
+        // load from cache
+        var cacheIndex = new PhotosCachePageIndex
+        {
+            ChannelId = channelId,
+            PageIndex = query.Page
+        };
+        if (await UnsplashCache.LoadPhotosAsync(cacheIndex) is { } cachedPhotos
+            && cachedPhotos.Any())
+        {
+            Photos = [..cachedPhotos];
+        }
+        else
+        {
+            // load from web api
+            var httpService = new UnsplashHttpService(new UnsplashHttpClientWrapper());
+
+            if (await httpService.GetPhotosOfChannel(channelId, query) is { } photos
+                && photos.Any())
+            {
+                Photos = [..photos];
+                // update cache
+                await UnsplashCache.SavePhotosAsync(cacheIndex, [..Photos]);
+            }
+
+            Debug.WriteLine($"Loaded photos for channel {channelId} from web api.");
+        }
+    }
+
+    private async void OnItemSelected(Object param)
+    {
+        if (param is UnsplashChannel item)
+        {
+            _selectedChannel = item;
+
+            var query = new UnsplashQueryParams
+            {
+                Page = 1,
+                PerPage = 10,
+                Orientation = Properties.Settings.Default.WallpaperOrientation
+            };
+
+            await LoadPhotos(item.Id, query);
+        }
+    }
+
+    private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
@@ -189,10 +201,4 @@ public class RelayCommand<T> : ICommand
     {
         _execute(parameter);
     }
-
-    //public event EventHandler CanExecuteChanged
-    //{
-    //    add { CommandManager.RequerySuggested += value; }
-    //    remove { CommandManager.RequerySuggested -= value; }
-    //}
 }

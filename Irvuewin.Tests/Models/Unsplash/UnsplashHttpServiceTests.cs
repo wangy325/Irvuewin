@@ -22,7 +22,27 @@ public class UnsplashHttpServiceTests
     }
 
     [TestMethod]
-    public async Task GetAsync_ReturnsDeserializedUnsplashCollection()
+    public async Task GetAsyncChannelById_ReturnDeserializedUnsplashChannel()
+    {
+        var mockResponseContent = JsonConvert.SerializeObject(UnsplashDataSet.ExpectedChannel, JsonHelper.Settings);
+        var mockResponse = new HttpResponseMessage(HttpStatusCode.OK)
+        {
+            Content = new StringContent(mockResponseContent, Encoding.UTF8, "application/json")
+        };
+        var url = $"{UnsplashDataSet.BaseUrl}/collections/{UnsplashDataSet.ChannelId}";
+        _mockHttpClient.Setup(x => x.GetAsync(url)).ReturnsAsync(mockResponse);
+
+        var actualChannel = await _helper.GetChannelById(UnsplashDataSet.ChannelId);
+        
+        Assert.IsNotNull(actualChannel);
+        Assert.AreEqual(UnsplashDataSet.ExpectedChannel.Id, actualChannel.Id);
+        Assert.AreEqual(UnsplashDataSet.ExpectedChannel.Title, actualChannel.Title);
+        Assert.AreEqual(UnsplashDataSet.ExpectedChannel.ShareKey, actualChannel.ShareKey);
+        Assert.AreEqual(UnsplashDataSet.ExpectedChannel.UpdatedAt, actualChannel.UpdatedAt);
+    }
+
+    [TestMethod]
+    public async Task GetAsyncPhotosOfChannel_ReturnsDeserializedUnsplashPhotoList()
     {
         // Arrange
         var query = new UnsplashQueryParams
@@ -37,11 +57,11 @@ public class UnsplashHttpServiceTests
         {
             Content = new StringContent(mockResponseContent, Encoding.UTF8, "application/json")
         };
-        var url = $"https://api.unsplash.com/collections/{UnsplashDataSet.CollectionId}/photos?{query.ToQueryString()}";
+        var url = $"{UnsplashDataSet.BaseUrl}/collections/{UnsplashDataSet.ChannelId}/photos?{query.ToQueryString()}";
         _mockHttpClient.Setup(x => x.GetAsync(url)).ReturnsAsync(mockResponse);
 
         // Act
-        var actualPhotos = await _helper.GetPhotosOfCollection(UnsplashDataSet.CollectionId, query);
+        var actualPhotos = await _helper.GetPhotosOfChannel(UnsplashDataSet.ChannelId, query);
 
         // Assert
         Assert.IsNotNull(actualPhotos);
@@ -63,7 +83,7 @@ public class UnsplashHttpServiceTests
         {
             Content = new StringContent(mockedResponseContent, Encoding.UTF8, "application/json")
         };
-        var apiUrl = $"https://api.unsplash.com/photos/{UnsplashDataSet.PhotoId}";
+        var apiUrl = $"{UnsplashDataSet.BaseUrl}/photos/{UnsplashDataSet.PhotoId}";
         _mockHttpClient.Setup(x => x.GetAsync(apiUrl)).ReturnsAsync(mockedHttpResponse);
 
         // Act

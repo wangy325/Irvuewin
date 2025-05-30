@@ -68,11 +68,7 @@ namespace Irvuewin.Helpers
             }
         }
 
-        /// <summary>
-        /// Get photo details by ID
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
+        // Get photo details by ID
         public async Task<UnsplashPhoto?> GetPhotoInfoById(string id)
         {
             var url = $"photos/{id}";
@@ -80,6 +76,7 @@ namespace Irvuewin.Helpers
         }
         
         // Get a single page from the Editorial feed
+        // Query params: page and per_page
         public async Task<List<UnsplashPhoto>?> GetEditorialFeed(UnsplashQueryParams query)
         {
             var url = $"photos?{query.ToQueryString()}";
@@ -87,16 +84,16 @@ namespace Irvuewin.Helpers
         }
         
         // Get a single collection by ID
-        public async Task<UnsplashCollection?> GetCollectionById(string id)
+        public async Task<UnsplashChannel?> GetChannelById(string id)
         {
             var url = $"collections/{id}";
-            return await GetAsync<UnsplashCollection>(url);
+            return await GetAsync<UnsplashChannel>(url);
         }
 
         // Get a single page of photos in a collection
-        public async Task<List<UnsplashPhoto>?> GetPhotosOfCollection(string collectionId, UnsplashQueryParams query)
+        public async Task<List<UnsplashPhoto>?> GetPhotosOfChannel(string channelId, UnsplashQueryParams query)
         {
-            var url = $"collections/{collectionId}/photos?{query.ToQueryString()}";
+            var url = $"collections/{channelId}/photos?{query.ToQueryString()}";
             return await GetAsync<List<UnsplashPhoto>>(url);
         }
 

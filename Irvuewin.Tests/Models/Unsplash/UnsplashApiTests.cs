@@ -40,7 +40,7 @@ namespace Irvuewin.Tests.Models.Unsplash
                 Orientation = 1
             };
             // Act
-            var actualPhotos = await _httpService.GetPhotosOfCollection(UnsplashDataSet.CollectionId, query);
+            var actualPhotos = await _httpService.GetPhotosOfChannel(UnsplashDataSet.ChannelId, query);
 
             // Assert
             Assert.IsNotNull(actualPhotos);

@@ -3,9 +3,12 @@
                     xmlns:local="clr-namespace:Irvuewin"
                     xmlns:controls="clr-namespace:Irvuewin.Controls"
                     xmlns:converters="clr-namespace:Irvuewin.Helpers.Converters"
-                    xmlns:helpers="clr-namespace:Irvuewin.Helpers">
-
-  <Style TargetType="{x:Type controls:PathDisplayControl}">
+                    xmlns:vm="clr-namespace:Irvuewin.ViewModels"
+                    xmlns:helpers="clr-namespace:Irvuewin.Helpers"
+                    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="d">
+    
+    <Style TargetType="{x:Type controls:PathDisplayControl}">
     <Setter Property="Foreground" Value="Gray"/>
     <Setter Property="Background" Value="Transparent"/>
     <Setter Property="BorderThickness" Value="0"/>
@@ -199,7 +202,7 @@
         </Setter>
     </Style>
     <Style x:Key="TextBlockStyle" TargetType="TextBlock">
-        <Setter Property="Margin" Value="0, 0" />
+        <Setter Property="Margin" Value="0,0" />
         <Setter Property="VerticalAlignment" Value="Center" />
         <Setter Property="Background" Value="Transparent" />
     </Style>
@@ -459,7 +462,7 @@
                             SnapsToDevicePixels="True">
                         <Grid x:Name="ContentPresenter">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="60" />
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
@@ -467,6 +470,7 @@
                             <Image Grid.Column="0" Source="{Binding CoverPhoto.Urls.Small}">
                                 <Image.Style>
                                     <Style TargetType="Image">
+                                        <Setter Property="Stretch" Value="UniformToFill" />
                                         <Setter Property="Clip">
                                             <Setter.Value>
                                                 <RectangleGeometry RadiusX="5" RadiusY="5" Rect="10,0,40,40" />
@@ -475,7 +479,12 @@
                                     </Style>
                                 </Image.Style>
                             </Image>
-                            <TextBlock Grid.Column="1" Text="{Binding Title}" Style="{StaticResource TextBlockStyle}" />
+                            <TextBlock Grid.Column="1"
+                                       Text="{Binding Title}"
+                                       Style="{StaticResource TextBlockStyle}"
+                                       TextTrimming="CharacterEllipsis"
+                                       TextWrapping="NoWrap"
+                                       ToolTip="{Binding Title}" />
                             <RadioButton x:Name="PART_RadioButton"
                                          Grid.Column="2"
                                          IsChecked="{Binding IsSelected, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"

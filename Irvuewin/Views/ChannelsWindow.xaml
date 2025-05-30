@@ -39,7 +39,7 @@
                 <RowDefinition Height="45" />
             </Grid.RowDefinitions>
             <ListBox Grid.Row="0"
-                     ItemsSource="{Binding Collections}"
+                     ItemsSource="{Binding Channels}"
                      SelectedItem="{Binding SelectedChannel}"
                      SelectedIndex="{Binding SelectedIndex, Mode=OneWay}"
                      SelectionChanged="ListBox_SelectionChanged"
@@ -108,7 +108,7 @@
 
             <ScrollViewer Grid.Row="2" Margin="0,0,0,10"
                           Style="{StaticResource ScrollViewerStyle}">
-                <ItemsControl ItemsSource="{Binding PhotoCollection}">
+                <ItemsControl ItemsSource="{Binding Photos}">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
                             <WrapPanel Orientation="Horizontal" />
@@ -118,7 +118,7 @@
                         <DataTemplate>
                             <Grid>
                                 <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="150" />
                                     <RowDefinition Height="Auto" />
                                 </Grid.RowDefinitions>
                                 <Image Grid.Row="0"
@@ -130,7 +130,7 @@
                                             <Setter Property="Stretch" Value="UniformToFill" />
                                             <Setter Property="Clip">
                                                 <Setter.Value>
-                                                    <RectangleGeometry RadiusX="5" RadiusY="5" Rect="0,0,200,130"/>
+                                                    <RectangleGeometry RadiusX="5" RadiusY="5" Rect="0,0,200,140"/>
                                                 </Setter.Value>
                                             </Setter>
                                         </Style>

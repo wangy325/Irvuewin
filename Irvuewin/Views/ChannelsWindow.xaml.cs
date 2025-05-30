@@ -28,7 +28,7 @@ public partial class ChannelsWindow : LocationAwareWindow
     {
         var viewModel = DataContext as ChannelsViewModel;
 
-        if (viewModel?.SelectedChannel is UnsplashCollection sc)
+        if (viewModel?.SelectedChannel is UnsplashChannel sc)
         {
             System.Diagnostics.Debug.WriteLine($"Selected Channel: {sc.Title}");
             if (sc.Links.Html is { } url)

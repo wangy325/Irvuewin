@@ -7,7 +7,7 @@ using Newtonsoft.Json.Converters;
 
 namespace Irvuewin.Models.Unsplash
 {
-    public partial class UnsplashCollection
+    public partial class UnsplashChannel
     {
         [JsonProperty("id")] public string Id { get; set; }
 
@@ -31,8 +31,10 @@ namespace Irvuewin.Models.Unsplash
 
         [JsonProperty("links")] public Links Links { get; set; }
 
+        // Nullable
         [JsonProperty("cover_photo")] public UnsplashPhoto CoverPhoto { get; set; }
-
+        
+        // Nullable
         [JsonProperty("preview_photos")] public List<PreviewPhoto> PreviewPhotos { get; set; }
 
 
@@ -66,15 +68,15 @@ namespace Irvuewin.Models.Unsplash
     }
 
 
-    public partial class UnsplashCollection
+    public partial class UnsplashChannel
     {
-        public static UnsplashCollection? FromJson(string json) =>
-            JsonConvert.DeserializeObject<UnsplashCollection>(json, JsonHelper.Settings);
+        public static UnsplashChannel? FromJson(string json) =>
+            JsonConvert.DeserializeObject<UnsplashChannel>(json, JsonHelper.Settings);
     }
 
     public static class SerializeUnsplashCollection
     {
-        public static string ToJson(this UnsplashCollection self) =>
+        public static string ToJson(this UnsplashChannel self) =>
             JsonConvert.SerializeObject(self, (JsonSerializerSettings?)JsonHelper.Settings);
     }
 }

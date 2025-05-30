@@ -10,8 +10,9 @@ namespace Irvuewin.Tests.Models.Unsplash;
 ///</summary>
 public static class UnsplashDataSet
 {
+    public static string BaseUrl = "https://api.unsplash.com";
     public static string PhotoId = "0RbbLWm6rLk";
-    public static string CollectionId = "raoebyzOILQ";
+    public static string ChannelId = "raoebyzOILQ";
     
     public static UnsplashPhoto ExpectedPhoto = new()
     {
@@ -21,7 +22,7 @@ public static class UnsplashDataSet
         Slug = "woman-in-white-tank-top-wearing-black-sunglasses-0RbbLWm6rLk"
     };
 
-    public static UnsplashCollection ExpectedCollection = new()
+    public static UnsplashChannel ExpectedChannel = new()
     {
         Id = "raoebyzOILQ",
         Title = "Blue",
