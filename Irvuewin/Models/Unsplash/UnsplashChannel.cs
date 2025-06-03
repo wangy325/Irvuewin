@@ -79,4 +79,9 @@ namespace Irvuewin.Models.Unsplash
         public static string ToJson(this UnsplashChannel self) =>
             JsonConvert.SerializeObject(self, (JsonSerializerSettings?)JsonHelper.Settings);
     }
+
+    public partial class UnsplashChannel
+    {
+        public bool IsSelected { get; set; }
+    }
 }

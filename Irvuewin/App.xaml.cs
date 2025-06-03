@@ -1,7 +1,10 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 using Hardcodet.Wpf.TaskbarNotification;
 using Irvuewin.Helpers.Utils;
+using Irvuewin.Models;
+using Irvuewin.Models.Unsplash;
 using Irvuewin.Properties;
 using Irvuewin.Views;
 
@@ -107,25 +110,7 @@ namespace Irvuewin
         {
             WindowManager.ShowWindow("ChannelsWindow", () => new ChannelsWindow());
         }
-
-        private void ChannelRadio_Click(object sender, RoutedEventArgs e)
-        {
-            if (sender is MenuItem clickedItem)
-            {
-                var parent = ItemsControl.ItemsControlFromItemContainer(clickedItem);
-                if (parent != null)
-                {
-                    foreach (var item in parent.Items)
-                    {
-                        if (parent.ItemContainerGenerator.ContainerFromItem(item) is MenuItem menuItem && menuItem != clickedItem)
-                        {
-                            menuItem.IsChecked = false;
-                        }
-                    }
-                    clickedItem.IsChecked = true;
-                }
-            }
-        }
+        
 
         /// <summary>
         /// 试图在菜单栏弹出后单击鼠标左键（不选中任何内容）时隐藏菜单栏
@@ -144,6 +129,11 @@ namespace Irvuewin
             System.Diagnostics.Debug.WriteLine($"RandomSwitch: { Irvuewin.Properties.Settings.Default.RandomWallpaper}");
             Irvuewin.Properties.Settings.Default.Save();
         }
-    }
 
+        private void ChannelSelector_Click(object sender, RoutedEventArgs e)
+        {
+            
+        }
+
+    }
 }

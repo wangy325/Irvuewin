@@ -1,6 +1,5 @@
 ﻿using System.Diagnostics;
 using System.IO;
-using System.Windows.Documents;
 using Irvuewin.Helpers;
 using Irvuewin.Helpers.Utils;
 using Irvuewin.Models.Unsplash;
@@ -110,7 +109,6 @@ namespace Irvuewin.Models
         public override int GetHashCode()
         {
             return PageIndex.GetHashCode() ^ ChannelId.GetHashCode();
-
         }
     }
 }

@@ -146,7 +146,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
             var httpService = new UnsplashHttpService(new UnsplashHttpClientWrapper());
 
             if (await httpService.GetPhotosOfChannel(channelId, query) is { } photos
-                && photos.Any())
+                && photos.Count != 0)
             {
                 Photos = [..photos];
                 // update cache
