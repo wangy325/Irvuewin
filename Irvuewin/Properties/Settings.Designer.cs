@@ -144,7 +144,7 @@ namespace Irvuewin.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("-1")]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
         public sbyte SelectedChannelIndex {
             get {
                 return ((sbyte)(this["SelectedChannelIndex"]));

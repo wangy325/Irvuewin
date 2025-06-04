@@ -33,7 +33,7 @@
       <Value Profile="(Default)">True</Value>
     </Setting>
     <Setting Name="SelectedChannelIndex" Type="System.SByte" Scope="User">
-      <Value Profile="(Default)">-1</Value>
+      <Value Profile="(Default)">0</Value>
     </Setting>
     <Setting Name="DefaultUnsplashApiKey" Type="System.String" Scope="User">
       <Value Profile="(Default)">Client-ID gOjCXnSXiHRasWqeABszxQQCsBJgceXSjHdZYVTfZR8</Value>

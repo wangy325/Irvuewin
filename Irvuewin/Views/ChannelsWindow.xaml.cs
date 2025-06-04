@@ -1,6 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 using Irvuewin.Helpers;
+using Irvuewin.Models;
 using Irvuewin.Models.Unsplash;
 using Irvuewin.ViewModels;
 
@@ -51,19 +52,20 @@ public partial class ChannelsWindow : LocationAwareWindow
         }
     }
 
-    private void ListBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+    private void ListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         if (!_isInitialized) return;
 
         if (sender is ListBox listBox && DataContext is ChannelsViewModel viewModel)
         {
             var selectedItem = listBox.SelectedItem;
-            System.Diagnostics.Debug.WriteLine($"ListBox_SelectionChanged: {selectedItem}");
-            viewModel.ItemSelected.Execute(selectedItem);
-            // 更新index
-            Properties.Settings.Default.SelectedChannelIndex = (sbyte)listBox.SelectedIndex;
-            Properties.Settings.Default.Save();
-            System.Diagnostics.Debug.WriteLine($"ListBox_Selection_Index saved: {listBox.SelectedIndex}");
+            System.Diagnostics.Debug.WriteLine($"ListBox_SelectionChanged Index: {listBox.SelectedIndex}");
+            // 传入索引
+            if (listBox.SelectedIndex != Properties.Settings.Default.SelectedChannelIndex)
+            {
+                viewModel.SelectedIndex = (sbyte)listBox.SelectedIndex;
+                viewModel.ItemSelected.Execute(selectedItem);
+            }
         }
     }
 
@@ -79,9 +81,16 @@ public partial class ChannelsWindow : LocationAwareWindow
         }
     }
 
-    private void ChannelsWindow_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
+    private async void ChannelsWindow_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
     {
-        System.Diagnostics.Debug.WriteLine($"Window Closing...");
         _isInitialized = false;
+        // 更新频道数据缓存
+        if (DataContext is ChannelsViewModel viewModel)
+        {
+            System.Diagnostics.Debug.WriteLine($"Window_Closing: Saving channels...");
+            var channels = viewModel.Channels;
+            await UnsplashCache.SaveChannelsASync([..channels]);
+        }
+        System.Diagnostics.Debug.WriteLine($"Window Closed.");
     }
 }

@@ -2,7 +2,9 @@
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using System.Windows;
 using System.Windows.Input;
+using Hardcodet.Wpf.TaskbarNotification;
 using Irvuewin.Helpers;
 using Irvuewin.Models;
 using Irvuewin.Models.Unsplash;
@@ -17,8 +19,8 @@ public class ChannelsViewModel : INotifyPropertyChanged
     // ,raoebyzOILQ,pY1RsqahQms,62652795
     private string _savedChannels = Properties.Settings.Default.UserUnsplashChannels;
     private ObservableCollection<UnsplashPhoto> _photos = [];
-    private ObservableCollection<UnsplashChannel> _channels = [];
-    private UnsplashChannel _selectedChannel = null;
+    private ObservableCollection<ChannelViewModel> _channels = [];
+    private ChannelViewModel _selectedChannel = null;
     private sbyte _selectedIndex = Properties.Settings.Default.SelectedChannelIndex;
 
 
@@ -33,12 +35,12 @@ public class ChannelsViewModel : INotifyPropertyChanged
             _selectedIndex = value;
             Properties.Settings.Default.SelectedChannelIndex = _selectedIndex;
             Properties.Settings.Default.Save();
-            Debug.WriteLine($"Selected channel Index: {value}");
+            Debug.WriteLine($"Set SelectedIndex==> Selected channel Index: {value}");
             OnPropertyChanged();
         }
     }
 
-    public UnsplashChannel SelectedChannel
+    public ChannelViewModel SelectedChannel
     {
         get => _selectedChannel;
         set
@@ -59,7 +61,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
         }
     }
 
-    public ObservableCollection<UnsplashChannel> Channels
+    public ObservableCollection<ChannelViewModel> Channels
     {
         get => _channels;
         set
@@ -79,16 +81,17 @@ public class ChannelsViewModel : INotifyPropertyChanged
     {
         Channels = [];
         Photos = [];
-        SelectedChannel = new UnsplashChannel();
-        ItemSelected = new RelayCommand<UnsplashChannel>(OnItemSelected);
+        SelectedChannel = new ChannelViewModel();
+        ItemSelected = new RelayCommand<ChannelViewModel>(OnListBoxItemSelected);
         InitializeAsync();
     }
 
     private async void InitializeAsync()
     {
         await LoadChannels();
+        Channels[SelectedIndex].IsSelected = true;
         SelectedChannel = Channels[SelectedIndex];
-
+        
         // channel Photos
         var query = new UnsplashQueryParams
         {
@@ -108,7 +111,13 @@ public class ChannelsViewModel : INotifyPropertyChanged
             && cachedChannels.Any()
             && cachedChannels.Count == channelIds.Length)
         {
-            Channels = [..cachedChannels];
+            List<ChannelViewModel> channelsvm = [];
+            channelsvm.AddRange(cachedChannels.Select(item => MapperProvider.Mapper.Map<ChannelViewModel>(item)));
+            Channels = [..channelsvm];
+            /*foreach (var item in Channels)
+            {
+                item.IsSelected = false;
+            }*/
         }
         else
         {
@@ -117,7 +126,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
             foreach (var id in channelIds)
             {
                 if (await httpService.GetChannelById(id) is { } channel)
-                    Channels.Add(channel);
+                    Channels.Add(MapperProvider.Mapper.Map<ChannelViewModel>(channel));
             }
 
             Debug.WriteLine($"Loaded {Channels.Count} channels from web api.");
@@ -157,21 +166,33 @@ public class ChannelsViewModel : INotifyPropertyChanged
         }
     }
 
-    private async void OnItemSelected(Object param)
+    private async void OnListBoxItemSelected(object param)
     {
-        if (param is UnsplashChannel item)
+        // 更新Index
+        // 更新
+        if (param is not ChannelViewModel item) return;
+        item.IsSelected = true;
+        _selectedChannel = item;
+        foreach (var channel in Channels)
         {
-            _selectedChannel = item;
-
-            var query = new UnsplashQueryParams
-            {
-                Page = 1,
-                PerPage = 10,
-                Orientation = Properties.Settings.Default.WallpaperOrientation
-            };
-
-            await LoadPhotos(item.Id, query);
+            if (channel == _selectedChannel) continue;
+            channel.IsSelected = false;
         }
+        var _index = Channels.IndexOf(_selectedChannel);
+        SelectedIndex =  (sbyte)_index;
+        // Channels[SelectedIndex].IsSelected = true;
+           
+        // 更新index
+        Properties.Settings.Default.SelectedChannelIndex = SelectedIndex;
+        Properties.Settings.Default.Save();
+        Debug.WriteLine($"Selected Index saved: {SelectedIndex}");
+        var query = new UnsplashQueryParams
+        {
+            Page = 1,
+            PerPage = 10,
+            Orientation = Properties.Settings.Default.WallpaperOrientation
+        };
+        await LoadPhotos(item.Id, query);
     }
 
     private void OnPropertyChanged([CallerMemberName] string? propertyName = null)

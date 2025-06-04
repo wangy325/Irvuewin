@@ -4,45 +4,47 @@
                     xmlns:converters="clr-namespace:Irvuewin.Helpers.Converters"
                     xmlns:helpers="clr-namespace:Irvuewin.Helpers"
                     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-                    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="d">
-    
-    <Style TargetType="{x:Type controls:PathDisplayControl}">
-    <Setter Property="Foreground" Value="Gray"/>
-    <Setter Property="Background" Value="Transparent"/>
-    <Setter Property="BorderThickness" Value="0"/>
-    <Setter Property="BorderBrush" Value="WhiteSmoke"/>
-    <Setter Property="Height" Value="Auto"/>
-    <Setter Property="MinHeight" Value="25"/>
-    <Setter Property="Padding" Value="5"/>
-    <Setter Property="Margin" Value="5, 0"/>
-    <Setter Property="VerticalContentAlignment" Value="Center"/>
-    <Setter Property="HorizontalContentAlignment" Value="Center"/>
-    <Setter Property="Template">
-      <Setter.Value>
-        <ControlTemplate TargetType="{x:Type controls:PathDisplayControl}">
-          <Grid>
-            <Grid.RowDefinitions>
-              <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
-            <Border Background="{TemplateBinding Background}"
-                    BorderBrush="{TemplateBinding BorderBrush}"
-                    BorderThickness="{TemplateBinding BorderThickness}"
-                    Padding="{TemplateBinding Padding}"/>
-            <ScrollViewer Grid.Row="0" Grid.Column="0"
-                      HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Hidden">
-              <StackPanel x:Name="PART_Panel" Orientation="Horizontal"/>
-            </ScrollViewer>
-          </Grid>
-        </ControlTemplate>
-      </Setter.Value>
-    </Setter>
-  </Style>
+                    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                    xmlns:unsplash="clr-namespace:Irvuewin.Models.Unsplash"
+                    mc:Ignorable="d">
 
-  <converters:ByteToBooleanConverter x:Key="Byte2BoolConverter" />
-  <converters:FloatToStringConverter x:Key="Float2StringConverter" />
+    <Style TargetType="{x:Type controls:PathDisplayControl}">
+        <Setter Property="Foreground" Value="Gray" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="BorderBrush" Value="WhiteSmoke" />
+        <Setter Property="Height" Value="Auto" />
+        <Setter Property="MinHeight" Value="25" />
+        <Setter Property="Padding" Value="5" />
+        <Setter Property="Margin" Value="5, 0" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type controls:PathDisplayControl}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                Padding="{TemplateBinding Padding}" />
+                        <ScrollViewer Grid.Row="0" Grid.Column="0"
+                                      HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Hidden">
+                            <StackPanel x:Name="PART_Panel" Orientation="Horizontal" />
+                        </ScrollViewer>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <converters:ByteToBooleanConverter x:Key="Byte2BoolConverter" />
+    <converters:FloatToStringConverter x:Key="Float2StringConverter" />
 
     <Style x:Key="LabelStyle" TargetType="Label">
         <Setter Property="Margin" Value="0, 5" />
@@ -440,7 +442,7 @@
         </Setter>
     </Style>
 
-    <Style x:Key="ListBoxItemStyle" TargetType="ListBoxItem" >
+    <Style x:Key="ListBoxItemStyle" TargetType="ListBoxItem">
         <!-- 基础属性设置 -->
         <Setter Property="Background" Value="WhiteSmoke" />
         <Setter Property="BorderThickness" Value="0" />
@@ -464,7 +466,8 @@
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
 
-                            <Image Grid.Column="0" Source="{Binding CoverPhoto.Urls.Small}">
+                            <Image Grid.Column="0"
+                                   Source="{Binding CoverPhoto.Urls.Small}">
                                 <Image.Style>
                                     <Style TargetType="Image">
                                         <Setter Property="Stretch" Value="UniformToFill" />
@@ -480,15 +483,18 @@
                                        Text="{Binding Title}"
                                        Style="{StaticResource TextBlockStyle}"
                                        TextTrimming="CharacterEllipsis"
-                                       TextWrapping="NoWrap"
-                                       ToolTip="{Binding Title}" />
+                                       TextWrapping="NoWrap">
+                                <TextBlock.ToolTip>
+                                    <ToolTip Style="{StaticResource ToolTipStyle}"
+                                             Content="{Binding Title}"/>
+                                </TextBlock.ToolTip>
+                            </TextBlock>
                             <RadioButton x:Name="PART_RadioButton"
                                          Grid.Column="2"
                                          IsChecked="{Binding IsSelected, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
                                          IsEnabled="{TemplateBinding IsEnabled}"
                                          Margin="10,0,5,0"
                                          HorizontalAlignment="Right"
-                                         Content=""
                                          Style="{StaticResource RadioStyle}" />
                         </Grid>
                     </Border>

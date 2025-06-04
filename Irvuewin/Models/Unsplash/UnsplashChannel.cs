@@ -1,9 +1,7 @@
 ﻿// YApi QuickType插件生成，具体参考文档:https://plugins.jetbrains.com/plugin/18847-yapi-quicktype/documentation
 
-using System.Globalization;
 using Irvuewin.Helpers;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 
 namespace Irvuewin.Models.Unsplash
 {
@@ -79,9 +77,5 @@ namespace Irvuewin.Models.Unsplash
         public static string ToJson(this UnsplashChannel self) =>
             JsonConvert.SerializeObject(self, (JsonSerializerSettings?)JsonHelper.Settings);
     }
-
-    public partial class UnsplashChannel
-    {
-        public bool IsSelected { get; set; }
-    }
+    
 }

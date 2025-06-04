@@ -9,7 +9,7 @@
     <Application.Resources>
         <vm:ChannelsViewModel x:Key="ChannelsViewModel" />
         <converters:UshortToBooleanConverter x:Key="Ushort2BoolConverter" />
-        <converters:ByteToBooleanConverter x:Key="Byte2BoolConverter" /> 
+        <converters:ByteToBooleanConverter x:Key="Byte2BoolConverter" />
 
         <Style x:Key="ContextMenuStyle" TargetType="ContextMenu">
             <Setter Property="Background" Value="White" />
@@ -181,7 +181,7 @@
                             <CompositeCollection>
                                 <Separator Margin="0 ,10,0,0" Background="Transparent" />
                                 <CollectionContainer
-                                    Collection="{Binding Source={ StaticResource ChannelsViewModel}, Path=Channels }" />
+                                    Collection="{Binding Source={StaticResource ChannelsViewModel}, Path=Channels}" />
                                 <Separator Style="{StaticResource SeparatorStyle}" />
                                 <MenuItem Header="+ 添加新频道"
                                           Margin="0,0,0,10"
@@ -192,10 +192,8 @@
                         </MenuItem.ItemsSource>
                         <MenuItem.ItemContainerStyle>
                             <Style TargetType="MenuItem" BasedOn="{StaticResource SubMenuItemStyle}">
-                                <Setter Property="Header"
-                                        Value="{Binding Title}" />
-                                <Setter Property="IsChecked"
-                                        Value="{Binding }" />
+                                <Setter Property="Header" Value="{Binding Title}" />
+                                <Setter Property="IsChecked" Value="{Binding IsSelected }" />
                                 <Setter Property="Command"
                                         Value="{Binding Source={StaticResource ChannelsViewModel}, 
                                         Path=ItemSelected}" />
