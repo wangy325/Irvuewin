@@ -87,13 +87,14 @@ namespace Irvuewin
                 $"Current Interval: {Irvuewin.Properties.Settings.Default.WallpaperChangeInterval} ");
         }
 
-        private void ChangeCurrentWallpaper_Click(object sender, RoutedEventArgs args)
+        private async void  ChangeCurrentWallpaper_Click(object sender, RoutedEventArgs args)
         {
             // TODO: 切换壁纸
-            //string imageUrl = "https://hbimg.huaban.com/beeedb5ac346014d36570c37b504e9bc58f980f94d722b-3cEvg7";
-            string imageUrl = "https://gd-hbimg.huaban.com/4d7cf515c2bb64e3c01fd1296051d73b4af17383373d09-Xq5iSg";
-
-            _wallpaperUtil.SetWallpaper(imageUrl, FetchMode.Random, OS.Windows);
+            //频道信息
+            var channels = Application.Current.Resources["ChannelsViewModel"] as ChannelsViewModel;
+            var selectedChannel = channels?.SelectedChannel!;
+            TrayMenuHelper.ChangeCurrentWallpaper(selectedChannel);
+            
         }
 
         private void DownloadCurrentWallpaper_Click(object sender, RoutedEventArgs e)

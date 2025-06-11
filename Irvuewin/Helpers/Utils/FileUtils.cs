@@ -1,5 +1,4 @@
-﻿
-using System.IO;
+﻿using System.IO;
 
 namespace Irvuewin.Helpers.Utils
 {
@@ -21,12 +20,20 @@ namespace Irvuewin.Helpers.Utils
             var fileName = $"{key}.position.xml";
             return Path.Combine(AppDataFolder, fileName);
         }
-        
+
         // key -> cached file name
         public static string CachePath(string key)
         {
             var fileName = $"{key}.cached.json";
             return Path.Combine(AppDataFolder, fileName);
+        }
+
+        public static string CreateDir(string parent, string dirName)
+        {
+            var dir = Path.Combine(parent, dirName);
+            if (!Directory.Exists(dir))
+                Directory.CreateDirectory(dir);
+            return dir;
         }
     }
 }

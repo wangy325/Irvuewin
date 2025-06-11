@@ -34,10 +34,10 @@ public class UnsplashQueryParams
             .Append("&per_page=").Append(_perPage);
         switch (_orientation)
         {
-            case 1:
+            case 0:
                 query.Append("&orientation=landscape");
                 break;
-            case 2:
+            case 1:
                 query.Append("&orientation=portrait");
                 break;
             case 3:

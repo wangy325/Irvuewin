@@ -49,10 +49,30 @@ namespace Irvuewin.Helpers.Utils
             using var stream = new FileStream(config, FileMode.Open);
             if (serializer.Deserialize(stream) is WindowPosition position)
             {
-                window.Left = position.Left;
-                window.Top = position.Top;
-                window.Width = position.Width;
-                window.Height = position.Height;
+                // 获取主屏幕的工作区域（扣除任务栏）
+                var workArea = SystemParameters.WorkArea;
+
+                // 判断窗口位置是否在有效屏幕区域内
+                var isWithinBounds = position.Left >= workArea.Left &&
+                                      position.Top >= workArea.Top &&
+                                      position.Left + position.Width <= workArea.Right &&
+                                      position.Top + position.Height <= workArea.Bottom;
+
+                if (isWithinBounds)
+                {
+                    window.Left = position.Left;
+                    window.Top = position.Top;
+                    window.Width = position.Width;
+                    window.Height = position.Height;
+                }
+                else
+                {
+                    // 超出屏幕范围，则居中显示
+                    window.Width = position.Width;
+                    window.Height = position.Height;
+                    window.Left = (workArea.Width - window.Width) / 2 + workArea.Left;
+                    window.Top = (workArea.Height - window.Height) / 2 + workArea.Top;
+                }
             }
         }
     }

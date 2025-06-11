@@ -101,15 +101,15 @@ namespace Irvuewin.Helpers
         public async Task<UnsplashPhoto?> GetRandomPhotoInChannel(string channelId)
         {
             var ori = Properties.Settings.Default.WallpaperOrientation;
-            var url = $"photos/random?collections={channelId}&count=1";
+            var url = $"photos/random?collections={channelId}";
             url = ori switch
             {
-                1 => $"{url}&orientation=landscape",
-                2 => $"{url}&orientation=portrait",
-                3 => $"{url}&orientation=squarish",
+                0 => $"{url}&orientation=landscape",
+                1 => $"{url}&orientation=portrait",
+                // 2 => $"{url}&orientation=squarish",
                 _ => url
             };
-            return await GetAsync<UnsplashPhoto>(url);
+           return await GetAsync<UnsplashPhoto>(url);
         }
 
     }

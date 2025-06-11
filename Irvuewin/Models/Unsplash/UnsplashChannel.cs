@@ -23,7 +23,7 @@ namespace Irvuewin.Models.Unsplash
 
         [JsonProperty("private")] public bool Private { get; set; }
 
-        [JsonProperty("total_photos")] public long TotalPhotos { get; set; }
+        [JsonProperty("total_photos")] public int TotalPhotos { get; set; }
 
         [JsonProperty("share_key")] public string ShareKey { get; set; }
 

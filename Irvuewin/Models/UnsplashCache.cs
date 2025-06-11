@@ -90,9 +90,8 @@ namespace Irvuewin.Models
                 Debug.WriteLine($@"{0}: {e.Message}");
                 return null;
             }
-
-
         }
+        
     }
 
     public class PhotosCachePageIndex
