@@ -2,11 +2,6 @@
 
 namespace Irvuewin.Models.Unsplash;
 
-///<summary>
-///Author: wangy325
-///Date: 2020/01/01 18:18:18
-///Desc: 
-///</summary>
 public class UnsplashQueryParams
 {
     private int _page = 1;

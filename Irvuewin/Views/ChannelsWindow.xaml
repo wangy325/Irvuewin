@@ -4,9 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:local="clr-namespace:Irvuewin"
     xmlns:helpers="clr-namespace:Irvuewin.Helpers"
-    xmlns:viewModels="clr-namespace:Irvuewin.ViewModels"
     mc:Ignorable="d"
     Title="Channels" Icon="/Icons/application_64.ico"
     Height="450" Width="800" MinWidth="500"
@@ -14,7 +12,7 @@
     WindowStartupLocation="CenterScreen">
 
     <helpers:LocationAwareWindow.DataContext>
-        <viewModels:ChannelsViewModel />
+        <StaticResource ResourceKey="ChannelsViewModel" />
     </helpers:LocationAwareWindow.DataContext>
 
     <helpers:LocationAwareWindow.Resources>

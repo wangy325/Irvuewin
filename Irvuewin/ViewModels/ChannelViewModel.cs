@@ -1,41 +1,45 @@
 ﻿using System.ComponentModel;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using System.Windows;
 using System.Windows.Input;
 using Irvuewin.Models.Unsplash;
 
 namespace Irvuewin.ViewModels;
 
-///<summary>
-///Author: wangy325
-///Date: 2020/01/01 18:18:18
-///Desc: 
-///</summary>
+
 public class ChannelViewModel : UnsplashChannel, INotifyPropertyChanged
 {
     private bool _isSelected;
     public bool IsSelected { get => _isSelected;
         set
         {
-            if (_isSelected != value)
-            {
-                _isSelected = value;
-                OnPropertyChanged();
-                if (_isSelected)
-                {
-                    // TODO 通知其他channel取消选择
-                        
-                }
-            }
+            if (_isSelected == value) return;
+            _isSelected = value;
+            OnPropertyChanged();
         }
     } 
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    public ICommand ItemSelected { set; get; }
+    public ICommand ItemSelected { set; get; } = new RelayCommand<object>(OnTrayChannelSelected);
 
 
-    private void OnTrayChannelSelected(object param)
+    private static void OnTrayChannelSelected(object param)
     {
-        
+        if (param is not ChannelViewModel item) return;
+        item.IsSelected = true;
+        // 当前应用静态实例
+        var channelsWindow =Application.Current.Resources["ChannelsViewModel"] as ChannelsViewModel;
+        foreach (var channel in channelsWindow?.Channels!)
+        {
+            if (channel == item) continue;
+            channel.IsSelected = false;
+        }
+        channelsWindow.SelectedChannel = item;
+        // 更新index
+        Properties.Settings.Default.SelectedChannelIndex = (sbyte)channelsWindow.Channels.IndexOf(item);
+        Properties.Settings.Default.Save();
+        Debug.WriteLine(">>>>> selected index saved...");
     }
 
 

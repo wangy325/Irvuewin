@@ -23,6 +23,12 @@ public class ChannelsViewModel : INotifyPropertyChanged
     private ChannelViewModel _selectedChannel = null;
     private sbyte _selectedIndex = Properties.Settings.Default.SelectedChannelIndex;
 
+    private readonly UnsplashQueryParams _defaultQuery = new()
+    {
+        Page = 1,
+        PerPage = 10,
+        Orientation = Properties.Settings.Default.WallpaperOrientation
+    }; 
 
     public ICommand ItemSelected { get; set; }
 
@@ -84,6 +90,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
         SelectedChannel = new ChannelViewModel();
         ItemSelected = new RelayCommand<ChannelViewModel>(OnListBoxItemSelected);
         InitializeAsync();
+        Debug.WriteLine("=========> ChannelsViewModel initialized.");
     }
 
     private async void InitializeAsync()
@@ -93,13 +100,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
         SelectedChannel = Channels[SelectedIndex];
         
         // channel Photos
-        var query = new UnsplashQueryParams
-        {
-            Page = 1,
-            PerPage = 10,
-            Orientation = Properties.Settings.Default.WallpaperOrientation
-        };
-        await LoadPhotos(SelectedChannel.Id, query);
+        await LoadPhotos(SelectedChannel.Id, _defaultQuery);
     }
 
     private async Task LoadChannels()
@@ -135,7 +136,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
         }
     }
 
-    // 自动分页刷新
+    // todo 自动分页刷新
     private async Task LoadPhotos(string channelId, UnsplashQueryParams query)
     {
         // load from cache
@@ -168,8 +169,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
 
     private async void OnListBoxItemSelected(object param)
     {
-        // 更新Index
-        // 更新
+        // Update selected status
         if (param is not ChannelViewModel item) return;
         item.IsSelected = true;
         _selectedChannel = item;
@@ -178,21 +178,13 @@ public class ChannelsViewModel : INotifyPropertyChanged
             if (channel == _selectedChannel) continue;
             channel.IsSelected = false;
         }
-        var _index = Channels.IndexOf(_selectedChannel);
-        SelectedIndex =  (sbyte)_index;
-        // Channels[SelectedIndex].IsSelected = true;
-           
-        // 更新index
+        // Update selected index to settings
+        SelectedIndex =  (sbyte)Channels.IndexOf(_selectedChannel);
         Properties.Settings.Default.SelectedChannelIndex = SelectedIndex;
         Properties.Settings.Default.Save();
         Debug.WriteLine($"Selected Index saved: {SelectedIndex}");
-        var query = new UnsplashQueryParams
-        {
-            Page = 1,
-            PerPage = 10,
-            Orientation = Properties.Settings.Default.WallpaperOrientation
-        };
-        await LoadPhotos(item.Id, query);
+        // Load photos
+        await LoadPhotos(item.Id, _defaultQuery);
     }
 
     private void OnPropertyChanged([CallerMemberName] string? propertyName = null)

@@ -8,6 +8,7 @@
              ShutdownMode="OnExplicitShutdown">
     <Application.Resources>
         <vm:ChannelsViewModel x:Key="ChannelsViewModel" />
+        <vm:ChannelViewModel x:Key="ChannelViewModel" />
         <converters:UshortToBooleanConverter x:Key="Ushort2BoolConverter" />
         <converters:ByteToBooleanConverter x:Key="Byte2BoolConverter" />
 
@@ -195,7 +196,7 @@
                                 <Setter Property="Header" Value="{Binding Title}" />
                                 <Setter Property="IsChecked" Value="{Binding IsSelected }" />
                                 <Setter Property="Command"
-                                        Value="{Binding Source={StaticResource ChannelsViewModel}, 
+                                        Value="{Binding Source={StaticResource ChannelViewModel}, 
                                         Path=ItemSelected}" />
                                 <Setter Property="CommandParameter" Value="{Binding}" />
                             </Style>
