@@ -16,7 +16,6 @@ namespace Irvuewin.Helpers
                 Converters =
                 {
                     AssetTypeConverter.Singleton,
-                    TypeEnumConverter.Singleton,
                     new IsoDateTimeConverter { DateTimeStyles = DateTimeStyles.AssumeUniversal }
                 },
             };
@@ -38,7 +37,7 @@ namespace Irvuewin.Helpers
             throw new Exception("Cannot unmarshal type AssetType");
         }
 
-        public override void WriteJson(JsonWriter writer, object untypedValue, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, object? untypedValue, JsonSerializer serializer)
         {
             if (untypedValue == null)
             {
@@ -56,43 +55,7 @@ namespace Irvuewin.Helpers
             throw new Exception("Cannot marshal type AssetType");
         }
 
-        public static readonly AssetTypeConverter Singleton = new AssetTypeConverter();
+        public static readonly AssetTypeConverter Singleton = new();
     }
 
-    public class TypeEnumConverter : JsonConverter
-    {
-        public override bool CanConvert(Type t) => t == typeof(TypeEnum) || t == typeof(TypeEnum?);
-
-        public override object ReadJson(JsonReader reader, Type t, object existingValue, JsonSerializer serializer)
-        {
-            if (reader.TokenType == JsonToken.Null) return null;
-            var value = serializer.Deserialize<string>(reader);
-            if (value == "search")
-            {
-                return TypeEnum.Search;
-            }
-
-            throw new Exception("Cannot unmarshal type TypeEnum");
-        }
-
-        public override void WriteJson(JsonWriter writer, object untypedValue, JsonSerializer serializer)
-        {
-            if (untypedValue == null)
-            {
-                serializer.Serialize(writer, null);
-                return;
-            }
-
-            var value = (TypeEnum)untypedValue;
-            if (value == TypeEnum.Search)
-            {
-                serializer.Serialize(writer, "search");
-                return;
-            }
-
-            throw new Exception("Cannot marshal type TypeEnum");
-        }
-
-        public static readonly TypeEnumConverter Singleton = new TypeEnumConverter();
-    }
 }

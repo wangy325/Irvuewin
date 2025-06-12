@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Diagnostics;
+using System.IO;
 using System.Net.Http;
 using System.Runtime.InteropServices;
 using Irvuewin.Models.Unsplash;
@@ -6,7 +7,7 @@ using Microsoft.Win32;
 
 namespace Irvuewin.Helpers.Utils
 {
-    public sealed class WallpaperUtil
+    public static class WallpaperUtil
     {
         // 声明需要导入的 Windows API 函数 (来自 user32.dll)
         [DllImport("user32.dll", CharSet = CharSet.Unicode)]
@@ -21,7 +22,7 @@ namespace Irvuewin.Helpers.Utils
         // 0-fill 1-fit 2-stretch
         private static readonly byte WallpaperDisplayMode = Properties.Settings.Default.WallpaperMode;
 
-        public static async void SetWallpaper(UnsplashPhoto photo)
+        public static async Task<string?> SetWallpaper(UnsplashPhoto photo)
         {
             // TODO: seems do not work
             using (var key = Registry.CurrentUser.OpenSubKey(@"Control Panel\Desktop", true)!)
@@ -65,6 +66,7 @@ namespace Irvuewin.Helpers.Utils
             {
                 _ = SystemParametersInfo(SPI_SETDESKWALLPAPER, 0, imagePath, flags);
             }
+            return imagePath;
         }
 
         /// <summary>
@@ -82,6 +84,7 @@ namespace Irvuewin.Helpers.Utils
             var localImagePath = Path.Combine(dir, imageName);
             if (File.Exists(localImagePath))
             {
+                Debug.WriteLine("Wallpaper already exists, skipping download.");
                 return localImagePath;
             }
             // Fetch from web

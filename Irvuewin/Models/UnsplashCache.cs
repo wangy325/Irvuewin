@@ -9,13 +9,13 @@ namespace Irvuewin.Models
 {
     public static class UnsplashCache
     {
-        private static List<UnsplashChannel> _savedChannels = [];
-        private static Dictionary<PhotosCachePageIndex, List<UnsplashPhoto>> _savedPhotos = new();
+        public static List<UnsplashChannel> CachedChannels = [];
+        public static readonly Dictionary<PhotosCachePageIndex, List<UnsplashPhoto>> CachedPhotos = new();
 
 
         public static async Task<bool> SaveChannelsASync(List<UnsplashChannel> channels)
         {
-            _savedChannels = channels;
+            CachedChannels = channels;
             try
             {
                 await File.WriteAllTextAsync(FileUtils.CachePath("channels"),
@@ -39,11 +39,11 @@ namespace Irvuewin.Models
                 var filePath = FileUtils.CachePath("channels");
                 if (!File.Exists(filePath)) return null;
                 var channels = await File.ReadAllTextAsync(filePath);
-                _savedChannels = JsonConvert.DeserializeObject<List<UnsplashChannel>>(
+                CachedChannels = JsonConvert.DeserializeObject<List<UnsplashChannel>>(
                     channels,
                     JsonHelper.Settings) ?? [];
-                Debug.WriteLine($"Loaded {_savedChannels.Count} channels from cache");
-                return _savedChannels;
+                Debug.WriteLine($"Loaded {CachedChannels.Count} channels from cache");
+                return CachedChannels;
             }
             catch (Exception e)
             {
@@ -56,7 +56,7 @@ namespace Irvuewin.Models
         {
             try
             {
-                _savedPhotos[index] = photos;
+                CachedPhotos[index] = photos;
                 var filePath = FileUtils.CachePath($"photos_{index.ChannelId}_{index.PageIndex}");
                 await File.WriteAllTextAsync(filePath,
                     JsonConvert.SerializeObject(photos, JsonHelper.Settings));
@@ -79,16 +79,53 @@ namespace Irvuewin.Models
             try
             {
                 var photos = await File.ReadAllTextAsync(filePath);
-                _savedPhotos[index] = JsonConvert.DeserializeObject<List<UnsplashPhoto>>(
+                CachedPhotos[index] = JsonConvert.DeserializeObject<List<UnsplashPhoto>>(
                     photos,
                     JsonHelper.Settings) ?? [];
-                Debug.WriteLine($"Loaded {_savedPhotos[index].Count} photos from cache for channel {index.ChannelId}:{index.PageIndex}");
-                return _savedPhotos[index];
+                Debug.WriteLine($"Loaded {CachedPhotos[index].Count} photos from cache for channel {index.ChannelId}:{index.PageIndex}");
+                return CachedPhotos[index];
             }
             catch (Exception e)
             {
                 Debug.WriteLine($@"{0}: {e.Message}");
                 return null;
+            }
+        }
+
+        public static async Task<bool> SaveChannelSequence(Dictionary<string, int> cachedWallpaperSequence)
+        {
+            var filePath = FileUtils.CachePath("sequence");
+            try
+            {
+                await File.WriteAllTextAsync(filePath,
+                    JsonConvert.SerializeObject(cachedWallpaperSequence, JsonHelper.Settings));
+                Debug.WriteLine($"Saved {cachedWallpaperSequence.Count} sequence to cache");
+                return true;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+        }
+        
+        public static async Task<Dictionary<string, int>?> LoadChannelSequence()
+        {
+            var filePath = FileUtils.CachePath("sequence");
+            try
+            {
+                if (!File.Exists(filePath)) return null;
+                var sequence = await File.ReadAllTextAsync(filePath);
+                var cachedSequence = JsonConvert.DeserializeObject<Dictionary<string, int>>(
+                    sequence,
+                    JsonHelper.Settings) ?? new Dictionary<string, int>();
+                Debug.WriteLine($"Loaded {cachedSequence.Count} sequence from cache");
+                return cachedSequence;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
             }
         }
         

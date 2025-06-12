@@ -34,7 +34,7 @@ namespace Irvuewin.Models.Unsplash
         [JsonProperty("likes")] public long Likes { get; set; }
 
         [JsonProperty("liked_by_user")] public bool LikedByUser { get; set; }
-
+        
         [JsonProperty("tags")] public List<Tag> Tags { get; set; }
 
         [JsonProperty("created_at")] public DateTimeOffset CreatedAt { get; set; }
@@ -113,7 +113,7 @@ namespace Irvuewin.Models.Unsplash
 
     public partial class Tag
     {
-        [JsonProperty("type")] public TypeEnum Type { get; set; }
+        [JsonProperty("type")] public string Type { get; set; }
 
         [JsonProperty("title")] public string Title { get; set; }
     }
@@ -122,11 +122,7 @@ namespace Irvuewin.Models.Unsplash
     {
         Photo
     };
-
-    public enum TypeEnum
-    {
-        Search
-    };
+    
 
 
     public partial class UnsplashPhoto

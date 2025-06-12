@@ -28,7 +28,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
         Page = 1,
         PerPage = 10,
         Orientation = Properties.Settings.Default.WallpaperOrientation
-    }; 
+    };
 
     public ICommand ItemSelected { get; set; }
 
@@ -98,7 +98,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
         await LoadChannels();
         Channels[SelectedIndex].IsSelected = true;
         SelectedChannel = Channels[SelectedIndex];
-        
+
         // channel Photos
         await LoadPhotos(SelectedChannel.Id, _defaultQuery);
     }
@@ -136,23 +136,23 @@ public class ChannelsViewModel : INotifyPropertyChanged
         }
     }
 
-    // todo 自动分页刷新
+    // TODO 自动分页刷新
     private async Task LoadPhotos(string channelId, UnsplashQueryParams query)
     {
-        // load from cache
         var cacheIndex = new PhotosCachePageIndex
         {
             ChannelId = channelId,
             PageIndex = query.Page
         };
+        // load from cache
         if (await UnsplashCache.LoadPhotosAsync(cacheIndex) is { } cachedPhotos
             && cachedPhotos.Any())
         {
             Photos = [..cachedPhotos];
         }
+        // load from web api
         else
         {
-            // load from web api
             var httpService = new UnsplashHttpService(new UnsplashHttpClientWrapper());
 
             if (await httpService.GetPhotosOfChannel(channelId, query) is { } photos
@@ -160,7 +160,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
             {
                 Photos = [..photos];
                 // update cache
-                await UnsplashCache.SavePhotosAsync(cacheIndex, [..Photos]);
+                await UnsplashCache.SavePhotosAsync(cacheIndex, photos);
             }
 
             Debug.WriteLine($"Loaded photos for channel {channelId} from web api.");
@@ -178,8 +178,9 @@ public class ChannelsViewModel : INotifyPropertyChanged
             if (channel == _selectedChannel) continue;
             channel.IsSelected = false;
         }
+
         // Update selected index to settings
-        SelectedIndex =  (sbyte)Channels.IndexOf(_selectedChannel);
+        SelectedIndex = (sbyte)Channels.IndexOf(_selectedChannel);
         Properties.Settings.Default.SelectedChannelIndex = SelectedIndex;
         Properties.Settings.Default.Save();
         Debug.WriteLine($"Selected Index saved: {SelectedIndex}");

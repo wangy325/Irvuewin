@@ -1,13 +1,11 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
 using AutoMapper;
 using Hardcodet.Wpf.TaskbarNotification;
 using Irvuewin.Helpers;
 using Irvuewin.Helpers.Utils;
 using Irvuewin.Models;
 using Irvuewin.Models.Unsplash;
-using Irvuewin.Properties;
 using Irvuewin.ViewModels;
 using Irvuewin.Views;
 
@@ -21,7 +19,6 @@ namespace Irvuewin
     {
         private TaskbarIcon? _taskbarIcon;
         private bool _isExit;
-        private readonly WallpaperUtil _wallpaperUtil = new();
 
         protected override void OnStartup(StartupEventArgs e)
         {
@@ -34,6 +31,13 @@ namespace Irvuewin
                 cfg.CreateMap<UnsplashChannel, ChannelViewModel>());
             var mapper = config.CreateMapper();
             MapperProvider.Mapper = mapper;
+            // 启动时若未启用随机壁纸则加载序列缓存
+            var randomWallpaper = Irvuewin.Properties.Settings.Default.RandomWallpaper;
+            Console.WriteLine($@"RandomWallpaper: {randomWallpaper}");
+            if (!randomWallpaper)
+            {
+                TrayMenuHelper.LoadCachedSequence();
+            }
         }
 
         protected override void OnExit(ExitEventArgs e)
@@ -55,7 +59,14 @@ namespace Irvuewin
         {
             _isExit = true;
             _taskbarIcon?.Dispose();
-            Application.Current.Shutdown();
+            Current.Shutdown();
+            // 退出时若未启用随机壁纸则保存缓存（sequence may be modified）
+            var randomWallpaper = Irvuewin.Properties.Settings.Default.RandomWallpaper;
+            Console.WriteLine($@"RandomWallpaper: {randomWallpaper}");
+            if (!randomWallpaper)
+            {
+                TrayMenuHelper.SaveCachedSequence();
+            }
         }
 
         private void LoadPreviousWallpaper_Click(object sender, RoutedEventArgs e)
@@ -77,6 +88,7 @@ namespace Irvuewin
                             menuItem.IsChecked = false;
                         }
                     }
+
                     clickedItem.IsChecked = true;
                 }
             }
@@ -87,14 +99,13 @@ namespace Irvuewin
                 $"Current Interval: {Irvuewin.Properties.Settings.Default.WallpaperChangeInterval} ");
         }
 
-        private async void  ChangeCurrentWallpaper_Click(object sender, RoutedEventArgs args)
+        private async void ChangeCurrentWallpaper_Click(object sender, RoutedEventArgs args)
         {
             // TODO: 切换壁纸
             //频道信息
             var channels = Application.Current.Resources["ChannelsViewModel"] as ChannelsViewModel;
             var selectedChannel = channels?.SelectedChannel!;
             TrayMenuHelper.ChangeCurrentWallpaper(selectedChannel);
-            
         }
 
         private void DownloadCurrentWallpaper_Click(object sender, RoutedEventArgs e)
@@ -130,12 +141,6 @@ namespace Irvuewin
         {
             if (_taskbarIcon is not { IsVisible: true }) return;
             if (_taskbarIcon.ContextMenu != null) _taskbarIcon.ContextMenu.IsOpen = false;
-        }
-
-        private void RandomSwitch_Click(object sender, RoutedEventArgs e)
-        {
-            System.Diagnostics.Debug.WriteLine($"RandomSwitch: {Irvuewin.Properties.Settings.Default.RandomWallpaper}");
-            Irvuewin.Properties.Settings.Default.Save();
         }
 
         private void ChannelSelector_Click(object sender, RoutedEventArgs e)

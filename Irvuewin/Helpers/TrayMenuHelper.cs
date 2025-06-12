@@ -4,72 +4,156 @@ using Irvuewin.Helpers.Utils;
 using Irvuewin.Models;
 using Irvuewin.Models.Unsplash;
 
-namespace Irvuewin.Helpers
+namespace Irvuewin.Helpers;
+
+///<summary>
+///Author: wangy325
+///Date: 2025-06-06 10:04:10
+///Desc: Wallpaper operation class
+///</summary>
+public static class TrayMenuHelper
 {
-    ///<summary>
-    ///Author: wangy325
-    ///Date: 2025-06-06 10:04:10
-    ///Desc: Wallpaper operation class
-    ///</summary>
-    public class TrayMenuHelper
+    private static Stack<string> _wallpaperHistory = new(10);
+
+    private static string _currentScreen;
+
+    private static int _sequenceModify;
+
+    private static readonly Dictionary<string, int> CachedWallpaperSequence = new();
+
+    // screen name, screen wallpaper stack
+    private static Dictionary<string, Stack<string>> _wallpaperStack = new();
+    private static readonly Random Random = new();
+
+    public static async void LoadCachedSequence()
     {
-        private Stack<UnsplashPhoto> _wallpaperHistory = new(10);
-
-        private string _currentScreen;
-
-        // channelId
-        private Dictionary<string, Stack<UnsplashPhoto>> _wallpaperStack = new();
-
-        private static readonly Random Random = new();
-
-
-        // 非随机壁纸的情况下需要知道
-        // 栈的大小
-        // 知道page index
-
-        // 软件启动时 （不主动更改壁纸）
-        // 是否需要缓存栈？
-
-        // 多显示器的栈缓存还不一样呢
-
-        public static async void ChangeCurrentWallpaper(UnsplashChannel channel)
+        if (CachedWallpaperSequence.Count > 0) return;
+        var sequence = await UnsplashCache.LoadChannelSequence();
+        if (sequence is not null && sequence.Count != 0)
         {
-            var randomWallpaper = Properties.Settings.Default.RandomWallpaper;
-            if (randomWallpaper)
+            foreach (var pair in sequence)
             {
-                // TODO: Is there a way to get photo from cache?
-                var total = channel.TotalPhotos;
-                var random = Random.Next(0, total);
-                // index start from 1
-                var shardIndex = random / 10 + 1;
+                CachedWallpaperSequence[pair.Key] = pair.Value;
+            }
+        }
+        else
+        {
+            foreach (var channel in UnsplashCache.CachedChannels)
+            {
+                CachedWallpaperSequence[channel.Id] = 1;
+            }
+        }
+        Console.WriteLine($@">>> Load Cached wallpaper sequence: {CachedWallpaperSequence}");
+    }
 
-                Debug.WriteLine($"Random: {random}");
-                Debug.WriteLine($"Shard index: {shardIndex}");
-                // var cachedPhotos = $"photos_{channel.Id}_{shardIndex}.cached.json";
-                PhotosCachePageIndex photosCachePageIndex = new()
-                {
-                    ChannelId = channel.Id,
-                    PageIndex = shardIndex
-                };
-                var res = await UnsplashCache.LoadPhotosAsync(photosCachePageIndex);
-                if (res is not null)
-                {
-                    var shardPositionIndex = random % 10;
-                    WallpaperUtil.SetWallpaper(res[shardPositionIndex - 1]);
-                    Debug.WriteLine($"Set wallpaper from cache.");
-                }
-                else
-                {
-                    var httpService = new UnsplashHttpService(new UnsplashHttpClientWrapper());
-                    if (await httpService.GetRandomPhotoInChannel(channel.Id) is not { } photo) return;
-                    WallpaperUtil.SetWallpaper(photo);
-                    Debug.WriteLine($"Set wallpaper from web.");
-                }
+    public static async void SaveCachedSequence()
+    {
+        if (_sequenceModify <= 0) return;
+        await UnsplashCache.SaveChannelSequence(CachedWallpaperSequence);
+        Console.WriteLine($@">>> Save Cached wallpaper sequence: {CachedWallpaperSequence}");
+        // reset
+        _sequenceModify = 0;
+    }
+
+    public static void ChangeCurrentWallpaper(UnsplashChannel channel)
+    {
+        var randomWallpaper = Properties.Settings.Default.RandomWallpaper;
+        if (randomWallpaper)
+        {
+            var total = channel.TotalPhotos;
+            var random = Random.Next(1, total);
+            // var random = 10;
+            SetWallPaper(channel, random, true);
+        }
+        else
+        {
+            // 软件启动时 （不主动更改壁纸）
+            // 是否需要缓存栈？ 暂时不需要，启动时空栈即可
+            // TODO 多显示器的栈缓存还不一样呢
+            var sequence = CachedWallpaperSequence[channel.Id];
+            SetWallPaper(channel, sequence);
+            // TODO 注意边界异常
+            if (++sequence > channel.TotalPhotos)
+            {
+                sequence %= channel.TotalPhotos;
+            }
+            _sequenceModify++;
+            CachedWallpaperSequence[channel.Id] = sequence;
+        }
+    }
+
+    private static async void SetWallPaper(UnsplashChannel channel, int sequence, bool random = false)
+    {
+        int shardIndex, shardPositionIndex;
+        const int pageSize = 10;
+        // Index starts from 1
+        if (sequence % pageSize == 0)
+        {
+            shardIndex = sequence / pageSize;
+            shardPositionIndex = pageSize - 1;
+        }
+        else
+        {
+            shardIndex = sequence / pageSize + 1;
+            shardPositionIndex = sequence % pageSize - 1;
+        }
+
+        PhotosCachePageIndex photosCachePageIndex = new()
+        {
+            ChannelId = channel.Id,
+            PageIndex = shardIndex
+        };
+
+        // var res = await UnsplashCache.LoadPhotosAsync(photosCache);
+        string? path;
+        if (UnsplashCache.CachedPhotos.TryGetValue(photosCachePageIndex, out var res))
+        {
+            Debug.WriteLine($">>> Set wallpaper from cache.");
+            path = await WallpaperUtil.SetWallpaper(res[shardPositionIndex]);
+        }
+        else
+        {
+            Debug.WriteLine($">>> Set wallpaper from web.");
+            var httpService = new UnsplashHttpService(new UnsplashHttpClientWrapper());
+            UnsplashPhoto? photo;
+            if (random)
+            {
+                photo = await httpService.GetRandomPhotoInChannel(channel.Id);
             }
             else
             {
-                // TODO 顺序切换壁纸
+                photo = null;
+                var query = new UnsplashQueryParams()
+                {
+                    Page = shardIndex,
+                    PerPage = pageSize,
+                    Orientation = Properties.Settings.Default.WallpaperOrientation
+                };
+                if (await httpService.GetPhotosOfChannel(channel.Id, query) is { } photos
+                    && photos.Count != 0)
+                {
+                    // update cache
+                    await UnsplashCache.SavePhotosAsync(photosCachePageIndex, photos);
+                    photo = photos[shardPositionIndex];
+                }
             }
+
+            // TODO null pointer?
+            Debug.Assert(photo != null, nameof(photo) + " != null");
+            path = await WallpaperUtil.SetWallpaper(photo);
         }
+
+        // Push photo file into wallpaper history stack
+        if (path is not null)
+        {
+            _wallpaperHistory.Push(path);
+            _wallpaperStack[_currentScreen] = _wallpaperHistory;
+        }
+    }
+
+    // 检查指针在哪个屏幕
+    public static void CheckPointer(object sender)
+    {
+        _currentScreen = DisplayInfoHelper.CheckDisplay().name;
     }
 }

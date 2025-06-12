@@ -53,6 +53,7 @@ namespace Irvuewin.Helpers
                 var response = await _client.GetAsync(url);
                 response.EnsureSuccessStatusCode();
                 var content = await response.Content.ReadAsStringAsync();
+                // TODO  System.Exception: Cannot unmarshal type TypeEnum
                 return JsonConvert.DeserializeObject<T>(content, JsonHelper.Settings);
             }
             catch (HttpRequestException ex)
