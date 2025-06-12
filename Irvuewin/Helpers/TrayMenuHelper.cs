@@ -51,7 +51,7 @@ public static class TrayMenuHelper
     public static async void SaveCachedSequence()
     {
         if (_sequenceModify <= 0) return;
-        await UnsplashCache.SaveChannelSequence(CachedWallpaperSequence);
+        await UnsplashCache.CacheChannelSequence(CachedWallpaperSequence);
         Console.WriteLine($@">>> Save Cached wallpaper sequence: {CachedWallpaperSequence}");
         // reset
         _sequenceModify = 0;
@@ -126,7 +126,7 @@ public static class TrayMenuHelper
                     && photos.Count != 0)
                 {
                     // update cache
-                    await UnsplashCache.SavePhotosAsync(photosCachePageIndex, photos);
+                    await UnsplashCache.CachePhotosAsync(photosCachePageIndex, photos);
                     photo = photos[shardPositionIndex];
                 }
             }

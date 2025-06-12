@@ -1,13 +1,11 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using System.Windows;
 using System.Windows.Input;
-using Hardcodet.Wpf.TaskbarNotification;
 using Irvuewin.Helpers;
 using Irvuewin.Models;
 using Irvuewin.Models.Unsplash;
+using Exception = System.Exception;
 
 
 namespace Irvuewin.ViewModels;
@@ -20,13 +18,16 @@ public class ChannelsViewModel : INotifyPropertyChanged
     private string _savedChannels = Properties.Settings.Default.UserUnsplashChannels;
     private ObservableCollection<UnsplashPhoto> _photos = [];
     private ObservableCollection<ChannelViewModel> _channels = [];
-    private ChannelViewModel _selectedChannel = null;
+    private ChannelViewModel _selectedChannel;
     private sbyte _selectedIndex = Properties.Settings.Default.SelectedChannelIndex;
+
+    private int _shardIndex = 1;
+    private const int PageSize = 10;
 
     private readonly UnsplashQueryParams _defaultQuery = new()
     {
         Page = 1,
-        PerPage = 10,
+        PerPage = PageSize,
         Orientation = Properties.Settings.Default.WallpaperOrientation
     };
 
@@ -41,7 +42,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
             _selectedIndex = value;
             Properties.Settings.Default.SelectedChannelIndex = _selectedIndex;
             Properties.Settings.Default.Save();
-            Debug.WriteLine($"Set SelectedIndex==> Selected channel Index: {value}");
+            Console.WriteLine($@"Set SelectedIndex==> Selected channel Index: {value}");
             OnPropertyChanged();
         }
     }
@@ -85,21 +86,19 @@ public class ChannelsViewModel : INotifyPropertyChanged
 
     public ChannelsViewModel()
     {
-        Channels = [];
-        Photos = [];
-        SelectedChannel = new ChannelViewModel();
+        _selectedChannel = new ChannelViewModel(); // useless
+        _ = InitializeAsync();
         ItemSelected = new RelayCommand<ChannelViewModel>(OnListBoxItemSelected);
-        InitializeAsync();
-        Debug.WriteLine("=========> ChannelsViewModel initialized.");
+        Console.WriteLine(@"=========> ChannelsViewModel initialized.");
     }
 
-    private async void InitializeAsync()
+    private async Task InitializeAsync()
     {
+        // Channels
         await LoadChannels();
         Channels[SelectedIndex].IsSelected = true;
         SelectedChannel = Channels[SelectedIndex];
-
-        // channel Photos
+        // Channel's Photos
         await LoadPhotos(SelectedChannel.Id, _defaultQuery);
     }
 
@@ -107,22 +106,18 @@ public class ChannelsViewModel : INotifyPropertyChanged
     {
         var channelIds = SavedChannels.Split(',');
         // load from cache
-        // var cachedChannels = await UnsplashCache.LoadChannelsAsync();
         if (await UnsplashCache.LoadChannelsAsync() is { } cachedChannels
             && cachedChannels.Any()
             && cachedChannels.Count == channelIds.Length)
         {
-            List<ChannelViewModel> channelsvm = [];
-            channelsvm.AddRange(cachedChannels.Select(item => MapperProvider.Mapper.Map<ChannelViewModel>(item)));
-            Channels = [..channelsvm];
-            /*foreach (var item in Channels)
-            {
-                item.IsSelected = false;
-            }*/
+            List<ChannelViewModel> channelViewModels = [];
+            channelViewModels.AddRange(
+                cachedChannels.Select(item => MapperProvider.Mapper.Map<ChannelViewModel>(item)));
+            Channels = [..channelViewModels];
         }
+        // load from web
         else
         {
-            // load from web api
             var httpService = new UnsplashHttpService(new UnsplashHttpClientWrapper());
             foreach (var id in channelIds)
             {
@@ -130,13 +125,13 @@ public class ChannelsViewModel : INotifyPropertyChanged
                     Channels.Add(MapperProvider.Mapper.Map<ChannelViewModel>(channel));
             }
 
-            Debug.WriteLine($"Loaded {Channels.Count} channels from web api.");
+            Console.WriteLine($@"Loaded {Channels.Count} channels from web.");
             // cache channels
-            await UnsplashCache.SaveChannelsASync([..Channels]);
+            await CacheChannels();
         }
     }
 
-    // TODO 自动分页刷新
+    // TODO 自动刷新分页
     private async Task LoadPhotos(string channelId, UnsplashQueryParams query)
     {
         var cacheIndex = new PhotosCachePageIndex
@@ -150,42 +145,79 @@ public class ChannelsViewModel : INotifyPropertyChanged
         {
             Photos = [..cachedPhotos];
         }
-        // load from web api
+        // load from web
         else
         {
             var httpService = new UnsplashHttpService(new UnsplashHttpClientWrapper());
-
             if (await httpService.GetPhotosOfChannel(channelId, query) is { } photos
                 && photos.Count != 0)
             {
                 Photos = [..photos];
                 // update cache
-                await UnsplashCache.SavePhotosAsync(cacheIndex, photos);
+                await CachePhotos(cacheIndex);
             }
 
-            Debug.WriteLine($"Loaded photos for channel {channelId} from web api.");
+            Console.WriteLine($@"Loaded photos for channel {channelId} from web api.");
         }
     }
 
     private async void OnListBoxItemSelected(object param)
     {
-        // Update selected status
-        if (param is not ChannelViewModel item) return;
-        item.IsSelected = true;
-        _selectedChannel = item;
-        foreach (var channel in Channels)
+        try
         {
-            if (channel == _selectedChannel) continue;
-            channel.IsSelected = false;
+            // Update selected status
+            if (param is not ChannelViewModel item) return;
+            item.IsSelected = true;
+            _selectedChannel = item;
+            foreach (var channel in Channels)
+            {
+                if (channel == _selectedChannel) continue;
+                channel.IsSelected = false;
+            }
+
+            // Update selected index to settings
+            SelectedIndex = (sbyte)Channels.IndexOf(_selectedChannel);
+            Properties.Settings.Default.SelectedChannelIndex = SelectedIndex;
+            Properties.Settings.Default.Save();
+            Console.WriteLine($@"Selected Index saved: {SelectedIndex}");
+            // Load photos
+            _defaultQuery.Orientation = Properties.Settings.Default.WallpaperOrientation;
+            await LoadPhotos(item.Id, _defaultQuery);
+        }
+        catch (Exception e)
+        {
+            // TODO handle exception
+        }
+    }
+
+    public async Task RefreshPhotos(string channelId)
+    {
+        var httpService = new UnsplashHttpService(new UnsplashHttpClientWrapper());
+        _defaultQuery.Orientation = Properties.Settings.Default.WallpaperOrientation;
+        if (await httpService.GetPhotosOfChannel(channelId, _defaultQuery) is { } photos
+            && photos.Count != 0)
+        {
+            Photos = [..photos];
+            // update cache
+            var cacheIndex = new PhotosCachePageIndex
+            {
+                ChannelId = channelId,
+                PageIndex = _defaultQuery.Page
+            };
+            await CachePhotos(cacheIndex);
         }
 
-        // Update selected index to settings
-        SelectedIndex = (sbyte)Channels.IndexOf(_selectedChannel);
-        Properties.Settings.Default.SelectedChannelIndex = SelectedIndex;
-        Properties.Settings.Default.Save();
-        Debug.WriteLine($"Selected Index saved: {SelectedIndex}");
-        // Load photos
-        await LoadPhotos(item.Id, _defaultQuery);
+        Console.WriteLine(@$"Refreshed photos for channel {channelId}");
+    }
+
+    public async Task CacheChannels()
+    {
+        await UnsplashCache.CacheChannelsAsync([..Channels]);
+    }
+
+    public async Task CachePhotos(PhotosCachePageIndex cachePageIndex)
+    {
+        await UnsplashCache.CachePhotosAsync(cachePageIndex, [..Photos]);
     }
 
     private void OnPropertyChanged([CallerMemberName] string? propertyName = null)

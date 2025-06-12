@@ -78,7 +78,7 @@ namespace Irvuewin.Helpers.Utils
         }
 
         /// <summary>
-        /// Get wallpaper from unsplash or cache
+        /// Get wallpaper from unsplash or local disk
         /// </summary>
         /// <param name="photo">UnsplashPhoto</param>
         /// <returns>file path if successes, or null</returns>
@@ -92,7 +92,7 @@ namespace Irvuewin.Helpers.Utils
             var localImagePath = Path.Combine(dir, imageName);
             if (File.Exists(localImagePath))
             {
-                Debug.WriteLine("Wallpaper already exists, skipping download.");
+                Console.WriteLine(@"Wallpaper already exists, skipping download.");
                 return localImagePath;
             }
 
@@ -112,14 +112,6 @@ namespace Irvuewin.Helpers.Utils
                 // CleanupDownloadedFile(tempFilePath, localImagePath);
                 return null;
             }
-        }
-
-        /// <summary>
-        /// Get wallpaper from local disk
-        /// </summary>
-        /// <param name="path"></param>
-        private static void GetWallpaperLocally(string path)
-        {
         }
 
 

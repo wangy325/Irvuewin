@@ -14,18 +14,76 @@ public partial class ChannelsWindow : LocationAwareWindow
     public ChannelsWindow()
     {
         InitializeComponent();
-        this.Loaded += ChannelsWindow_Loaded;
-        this.Loaded += (s, e) => _isInitialized = true;
-        this.Closing += ChannelsWindow_Closing;
+        Loaded += ChannelsWindow_Loaded;
+        Loaded += (s, e) => _isInitialized = true;
+        Closing += ChannelsWindow_Closing;
     }
 
-
     /// <summary>
-    /// 频道页
+    /// Load channel data when window is loaded
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
-    private void Channel_Page_Click(object sender, RoutedEventArgs e)
+    private void ChannelsWindow_Loaded(object sender, RoutedEventArgs e)
+    {
+        System.Diagnostics.Debug.WriteLine($"Window_Loaded: ------------------ ");
+        if (DataContext is ChannelsViewModel viewModel)
+        {
+            var selectedChannelIndex = Properties.Settings.Default.SelectedChannelIndex;
+            System.Diagnostics.Debug.WriteLine($"Window_Loaded: Selected channel Index: {selectedChannelIndex}");
+            if (selectedChannelIndex > 0)
+                viewModel.SelectedIndex = selectedChannelIndex;
+        }
+    }
+
+    /// <summary>
+    /// Serializing channel data when window is closing
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private async void ChannelsWindow_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
+    {
+        _isInitialized = false;
+        // 更新频道数据缓存
+        if (DataContext is ChannelsViewModel viewModel)
+        {
+            Console.WriteLine(@"Window_Closing: Saving channels...");
+            // var channels = viewModel.Channels;
+            // await UnsplashCache.CacheChannelsAsync([..channels]);
+            await viewModel.CacheChannels();
+        }
+
+        Console.WriteLine(@"Window Closed.");
+    }
+
+    /// <summary>
+    /// Channel's list selection changed event
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void ListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (!_isInitialized) return;
+
+        if (sender is ListBox listBox && DataContext is ChannelsViewModel viewModel)
+        {
+            var selectedItem = listBox.SelectedItem;
+            System.Diagnostics.Debug.WriteLine($"ListBox_SelectionChanged Index: {listBox.SelectedIndex}");
+            // 传入索引
+            if (listBox.SelectedIndex != Properties.Settings.Default.SelectedChannelIndex)
+            {
+                viewModel.SelectedIndex = (sbyte)listBox.SelectedIndex;
+                viewModel.ItemSelected.Execute(selectedItem);
+            }
+        }
+    }
+
+    /// <summary>
+    /// channel's details info page url
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void Channels_Detail_Click(object sender, RoutedEventArgs e)
     {
         var viewModel = DataContext as ChannelsViewModel;
 
@@ -52,45 +110,18 @@ public partial class ChannelsWindow : LocationAwareWindow
         }
     }
 
-    private void ListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-    {
-        if (!_isInitialized) return;
 
-        if (sender is ListBox listBox && DataContext is ChannelsViewModel viewModel)
-        {
-            var selectedItem = listBox.SelectedItem;
-            System.Diagnostics.Debug.WriteLine($"ListBox_SelectionChanged Index: {listBox.SelectedIndex}");
-            // 传入索引
-            if (listBox.SelectedIndex != Properties.Settings.Default.SelectedChannelIndex)
-            {
-                viewModel.SelectedIndex = (sbyte)listBox.SelectedIndex;
-                viewModel.ItemSelected.Execute(selectedItem);
-            }
-        }
-    }
-
-    private void ChannelsWindow_Loaded(object sender, RoutedEventArgs e)
+    /// <summary>
+    /// Refresh photos of channel
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    /// <exception cref="NotImplementedException"></exception>
+    private async void RefreshButton_OnClick(object sender, RoutedEventArgs e)
     {
-        System.Diagnostics.Debug.WriteLine($"Window_Loaded: ------------------ ");
         if (DataContext is ChannelsViewModel viewModel)
         {
-            var selectedChannelIndex = Properties.Settings.Default.SelectedChannelIndex;
-            System.Diagnostics.Debug.WriteLine($"Window_Loaded: Selected channel Index: {selectedChannelIndex}");
-            if (selectedChannelIndex > 0)
-                viewModel.SelectedIndex = selectedChannelIndex;
+           await viewModel.RefreshPhotos(viewModel.SelectedChannel.Id);
         }
-    }
-
-    private async void ChannelsWindow_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
-    {
-        _isInitialized = false;
-        // 更新频道数据缓存
-        if (DataContext is ChannelsViewModel viewModel)
-        {
-            System.Diagnostics.Debug.WriteLine($"Window_Closing: Saving channels...");
-            var channels = viewModel.Channels;
-            await UnsplashCache.SaveChannelsASync([..channels]);
-        }
-        System.Diagnostics.Debug.WriteLine($"Window Closed.");
     }
 }

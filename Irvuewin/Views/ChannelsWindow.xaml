@@ -85,7 +85,7 @@
                                         VerticalAlignment="Top"
                                         HorizontalAlignment="Right"
                                         Background="WhiteSmoke"
-                                        Click="Channel_Page_Click"
+                                        Click="Channels_Detail_Click"
                                         Style="{StaticResource ButtonStyle}">
                                     <Image Source="/Icons/channels/link.ico" Width="10" />
 
@@ -98,6 +98,7 @@
                     <Button Grid.Column="1"
                             Content="刷新"
                             Width="50" Height="20"
+                            Click="RefreshButton_OnClick"
                             Style="{StaticResource BottomButtonStyle}" />
                 </Grid>
             </Grid>
