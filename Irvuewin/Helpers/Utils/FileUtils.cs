@@ -35,5 +35,11 @@ namespace Irvuewin.Helpers.Utils
                 Directory.CreateDirectory(dir);
             return dir;
         }
+
+        public static void CopyFileToDir(string source, string dest)
+        {
+            dest = Path.Combine(dest, Path.GetFileName(source));
+            File.Copy(source, dest, overwrite:  true);
+        }
     }
 }

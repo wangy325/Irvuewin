@@ -22,7 +22,7 @@ namespace Irvuewin.Helpers.Utils
         // 0-fill 1-fit 2-stretch
         private static readonly byte WallpaperDisplayMode = Properties.Settings.Default.WallpaperMode;
 
-        public static async Task<string?> SetWallpaper(UnsplashPhoto photo)
+        public static async Task<string?> SetWallpaper(UnsplashPhoto? photo, string? path = null)
         {
             // TODO: seems do not work
             using (var key = Registry.CurrentUser.OpenSubKey(@"Control Panel\Desktop", true)!)
@@ -61,11 +61,19 @@ namespace Irvuewin.Helpers.Utils
 
             // 组合标志位，表示设置壁纸，并更新配置和通知其他应用
             const uint flags = SPIF_UPDATEINIFILE | SPIF_SENDCHANGE;
+            if (path != null)
+            {
+                _ = SystemParametersInfo(SPI_SETDESKWALLPAPER, 0, path, flags);
+                return path;
+            }
+
+            if (photo == null) throw new ArgumentNullException($"Photo can't be null.");
             var imagePath = await GetWallpaper(photo);
             if (imagePath != null)
             {
                 _ = SystemParametersInfo(SPI_SETDESKWALLPAPER, 0, imagePath, flags);
             }
+
             return imagePath;
         }
 
@@ -87,6 +95,7 @@ namespace Irvuewin.Helpers.Utils
                 Debug.WriteLine("Wallpaper already exists, skipping download.");
                 return localImagePath;
             }
+
             // Fetch from web
             using HttpClient httpClient = new();
             // TODO Crop photo

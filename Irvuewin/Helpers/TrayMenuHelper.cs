@@ -1,8 +1,8 @@
 ﻿using System.Diagnostics;
-using System.IO;
 using Irvuewin.Helpers.Utils;
 using Irvuewin.Models;
 using Irvuewin.Models.Unsplash;
+using Irvuewin.ViewModels;
 
 namespace Irvuewin.Helpers;
 
@@ -27,6 +27,7 @@ public static class TrayMenuHelper
 
     public static async void LoadCachedSequence()
     {
+        // TODO NOT PERFECT
         if (CachedWallpaperSequence.Count > 0) return;
         var sequence = await UnsplashCache.LoadChannelSequence();
         if (sequence is not null && sequence.Count != 0)
@@ -43,6 +44,7 @@ public static class TrayMenuHelper
                 CachedWallpaperSequence[channel.Id] = 1;
             }
         }
+
         Console.WriteLine($@">>> Load Cached wallpaper sequence: {CachedWallpaperSequence}");
     }
 
@@ -77,26 +79,16 @@ public static class TrayMenuHelper
             {
                 sequence %= channel.TotalPhotos;
             }
+
             _sequenceModify++;
             CachedWallpaperSequence[channel.Id] = sequence;
         }
     }
 
+
     private static async void SetWallPaper(UnsplashChannel channel, int sequence, bool random = false)
     {
-        int shardIndex, shardPositionIndex;
-        const int pageSize = 10;
-        // Index starts from 1
-        if (sequence % pageSize == 0)
-        {
-            shardIndex = sequence / pageSize;
-            shardPositionIndex = pageSize - 1;
-        }
-        else
-        {
-            shardIndex = sequence / pageSize + 1;
-            shardPositionIndex = sequence % pageSize - 1;
-        }
+        var (shardIndex, shardPositionIndex) = CalShardIndex(sequence);
 
         PhotosCachePageIndex photosCachePageIndex = new()
         {
@@ -108,12 +100,13 @@ public static class TrayMenuHelper
         string? path;
         if (UnsplashCache.CachedPhotos.TryGetValue(photosCachePageIndex, out var res))
         {
-            Debug.WriteLine($">>> Set wallpaper from cache.");
+            Console.WriteLine(@">>> Set wallpaper from cache.");
             path = await WallpaperUtil.SetWallpaper(res[shardPositionIndex]);
         }
         else
         {
-            Debug.WriteLine($">>> Set wallpaper from web.");
+            Console.WriteLine(@">>> Set wallpaper from web.");
+            const int pageSize = 10;
             var httpService = new UnsplashHttpService(new UnsplashHttpClientWrapper());
             UnsplashPhoto? photo;
             if (random)
@@ -151,9 +144,71 @@ public static class TrayMenuHelper
         }
     }
 
+    private static (int shardIndex, int shardPositionIndex) CalShardIndex(int sequence)
+    {
+        const int pageSize = 10;
+        int shardIndex, shardPositionIndex;
+        // Index starts from 1
+        if (sequence % pageSize == 0)
+        {
+            shardIndex = sequence / pageSize;
+            shardPositionIndex = pageSize - 1;
+        }
+        else
+        {
+            shardIndex = sequence / pageSize + 1;
+            shardPositionIndex = sequence % pageSize - 1;
+        }
+
+        return (shardIndex, shardPositionIndex);
+    }
+
     // 检查指针在哪个屏幕
     public static void CheckPointer(object sender)
     {
         _currentScreen = DisplayInfoHelper.CheckDisplay().name;
+    }
+
+    public static void ChangeAllWallpaper(ChannelViewModel channel)
+    {
+        // TODO change all wallpaper
+    }
+
+
+    public static void WallpaperInfo(ChannelViewModel selectedChannel)
+    {
+        // TODO 多显示器时注意
+        // sequence
+        var sequence = --CachedWallpaperSequence[selectedChannel.Id];
+        var (shardIndex, shardPositionIndex) = CalShardIndex(sequence);
+        PhotosCachePageIndex photosCachePageIndex = new()
+        {
+            ChannelId = selectedChannel.Id,
+            PageIndex = shardIndex
+        };
+        // Key must exist
+        // UnsplashCache.CachedPhotos.TryGetValue(photosCachePageIndex, out var res);
+        var res = UnsplashCache.CachedPhotos[photosCachePageIndex];
+        var photo = res[shardPositionIndex];
+    }
+
+    public static async void PreviousWallpaper()
+    {
+        // TODO 多显示器时注意
+        // Do nothing when stack is empty or stack has only current wallpaper
+        // This happens when app starts up
+        if (_wallpaperHistory.Count <= 1) return;
+        _wallpaperHistory.Pop();
+        var path = _wallpaperHistory.Peek();
+        await WallpaperUtil.SetWallpaper(null, path);
+    }
+
+    public static bool DownloadCurrentWallpaper(string dest)
+    {
+        // TODO 多显示器时注意
+        if (_wallpaperHistory.Count < 1) return false;
+        var path = _wallpaperHistory.Peek();
+        FileUtils.CopyFileToDir(path, dest);
+        return true;
     }
 }

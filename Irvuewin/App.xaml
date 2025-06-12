@@ -215,7 +215,7 @@
 
                     <MenuItem Header="管理频道"
                               Name="UnsplashChannelManage"
-                              Click="UnsplashChannelManage_Click"
+                              Click="ManageChannel_Click"
                               Style="{StaticResource MenuItemStyle}" />
                     <MenuItem Name="WallpaperChangeInterval"
                               Style="{StaticResource MenuItemStyle}">
