@@ -15,23 +15,17 @@ public class ChannelsViewModel : INotifyPropertyChanged
     public event PropertyChangedEventHandler? PropertyChanged;
 
     // ,raoebyzOILQ,pY1RsqahQms,62652795
-    private string _savedChannels = Properties.Settings.Default.UserUnsplashChannels;
+    private string SavedChannels { get; set; } = Properties.Settings.Default.UserUnsplashChannels;
     private ObservableCollection<UnsplashPhoto> _photos = [];
     private ObservableCollection<ChannelViewModel> _channels = [];
     private ChannelViewModel _selectedChannel;
     private sbyte _selectedIndex = Properties.Settings.Default.SelectedChannelIndex;
-
-    private int _shardIndex = 1;
-    private const int PageSize = 10;
-
-    private readonly UnsplashQueryParams _defaultQuery = new()
-    {
-        Page = 1,
-        PerPage = PageSize,
-        Orientation = Properties.Settings.Default.WallpaperOrientation
-    };
-
+    private int ShardIndex { get; set; } = 1;
+    private int PageSize { get; set; } = 12;
+    private bool IsBusy { get; set; } = false;
+    private UnsplashQueryParams DefaultQuery { get; set; }
     public ICommand ItemSelected { get; set; }
+    public ICommand LoadMorePhotos { get; set; }
 
     public sbyte SelectedIndex
     {
@@ -78,19 +72,21 @@ public class ChannelsViewModel : INotifyPropertyChanged
         }
     }
 
-    public string SavedChannels
-    {
-        get => _savedChannels;
-        set => _savedChannels = value;
-    }
-
     public ChannelsViewModel()
     {
         _selectedChannel = new ChannelViewModel(); // useless
-        _ = InitializeAsync();
+        DefaultQuery = new UnsplashQueryParams
+        {
+            Page = 1,
+            PerPage = PageSize,
+            Orientation = Properties.Settings.Default.WallpaperOrientation
+        };
         ItemSelected = new RelayCommand<ChannelViewModel>(OnListBoxItemSelected);
+        LoadMorePhotos = new RelayCommand<object>(OnLoadMorePhotos);
+        _ = InitializeAsync();
         Console.WriteLine(@"=========> ChannelsViewModel initialized.");
     }
+
 
     private async Task InitializeAsync()
     {
@@ -99,7 +95,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
         Channels[SelectedIndex].IsSelected = true;
         SelectedChannel = Channels[SelectedIndex];
         // Channel's Photos
-        await LoadPhotos(SelectedChannel.Id, _defaultQuery);
+        await LoadPhotos(SelectedChannel.Id, DefaultQuery);
     }
 
     private async Task LoadChannels()
@@ -131,8 +127,8 @@ public class ChannelsViewModel : INotifyPropertyChanged
         }
     }
 
-    // TODO 自动刷新分页
-    private async Task LoadPhotos(string channelId, UnsplashQueryParams query)
+    private async Task LoadPhotos(string channelId, UnsplashQueryParams query, bool append = false)
+        // TODO 自动刷新分页
     {
         var cacheIndex = new PhotosCachePageIndex
         {
@@ -143,7 +139,17 @@ public class ChannelsViewModel : INotifyPropertyChanged
         if (await UnsplashCache.LoadPhotosAsync(cacheIndex) is { } cachedPhotos
             && cachedPhotos.Any())
         {
-            Photos = [..cachedPhotos];
+            if (append)
+            {
+                foreach (var item in cachedPhotos)
+                {
+                    Photos.Add(item);
+                }
+            }
+            else
+            {
+                Photos = [..cachedPhotos];
+            }
         }
         // load from web
         else
@@ -152,9 +158,20 @@ public class ChannelsViewModel : INotifyPropertyChanged
             if (await httpService.GetPhotosOfChannel(channelId, query) is { } photos
                 && photos.Count != 0)
             {
-                Photos = [..photos];
+                if (append)
+                {
+                    foreach (var item in photos)
+                    {
+                        Photos.Add(item);
+                    }
+                }
+                else
+                {
+                    Photos = [..photos];
+                }
+
                 // update cache
-                await CachePhotos(cacheIndex);
+                await CachePhotos(cacheIndex, photos);
             }
 
             Console.WriteLine($@"Loaded photos for channel {channelId} from web api.");
@@ -181,8 +198,8 @@ public class ChannelsViewModel : INotifyPropertyChanged
             Properties.Settings.Default.Save();
             Console.WriteLine($@"Selected Index saved: {SelectedIndex}");
             // Load photos
-            _defaultQuery.Orientation = Properties.Settings.Default.WallpaperOrientation;
-            await LoadPhotos(item.Id, _defaultQuery);
+            DefaultQuery.Orientation = Properties.Settings.Default.WallpaperOrientation;
+            await LoadPhotos(item.Id, DefaultQuery);
         }
         catch (Exception e)
         {
@@ -190,11 +207,33 @@ public class ChannelsViewModel : INotifyPropertyChanged
         }
     }
 
+    private async void OnLoadMorePhotos(object obj)
+    {
+        if (IsBusy) return;
+        IsBusy = true;
+        ShardIndex++;
+        try
+        {
+            UnsplashQueryParams query = new()
+            {
+                Page = ShardIndex,
+                PerPage = PageSize,
+                Orientation = Properties.Settings.Default.WallpaperOrientation
+            };
+            await LoadPhotos(SelectedChannel.Id, query, true);
+            IsBusy = false;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+        }
+    }
+
     public async Task RefreshPhotos(string channelId)
     {
         var httpService = new UnsplashHttpService(new UnsplashHttpClientWrapper());
-        _defaultQuery.Orientation = Properties.Settings.Default.WallpaperOrientation;
-        if (await httpService.GetPhotosOfChannel(channelId, _defaultQuery) is { } photos
+        DefaultQuery.Orientation = Properties.Settings.Default.WallpaperOrientation;
+        if (await httpService.GetPhotosOfChannel(channelId, DefaultQuery) is { } photos
             && photos.Count != 0)
         {
             Photos = [..photos];
@@ -202,9 +241,9 @@ public class ChannelsViewModel : INotifyPropertyChanged
             var cacheIndex = new PhotosCachePageIndex
             {
                 ChannelId = channelId,
-                PageIndex = _defaultQuery.Page
+                PageIndex = DefaultQuery.Page
             };
-            await CachePhotos(cacheIndex);
+            await CachePhotos(cacheIndex, photos);
         }
 
         Console.WriteLine(@$"Refreshed photos for channel {channelId}");
@@ -215,9 +254,9 @@ public class ChannelsViewModel : INotifyPropertyChanged
         await UnsplashCache.CacheChannelsAsync([..Channels]);
     }
 
-    public async Task CachePhotos(PhotosCachePageIndex cachePageIndex)
+    public async Task CachePhotos(PhotosCachePageIndex cachePageIndex, List<UnsplashPhoto> photos)
     {
-        await UnsplashCache.CachePhotosAsync(cachePageIndex, [..Photos]);
+        await UnsplashCache.CachePhotosAsync(cachePageIndex, photos);
     }
 
     private void OnPropertyChanged([CallerMemberName] string? propertyName = null)

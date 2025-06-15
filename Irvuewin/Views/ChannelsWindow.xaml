@@ -5,6 +5,8 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:helpers="clr-namespace:Irvuewin.Helpers"
+    xmlns:m="clr-namespace:Irvuewin.Models.Unsplash"
+    xmlns:vwp="clr-namespace:WpfToolkit.Controls;assembly=VirtualizingWrapPanel"
     mc:Ignorable="d"
     Title="Channels" Icon="/Icons/application_64.ico"
     Height="450" Width="800" MinWidth="500"
@@ -20,6 +22,44 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="/Themes/Generic.xaml" />
             </ResourceDictionary.MergedDictionaries>
+
+            <DataTemplate x:Key="VItemControlTemplate" DataType="{x:Type m:UnsplashPhoto}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="150" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Image Grid.Row="0"
+                           Margin="10, 10, 20, 0"
+                           Width="200"
+                           Source="{Binding Urls.Small}">
+                        <Image.Style>
+                            <Style TargetType="Image">
+                                <Setter Property="Stretch" Value="UniformToFill" />
+                                <Setter Property="Clip">
+                                    <Setter.Value>
+                                        <RectangleGeometry RadiusX="5" RadiusY="5" Rect="0,0,200,140" />
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </Image.Style>
+                    </Image>
+                    <StackPanel Grid.Row="1" Orientation="Horizontal"
+                                VerticalAlignment="Center">
+                        <Image Width="24" Height="24" Margin="20,0,5,0"
+                               Source="{Binding User.ProfileImage.Small}">
+                            <Image.Clip>
+                                <EllipseGeometry Center="12,12" RadiusX="12" RadiusY="12" />
+                            </Image.Clip>
+                        </Image>
+                        <Label Content="{Binding User.Name}"
+                               Foreground="Gray"
+                               FontStyle="Italic"
+                               FontFamily="Segoe UI"
+                               Style="{StaticResource LabelStyle}" />
+                    </StackPanel>
+                </Grid>
+            </DataTemplate>
         </ResourceDictionary>
     </helpers:LocationAwareWindow.Resources>
 
@@ -29,7 +69,6 @@
             <ColumnDefinition Width="10" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
-
 
         <Grid Grid.Column="0">
             <Grid.RowDefinitions>
@@ -88,10 +127,7 @@
                                         Click="Channels_Detail_Click"
                                         Style="{StaticResource ButtonStyle}">
                                     <Image Source="/Icons/channels/link.ico" Width="10" />
-
                                 </Button>
-
-
                             </StackPanel>
                         </Label.Content>
                     </Label>
@@ -104,56 +140,32 @@
             </Grid>
 
             <Separator Grid.Row="1" Margin="0,0,10,0" />
+            
+            <vwp:VirtualizingItemsControl Grid.Row="2" Margin="0,0,0,10"
+                                          ItemTemplate="{StaticResource VItemControlTemplate}"
+                                          VirtualizingPanel.CacheLengthUnit="Page"
+                                          VirtualizingPanel.CacheLength="1,1"
+                                          VirtualizingPanel.ScrollUnit="Pixel"
+                                          VirtualizingPanel.VirtualizationMode="Recycling"
+                                          ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                          ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                          ScrollViewer.ScrollChanged="VirtualizingItemsControl_ScrollChanged"
+                                          ItemsSource="{Binding Path=Photos}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <vwp:VirtualizingWrapPanel
+                            Orientation="Horizontal"
+                            SpacingMode="Uniform"
+                            ScrollLineDelta="16"
+                            MouseWheelDelta="16"
+                            ScrollLineDeltaItem="1"
+                            MouseWheelDeltaItem="1"
+                            StretchItems="False"
+                            IsGridLayoutEnabled="True"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+            </vwp:VirtualizingItemsControl>
 
-            <ScrollViewer Grid.Row="2" Margin="0,0,0,10"
-                          Style="{StaticResource ScrollViewerStyle}">
-                <ItemsControl ItemsSource="{Binding Photos}">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <WrapPanel Orientation="Horizontal" />
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="150" />
-                                    <RowDefinition Height="Auto" />
-                                </Grid.RowDefinitions>
-                                <Image Grid.Row="0"
-                                       Margin="10, 10, 20, 0"
-                                       Width="200"
-                                       Source="{Binding Urls.Small}">
-                                    <Image.Style>
-                                        <Style TargetType="Image">
-                                            <Setter Property="Stretch" Value="UniformToFill" />
-                                            <Setter Property="Clip">
-                                                <Setter.Value>
-                                                    <RectangleGeometry RadiusX="5" RadiusY="5" Rect="0,0,200,140"/>
-                                                </Setter.Value>
-                                            </Setter>
-                                        </Style>
-                                    </Image.Style>
-                                </Image>
-                                <StackPanel Grid.Row="1" Orientation="Horizontal"
-                                            VerticalAlignment="Center">
-                                    <Image Width="24" Height="24" Margin="20,0,5,0"
-                                           Source="{Binding User.ProfileImage.Small}">
-                                        <Image.Clip>
-                                            <EllipseGeometry Center="12,12" RadiusX="12" RadiusY="12" />
-                                        </Image.Clip>
-                                    </Image>
-                                    <Label Content="{Binding User.Name}"
-                                           Foreground="Gray"
-                                           FontStyle="Italic"
-                                           FontFamily="Segoe UI"
-                                           Style="{StaticResource LabelStyle}" />
-                                </StackPanel>
-                            </Grid>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </ScrollViewer>
         </Grid>
     </Grid>
 </helpers:LocationAwareWindow>

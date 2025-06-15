@@ -1,9 +1,11 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 using Irvuewin.Helpers;
 using Irvuewin.Models;
 using Irvuewin.Models.Unsplash;
 using Irvuewin.ViewModels;
+using WpfToolkit.Controls;
 
 namespace Irvuewin.Views;
 
@@ -121,7 +123,46 @@ public partial class ChannelsWindow : LocationAwareWindow
     {
         if (DataContext is ChannelsViewModel viewModel)
         {
-           await viewModel.RefreshPhotos(viewModel.SelectedChannel.Id);
+            await viewModel.RefreshPhotos(viewModel.SelectedChannel.Id);
         }
+    }
+
+    private void VirtualizingItemsControl_ScrollChanged(object sender, ScrollChangedEventArgs e)
+    {
+        if (sender is not VirtualizingItemsControl itemsControl) return;
+        var scrollViewer = FindVisualChild<ScrollViewer>(itemsControl);
+        // Judge if scroll to bottom
+        if (scrollViewer == null) return;
+        if (!(scrollViewer.VerticalOffset >= scrollViewer.ScrollableHeight - 10)) return;
+        // Load more photos
+        if (DataContext is ChannelsViewModel viewModel && viewModel.LoadMorePhotos.CanExecute(null))
+        {
+            viewModel.LoadMorePhotos.Execute(null);
+        }
+    }
+
+    /// <summary>
+    /// Find visual child by type
+    /// 查找子控件
+    /// </summary>
+    /// <param name="parent"></param>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    private static T? FindVisualChild<T>(DependencyObject? parent) where T : DependencyObject
+    {
+        if (parent == null) return null;
+
+        for (var i = 0; i < VisualTreeHelper.GetChildrenCount(parent); i++)
+        {
+            var child = VisualTreeHelper.GetChild(parent, i);
+            if (child is T result)
+                return result;
+
+            var resultFromChild = FindVisualChild<T>(child);
+            if (resultFromChild != null)
+                return resultFromChild;
+        }
+
+        return null;
     }
 }
