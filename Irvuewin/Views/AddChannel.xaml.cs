@@ -7,13 +7,11 @@ namespace Irvuewin.Views;
 
 public partial class AddChannel : LocationAwareWindow
 {
-
-    
-
     public AddChannel()
     {
         InitializeComponent();
         // DataContext = new AddChannelViewModel();
+        Closing += AddChannelWindow_Closing;
     }
 
     private void AddChannel_Click(object sender, RoutedEventArgs e)
@@ -25,10 +23,11 @@ public partial class AddChannel : LocationAwareWindow
             return;
         }
 
-        if (DataContext is AddChannelViewModel {} viewModel)
+        if (DataContext is AddChannelViewModel { } viewModel)
         {
             viewModel.AddChannel();
         }
+
         Close();
     }
 
@@ -37,15 +36,32 @@ public partial class AddChannel : LocationAwareWindow
         Close();
     }
 
-    private void ResolvingChannel_Click(object sender, RoutedEventArgs e)
+    private async void ResolvingChannel_Click(object sender, RoutedEventArgs e)
     {
         // TODO 无输入时禁用按扭
         var url = InputChannelUrl.Text;
+        if (url.Length <= 0) return;
         Console.WriteLine($@"ResolvingChannel: {url}");
-        
-        if (DataContext is AddChannelViewModel {} viewModel)
+        var tuple = UrlValidator.ValidateUrl(url);
+        if (tuple is ({ } idOrName, var isCollectionId))
         {
-            // viewModel.ResolvingChannel(url);
+            Console.WriteLine($@"ResolvingChannel: {idOrName}, {isCollectionId}");
+            if (DataContext is not AddChannelViewModel { } viewModel) return;
+            var channels = await viewModel.ResolvingChannel(idOrName, isCollectionId);
+            Console.WriteLine($@"Pre channel: {string.Join(",", channels.Select(c => c.Id))}");
+            // clear textbox
+            InputChannelUrl.Text = "";
+            return;
         }
+
+        // TODO 如何提示？
+        MessageBox.Show("Invalid URL", "Error");
+    }
+
+    private void AddChannelWindow_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
+    {
+        if (DataContext is not AddChannelViewModel viewModel) return;
+        // viewModel.PreChannels.Clear();
+        Console.WriteLine(@"Add Channel Window_Closing: clearing channels...");
     }
 }

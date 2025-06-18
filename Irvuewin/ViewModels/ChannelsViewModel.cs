@@ -114,7 +114,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
         // load from web
         else
         {
-            var httpService = new UnsplashHttpService(new UnsplashHttpClientWrapper());
+            var httpService = IHttpClient.GetUnsplashHttpService();
             foreach (var id in channelIds)
             {
                 if (await httpService.GetChannelById(id) is { } channel)
@@ -154,7 +154,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
         // load from web
         else
         {
-            var httpService = new UnsplashHttpService(new UnsplashHttpClientWrapper());
+            var httpService = IHttpClient.GetUnsplashHttpService();
             if (await httpService.GetPhotosOfChannel(channelId, query) is { } photos
                 && photos.Count != 0)
             {
@@ -231,7 +231,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
 
     public async Task RefreshPhotos(string channelId)
     {
-        var httpService = new UnsplashHttpService(new UnsplashHttpClientWrapper());
+        var httpService = IHttpClient.GetUnsplashHttpService();
         DefaultQuery.Orientation = Properties.Settings.Default.WallpaperOrientation;
         if (await httpService.GetPhotosOfChannel(channelId, DefaultQuery) is { } photos
             && photos.Count != 0)

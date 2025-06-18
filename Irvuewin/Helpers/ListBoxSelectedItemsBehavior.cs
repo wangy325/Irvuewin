@@ -32,8 +32,16 @@ namespace Irvuewin.Helpers
 
                 if (e.NewValue is IList newList)
                 {
-                    listBox.SelectedItems.Clear();
+                    /*listBox.SelectedItems.Clear();
                     foreach (var item in newList)
+                    {
+                        listBox.SelectedItems.Add(item);
+                    }*/
+                    // 创建快照副本
+                    var snapshot = newList.Cast<object?>().ToList();
+
+                    listBox.SelectedItems.Clear();
+                    foreach (var item in snapshot)
                     {
                         listBox.SelectedItems.Add(item);
                     }
@@ -43,16 +51,13 @@ namespace Irvuewin.Helpers
 
         private static void ListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (sender is ListBox listBox)
-            {
-                var bindableSelectedItems = GetBindableSelectedItems(listBox);
-                if (bindableSelectedItems == null) return;
+            if (sender is not ListBox listBox) return;
+            var bindableSelectedItems = GetBindableSelectedItems(listBox);
 
-                bindableSelectedItems.Clear();
-                foreach (var item in listBox.SelectedItems)
-                {
-                    bindableSelectedItems.Add(item);
-                }
+            bindableSelectedItems.Clear();
+            foreach (var item in listBox.SelectedItems)
+            {
+                bindableSelectedItems.Add(item);
             }
         }
     }

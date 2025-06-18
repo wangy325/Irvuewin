@@ -1,89 +1,129 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows;
+using System.Windows.Input;
+using AutoMapper.Internal;
+using Irvuewin.Helpers;
 using Irvuewin.Models.Unsplash;
 
-namespace Irvuewin.ViewModels
+namespace Irvuewin.ViewModels;
+
+public class AddChannelViewModel : INotifyPropertyChanged
 {
-    public class AddChannelViewModel : INotifyPropertyChanged
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    private readonly ChannelsViewModel? _channelsViewModel;
+
+    public string InputBox { get; } = "Please input unsplash url";
+    public string Resolving { get; } = " + ";
+    public string HintTitle { get; } = "You can use URLs from unsplash, such as:";
+    public string Hint1 { get; } = "- https://unsplash.com/@leanspok";
+    public string Hint2 { get; } = "- https://unsplash.com/collection/276189/colors";
+
+
+    private ObservableCollection<UnsplashChannel> _preChannels = [];
+    private ICommand PreChannelsUpdated { get; }
+
+    public ObservableCollection<UnsplashChannel> PreChannels
     {
-        public event PropertyChangedEventHandler? PropertyChanged;
+        get => _preChannels;
+        set
+        {
+            _preChannels = value;
+            OnPropertyChanged();
+            // Update SelectedChannels to
+            // make channels selected by default
+            PreChannelsUpdated.Execute(null);
+        }
+    }
 
-        private readonly ChannelsViewModel? _channelsViewModel;
+    private ObservableCollection<UnsplashChannel> _selectedChannels = [];
 
-        public string InputBox { get; } = "Please input unsplash url";
-        public string Resolving { get; } = " + ";
-        public string HintTitle { get; } = "You can use URLs from unsplash, such as:";
-        public string Hint1 { get; } = "- https://unsplash.com/@leanspok";
-        public string Hint2 { get; } = "- https://unsplash.com/collection/276189/colors";
-        
-        
-        
+    public ObservableCollection<UnsplashChannel> SelectedChannels
+    {
+        get => _selectedChannels;
+        set
+        {
+            _selectedChannels = value;
+            OnPropertyChanged();
+        }
+    }
 
-        public List<UnsplashChannel>? PreChannels { get; set; } =
-        [
-            new UnsplashChannel
+    public AddChannelViewModel()
+    {
+        _channelsViewModel = Application.Current.Resources["ChannelsViewModel"] as ChannelsViewModel;
+        PreChannelsUpdated = new RelayCommand<object>(OnPreChannelsUpdated);
+        Console.WriteLine(@">>>>>>>>>>>> AddChannelViewModel inited..");
+    }
+
+
+    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+
+    public void AddChannel()
+    {
+        _channelsViewModel?.AddChannel(SelectedChannels);
+    }
+
+    /// <summary>
+    /// Get channel(s) from user/collectionId
+    /// </summary>
+    /// <param name="tag">username or collectionId</param>
+    /// <param name="flag">true-collectionId, false-username</param>
+    /// <exception cref="NotImplementedException"></exception>
+    public async Task<List<UnsplashChannel>> ResolvingChannel(string tag, bool flag)
+    {
+        var httpService = IHttpClient.GetUnsplashHttpService();
+        var res = new List<UnsplashChannel>();
+        if (flag)
+        {
+            var channel = await httpService.GetChannelById(tag);
+            if (channel is not null)
+                res.Add(channel);
+        }
+        else
+        {
+            var channels = await httpService.GetUserChannels(tag);
+            if (channels is not null)
             {
-                Id = "raoebyzOILQ",
-                Title = "Blue",
-                ShareKey = "1b2525b4bfce502c199213d2e738273d",
-                UpdatedAt = new DateTime(2025, 05, 22, 18, 38, 06, 00, DateTimeKind.Utc),
-                CoverPhoto = new UnsplashPhoto
-                {
-                    Urls = new Urls
-                    {
-                        Small = new Uri(
-                            "https://images.unsplash.com/photo-1519821767025-2b43a48282ca?ixlib=rb-4.1.0&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=400&fit=max"),
-                    }
-                },
-                TotalPhotos = 123,
-            },
-            new UnsplashChannel
-            {
-                Id = "a1b2c3d4e5f6",
-                Title = "High Quality Wallpaper of MacOS",
-                ShareKey = "abcdef1234567890",
-                UpdatedAt = new DateTime(2025, 05, 22, 18, 38, 06, 00, DateTimeKind.Utc),
-                CoverPhoto = new UnsplashPhoto
-                {
-                    Urls = new Urls
-                    {
-                        Small = new Uri(
-                            "https://images.unsplash.com/photo-1742156345582-b857d994c84e?ixlib=rb-4.1.0&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=400&fit=max"),
-                    }
-                },
-                TotalPhotos = 456,
+                res.AddRange(channels);
             }
-        ];
-
-
-        public ObservableCollection<UnsplashChannel> SelectedChannels { get; set; } = [];
-
-        public AddChannelViewModel()
-        {
-            _channelsViewModel = Application.Current.Resources["ChannelsViewModel"] as ChannelsViewModel;
-            if (PreChannels is not null)
-                SelectedChannels = new ObservableCollection<UnsplashChannel>(PreChannels);
-            System.Diagnostics.Debug.WriteLine(">>>>>>>>>>>> AddChannelViewModel inited..");
         }
 
-        public AddChannelViewModel(ChannelsViewModel? channelsViewModel)
+        var newer =
+            res.Where(channel => PreChannels.All(c => c.Id != channel.Id)).ToList();
+        if (newer.Count > 0)
         {
-            _channelsViewModel = channelsViewModel;
+            PreChannels = [..PreChannels.Concat(newer).ToList()];
+            // foreach (var channel in newer)
+            // {
+            //     PreChannels.Add(channel);
+            // }
+            /*var defaultSelected = 
+                PreChannels.Where(c => SelectedChannels.All(sc => sc.Id != c.Id)).ToList();*/
+            /*foreach (var channel in newer)
+            {
+                SelectedChannels.Add(channel);
+            }*/
+            // SelectedChannels = [..SelectedChannels.Concat(defaultSelected).ToList()];
         }
 
+        return [..PreChannels];
+    }
 
-        protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+    // Update SelectedChannels when PreChannels updated
+    private void OnPreChannelsUpdated(object obj)
+    {
+        var newer =
+            PreChannels.Where(c => SelectedChannels.All(sc => sc.Id != c.Id)).ToList();
+        SelectedChannels = [..Enumerable.Concat(SelectedChannels, newer).ToList()];
+        // SelectedChannels = [..PreChannels];
+        /*foreach (var channel in newer)
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-        public void AddChannel()
-        {
-            _channelsViewModel?.AddChannel(SelectedChannels);
-        }
+            SelectedChannels.Add(channel);
+        }*/
     }
 }

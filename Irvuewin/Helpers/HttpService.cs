@@ -10,6 +10,13 @@ namespace Irvuewin.Helpers
     public interface IHttpClient
     {
         Task<HttpResponseMessage> GetAsync(string url);
+        
+        private static readonly UnsplashHttpService HttpClient = new UnsplashHttpService(new UnsplashHttpClientWrapper());
+
+        static UnsplashHttpService GetUnsplashHttpService()
+        {
+            return HttpClient;
+        }
     }
 
     public class UnsplashHttpClientWrapper : IHttpClient
@@ -33,6 +40,9 @@ namespace Irvuewin.Helpers
     {
         private readonly IHttpClient _client;
         private const string BaseUrl = "https://api.unsplash.com";
+        private const string Photos = "photos";
+        private const string Collections = "collections";
+        private const string User = "users";
 
         public UnsplashHttpService(IHttpClient service)
         {
@@ -72,7 +82,7 @@ namespace Irvuewin.Helpers
         // Get photo details by ID
         public async Task<UnsplashPhoto?> GetPhotoInfoById(string id)
         {
-            var url = $"photos/{id}";
+            var url = $"{Photos}/{id}";
             return await GetAsync<UnsplashPhoto>(url);
         }
         
@@ -80,21 +90,21 @@ namespace Irvuewin.Helpers
         // Query params: page and per_page
         public async Task<List<UnsplashPhoto>?> GetEditorialFeed(UnsplashQueryParams query)
         {
-            var url = $"photos?{query.ToQueryString()}";
+            var url = $"{Photos}?{query.ToQueryString()}";
             return await GetAsync<List<UnsplashPhoto>>(url);
         }
         
         // Get a single collection by ID
         public async Task<UnsplashChannel?> GetChannelById(string id)
         {
-            var url = $"collections/{id}";
+            var url = $"{Collections}/{id}";
             return await GetAsync<UnsplashChannel>(url);
         }
 
         // Get a single page of photos in a collection
         public async Task<List<UnsplashPhoto>?> GetPhotosOfChannel(string channelId, UnsplashQueryParams query)
         {
-            var url = $"collections/{channelId}/photos?{query.ToQueryString()}";
+            var url = $"{Collections}/{channelId}/{Photos}?{query.ToQueryString()}";
             return await GetAsync<List<UnsplashPhoto>>(url);
         }
         
@@ -102,7 +112,7 @@ namespace Irvuewin.Helpers
         public async Task<UnsplashPhoto?> GetRandomPhotoInChannel(string channelId)
         {
             var ori = Properties.Settings.Default.WallpaperOrientation;
-            var url = $"photos/random?collections={channelId}";
+            var url = $"{Photos}/random?{Collections}={channelId}";
             url = ori switch
             {
                 0 => $"{url}&orientation=landscape",
@@ -112,6 +122,21 @@ namespace Irvuewin.Helpers
             };
            return await GetAsync<UnsplashPhoto>(url);
         }
-
+        
+        // Get user profile by username
+        public async Task<UnsplashUser?> GetUserProfile(string username)
+        {
+            var url = $"{User}/{username}";
+            return await GetAsync<UnsplashUser>(url);
+        }
+        
+        // Get first 10 collections(channels) by username (paginated by default)
+        public async Task<List<UnsplashChannel>?> GetUserChannels(string username)
+        {
+            var url = $"{User}/{username}/{Collections}";
+            return await GetAsync<List<UnsplashChannel>>(url);
+        }
+        
+        
     }
 }

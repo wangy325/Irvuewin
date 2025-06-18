@@ -68,9 +68,9 @@
                                      Content="{Binding Title}" />
                         </TextBlock.ToolTip>
                     </TextBlock>
-                    
-                    <Image Grid.Column="3" 
-                           Source="/Icons/channels/eye.ico" 
+
+                    <Image Grid.Column="3"
+                           Source="/Icons/channels/eye.ico"
                            Width="14" Height="14" Margin="5,0">
                     </Image>
                     <TextBlock Grid.Column="4"
@@ -121,9 +121,9 @@
                                     BorderThickness="{TemplateBinding BorderThickness}"
                                     CornerRadius="5"
                                     SnapsToDevicePixels="True">
-                                    <ContentPresenter x:Name="ContentPresenter"
-                                                      HorizontalAlignment="{TemplateBinding HorizontalAlignment}"
-                                                      VerticalAlignment="{TemplateBinding VerticalAlignment}"/>
+                                <ContentPresenter x:Name="ContentPresenter"
+                                                  HorizontalAlignment="{TemplateBinding HorizontalAlignment}"
+                                                  VerticalAlignment="{TemplateBinding VerticalAlignment}" />
                             </Border>
                             <!-- 视觉状态管理 -->
                             <ControlTemplate.Triggers>
@@ -282,8 +282,7 @@
                          Style="{StaticResource ListBoxStyle2}"
                          ItemsSource="{Binding PreChannels}"
                          ItemContainerStyle="{StaticResource ListBoxItemStyle}"
-                         ItemTemplate="{StaticResource ResolvingChannelsTemplate}"
-                         >
+                         ItemTemplate="{StaticResource ResolvingChannelsTemplate}">
 
                     <ListBox.ItemsPanel>
                         <ItemsPanelTemplate>
