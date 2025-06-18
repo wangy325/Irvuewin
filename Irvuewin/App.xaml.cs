@@ -5,7 +5,6 @@ using AutoMapper;
 using Hardcodet.Wpf.TaskbarNotification;
 using Irvuewin.Helpers;
 using Irvuewin.Helpers.Utils;
-using Irvuewin.Models;
 using Irvuewin.Models.Unsplash;
 using Irvuewin.ViewModels;
 using Irvuewin.Views;
@@ -101,7 +100,7 @@ namespace Irvuewin
         // 打开频道管理页
         private void ManageChannel_Click(object sender, RoutedEventArgs e)
         {
-            WindowManager.ShowWindow("ChannelsWindow", () => new ChannelsWindow());
+            WindowManager.ShowWindow(nameof(Channels), () => new Channels());
         }
 
 
@@ -137,7 +136,7 @@ namespace Irvuewin
 
         private void Settings_Click(object sender, RoutedEventArgs args)
         {
-            WindowManager.ShowWindow("SettingsWindow", () => new SettingsWindow());
+            WindowManager.ShowWindow(nameof(Views.Settings), () => new Views.Settings());
         }
 
         private void Exit_Click(object sender, RoutedEventArgs args)

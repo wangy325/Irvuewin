@@ -6,9 +6,9 @@ using Irvuewin.Helpers;
 
 namespace Irvuewin.Views;
 
-public partial class SettingsWindow : LocationAwareWindow
+public partial class Settings : LocationAwareWindow
 {
-    public SettingsWindow()
+    public Settings()
     {
         InitializeComponent();
         //this.DataContext = this;

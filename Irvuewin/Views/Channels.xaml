@@ -1,5 +1,5 @@
 ﻿<helpers:LocationAwareWindow
-    x:Class="Irvuewin.Views.ChannelsWindow"
+    x:Class="Irvuewin.Views.Channels"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -71,6 +71,83 @@
         </Grid.ColumnDefinitions>
 
         <Grid Grid.Column="0">
+            <Grid.Resources>
+                <Style x:Key="ListBoxItemStyle" TargetType="ListBoxItem">
+                    <!-- 基础属性设置 -->
+                    <Setter Property="Background" Value="WhiteSmoke" />
+                    <Setter Property="BorderThickness" Value="0" />
+                    <Setter Property="Height" Value="40" />
+                    <Setter Property="Margin" Value="5" />
+                    <Setter Property="HorizontalContentAlignment" Value="Left" />
+                    <Setter Property="VerticalContentAlignment" Value="Center" />
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="ListBoxItem">
+                                <Border x:Name="Bd"
+                        Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        CornerRadius="5"
+                        SnapsToDevicePixels="True">
+                                    <Grid x:Name="ContentPresenter">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="60" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+
+                                        <Image Grid.Column="0"
+                               Source="{Binding CoverPhoto.Urls.Small}">
+                                            <Image.Style>
+                                                <Style TargetType="Image">
+                                                    <Setter Property="Stretch" Value="UniformToFill" />
+                                                    <Setter Property="Clip">
+                                                        <Setter.Value>
+                                                            <RectangleGeometry RadiusX="5" RadiusY="5" Rect="10,0,40,40" />
+                                                        </Setter.Value>
+                                                    </Setter>
+                                                </Style>
+                                            </Image.Style>
+                                        </Image>
+                                        <TextBlock Grid.Column="1"
+                                   Text="{Binding Title}"
+                                   Style="{StaticResource TextBlockStyle}"
+                                   TextTrimming="CharacterEllipsis"
+                                   TextWrapping="NoWrap">
+                                            <TextBlock.ToolTip>
+                                                <ToolTip Style="{StaticResource ToolTipStyle}"
+                                         Content="{Binding Title}"/>
+                                            </TextBlock.ToolTip>
+                                        </TextBlock>
+                                        <RadioButton x:Name="PART_RadioButton"
+                                     Grid.Column="2"
+                                     IsChecked="{Binding IsSelected, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
+                                     IsEnabled="{TemplateBinding IsEnabled}"
+                                     Margin="10,0,5,0"
+                                     HorizontalAlignment="Right"
+                                     Style="{StaticResource RadioStyle}" />
+                                    </Grid>
+                                </Border>
+                                <!-- 视觉状态管理 -->
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="Bd" Property="Background" Value="LightGray" />
+                                        <Setter TargetName="ContentPresenter" Property="TextElement.Foreground" Value="Black" />
+                                    </Trigger>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter TargetName="Bd" Property="Background" Value="LightGray" />
+                                        <Setter TargetName="ContentPresenter" Property="TextElement.Foreground" Value="Black" />
+                                        <Setter TargetName="PART_RadioButton" Property="IsChecked" Value="True" />
+                                    </Trigger>
+                                    <Trigger Property="IsEnabled" Value="False">
+                                        <Setter TargetName="ContentPresenter" Property="TextElement.Foreground" Value="#FF888888" />
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </Grid.Resources>
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" />
                 <RowDefinition Height="45" />
@@ -87,8 +164,10 @@
                         Orientation="Horizontal"
                         HorizontalAlignment="Right">
                 <Button Content="+" Width="35"
+                        Click="AddChannelPage_Click"
                         Style="{StaticResource BottomButtonStyle}" />
                 <Button Content="-" Width="35"
+                        Click="DeleteChannel_Click"
                         Style="{StaticResource BottomButtonStyle}" />
             </StackPanel>
         </Grid>
@@ -140,7 +219,7 @@
             </Grid>
 
             <Separator Grid.Row="1" Margin="0,0,10,0" />
-            
+
             <vwp:VirtualizingItemsControl Grid.Row="2" Margin="0,0,0,10"
                                           ItemTemplate="{StaticResource VItemControlTemplate}"
                                           VirtualizingPanel.CacheLengthUnit="Page"
@@ -161,7 +240,7 @@
                             ScrollLineDeltaItem="1"
                             MouseWheelDeltaItem="1"
                             StretchItems="False"
-                            IsGridLayoutEnabled="True"/>
+                            IsGridLayoutEnabled="True" />
                     </ItemsPanelTemplate>
                 </ItemsControl.ItemsPanel>
             </vwp:VirtualizingItemsControl>

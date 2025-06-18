@@ -9,11 +9,11 @@ using WpfToolkit.Controls;
 
 namespace Irvuewin.Views;
 
-public partial class ChannelsWindow : LocationAwareWindow
+public partial class Channels : LocationAwareWindow
 {
     private bool _isInitialized = false;
 
-    public ChannelsWindow()
+    public Channels()
     {
         InitializeComponent();
         Loaded += ChannelsWindow_Loaded;
@@ -127,6 +127,11 @@ public partial class ChannelsWindow : LocationAwareWindow
         }
     }
 
+    /// <summary>
+    /// Scroll update
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
     private void VirtualizingItemsControl_ScrollChanged(object sender, ScrollChangedEventArgs e)
     {
         if (sender is not VirtualizingItemsControl itemsControl) return;
@@ -164,5 +169,20 @@ public partial class ChannelsWindow : LocationAwareWindow
         }
 
         return null;
+    }
+
+    private void AddChannelPage_Click(object sender, RoutedEventArgs e)
+    {
+        var addChannel = new AddChannel();
+        addChannel.ShowDialog();
+    }
+
+    private void DeleteChannel_Click(object sender, RoutedEventArgs e)
+    {
+        // 删除配置值
+        // 删除缓存项
+        // 删除缓存的图片
+        // 删除缓存的sequence
+        throw new NotImplementedException();
     }
 }

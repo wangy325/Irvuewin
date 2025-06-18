@@ -259,6 +259,25 @@ public class ChannelsViewModel : INotifyPropertyChanged
         await UnsplashCache.CachePhotosAsync(cachePageIndex, photos);
     }
 
+    public async void AddChannel(ObservableCollection<UnsplashChannel> selectedChannels)
+    {
+        // TODO  reduce duplicated
+        // 添加到settings，
+        // 缓存到本地
+        var newChannels = string.Join(",", selectedChannels.Select(channel => channel.Id));
+        SavedChannels = SavedChannels + "," + newChannels;
+        Console.WriteLine($@">>>>>>SavedChannels: {SavedChannels}");
+        
+        // Properties.Settings.Default.UserUnsplashChannels = SavedChannels;
+        // Properties.Settings.Default.Save();
+
+        // map to ChannelViewModel list
+        var cvm = selectedChannels.Select(channel => MapperProvider.Mapper.Map<ChannelViewModel>(channel));
+        Channels = [..Channels.Concat(cvm).ToList()];
+        Console.WriteLine($@">>>>>>New Channels: {string.Join(",", Channels.Select(channel => channel.Id))}");
+        // await CacheChannels();
+    }
+
     private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
