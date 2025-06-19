@@ -50,6 +50,18 @@ public class AddChannelViewModel : INotifyPropertyChanged
         }
     }
 
+    private bool _isLoading;
+
+    public bool IsLoading
+    {
+        get => _isLoading;
+        set
+        {
+            _isLoading = value;
+            OnPropertyChanged(nameof(IsLoading));
+        }
+    }
+
     public AddChannelViewModel()
     {
         _channelsViewModel = Application.Current.Resources["ChannelsViewModel"] as ChannelsViewModel;
@@ -65,7 +77,13 @@ public class AddChannelViewModel : INotifyPropertyChanged
 
     public void AddChannel()
     {
-        _channelsViewModel?.AddChannel(SelectedChannels);
+        // Reduce channels already added
+        var channels =
+            SelectedChannels.Where(
+                c => _channelsViewModel!.Channels.All(ch => ch.Id != c.Id)
+            ).ToList();
+        if (channels.Count <= 0) return;
+        _channelsViewModel?.AddChannel(channels);
     }
 
     /// <summary>
@@ -93,8 +111,10 @@ public class AddChannelViewModel : INotifyPropertyChanged
             }
         }
 
+        // Reduce dul channels
         var newer =
-            res.Where(channel => PreChannels.All(c => c.Id != channel.Id)).ToList();
+            res.Where(channel => PreChannels.All(c => c.Id != channel.Id))
+                .ToList();
         if (newer.Count > 0)
         {
             PreChannels = [..PreChannels.Concat(newer).ToList()];
@@ -102,7 +122,7 @@ public class AddChannelViewModel : INotifyPropertyChanged
             // {
             //     PreChannels.Add(channel);
             // }
-            /*var defaultSelected = 
+            /*var defaultSelected =
                 PreChannels.Where(c => SelectedChannels.All(sc => sc.Id != c.Id)).ToList();*/
             /*foreach (var channel in newer)
             {
@@ -125,5 +145,50 @@ public class AddChannelViewModel : INotifyPropertyChanged
         {
             SelectedChannels.Add(channel);
         }*/
+    }
+
+    // Search channels by keywords
+    public async Task<List<UnsplashChannel>> SearchChannels(string keywords)
+    {
+        var httpService = IHttpClient.GetUnsplashHttpService();
+        UnsplashQueryParams query = new()
+        {
+            Page = 1,
+            PerPage = 10,
+            Orientation = null
+        };
+        if (await httpService.SearchChannels(keywords, query) is not { } res) return [..PreChannels];
+        if (res.Results is { } results && results.Any(r => true))
+        {
+            var newChannels =
+                results.Where(c => PreChannels.All(r => r.Id != c.Id)).ToList();
+            // Do not toggle PreChannelsUpdated command
+            if (newChannels.Count <= 0) return [..PreChannels];
+            foreach (var channel in newChannels)
+            {
+                PreChannels.Add(channel);
+            }
+        }
+
+        // Get random 10 collections
+        // Not all page returns
+        // If page too large, api may return empty collection list 
+        /*var totalPage = res.TotalPages;
+        var random = new Random().Next(1, totalPage);
+        query.Page = random;
+        if (await httpService.SearchChannels(keywords, query) is not { } res2) return [];
+        if (res2.Results is { } results && results.Any(r => true))
+        {
+            var newChannels =
+                results.Where(c => PreChannels.All(r => r.Id != c.Id)).ToList();
+            // Do not toggle PreChannelsUpdated command
+            // PreChannels = [..PreChannels.Concat(newChannels).ToList()];
+            if (newChannels.Count <= 0) return [..PreChannels];
+            foreach (var channel in newChannels)
+            {
+                PreChannels.Add(channel);
+            }
+        }*/
+        return [..PreChannels];
     }
 }

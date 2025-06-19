@@ -50,8 +50,7 @@ public partial class Channels : LocationAwareWindow
         if (DataContext is ChannelsViewModel viewModel)
         {
             Console.WriteLine(@"Window_Closing: Saving channels...");
-            // var channels = viewModel.Channels;
-            // await UnsplashCache.CacheChannelsAsync([..channels]);
+            // TODO Double check 
             await viewModel.CacheChannels();
         }
 
@@ -179,10 +178,17 @@ public partial class Channels : LocationAwareWindow
 
     private void DeleteChannel_Click(object sender, RoutedEventArgs e)
     {
-        // 删除配置值
-        // 删除缓存项
-        // 删除缓存的图片
-        // 删除缓存的sequence
-        throw new NotImplementedException();
+        if (ChannelsListBox.SelectedItem is not UnsplashChannel channel) return;
+        // Can not delete system Reserved channel
+        if (channel.Id == "317099")
+        {
+            MessageBox.Show("Can not delete system Reserved channel.");
+            return;
+        }
+        if (DataContext is ChannelsViewModel viewModel)
+        {
+            
+            viewModel.DeleteSelectedChannel();
+        }
     }
 }

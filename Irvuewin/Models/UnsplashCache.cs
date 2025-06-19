@@ -9,16 +9,16 @@ namespace Irvuewin.Models
     public static class UnsplashCache
     {
         // TODO Necessary?
-        public static List<UnsplashChannel> CachedChannels = [];
+        // public static List<UnsplashChannel> CachedChannels = [];
         public static readonly Dictionary<PhotosCachePageIndex, List<UnsplashPhoto>> CachedPhotos = new();
 
 
         public static async Task CacheChannelsAsync(List<UnsplashChannel> channels)
         {
-            CachedChannels = channels;
+            // CachedChannels = channels;
             try
             {
-                await File.WriteAllTextAsync(FileUtils.CachePath("channels"),
+                await File.WriteAllTextAsync(FileUtils.CachePath(FileUtils.AppDataFolder, "channels"),
                     JsonConvert.SerializeObject(channels, JsonHelper.Settings));
                 Console.WriteLine($@"Saved {channels.Count} channels to cache");
             }
@@ -34,14 +34,19 @@ namespace Irvuewin.Models
         {
             try
             {
-                var filePath = FileUtils.CachePath("channels");
+                var filePath = FileUtils.CachePath(FileUtils.AppDataFolder, "channels");
                 if (!File.Exists(filePath)) return null;
-                var channels = await File.ReadAllTextAsync(filePath);
-                CachedChannels = JsonConvert.DeserializeObject<List<UnsplashChannel>>(
+                var channelString = await File.ReadAllTextAsync(filePath);
+                /*CachedChannels = JsonConvert.DeserializeObject<List<UnsplashChannel>>(
                     channels,
                     JsonHelper.Settings) ?? [];
                 Console.WriteLine($@"Loaded {CachedChannels.Count} channels from cache");
-                return CachedChannels;
+                return CachedChannels;*/
+                var channels = JsonConvert.DeserializeObject<List<UnsplashChannel>>(
+                    channelString,
+                    JsonHelper.Settings) ?? [];
+                Console.WriteLine($@"Loaded {channels.Count} channels from cache");
+                return channels;
             }
             catch (Exception e)
             {
@@ -55,7 +60,9 @@ namespace Irvuewin.Models
             CachedPhotos[index] = photos;
             try
             {
-                var filePath = FileUtils.CachePath($"photos_{index.ChannelId}_{index.PageIndex}");
+                // Full path name: appDataFolder/photos/channelId/filename
+                var dir = FileUtils.CreateDir(FileUtils.CachedPhotoBaseFolder, index.ChannelId);
+                var filePath = FileUtils.CachePath(dir, $"photos_{index.PageIndex}");
                 await File.WriteAllTextAsync(filePath,
                     JsonConvert.SerializeObject(photos, JsonHelper.Settings));
                 Console.WriteLine($@"Saved {photos.Count} photos to cache");
@@ -70,17 +77,25 @@ namespace Irvuewin.Models
         // Returns null if cache file does not exist or exception occurs
         public static async Task<List<UnsplashPhoto>?> LoadPhotosAsync(PhotosCachePageIndex index)
         {
-            var filePath = FileUtils.CachePath($"photos_{index.ChannelId}_{index.PageIndex}");
+            var filePath = FileUtils.CachePath(
+                Path.Combine(FileUtils.CachedPhotoBaseFolder, index.ChannelId),
+                $"photos_{index.PageIndex}");
             if (!File.Exists(filePath)) return null;
             try
             {
-                var photos = await File.ReadAllTextAsync(filePath);
+                var photoString = await File.ReadAllTextAsync(filePath);
                 CachedPhotos[index] = JsonConvert.DeserializeObject<List<UnsplashPhoto>>(
-                    photos,
+                    photoString,
                     JsonHelper.Settings) ?? [];
                 Console.WriteLine(
                     $@"Loaded {CachedPhotos[index].Count} photos from cache for channel {index.ChannelId}:{index.PageIndex}");
                 return CachedPhotos[index];
+                /*var photos =  JsonConvert.DeserializeObject<List<UnsplashPhoto>>(
+                    photoString,
+                    JsonHelper.Settings) ?? [];
+                Console.WriteLine(
+                    $@"Loaded {photos.Count} photos from cache for channel {index.ChannelId}:{index.PageIndex}");
+                return photos;*/
             }
             catch (Exception e)
             {
@@ -91,7 +106,7 @@ namespace Irvuewin.Models
 
         public static async Task<bool> CacheChannelSequence(Dictionary<string, int> cachedWallpaperSequence)
         {
-            var filePath = FileUtils.CachePath("sequence");
+            var filePath = FileUtils.CachePath(FileUtils.AppDataFolder, "sequence");
             try
             {
                 await File.WriteAllTextAsync(filePath,
@@ -108,7 +123,7 @@ namespace Irvuewin.Models
 
         public static async Task<Dictionary<string, int>?> LoadChannelSequence()
         {
-            var filePath = FileUtils.CachePath("sequence");
+            var filePath = FileUtils.CachePath(FileUtils.AppDataFolder, "sequence");
             try
             {
                 if (!File.Exists(filePath)) return null;
@@ -124,6 +139,23 @@ namespace Irvuewin.Models
                 Console.WriteLine(e);
                 throw;
             }
+        }
+
+        public static void UncacheChannelPhotos(string channelId)
+        {
+            // Remove cached photos sharding
+            var keysToRemove = CachedPhotos
+                .Where(pair => pair.Key.ChannelId == channelId)
+                .Select(pair => pair.Key)
+                .ToList();
+
+            foreach (var key in keysToRemove)
+            {
+                CachedPhotos.Remove(key);
+            }
+            // Remove disk caches
+            var dir = Path.Combine(FileUtils.CachedPhotoBaseFolder, channelId);
+            FileUtils.DeleteFolder(dir);
         }
     }
 

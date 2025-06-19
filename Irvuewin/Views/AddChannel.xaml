@@ -8,6 +8,7 @@
     xmlns:vm="clr-namespace:Irvuewin.ViewModels"
     xmlns:m="clr-namespace:Irvuewin.Models.Unsplash"
     xmlns:converters="clr-namespace:Irvuewin.Helpers.Converters"
+    xmlns:controls="clr-namespace:Irvuewin.Controls"
     mc:Ignorable="d"
     Title="AddChannel" Icon="/Icons/application_64.ico"
     Height="450" Width="400"
@@ -26,6 +27,7 @@
             </ResourceDictionary.MergedDictionaries>
 
             <converters:TextToVisibilityConverter x:Key="TextToVisibilityConverter" />
+            <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
 
             <DataTemplate x:Key="ResolvingChannelsTemplate"
                           DataType="{x:Type m:UnsplashChannel}">
@@ -291,17 +293,28 @@
                     </ListBox.ItemsPanel>
                 </ListBox>
 
-                <StackPanel Grid.Row="4"
-                            Orientation="Horizontal"
-                            HorizontalAlignment="Right">
-                    <Button Content="取消"
-                            Style="{StaticResource BottomButtonStyle}"
-                            Click="CancelAddChannel_Click" />
-                    <Button Content="添加"
-                            Style="{StaticResource BottomButtonStyle}"
-                            Click="AddChannel_Click" />
+                <Grid Grid.Row="4">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="20" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <controls:LoadingAnimation Grid.Column="0"
+                                               Height="15"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"
+                                               IsLoading="{Binding IsLoading}" />
+                    <StackPanel Grid.Column="1"
+                                Orientation="Horizontal"
+                                HorizontalAlignment="Right">
 
-                </StackPanel>
+                        <Button Content="取消"
+                                Style="{StaticResource BottomButtonStyle}"
+                                Click="CancelAddChannel_Click" />
+                        <Button Content="添加"
+                                Style="{StaticResource BottomButtonStyle}"
+                                Click="AddChannel_Click" />
+                    </StackPanel>
+                </Grid>
             </Grid>
         </TabItem>
 

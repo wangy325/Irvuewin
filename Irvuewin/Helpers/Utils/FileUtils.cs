@@ -9,9 +9,13 @@ namespace Irvuewin.Helpers.Utils
             System.Reflection.Assembly.GetExecutingAssembly().GetName().Name ?? "Irvuewin"
         );
 
+        public static readonly string CachedWallpaperFolder = Path.Combine(AppDataFolder, "splash");
+        public static readonly string CachedPhotoBaseFolder = Path.Combine(AppDataFolder, "photo" );
+
         static FileUtils()
         {
-            Directory.CreateDirectory(AppDataFolder);
+            Directory.CreateDirectory(CachedWallpaperFolder);
+            Directory.CreateDirectory(CachedPhotoBaseFolder);
         }
 
         // key -> window's tile (unique)  
@@ -22,15 +26,19 @@ namespace Irvuewin.Helpers.Utils
         }
 
         // key -> cached file name
-        public static string CachePath(string key)
+        public static string CachePath(string folder, string key)
         {
             var fileName = $"{key}.cached.json";
-            return Path.Combine(AppDataFolder, fileName);
+            return Path.Combine(folder, fileName);
         }
 
-        public static string CreateDir(string parent, string dirName)
+        // Create directory (and subdirectories) under parent directory 
+        public static string CreateDir(string parent, params string[] dirNames)
         {
-            var dir = Path.Combine(parent, dirName);
+            var pathSegments = new List<string> { parent };
+            pathSegments.AddRange(dirNames);
+
+            var dir = Path.Combine(pathSegments.ToArray());
             if (!Directory.Exists(dir))
                 Directory.CreateDirectory(dir);
             return dir;
@@ -40,6 +48,13 @@ namespace Irvuewin.Helpers.Utils
         {
             dest = Path.Combine(dest, Path.GetFileName(source));
             File.Copy(source, dest, overwrite:  true);
+        }
+
+        // Delete folder 
+        public static void DeleteFolder(string dir)
+        {
+            if (Directory.Exists(dir))
+                Directory.Delete(dir, recursive: true);
         }
     }
 }

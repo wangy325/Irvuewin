@@ -43,6 +43,7 @@ namespace Irvuewin.Helpers
         private const string Photos = "photos";
         private const string Collections = "collections";
         private const string User = "users";
+        private const string Search = "search";
 
         public UnsplashHttpService(IHttpClient service)
         {
@@ -137,6 +138,12 @@ namespace Irvuewin.Helpers
             return await GetAsync<List<UnsplashChannel>>(url);
         }
         
+        // Search collections by keywords
+        public async Task<UnsplashSearchResult?> SearchChannels(string keywords, UnsplashQueryParams query)
+        {
+            var url = $"{Search}/{Collections}?query={keywords}&{query.ToQueryString()}";
+            return await GetAsync<UnsplashSearchResult>(url);
+        }
         
     }
 }

@@ -4,35 +4,19 @@ namespace Irvuewin.Models.Unsplash;
 
 public class UnsplashQueryParams
 {
-    private int _page = 1;
-    private int _perPage = 10;
+    public int Page { get; set; } = 1;
+
+    public int PerPage { get; set; } = 10;
+
     // 0-all 1-landscape 2-portrait 3-squarish
-    private byte _orientation = Properties.Settings.Default.WallpaperOrientation;
-    
-    public int Page
-    {
-        get => _page;
-        set => _page = value;
-    }
-    
-    public int PerPage
-    {
-        get => _perPage;
-        set => _perPage = value;
-    }
-    
-    public byte Orientation
-    {
-        get => _orientation;
-        set => _orientation = value;
-    }
-    
+    public byte? Orientation { get; set; } = Properties.Settings.Default.WallpaperOrientation;
+
     public string ToQueryString()
     {
         var query = new StringBuilder("")
-            .Append("page=").Append(_page)
-            .Append("&per_page=").Append(_perPage);
-        switch (_orientation)
+            .Append("page=").Append(Page)
+            .Append("&per_page=").Append(PerPage);
+        switch (Orientation)
         {
             case 0:
                 query.Append("&orientation=landscape");

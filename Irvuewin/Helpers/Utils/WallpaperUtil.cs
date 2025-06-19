@@ -18,20 +18,17 @@ namespace Irvuewin.Helpers.Utils
         private const uint SPIF_UPDATEINIFILE = 0x01; // 将修改写入用户配置文件 WIN.INI (虽然现代Windows不完全依赖它,但习惯上设置)
 
         private const uint SPIF_SENDCHANGE = 0x02; // 广播 WM_SETTINGCHANGE 消息通知其他应用壁纸已更改
-
-        // 0-fill 1-fit 2-stretch
-        private static readonly byte WallpaperDisplayMode = Properties.Settings.Default.WallpaperMode;
-
+        
         public static async Task<string?> SetWallpaper(UnsplashPhoto? photo, string? path = null)
         {
             // TODO: seems do not work
-            using (var key = Registry.CurrentUser.OpenSubKey(@"Control Panel\Desktop", true)!)
+            using (var key = Registry.CurrentUser.CreateSubKey(@"Control Panel\Desktop", true)!)
             {
-                switch (WallpaperDisplayMode)
+                switch (Properties.Settings.Default.WallpaperMode)
                 {
                     case 0:
                         // fill
-                        key.SetValue(@"WallpaperStyle", "6");
+                        key.SetValue(@"WallpaperStyle", "10");
                         key.SetValue(@"TileWallpaper", "0");
                         break;
                     case 1:
@@ -55,7 +52,9 @@ namespace Irvuewin.Helpers.Utils
                         key.SetValue(@"TileWallpaper", "1");
                         break;
                     default:
-                        throw new ArgumentOutOfRangeException(nameof(WallpaperDisplayMode), WallpaperDisplayMode, null);
+                        key.SetValue(@"WallpaperStyle", "10");
+                        key.SetValue(@"TileWallpaper", "0");
+                        break;
                 }
             }
 
@@ -86,7 +85,7 @@ namespace Irvuewin.Helpers.Utils
         {
             const string fileExtension = ".jpg";
             // wallpaper tmp folder
-            var dir = FileUtils.CreateDir(FileUtils.AppDataFolder, "splash");
+            var dir = FileUtils.CachedWallpaperFolder;
             // image name
             var imageName = photo.Id + fileExtension;
             var localImagePath = Path.Combine(dir, imageName);

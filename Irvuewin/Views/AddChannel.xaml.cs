@@ -11,7 +11,7 @@ public partial class AddChannel : LocationAwareWindow
     {
         InitializeComponent();
         // DataContext = new AddChannelViewModel();
-        Closing += AddChannelWindow_Closing;
+        // Closing += AddChannelWindow_Closing;
     }
 
     private void AddChannel_Click(object sender, RoutedEventArgs e)
@@ -38,24 +38,28 @@ public partial class AddChannel : LocationAwareWindow
 
     private async void ResolvingChannel_Click(object sender, RoutedEventArgs e)
     {
-        // TODO 无输入时禁用按扭
         var url = InputChannelUrl.Text;
         if (url.Length <= 0) return;
         Console.WriteLine($@"ResolvingChannel: {url}");
         var tuple = UrlValidator.ValidateUrl(url);
+        if (DataContext is not AddChannelViewModel { } viewModel) return;
+        viewModel.IsLoading = true;
         if (tuple is ({ } idOrName, var isCollectionId))
         {
             Console.WriteLine($@"ResolvingChannel: {idOrName}, {isCollectionId}");
-            if (DataContext is not AddChannelViewModel { } viewModel) return;
             var channels = await viewModel.ResolvingChannel(idOrName, isCollectionId);
             Console.WriteLine($@"Pre channel: {string.Join(",", channels.Select(c => c.Id))}");
             // clear textbox
             InputChannelUrl.Text = "";
-            return;
         }
-
+        else
+        {
+            // handle input as search keywords
+            await viewModel.SearchChannels(url);
+        }
+        viewModel.IsLoading = false;
         // TODO 如何提示？
-        MessageBox.Show("Invalid URL", "Error");
+        // MessageBox.Show("Invalid URL", "Error");
     }
 
     private void AddChannelWindow_Closing(object? sender, System.ComponentModel.CancelEventArgs e)

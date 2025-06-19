@@ -10,9 +10,15 @@ namespace Irvuewin.Controls
         private StackPanel? _panel;
 
         public static readonly DependencyProperty FullPathProperty =
-            DependencyProperty.Register(nameof(FullPath), typeof(string), typeof(PathDisplayControl),
-                new FrameworkPropertyMetadata(string.Empty, FrameworkPropertyMetadataOptions.AffectsRender,
+            DependencyProperty.Register(
+                nameof(FullPath),
+                typeof(string),
+                typeof(PathDisplayControl),
+                new FrameworkPropertyMetadata(
+                    string.Empty,
+                    FrameworkPropertyMetadataOptions.AffectsRender,
                     OnFullPathChanged));
+
         public string FullPath
         {
             get => (string)GetValue(FullPathProperty);
@@ -21,7 +27,9 @@ namespace Irvuewin.Controls
 
         static PathDisplayControl()
         {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(PathDisplayControl), new FrameworkPropertyMetadata(typeof(PathDisplayControl)));
+            DefaultStyleKeyProperty.OverrideMetadata(
+                typeof(PathDisplayControl),
+                new FrameworkPropertyMetadata(typeof(PathDisplayControl)));
         }
 
         public override void OnApplyTemplate()
@@ -64,7 +72,7 @@ namespace Irvuewin.Controls
             // 取后半部分路径
             double accumulatedWidth = 0;
             const int iconSize = 14;
-           
+
             Stack<TextBlock> stackBlocks = new();
             for (var i = (directories.Length - 1); i >= 0; i--)
             {
@@ -86,7 +94,7 @@ namespace Irvuewin.Controls
                 // magic number is margin
                 accumulatedWidth += textBlock.ActualWidth + 6 + iconSize;
                 //Debug.WriteLine($"_accumulateWidth: {_accumulatedWidth}");
-                
+
                 if (accumulatedWidth > contentWidth)
                     break;
                 stackBlocks.Push(textBlock);
@@ -99,7 +107,8 @@ namespace Irvuewin.Controls
                 // Image不能复用~ （WPF不允许）
                 Image icon = new()
                 {
-                    Source = new BitmapImage(new Uri("pack://application:,,,/Irvuewin;component/icons/settings/folder.ico")),
+                    Source = new BitmapImage(
+                        new Uri("pack://application:,,,/Irvuewin;component/icons/settings/folder.ico")),
                     Width = iconSize,
                     Height = iconSize,
                     Margin = new Thickness(0, 0, 0, 0)
@@ -110,5 +119,4 @@ namespace Irvuewin.Controls
             }
         }
     }
-
 }

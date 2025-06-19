@@ -1,7 +1,9 @@
 ﻿using System.Diagnostics;
+using System.Windows;
 using Irvuewin.Helpers.Utils;
 using Irvuewin.Models;
 using Irvuewin.Models.Unsplash;
+using Irvuewin.Properties;
 using Irvuewin.ViewModels;
 
 namespace Irvuewin.Helpers;
@@ -25,12 +27,30 @@ public static class TrayMenuHelper
     private static Dictionary<string, Stack<string>> _wallpaperStack = new();
     private static readonly Random Random = new();
 
+    // Once new channel added, add its sequence to cache
+    public static void AddNewChannelSequence(List<UnsplashChannel> channels)
+    {
+        foreach (var channel in channels)
+        {
+            CachedWallpaperSequence[channel.Id] = 1;
+        }
+
+        _sequenceModify++;
+    }
+
+    public static void DelChannelSequence(string key)
+    {
+        CachedWallpaperSequence.Remove(key);
+        _sequenceModify++;
+    }
+
     public static async void LoadCachedSequence()
     {
         // TODO NOT PERFECT
         if (CachedWallpaperSequence.Count > 0) return;
         var sequence = await UnsplashCache.LoadChannelSequence();
         if (sequence is not null && sequence.Count != 0)
+            // Load from disk cache
         {
             foreach (var pair in sequence)
             {
@@ -38,14 +58,17 @@ public static class TrayMenuHelper
             }
         }
         else
+            // Load from cached channels
         {
-            foreach (var channel in UnsplashCache.CachedChannels)
+            // TODO null check
+            var channels = Properties.Settings.Default.UserUnsplashChannels.Split(",");
+            foreach (var id in channels)
             {
-                CachedWallpaperSequence[channel.Id] = 1;
+                CachedWallpaperSequence[id] = 1;
             }
         }
 
-        Console.WriteLine($@">>> Load Cached wallpaper sequence: {CachedWallpaperSequence}");
+        Console.WriteLine($@">>> Load Cached wallpaper sequence: {CachedWallpaperSequence.Count}");
     }
 
     public static async void SaveCachedSequence()

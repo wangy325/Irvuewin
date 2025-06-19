@@ -20,7 +20,10 @@ public class ChannelsViewModel : INotifyPropertyChanged
     private ObservableCollection<ChannelViewModel> _channels = [];
     private ChannelViewModel _selectedChannel;
     private sbyte _selectedIndex = Properties.Settings.Default.SelectedChannelIndex;
-    private int ShardIndex { get; set; } = 1;
+
+    private readonly Dictionary<string, int> _shardIndex = new();
+
+    // private int ShardIndex { get; set; } = 1;
     private int PageSize { get; set; } = 12;
     private bool IsBusy { get; set; } = false;
     private UnsplashQueryParams DefaultQuery { get; set; }
@@ -93,6 +96,12 @@ public class ChannelsViewModel : INotifyPropertyChanged
         // Channels
         await LoadChannels();
         Channels[SelectedIndex].IsSelected = true;
+        // Init Channels photo shard index
+        foreach (var channel in Channels)
+        {
+            _shardIndex[channel.Id] = 1;
+        }
+
         SelectedChannel = Channels[SelectedIndex];
         // Channel's Photos
         await LoadPhotos(SelectedChannel.Id, DefaultQuery);
@@ -101,7 +110,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
     private async Task LoadChannels()
     {
         var channelIds = SavedChannels.Split(',');
-        // load from cache
+        // Load from disk cache
         if (await UnsplashCache.LoadChannelsAsync() is { } cachedChannels
             && cachedChannels.Any()
             && cachedChannels.Count == channelIds.Length)
@@ -111,7 +120,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
                 cachedChannels.Select(item => MapperProvider.Mapper.Map<ChannelViewModel>(item)));
             Channels = [..channelViewModels];
         }
-        // load from web
+        // Load from web api
         else
         {
             var httpService = IHttpClient.GetUnsplashHttpService();
@@ -123,12 +132,11 @@ public class ChannelsViewModel : INotifyPropertyChanged
 
             Console.WriteLine($@"Loaded {Channels.Count} channels from web.");
             // cache channels
-            await CacheChannels();
+            // await CacheChannels();
         }
     }
 
     private async Task LoadPhotos(string channelId, UnsplashQueryParams query, bool append = false)
-        // TODO 自动刷新分页
     {
         var cacheIndex = new PhotosCachePageIndex
         {
@@ -211,12 +219,12 @@ public class ChannelsViewModel : INotifyPropertyChanged
     {
         if (IsBusy) return;
         IsBusy = true;
-        ShardIndex++;
+        _shardIndex[SelectedChannel.Id]++;
         try
         {
             UnsplashQueryParams query = new()
             {
-                Page = ShardIndex,
+                Page = _shardIndex[SelectedChannel.Id],
                 PerPage = PageSize,
                 Orientation = Properties.Settings.Default.WallpaperOrientation
             };
@@ -259,23 +267,56 @@ public class ChannelsViewModel : INotifyPropertyChanged
         await UnsplashCache.CachePhotosAsync(cachePageIndex, photos);
     }
 
-    public async void AddChannel(ObservableCollection<UnsplashChannel> selectedChannels)
+    public async void AddChannel(List<UnsplashChannel> selectedChannels)
     {
-        // TODO  reduce duplicated
-        // 添加到settings，
-        // 缓存到本地
         var newChannels = string.Join(",", selectedChannels.Select(channel => channel.Id));
         SavedChannels = SavedChannels + "," + newChannels;
-        Console.WriteLine($@">>>>>>SavedChannels: {SavedChannels}");
-        
-        // Properties.Settings.Default.UserUnsplashChannels = SavedChannels;
-        // Properties.Settings.Default.Save();
+        // System settings
+        Properties.Settings.Default.UserUnsplashChannels = SavedChannels;
+        Properties.Settings.Default.Save();
 
-        // map to ChannelViewModel list
+        // Map to ChannelViewModel list
         var cvm = selectedChannels.Select(channel => MapperProvider.Mapper.Map<ChannelViewModel>(channel));
         Channels = [..Channels.Concat(cvm).ToList()];
         Console.WriteLine($@">>>>>>New Channels: {string.Join(",", Channels.Select(channel => channel.Id))}");
-        // await CacheChannels();
+
+        // Update shard index and wallpaper sequence
+        foreach (var channel in selectedChannels)
+        {
+            _shardIndex.Add(channel.Id, 1);
+        }
+
+        TrayMenuHelper.AddNewChannelSequence(selectedChannels);
+    }
+
+    public async void DeleteSelectedChannel()
+    {
+        Console.WriteLine($@"Saved channels Before: {SavedChannels}");
+        var id = SelectedChannel.Id;
+        SavedChannels = string.Join(",", SavedChannels.Split(",").Where(item => item != id));
+        Console.WriteLine($@"Saved channels After: {SavedChannels}");
+
+        Properties.Settings.Default.UserUnsplashChannels = SavedChannels;
+        Properties.Settings.Default.Save();
+
+        var item = Channels.FirstOrDefault(c => c.Id == id);
+        if (item != null)
+        {
+            Channels.Remove(item);
+        }
+
+        // Channels = [..Channels.Where(channel => channel.Id != id)];
+        // TODO 优化ListBoxItem和Radio的绑定关系
+        SelectedChannel = Channels[0];
+        SelectedIndex = (sbyte)Channels.IndexOf(SelectedChannel);
+
+        // Refresh shard index and wallpaper sequence
+        _shardIndex.Remove(id);
+        TrayMenuHelper.DelChannelSequence(id);
+        
+        // Clear cached memory/disk channel photos
+        UnsplashCache.UncacheChannelPhotos(id);
+        
     }
 
     private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
