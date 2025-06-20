@@ -9,8 +9,8 @@
     xmlns:vwp="clr-namespace:WpfToolkit.Controls;assembly=VirtualizingWrapPanel"
     mc:Ignorable="d"
     Title="Channels" Icon="/Icons/application_64.ico"
-    Height="450" Width="800" MinWidth="500"
-    Background="WhiteSmoke" ShowInTaskbar="False" ResizeMode="CanResize"
+    Height="720" Width="960" MinWidth="500"
+    Background="WhiteSmoke" ShowInTaskbar="False" ResizeMode="NoResize"
     WindowStartupLocation="CenterScreen">
 
     <helpers:LocationAwareWindow.DataContext>

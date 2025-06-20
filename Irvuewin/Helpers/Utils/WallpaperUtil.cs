@@ -21,7 +21,6 @@ namespace Irvuewin.Helpers.Utils
         
         public static async Task<string?> SetWallpaper(UnsplashPhoto? photo, string? path = null)
         {
-            // TODO: seems do not work
             using (var key = Registry.CurrentUser.CreateSubKey(@"Control Panel\Desktop", true)!)
             {
                 switch (Properties.Settings.Default.WallpaperMode)
@@ -91,7 +90,7 @@ namespace Irvuewin.Helpers.Utils
             var localImagePath = Path.Combine(dir, imageName);
             if (File.Exists(localImagePath))
             {
-                Console.WriteLine(@"Wallpaper already exists, skipping download.");
+                // Console.WriteLine(@"Wallpaper already exists, skipping download.");
                 return localImagePath;
             }
 

@@ -14,7 +14,6 @@ public class ChannelsViewModel : INotifyPropertyChanged
 {
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    // ,raoebyzOILQ,pY1RsqahQms,62652795
     private string SavedChannels { get; set; } = Properties.Settings.Default.UserUnsplashChannels;
     private ObservableCollection<UnsplashPhoto> _photos = [];
     private ObservableCollection<ChannelViewModel> _channels = [];
@@ -22,6 +21,17 @@ public class ChannelsViewModel : INotifyPropertyChanged
     private sbyte _selectedIndex = Properties.Settings.Default.SelectedChannelIndex;
 
     private readonly Dictionary<string, int> _shardIndex = new();
+    private bool _allPhotosLoaded;
+
+    public bool AllPhotosLoaded
+    {
+        get => _allPhotosLoaded;
+        set
+        {
+            _allPhotosLoaded = value;
+            OnPropertyChanged();
+        }
+    }
 
     // private int ShardIndex { get; set; } = 1;
     private int PageSize { get; set; } = 12;
@@ -103,7 +113,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
         }
 
         SelectedChannel = Channels[SelectedIndex];
-        // Channel's Photos
+        // Load 1st page of channel's photos 
         await LoadPhotos(SelectedChannel.Id, DefaultQuery);
     }
 
@@ -136,7 +146,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
         }
     }
 
-    private async Task LoadPhotos(string channelId, UnsplashQueryParams query, bool append = false)
+    private async Task<bool> LoadPhotos(string channelId, UnsplashQueryParams query, bool append = false)
     {
         var cacheIndex = new PhotosCachePageIndex
         {
@@ -147,17 +157,8 @@ public class ChannelsViewModel : INotifyPropertyChanged
         if (await UnsplashCache.LoadPhotosAsync(cacheIndex) is { } cachedPhotos
             && cachedPhotos.Any())
         {
-            if (append)
-            {
-                foreach (var item in cachedPhotos)
-                {
-                    Photos.Add(item);
-                }
-            }
-            else
-            {
-                Photos = [..cachedPhotos];
-            }
+            RenewChannelPhotos(cachedPhotos, append);
+            return true;
         }
         // load from web
         else
@@ -166,23 +167,29 @@ public class ChannelsViewModel : INotifyPropertyChanged
             if (await httpService.GetPhotosOfChannel(channelId, query) is { } photos
                 && photos.Count != 0)
             {
-                if (append)
-                {
-                    foreach (var item in photos)
-                    {
-                        Photos.Add(item);
-                    }
-                }
-                else
-                {
-                    Photos = [..photos];
-                }
-
+                RenewChannelPhotos(photos, append);
                 // update cache
                 await CachePhotos(cacheIndex, photos);
+                return true;
             }
+        }
 
-            Console.WriteLine($@"Loaded photos for channel {channelId} from web api.");
+        return false;
+    }
+
+    private void RenewChannelPhotos(List<UnsplashPhoto> photos, bool append)
+    {
+        if (append)
+        {
+            foreach (var item in photos)
+            {
+                Photos.Add(item);
+            }
+        }
+        else
+        {
+            // Discard previous photos
+            Photos = [..photos];
         }
     }
 
@@ -190,6 +197,12 @@ public class ChannelsViewModel : INotifyPropertyChanged
     {
         try
         {
+            // Reset photos loaded status and shard index
+            AllPhotosLoaded = false;
+            foreach (var key in _shardIndex.Keys.ToList())
+            {
+                _shardIndex[key] = 1;
+            }
             // Update selected status
             if (param is not ChannelViewModel item) return;
             item.IsSelected = true;
@@ -208,6 +221,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
             // Load photos
             DefaultQuery.Orientation = Properties.Settings.Default.WallpaperOrientation;
             await LoadPhotos(item.Id, DefaultQuery);
+            
         }
         catch (Exception e)
         {
@@ -218,6 +232,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
     private async void OnLoadMorePhotos(object obj)
     {
         if (IsBusy) return;
+        if (AllPhotosLoaded) return;
         IsBusy = true;
         _shardIndex[SelectedChannel.Id]++;
         try
@@ -228,7 +243,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
                 PerPage = PageSize,
                 Orientation = Properties.Settings.Default.WallpaperOrientation
             };
-            await LoadPhotos(SelectedChannel.Id, query, true);
+            AllPhotosLoaded = !await LoadPhotos(SelectedChannel.Id, query, true);
             IsBusy = false;
         }
         catch (Exception e)
@@ -313,10 +328,9 @@ public class ChannelsViewModel : INotifyPropertyChanged
         // Refresh shard index and wallpaper sequence
         _shardIndex.Remove(id);
         TrayMenuHelper.DelChannelSequence(id);
-        
+
         // Clear cached memory/disk channel photos
         UnsplashCache.UncacheChannelPhotos(id);
-        
     }
 
     private void OnPropertyChanged([CallerMemberName] string? propertyName = null)

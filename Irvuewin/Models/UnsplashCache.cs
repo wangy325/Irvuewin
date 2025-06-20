@@ -20,7 +20,7 @@ namespace Irvuewin.Models
             {
                 await File.WriteAllTextAsync(FileUtils.CachePath(FileUtils.AppDataFolder, "channels"),
                     JsonConvert.SerializeObject(channels, JsonHelper.Settings));
-                Console.WriteLine($@"Saved {channels.Count} channels to cache");
+                // Console.WriteLine($@"Saved {channels.Count} channels to cache");
             }
             catch (Exception e)
             {
@@ -45,7 +45,7 @@ namespace Irvuewin.Models
                 var channels = JsonConvert.DeserializeObject<List<UnsplashChannel>>(
                     channelString,
                     JsonHelper.Settings) ?? [];
-                Console.WriteLine($@"Loaded {channels.Count} channels from cache");
+                // Console.WriteLine($@"Loaded {channels.Count} channels from cache");
                 return channels;
             }
             catch (Exception e)
@@ -65,7 +65,7 @@ namespace Irvuewin.Models
                 var filePath = FileUtils.CachePath(dir, $"photos_{index.PageIndex}");
                 await File.WriteAllTextAsync(filePath,
                     JsonConvert.SerializeObject(photos, JsonHelper.Settings));
-                Console.WriteLine($@"Saved {photos.Count} photos to cache");
+                // Console.WriteLine($@"Saved {photos.Count} photos to cache");
             }
             catch (Exception e)
             {
@@ -87,8 +87,8 @@ namespace Irvuewin.Models
                 CachedPhotos[index] = JsonConvert.DeserializeObject<List<UnsplashPhoto>>(
                     photoString,
                     JsonHelper.Settings) ?? [];
-                Console.WriteLine(
-                    $@"Loaded {CachedPhotos[index].Count} photos from cache for channel {index.ChannelId}:{index.PageIndex}");
+                // Console.WriteLine(
+                //     $@"Loaded {CachedPhotos[index].Count} photos from cache for channel {index.ChannelId}:{index.PageIndex}");
                 return CachedPhotos[index];
                 /*var photos =  JsonConvert.DeserializeObject<List<UnsplashPhoto>>(
                     photoString,
@@ -111,7 +111,7 @@ namespace Irvuewin.Models
             {
                 await File.WriteAllTextAsync(filePath,
                     JsonConvert.SerializeObject(cachedWallpaperSequence, JsonHelper.Settings));
-                Console.WriteLine($@"Saved {cachedWallpaperSequence.Count} sequence to cache");
+                // Console.WriteLine($@"Saved {cachedWallpaperSequence.Count} sequence to cache");
                 return true;
             }
             catch (Exception e)
@@ -131,7 +131,7 @@ namespace Irvuewin.Models
                 var cachedSequence = JsonConvert.DeserializeObject<Dictionary<string, int>>(
                     sequence,
                     JsonHelper.Settings) ?? new Dictionary<string, int>();
-                Console.WriteLine($@"Loaded {cachedSequence.Count} sequence from cache");
+                // Console.WriteLine($@"Loaded {cachedSequence.Count} sequence from cache");
                 return cachedSequence;
             }
             catch (Exception e)

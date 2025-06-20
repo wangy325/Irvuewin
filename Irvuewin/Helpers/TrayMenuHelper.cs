@@ -68,14 +68,14 @@ public static class TrayMenuHelper
             }
         }
 
-        Console.WriteLine($@">>> Load Cached wallpaper sequence: {CachedWallpaperSequence.Count}");
+        // Console.WriteLine($@">>> Load Cached wallpaper sequence: {CachedWallpaperSequence.Count}");
     }
 
     public static async void SaveCachedSequence()
     {
         if (_sequenceModify <= 0) return;
         await UnsplashCache.CacheChannelSequence(CachedWallpaperSequence);
-        Console.WriteLine($@">>> Save Cached wallpaper sequence: {CachedWallpaperSequence}");
+        // Console.WriteLine($@">>> Save Cached wallpaper sequence: {CachedWallpaperSequence}");
         // reset
         _sequenceModify = 0;
     }
@@ -123,12 +123,12 @@ public static class TrayMenuHelper
         string? path;
         if (UnsplashCache.CachedPhotos.TryGetValue(photosCachePageIndex, out var res))
         {
-            Console.WriteLine(@">>> Set wallpaper from cache.");
+            // Console.WriteLine(@">>> Set wallpaper from cache.");
             path = await WallpaperUtil.SetWallpaper(res[shardPositionIndex]);
         }
         else
         {
-            Console.WriteLine(@">>> Set wallpaper from web.");
+            // Console.WriteLine(@">>> Set wallpaper from web.");
             const int pageSize = 10;
             var httpService = new UnsplashHttpService(new UnsplashHttpClientWrapper());
             UnsplashPhoto? photo;

@@ -2,7 +2,6 @@
 using System.Windows.Controls;
 using System.Windows.Media;
 using Irvuewin.Helpers;
-using Irvuewin.Models;
 using Irvuewin.Models.Unsplash;
 using Irvuewin.ViewModels;
 using WpfToolkit.Controls;
