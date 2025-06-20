@@ -27,7 +27,6 @@
             </ResourceDictionary.MergedDictionaries>
 
             <converters:TextToVisibilityConverter x:Key="TextToVisibilityConverter" />
-            <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
 
             <DataTemplate x:Key="ResolvingChannelsTemplate"
                           DataType="{x:Type m:UnsplashChannel}">
@@ -84,6 +83,21 @@
                 </Grid>
             </DataTemplate>
 
+            <DataTemplate x:Key="EmptyDataTemplate"
+                          DataType="{x:Type vm:AddChannelViewModel}">
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Hint4Channels}"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               FontStyle="Italic"
+                               Foreground="Gray" />
+                    <Button Content="{Binding ButtonOpenUnsplash}"
+                            Width="150"
+                            Command="{Binding OpenUnsplashCommand}"
+                            Style="{StaticResource BottomButtonStyle}" />
+                </StackPanel>
+            </DataTemplate>
+
             <Style x:Key="ListBoxStyle2" TargetType="ListBox" BasedOn="{StaticResource ListBoxStyle}">
                 <Setter Property="Margin" Value="0,5, 0,0" />
                 <Setter Property="BorderThickness" Value="1" />
@@ -94,12 +108,29 @@
                                     BorderBrush="{TemplateBinding BorderBrush}"
                                     BorderThickness="{TemplateBinding BorderThickness}"
                                     CornerRadius="5">
-                                <ScrollViewer x:Name="ListBoxScrollViewer"
-                                              HorizontalScrollBarVisibility="Disabled"
-                                              VerticalScrollBarVisibility="Auto">
-                                    <ItemsPresenter />
-                                </ScrollViewer>
+                                <Grid>
+                                    <ScrollViewer x:Name="ListBoxScrollViewer"
+                                                  HorizontalScrollBarVisibility="Disabled"
+                                                  VerticalScrollBarVisibility="Auto">
+                                        <ItemsPresenter />
+                                    </ScrollViewer>
+                                    <ContentControl x:Name="EmptyDataContent"
+                                                    Content="{TemplateBinding DataContext}"
+                                                    ContentTemplate="{StaticResource EmptyDataTemplate}"
+                                                    IsTabStop="False"
+                                                    Visibility="Collapsed" />
+                                </Grid>
+
                             </Border>
+
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="ListBox.ItemsSource" Value="{x:Null}">
+                                    <Setter TargetName="EmptyDataContent" Property="Visibility" Value="Visible" />
+                                </Trigger>
+                                <Trigger Property="ListBox.HasItems" Value="False">
+                                    <Setter TargetName="EmptyDataContent" Property="Visibility" Value="Visible" />
+                                </Trigger>
+                            </ControlTemplate.Triggers>
                         </ControlTemplate>
                     </Setter.Value>
                 </Setter>
@@ -278,7 +309,8 @@
                 <Separator Grid.Row="2" Style="{StaticResource SeparatorStyle}" />
 
 
-                <ListBox Grid.Row="3" x:Name="PreChannelsListBox"
+                <ListBox Grid.Row="3"
+                         x:Name="PreChannelsListBox"
                          SelectionMode="Multiple"
                          helper:ListBoxSelectedItemsBehavior.BindableSelectedItems="{Binding SelectedChannels, Mode=TwoWay}"
                          Style="{StaticResource ListBoxStyle2}"
@@ -291,6 +323,9 @@
                             <VirtualizingStackPanel />
                         </ItemsPanelTemplate>
                     </ListBox.ItemsPanel>
+                    <ListBox.Resources>
+
+                    </ListBox.Resources>
                 </ListBox>
 
                 <Grid Grid.Row="4">

@@ -20,10 +20,14 @@ public class AddChannelViewModel : INotifyPropertyChanged
     public string HintTitle { get; } = "You can use URLs from unsplash, such as:";
     public string Hint1 { get; } = "- https://unsplash.com/@leanspok";
     public string Hint2 { get; } = "- https://unsplash.com/collection/276189/colors";
+    
+    public string Hint4Channels { get; } = " Explore Unsplash to find new channels: ";
+    public string ButtonOpenUnsplash { get; } = "Open Unsplash.com";
 
 
     private ObservableCollection<UnsplashChannel> _preChannels = [];
     private ICommand PreChannelsUpdated { get; }
+    public ICommand OpenUnsplashCommand { get; }
 
     public ObservableCollection<UnsplashChannel> PreChannels
     {
@@ -62,11 +66,31 @@ public class AddChannelViewModel : INotifyPropertyChanged
         }
     }
 
+  
+
+
     public AddChannelViewModel()
     {
         _channelsViewModel = Application.Current.Resources["ChannelsViewModel"] as ChannelsViewModel;
         PreChannelsUpdated = new RelayCommand<object>(OnPreChannelsUpdated);
+        OpenUnsplashCommand = new RelayCommand<object>(OnUnsplashOpenButtonClick);
         Console.WriteLine(@">>>>>>>>>>>> AddChannelViewModel inited..");
+    }
+
+    private void OnUnsplashOpenButtonClick(object obj)
+    {
+        try
+        {
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+            {
+                FileName = "https://unsplash.com/collections",
+                UseShellExecute = true
+            });
+        }
+        catch (Exception ex)
+        {
+            // Ignore
+        }
     }
 
 
