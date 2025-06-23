@@ -6,6 +6,7 @@
              xmlns:local="clr-namespace:Irvuewin"
              xmlns:vm="clr-namespace:Irvuewin.ViewModels"
              xmlns:converters="clr-namespace:Irvuewin.Helpers.Converters"
+             xmlns:uc="clr-namespace:Irvuewin.Controls"
              ShutdownMode="OnExplicitShutdown">
     <Application.Resources>
         <vm:ChannelsViewModel x:Key="ChannelsViewModel" />
@@ -38,7 +39,7 @@
         </Style>
 
         <!-- 自定义MenuItem样式 -->
-        <Style x:Key="MenuItemStyle" TargetType="MenuItem">
+        <Style TargetType="MenuItem">
             <Setter Property="Background" Value="Transparent" />
             <Setter Property="Foreground" Value="Black" />
             <Setter Property="MinWidth" Value="180" />
@@ -69,7 +70,7 @@
                                     <!-- 标题区域 -->
                                     <ContentPresenter ContentSource="Header"
                                                       VerticalAlignment="Center"
-                                                      Grid.Column="1" Margin="5,2" />
+                                                      Grid.Column="1" />
                                 </Grid>
                             </Border>
                             <!-- 关键：用于显示子菜单 -->
@@ -102,15 +103,16 @@
             </Setter>
         </Style>
 
-        <Style x:Key="SubMenuItemStyle" TargetType="MenuItem" BasedOn="{StaticResource MenuItemStyle}">
+
+        <Style x:Key="SubMenuItemStyle" TargetType="MenuItem"
+               BasedOn="{StaticResource {x:Type MenuItem}}">
             <Setter Property="StaysOpenOnClick" Value="True" />
             <Setter Property="IsCheckable" Value="True" />
             <Setter Property="MinWidth" Value="160" />
         </Style>
 
-        <Style x:Key="SubMenuItemStyle2" TargetType="MenuItem" BasedOn="{StaticResource MenuItemStyle}">
-            <Setter Property="StaysOpenOnClick" Value="True" />
-            <Setter Property="IsCheckable" Value="True" />
+        <Style x:Key="IntervalSubMenuItemStyle" TargetType="MenuItem"
+               BasedOn="{StaticResource SubMenuItemStyle}">
             <Setter Property="MinWidth" Value="120" />
         </Style>
 
@@ -141,51 +143,53 @@
                     <i:Interaction.Triggers>
                         <i:EventTrigger EventName="Opened">
                             <i:InvokeCommandAction
-                                Command="{Binding Source={StaticResource TrayViewModel}, Path=TrayMenuOpened}" />
+                                Command="{Binding Source={StaticResource TrayViewModel}, 
+                                Path=TrayMenuOpened}" />
                         </i:EventTrigger>
                     </i:Interaction.Triggers>
-                    <MenuItem Header="关于当前壁纸"
-                              Name="AboutCurrentWallpaper"
-                              Click="AboutCurrentWallpaper_Click"
-                              Margin="0, 10, 0 0"
-                              Style="{StaticResource MenuItemStyle}" />
+                    <MenuItem x:Name="AboutCurrentWallpaper"
+                              Margin="0, 10, 0 0">
+
+                        <MenuItem.Header>
+                            <uc:MenuItemHeader
+                                HeaderName="{Binding Source={StaticResource TrayViewModel}, 
+                                Path=HAboutCurrentWallpaper}" />
+                        </MenuItem.Header>
+                        <MenuItem Margin="0,10,0,0"
+                                  Header="{Binding Source={StaticResource TrayViewModel},
+                            Path=WallpaperInfo.WallpaperLikes}" />
+                        <MenuItem
+                            Header="{Binding Source={StaticResource TrayViewModel},
+                            Path=WallpaperInfo.WallpaperDownloads}" />
+                        <MenuItem Margin="0, 0,0,10"
+                                  Header="{Binding Source={StaticResource TrayViewModel},
+                            Path=WallpaperInfo.WallpaperAuthor}" />
+
+                    </MenuItem>
+
 
                     <Separator Style="{StaticResource SeparatorStyle}" />
 
                     <MenuItem Header="更换当前壁纸"
                               Name="ChangeCurrentWallpaper"
-                              Click="ChangeCurrentWallpaper_Click"
-                              Style="{StaticResource MenuItemStyle}" />
+                              Click="ChangeCurrentWallpaper_Click" />
                     <MenuItem Header="更换所有壁纸"
                               Name="ChangeAllWallpaper"
-                              Click="ChangeAllWallpaper_Click"
-                              Style="{StaticResource MenuItemStyle}" />
+                              Click="ChangeAllWallpaper_Click" />
                     <MenuItem Header="使用上一张壁纸"
                               Name="LoadPreviousWallpaper"
-                              Click="LoadPreviousWallpaper_Click"
-                              Style="{StaticResource MenuItemStyle}" />
+                              Click="LoadPreviousWallpaper_Click" />
                     <MenuItem Header="下载当前壁纸"
                               Name="DownloadCurrentWallpaper"
-                              Click="DownloadCurrentWallpaper_Click"
-                              Style="{StaticResource MenuItemStyle}" />
+                              Click="DownloadCurrentWallpaper_Click" />
 
                     <Separator Style="{StaticResource SeparatorStyle}" />
 
-                    <MenuItem Name="ChannelSelector"
-                              Style="{StaticResource MenuItemStyle}">
+                    <MenuItem Name="ChannelSelector">
                         <MenuItem.Header>
-                            <StackPanel Orientation="Horizontal">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="120" />
-                                        <ColumnDefinition Width="*" />
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Text="频道" Grid.Column="0" />
-                                    <TextBlock Text=" >"
-                                               Grid.Column="1" Foreground="Gray"
-                                               FontWeight="Bold" TextAlignment="Right" />
-                                </Grid>
-                            </StackPanel>
+                            <uc:MenuItemHeader
+                                HeaderName="{Binding Source={StaticResource TrayViewModel}, 
+                            Path=HChannelSelector}" />
                         </MenuItem.Header>
                         <MenuItem.ItemsSource>
                             <CompositeCollection>
@@ -197,13 +201,16 @@
                                           Margin="0,0,0,10"
                                           Name="AddNewChannel"
                                           IsCheckable="False"
+                                          Command="{Binding Source={StaticResource TrayViewModel}, Path=OpenAddChannelWindowCommand}"
                                           Style="{StaticResource SubMenuItemStyle}" />
                             </CompositeCollection>
                         </MenuItem.ItemsSource>
                         <MenuItem.ItemContainerStyle>
                             <Style TargetType="MenuItem" BasedOn="{StaticResource SubMenuItemStyle}">
-                                <Setter Property="Header" Value="{Binding Title}" />
-                                <Setter Property="IsChecked" Value="{Binding IsSelected }" />
+                                <Setter Property="Header"
+                                        Value="{Binding  Path = (vm:ChannelViewModel.Title)}" />
+                                <Setter Property="IsChecked"
+                                        Value="{Binding  Path=(vm:ChannelViewModel.IsSelected)}" />
                                 <Setter Property="Command"
                                         Value="{Binding Source={StaticResource ChannelViewModel}, 
                                         Path=ItemSelected}" />
@@ -212,88 +219,68 @@
                         </MenuItem.ItemContainerStyle>
                     </MenuItem>
 
-
                     <MenuItem Header="管理频道"
                               Name="UnsplashChannelManage"
-                              Click="ManageChannel_Click"
-                              Style="{StaticResource MenuItemStyle}" />
+                              Click="ManageChannel_Click" />
+                    
                     <MenuItem Name="WallpaperChangeInterval"
-                              Style="{StaticResource MenuItemStyle}">
+                              AlternationCount="7"
+                              ItemsSource="{Binding Source={StaticResource TrayViewModel}, Path=Intervals }">
                         <MenuItem.Header>
-                            <StackPanel Orientation="Horizontal">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="120" />
-                                        <ColumnDefinition Width="*" />
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Text="壁纸更换间隔" Grid.Column="0" />
-                                    <TextBlock Text=" >" Grid.Column="1" Foreground="Gray"
-                                               FontWeight="Bold" TextAlignment="Right" />
-                                </Grid>
-                            </StackPanel>
+                            <uc:MenuItemHeader
+                                HeaderName="{Binding Source={StaticResource TrayViewModel}, 
+                            Path=HWallpaperUpdateInterval}" />
                         </MenuItem.Header>
-                        <MenuItem Header="10 分钟" Margin="0,10,0,0" Name="Minutes"
-                                  IsChecked="{Binding Source={x:Static local:Properties.Settings.Default},
-                                            Path=WallpaperChangeInterval, Mode=TwoWay,
-                                            Converter={StaticResource Ushort2BoolConverter},
-                                            ConverterParameter=10}"
-                                  Click="WallpaperChangeInterval_Click"
-                                  Style="{StaticResource SubMenuItemStyle2}" />
-                        <MenuItem Header="30 分钟" Tag="10" Name="HalfHour"
-                                  IsChecked="{Binding Source={x:Static local:Properties.Settings.Default},
-                                            Path=WallpaperChangeInterval, Mode=TwoWay,
-                                            Converter={StaticResource Ushort2BoolConverter},
-                                            ConverterParameter=30}"
-                                  Click="WallpaperChangeInterval_Click"
-                                  Style="{StaticResource SubMenuItemStyle2}" />
-                        <MenuItem Header="1 小时" Tag="60" Name="AnHour"
-                                  IsChecked="{Binding Source={x:Static local:Properties.Settings.Default},
-                                            Path=WallpaperChangeInterval, Mode=TwoWay,
-                                            Converter={StaticResource Ushort2BoolConverter},
-                                            ConverterParameter=60}"
-                                  Click="WallpaperChangeInterval_Click"
-                                  Style="{StaticResource SubMenuItemStyle2}" />
-                        <MenuItem Header="2 小时" Tag="120" Name="TwoHours"
-                                  IsChecked="{Binding Source={x:Static local:Properties.Settings.Default},
-                                              Path=WallpaperChangeInterval, Mode=TwoWay,
-                                              Converter={StaticResource Ushort2BoolConverter},
-                                              ConverterParameter=120}"
-                                  Click="WallpaperChangeInterval_Click"
-                                  Style="{StaticResource SubMenuItemStyle2}" />
-                        <MenuItem Header="3 小时" Tag="180" Name="ThreeHours"
-                                  IsChecked="{Binding Source={x:Static local:Properties.Settings.Default},
-                                              Path=WallpaperChangeInterval, Mode=TwoWay,
-                                              Converter={StaticResource Ushort2BoolConverter},
-                                              ConverterParameter=180}"
-                                  Click="WallpaperChangeInterval_Click"
-                                  Style="{StaticResource SubMenuItemStyle2}" />
-                        <MenuItem Header="每天" Tag="1440" Name="EveryDay"
-                                  IsChecked="{Binding Source={x:Static local:Properties.Settings.Default},
-                                              Path=WallpaperChangeInterval, Mode=TwoWay,
-                                              Converter={StaticResource Ushort2BoolConverter},
-                                              ConverterParameter=1440}"
-                                  Click="WallpaperChangeInterval_Click"
-                                  Style="{StaticResource SubMenuItemStyle2}" />
-                        <MenuItem Header="手动更新" Margin="0,0,0,10" Name="UpdateManually"
-                                  IsChecked="{Binding Source={x:Static local:Properties.Settings.Default},
-                                              Path=WallpaperChangeInterval, Mode=TwoWay,
-                                              Converter={StaticResource Ushort2BoolConverter},
-                                              ConverterParameter=0}"
-                                  Click="WallpaperChangeInterval_Click"
-                                  Style="{StaticResource SubMenuItemStyle2}" />
+                        <MenuItem.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Path=Header}"
+                                           VerticalAlignment="Center"
+                                           HorizontalAlignment="Left" />
+                            </DataTemplate>
+                        </MenuItem.ItemTemplate>
+                        <MenuItem.ItemContainerStyle>
+                            <Style TargetType="MenuItem"
+                                   BasedOn="{StaticResource {x:Type MenuItem}}">
+                                <Setter Property="StaysOpenOnClick" Value="True" />
+                                <Setter Property="IsCheckable" Value="True" />
+                                <Setter Property="MinWidth" Value="120" />
+                                <Setter Property="Tag" Value="{Binding Tag}" />
+                                <Setter Property="IsChecked">
+                                    <Setter.Value>
+                                        <MultiBinding Converter="{StaticResource Ushort2BoolConverter}">
+                                            <Binding Source="{x:Static local:Properties.Settings.Default}"
+                                                     Path="WallpaperChangeInterval" />
+                                            <Binding Path="Tag" RelativeSource="{RelativeSource Self}" />
+                                        </MultiBinding>
+                                    </Setter.Value>
+                                </Setter>
+                                <EventSetter Event="Click" Handler="WallpaperChangeInterval_Click" />
+                                <Style.Triggers>
+                                    <Trigger Property="ItemsControl.AlternationIndex" Value="0">
+                                        <Setter Property="Margin" Value="0,10,0,0" />
+                                    </Trigger>
+                                    <Trigger Property="ItemsControl.AlternationIndex" Value="6">
+                                        <Setter Property="Margin" Value="0,0,0,10" />
+                                    </Trigger>
+                                </Style.Triggers>
+
+                            </Style>
+                        </MenuItem.ItemContainerStyle>
                     </MenuItem>
+                    
                     <MenuItem Header="随机更换壁纸" x:Name="RandomSwitch"
                               IsCheckable="True" StaysOpenOnClick="True"
                               IsChecked="{Binding Source={x:Static local:Properties.Settings.Default},
-                                          Path=RandomWallpaper, Mode=TwoWay}"
-                              Style="{StaticResource MenuItemStyle}">
+                                          Path=RandomWallpaper, Mode=TwoWay}">
                         <!--MVVM模式 事件触发器绑定命令-->
                         <i:Interaction.Triggers>
-                            <i:EventTrigger  EventName="Checked">
-                                <i:InvokeCommandAction Command="{Binding Source={StaticResource TrayViewModel}, Path=SaveCachedSequence}"/>
+                            <i:EventTrigger EventName="Checked">
+                                <i:InvokeCommandAction
+                                    Command="{Binding Source={StaticResource TrayViewModel}, Path=SaveCachedSequence}" />
                             </i:EventTrigger>
-                            <i:EventTrigger  EventName="Unchecked">
-                                <i:InvokeCommandAction Command="{Binding Source={StaticResource TrayViewModel}, Path=LoadCachedSequence}"/>
+                            <i:EventTrigger EventName="Unchecked">
+                                <i:InvokeCommandAction
+                                    Command="{Binding Source={StaticResource TrayViewModel}, Path=LoadCachedSequence}" />
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
                     </MenuItem>
@@ -301,13 +288,11 @@
                     <Separator Style="{StaticResource SeparatorStyle}" />
 
                     <MenuItem Header="设置" Name="Settings"
-                              Click="Settings_Click"
-                              Style="{StaticResource MenuItemStyle}" />
+                              Click="Settings_Click" />
 
                     <Separator Style="{StaticResource SeparatorStyle}" />
 
-                    <MenuItem Header="退出" Name="Exit" Click="Exit_Click" Margin="0,0,0,10"
-                              Style="{StaticResource MenuItemStyle}" />
+                    <MenuItem Header="退出" Name="Exit" Click="Exit_Click" Margin="0,0,0,10" />
                 </ContextMenu>
             </tb:TaskbarIcon.ContextMenu>
         </tb:TaskbarIcon>

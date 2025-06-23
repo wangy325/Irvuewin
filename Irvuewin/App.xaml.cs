@@ -40,6 +40,9 @@ namespace Irvuewin
             {
                 TrayMenuHelper.LoadCachedSequence();
             }
+
+            var trayViewModel = Current.Resources["TrayViewModel"] as TrayViewModel;
+            Console.WriteLine($@"trayViewModel: {trayViewModel?.WallpaperInfo.WallpaperLikes}");
         }
 
         protected override void OnExit(ExitEventArgs e)
@@ -124,12 +127,14 @@ namespace Irvuewin
 
                     clickedItem.IsChecked = true;
                 }
-            }
 
-            // save configure
-            Irvuewin.Properties.Settings.Default.Save();
-            Console.WriteLine(
-                @$"Current Interval: {Irvuewin.Properties.Settings.Default.WallpaperChangeInterval} ");
+                // save configure
+                ushort.TryParse(clickedItem.Tag as string, out var result);
+                Irvuewin.Properties.Settings.Default.WallpaperChangeInterval = result;
+                Irvuewin.Properties.Settings.Default.Save();
+                Console.WriteLine(
+                    @$"Current Interval: {Irvuewin.Properties.Settings.Default.WallpaperChangeInterval} ");
+            }
         }
 
         //------------------------------------ Settings --------------------------------//
@@ -149,6 +154,7 @@ namespace Irvuewin
             {
                 TrayMenuHelper.SaveCachedSequence();
             }
+
             _taskbarIcon?.Dispose();
             Current.Shutdown();
         }

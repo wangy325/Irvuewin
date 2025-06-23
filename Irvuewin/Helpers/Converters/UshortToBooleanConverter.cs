@@ -5,7 +5,7 @@ namespace Irvuewin.Helpers.Converters
 
 {
     /// <summary>
-    /// convert wallpaperChangeuIntervals checked tag to ushort
+    /// convert wallpaperChangeIntervals checked tag to ushort
     /// settings item: WallpaperChangeInterval
     ///     0 - manual
     ///     10 - 10 min
@@ -15,7 +15,7 @@ namespace Irvuewin.Helpers.Converters
     ///     180 - 3 hours
     ///     1440 - 1 day
     /// </summary>
-    public class UshortToBooleanConverter : IValueConverter
+    public class UshortToBooleanConverter : IValueConverter, IMultiValueConverter
     {
         // source -> target
         public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
@@ -24,6 +24,7 @@ namespace Irvuewin.Helpers.Converters
             {
                 return val == res;
             }
+
             return false;
         }
 
@@ -35,7 +36,25 @@ namespace Irvuewin.Helpers.Converters
                 // 如果选中，返回 转换参数的值，否则返回 0 
                 return isChecked ? res : 0;
             }
+
             return (byte)0;
+        }
+
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (values.Length < 2) return false;
+            if (values[0] is ushort intValue && values[1] is string tagValue &&
+                ushort.TryParse(tagValue, out var tagInt))
+            {
+                return intValue == tagInt;
+            }
+
+            return false;
+        }
+
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+        {
+            return [Binding.DoNothing, Binding.DoNothing];
         }
     }
 }
