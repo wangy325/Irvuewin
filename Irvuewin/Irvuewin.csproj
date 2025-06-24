@@ -55,6 +55,18 @@
     <Resource Include="Icons\channels\eye.ico">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
+    <None Remove="Icons\settings\folder_line.ico" />
+    <Resource Include="Icons\settings\folder_line.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <None Remove="Icons\download.ico" />
+    <Resource Include="Icons\download.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <None Remove="Icons\like.ico" />
+    <Resource Include="Icons\like.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
   </ItemGroup>
 
   <ItemGroup>

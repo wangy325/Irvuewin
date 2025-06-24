@@ -15,6 +15,7 @@ public partial class Channels : LocationAwareWindow
     public Channels()
     {
         InitializeComponent();
+        DataContext = Application.Current.Resources["ChannelsViewModel"];
         Loaded += ChannelsWindow_Loaded;
         Loaded += (s, e) => _isInitialized = true;
         Closing += ChannelsWindow_Closing;

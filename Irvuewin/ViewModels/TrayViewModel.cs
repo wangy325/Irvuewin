@@ -1,24 +1,37 @@
-﻿using System.Windows.Forms;
+﻿using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
+using System.Windows.Forms;
 using System.Windows.Input;
 using Irvuewin.Helpers;
 using Irvuewin.Views;
 
 namespace Irvuewin.ViewModels;
 
-public class TrayViewModel
+public class TrayViewModel : INotifyPropertyChanged
 {
     public ICommand TrayMenuOpened { set; get; } = new RelayCommand<object>(CheckDisplayCommand);
 
     private static void CheckDisplayCommand(object param)
     {
-        TrayMenuHelper.CheckPointer(param);
+        TrayMenuHelper.CheckPointer();
     }
 
-    public string HAboutCurrentWallpaper { get; } = "About Wallpaper";
+    public static ObservableCollection<ChannelViewModel> Channels { set; get; } = [];
+    public static string HAboutCurrentWallpaper { get; } = "About Wallpaper";
 
-    public WallpaperInfo WallpaperInfo { get; set; } = new();
+    private WallpaperInfo _aboutWallpaper = new();
+    public WallpaperInfo AboutWallpaper 
+    { 
+        get => _aboutWallpaper;
+        set
+        {
+            _aboutWallpaper = value;
+            OnPropertyChanged();
+        }
+    }
 
-    public List<WallpaperChangeInterval> Intervals { get; set; } =
+    public static List<WallpaperChangeInterval> Intervals { get; set; } =
     [
         new(10),
         new(30),
@@ -29,12 +42,48 @@ public class TrayViewModel
         new(0)
     ];
 
-    public string HChannelSelector { get; } = "Channels";
-    public string HWallpaperUpdateInterval { get; } = "Update Interval";
+    public static string HChangeCurrentWallpaper { get; } = "Change Wallpaper";
+    public static string HChangeAllWallpaper { get; } = "Change All Wallpaper";
+    public static string HPreviousWallpaper { get; } = "Previous Wallpaper";
+    public static string HDownloadWallpaper { get; } = "Download Wallpaper";
+    
+    public static int IntervalsItemCount => Intervals.Count; 
+
+    public static string HChannelSelector { get; } = "Channels";
+    public static string HManageChannel { get; } = "Manage Channel";
+    public static string HAddNewChannel { get; } = "+ Add Channel";
+
+    public static string HWallpaperUpdateInterval { get; } = "Update Interval";
+    public static string HRandomWallpaper { get; } = "Random Wallpaper";
+
+    public static string HSettings { get; } = "Settings";
+
+    public static string HExit { get; } = "Exit";
+    
+    
 
     public ICommand LoadCachedSequence { get; } = new RelayCommand<object>(OnLoadCachedSequence);
     public ICommand SaveCachedSequence { get; } = new RelayCommand<object>(OnSaveCachedSequence);
     public ICommand OpenAddChannelWindowCommand { get; } = new RelayCommand<object>(OnAddNeeChannel);
+    // TODO Constructor initialization
+    public ICommand AuthorPageOpenCommand => new RelayCommand<object>(OnAuthorNameClicked);
+
+    private void OnAuthorNameClicked(object obj)
+    {
+        try
+        {
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+            {
+                FileName = AboutWallpaper.AuthorProfile,
+                UseShellExecute = true
+            });
+        }
+        catch (Exception ex)
+        {
+            // Ignore
+        }
+    }
+
 
     private static void OnAddNeeChannel(object obj)
     {
@@ -55,13 +104,63 @@ public class TrayViewModel
         TrayMenuHelper.SaveCachedSequence();
         Properties.Settings.Default.Save();
     }
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+    {
+        var handler = PropertyChanged;
+        handler?.Invoke(null, new PropertyChangedEventArgs(propertyName));
+    }
+    
 }
 
-public class WallpaperInfo
+public class WallpaperInfo : INotifyPropertyChanged
 {
-    public string WallpaperLikes { get; } = "Likes: 900";
-    public string WallpaperDownloads { get; } = "Downloads: 261";
-    public string WallpaperAuthor { get; } = "Photo by Adam Silver";
+
+    private int _wallpaperLikes;
+    public int WallpaperLikes { get => _wallpaperLikes;
+        set
+        {
+            _wallpaperLikes = value;
+            OnPropertyChanged();
+        }
+    }
+    
+    private int _wallpaperDownloads;
+    public int WallpaperDownloads { get=>_wallpaperDownloads;
+        set
+        {
+            _wallpaperDownloads = value;
+            OnPropertyChanged();
+        }
+    }
+    
+    public string Author { get; set; }
+    
+    private string _wallpaperAuthor ;
+
+    public string WallpaperAuthor
+    {
+        get => _wallpaperAuthor;
+        set
+        {
+            _wallpaperAuthor = $"Photo by {value}";
+            OnPropertyChanged();
+        }
+    }
+    // public string WallpaperAuthor => $"Photo by {Author}";
+    
+    // https://unsplash.com/@parentrap/collections
+    public string AuthorProfile { get; set; }
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+    
 }
 
 public class WallpaperChangeInterval

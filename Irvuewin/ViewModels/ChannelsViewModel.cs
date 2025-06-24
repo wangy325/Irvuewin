@@ -18,8 +18,10 @@ public class ChannelsViewModel : INotifyPropertyChanged
     private ObservableCollection<UnsplashPhoto> _photos = [];
     private ObservableCollection<ChannelViewModel> _channels = [];
     private ChannelViewModel _selectedChannel;
+
     private sbyte _selectedIndex = Properties.Settings.Default.SelectedChannelIndex;
 
+    // Wallpaper shard index for each channel
     private readonly Dictionary<string, int> _shardIndex = new();
     private bool _allPhotosLoaded;
 
@@ -34,7 +36,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
     }
 
     // private int ShardIndex { get; set; } = 1;
-    private int PageSize { get; set; } = 12;
+    private static int PageSize { get; set; } = 12;
     private bool IsBusy { get; set; } = false;
     private UnsplashQueryParams DefaultQuery { get; set; }
     public ICommand ItemSelected { get; set; }
@@ -85,19 +87,30 @@ public class ChannelsViewModel : INotifyPropertyChanged
         }
     }
 
-    public ChannelsViewModel()
+    /*private ChannelsViewModel()
     {
-        _selectedChannel = new ChannelViewModel(); // useless
-        DefaultQuery = new UnsplashQueryParams
+    }*/
+
+    public static async Task<ChannelsViewModel> GetChannelsViewModelInstance()
+    {
+        ChannelsViewModel inst = new()
         {
-            Page = 1,
-            PerPage = PageSize,
-            Orientation = Properties.Settings.Default.WallpaperOrientation
+            _selectedChannel = new ChannelViewModel(), // useless
+            DefaultQuery = new UnsplashQueryParams
+            {
+                Page = 1,
+                PerPage = PageSize,
+                Orientation = Properties.Settings.Default.WallpaperOrientation
+            }
         };
-        ItemSelected = new RelayCommand<ChannelViewModel>(OnListBoxItemSelected);
-        LoadMorePhotos = new RelayCommand<object>(OnLoadMorePhotos);
-        _ = InitializeAsync();
+
+        inst.ItemSelected = new RelayCommand<ChannelViewModel>(inst.OnListBoxItemSelected);
+        inst.LoadMorePhotos = new RelayCommand<object>(inst.OnLoadMorePhotos);
+        await inst.InitializeAsync();
+        // Create a copy of Channels in TrayViewModel
+        TrayViewModel.Channels = inst.Channels;
         Console.WriteLine(@"=========> ChannelsViewModel initialized.");
+        return inst;
     }
 
 
@@ -203,6 +216,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
             {
                 _shardIndex[key] = 1;
             }
+
             // Update selected status
             if (param is not ChannelViewModel item) return;
             item.IsSelected = true;
@@ -221,7 +235,6 @@ public class ChannelsViewModel : INotifyPropertyChanged
             // Load photos
             DefaultQuery.Orientation = Properties.Settings.Default.WallpaperOrientation;
             await LoadPhotos(item.Id, DefaultQuery);
-            
         }
         catch (Exception e)
         {

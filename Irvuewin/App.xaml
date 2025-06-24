@@ -9,11 +9,11 @@
              xmlns:uc="clr-namespace:Irvuewin.Controls"
              ShutdownMode="OnExplicitShutdown">
     <Application.Resources>
-        <vm:ChannelsViewModel x:Key="ChannelsViewModel" />
         <vm:ChannelViewModel x:Key="ChannelViewModel" />
         <vm:TrayViewModel x:Key="TrayViewModel" />
         <converters:UshortToBooleanConverter x:Key="Ushort2BoolConverter" />
         <converters:ByteToBooleanConverter x:Key="Byte2BoolConverter" />
+        <!-- <converters:CountToIndexConverter x:Key="CountToIndexConverter" /> -->
 
         <Style x:Key="ContextMenuStyle" TargetType="ContextMenu">
             <Setter Property="Background" Value="White" />
@@ -57,6 +57,7 @@
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="20" />
+                                        <ColumnDefinition Width="Auto" />
                                         <ColumnDefinition Width="*" />
                                     </Grid.ColumnDefinitions>
                                     <!-- 复选框区域 -->
@@ -67,10 +68,19 @@
                                                     Visibility="Collapsed">
                                         <Path Data="M0,5 L2,7 L7,2" Stroke="Black" StrokeThickness="2" />
                                     </ContentControl>
+
+                                    <!-- Icon -->
+                                    <ContentPresenter x:Name="Icon"
+                                                      Grid.Column="1"
+                                                      VerticalAlignment="Center"
+                                                      HorizontalAlignment="Left"
+                                                      ContentSource="Icon"
+                                                      SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+
                                     <!-- 标题区域 -->
                                     <ContentPresenter ContentSource="Header"
                                                       VerticalAlignment="Center"
-                                                      Grid.Column="1" />
+                                                      Grid.Column="2" />
                                 </Grid>
                             </Border>
                             <!-- 关键：用于显示子菜单 -->
@@ -111,11 +121,6 @@
             <Setter Property="MinWidth" Value="160" />
         </Style>
 
-        <Style x:Key="IntervalSubMenuItemStyle" TargetType="MenuItem"
-               BasedOn="{StaticResource SubMenuItemStyle}">
-            <Setter Property="MinWidth" Value="120" />
-        </Style>
-
         <!-- 自定义Separator样式 -->
         <Style x:Key="SeparatorStyle" TargetType="Separator">
             <Setter Property="Margin" Value="0,2,0,2" />
@@ -131,6 +136,7 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
 
         <tb:TaskbarIcon x:Key="NotifyIcon"
                         ToolTipText="Irvuewin"
@@ -149,37 +155,62 @@
                     </i:Interaction.Triggers>
                     <MenuItem x:Name="AboutCurrentWallpaper"
                               Margin="0, 10, 0 0">
-
                         <MenuItem.Header>
                             <uc:MenuItemHeader
                                 HeaderName="{Binding Source={StaticResource TrayViewModel}, 
                                 Path=HAboutCurrentWallpaper}" />
                         </MenuItem.Header>
                         <MenuItem Margin="0,10,0,0"
-                                  Header="{Binding Source={StaticResource TrayViewModel},
-                            Path=WallpaperInfo.WallpaperLikes}" />
-                        <MenuItem
-                            Header="{Binding Source={StaticResource TrayViewModel},
-                            Path=WallpaperInfo.WallpaperDownloads}" />
+                                  IsCheckable="False"
+                                  IsEnabled="False">
+                            <MenuItem.Icon>
+                                <Image Source="/Icons/like.ico"
+                                       Width="16" Height="16"
+                                       VerticalAlignment="Center" />
+                            </MenuItem.Icon>
+                            <MenuItem.Header>
+                                <TextBlock
+                                    Margin="10,0,0,0"
+                                    Text="{Binding Source={StaticResource TrayViewModel}, Path=AboutWallpaper.WallpaperLikes}"
+                                    Foreground="Gray" />
+                            </MenuItem.Header>
+                        </MenuItem>
+                        <MenuItem IsEnabled="False" IsCheckable="False">
+                            <MenuItem.Icon>
+                                <Image Source="/Icons/download.ico"
+                                       Width="16" Height="16"
+                                       VerticalAlignment="Center" />
+                            </MenuItem.Icon>
+                            <MenuItem.Header>
+                                <TextBlock
+                                    Margin="10,0,0,0"
+                                    Text="{Binding Source={StaticResource TrayViewModel}, Path=AboutWallpaper.WallpaperDownloads}"
+                                    Foreground="Gray" />
+                            </MenuItem.Header>
+                        </MenuItem>
                         <MenuItem Margin="0, 0,0,10"
-                                  Header="{Binding Source={StaticResource TrayViewModel},
-                            Path=WallpaperInfo.WallpaperAuthor}" />
+                                  Command="{Binding Source={StaticResource TrayViewModel}, Path=AuthorPageOpenCommand }">
+                            <MenuItem.Header>
+                                <TextBlock
+                                    Text="{Binding Source={StaticResource TrayViewModel}, Path=AboutWallpaper.WallpaperAuthor}" />
+                            </MenuItem.Header>
+                        </MenuItem>
 
                     </MenuItem>
 
 
                     <Separator Style="{StaticResource SeparatorStyle}" />
 
-                    <MenuItem Header="更换当前壁纸"
+                    <MenuItem Header="{Binding Source={StaticResource TrayViewModel}, Path=HChangeCurrentWallpaper}"
                               Name="ChangeCurrentWallpaper"
                               Click="ChangeCurrentWallpaper_Click" />
-                    <MenuItem Header="更换所有壁纸"
+                    <MenuItem Header="{Binding Source={StaticResource TrayViewModel}, Path=HChangeAllWallpaper}"
                               Name="ChangeAllWallpaper"
                               Click="ChangeAllWallpaper_Click" />
-                    <MenuItem Header="使用上一张壁纸"
+                    <MenuItem Header="{Binding Source={StaticResource TrayViewModel}, Path=HPreviousWallpaper}"
                               Name="LoadPreviousWallpaper"
                               Click="LoadPreviousWallpaper_Click" />
-                    <MenuItem Header="下载当前壁纸"
+                    <MenuItem Header="{Binding Source={StaticResource TrayViewModel}, Path=HDownloadWallpaper}"
                               Name="DownloadCurrentWallpaper"
                               Click="DownloadCurrentWallpaper_Click" />
 
@@ -188,16 +219,15 @@
                     <MenuItem Name="ChannelSelector">
                         <MenuItem.Header>
                             <uc:MenuItemHeader
-                                HeaderName="{Binding Source={StaticResource TrayViewModel}, 
-                            Path=HChannelSelector}" />
+                                HeaderName="{Binding Source={StaticResource TrayViewModel}, Path=HChannelSelector}" />
                         </MenuItem.Header>
                         <MenuItem.ItemsSource>
                             <CompositeCollection>
                                 <Separator Margin="0 ,10,0,0" Background="Transparent" />
                                 <CollectionContainer
-                                    Collection="{Binding Source={StaticResource ChannelsViewModel}, Path=Channels}" />
+                                    Collection="{Binding Source={StaticResource TrayViewModel}, Path=Channels}" />
                                 <Separator Style="{StaticResource SeparatorStyle}" />
-                                <MenuItem Header="+ 添加新频道"
+                                <MenuItem Header="{Binding Source={StaticResource TrayViewModel}, Path=HAddNewChannel}"
                                           Margin="0,0,0,10"
                                           Name="AddNewChannel"
                                           IsCheckable="False"
@@ -219,12 +249,12 @@
                         </MenuItem.ItemContainerStyle>
                     </MenuItem>
 
-                    <MenuItem Header="管理频道"
+                    <MenuItem Header="{Binding Source={StaticResource TrayViewModel}, Path=HManageChannel}"
                               Name="UnsplashChannelManage"
                               Click="ManageChannel_Click" />
-                    
+
                     <MenuItem Name="WallpaperChangeInterval"
-                              AlternationCount="7"
+                              AlternationCount="{Binding Source={StaticResource TrayViewModel}, Path=IntervalsItemCount }"
                               ItemsSource="{Binding Source={StaticResource TrayViewModel}, Path=Intervals }">
                         <MenuItem.Header>
                             <uc:MenuItemHeader
@@ -259,6 +289,14 @@
                                     <Trigger Property="ItemsControl.AlternationIndex" Value="0">
                                         <Setter Property="Margin" Value="0,10,0,0" />
                                     </Trigger>
+                                    <!--<DataTrigger
+                                        Binding="{Binding RelativeSource={RelativeSource Self}, 
+                                        Converter={StaticResource CountToIndexConverter}, 
+                                        ConverterParameter={Binding Tag, RelativeSource={RelativeSource Self} }}"
+                                        Value="True">
+                                        <Setter Property="Margin" Value="0,0,0,10" />
+                                    </DataTrigger>-->
+                                    <!--TODO use AlternationIndex to set margin -->
                                     <Trigger Property="ItemsControl.AlternationIndex" Value="6">
                                         <Setter Property="Margin" Value="0,0,0,10" />
                                     </Trigger>
@@ -267,8 +305,9 @@
                             </Style>
                         </MenuItem.ItemContainerStyle>
                     </MenuItem>
-                    
-                    <MenuItem Header="随机更换壁纸" x:Name="RandomSwitch"
+
+                    <MenuItem Header="{Binding Source={StaticResource TrayViewModel}, Path=HRandomWallpaper}"
+                              x:Name="RandomSwitch"
                               IsCheckable="True" StaysOpenOnClick="True"
                               IsChecked="{Binding Source={x:Static local:Properties.Settings.Default},
                                           Path=RandomWallpaper, Mode=TwoWay}">
@@ -287,12 +326,16 @@
 
                     <Separator Style="{StaticResource SeparatorStyle}" />
 
-                    <MenuItem Header="设置" Name="Settings"
+                    <MenuItem Header="{Binding Source={StaticResource TrayViewModel}, Path=HSettings}"
+                              x:Name="Settings"
                               Click="Settings_Click" />
 
                     <Separator Style="{StaticResource SeparatorStyle}" />
 
-                    <MenuItem Header="退出" Name="Exit" Click="Exit_Click" Margin="0,0,0,10" />
+                    <MenuItem Header="{Binding Source={StaticResource TrayViewModel}, Path=HExit}"
+                              x:Name="Exit"
+                              Margin="0,0,0,10"
+                              Click="Exit_Click" />
                 </ContextMenu>
             </tb:TaskbarIcon.ContextMenu>
         </tb:TaskbarIcon>

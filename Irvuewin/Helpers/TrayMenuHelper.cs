@@ -3,7 +3,6 @@ using System.Windows;
 using Irvuewin.Helpers.Utils;
 using Irvuewin.Models;
 using Irvuewin.Models.Unsplash;
-using Irvuewin.Properties;
 using Irvuewin.ViewModels;
 
 namespace Irvuewin.Helpers;
@@ -15,16 +14,22 @@ namespace Irvuewin.Helpers;
 ///</summary>
 public static class TrayMenuHelper
 {
-    private static Stack<string> _wallpaperHistory = new(10);
-
-    private static string _currentScreen;
+    private static readonly Stack<string> WallpaperHistory = new(10);
 
     private static int _sequenceModify;
 
+    // Wallpaper sequence for each channel (key is channelId)
+    // Used to locate wallpaper in sequence mode
     private static readonly Dictionary<string, int> CachedWallpaperSequence = new();
 
     // screen name, screen wallpaper stack
-    private static Dictionary<string, Stack<string>> _wallpaperStack = new();
+    private static readonly Dictionary<string, Stack<string>> WallpaperStack = new();
+
+    private static string? _currentScreen;
+
+    // Current wallpaper of each screen (key is screen id, value is photoId)
+    private static readonly Dictionary<string, string> CurrentWallpaper = new();
+
     private static readonly Random Random = new();
 
     // Once new channel added, add its sequence to cache
@@ -44,7 +49,7 @@ public static class TrayMenuHelper
         _sequenceModify++;
     }
 
-    public static async void LoadCachedSequence()
+    public static async Task LoadCachedSequence()
     {
         // TODO NOT PERFECT
         if (CachedWallpaperSequence.Count > 0) return;
@@ -80,7 +85,7 @@ public static class TrayMenuHelper
         _sequenceModify = 0;
     }
 
-    public static void ChangeCurrentWallpaper(UnsplashChannel channel)
+    public static async Task ChangeCurrentWallpaper(UnsplashChannel channel)
     {
         var randomWallpaper = Properties.Settings.Default.RandomWallpaper;
         if (randomWallpaper)
@@ -88,7 +93,7 @@ public static class TrayMenuHelper
             var total = channel.TotalPhotos;
             var random = Random.Next(1, total);
             // var random = 10;
-            SetWallPaper(channel, random, true);
+            await SetWallPaper(channel, random, true);
         }
         else
         {
@@ -96,7 +101,7 @@ public static class TrayMenuHelper
             // 是否需要缓存栈？ 暂时不需要，启动时空栈即可
             // TODO 多显示器的栈缓存还不一样呢
             var sequence = CachedWallpaperSequence[channel.Id];
-            SetWallPaper(channel, sequence);
+            await SetWallPaper(channel, sequence);
             // TODO 注意边界异常
             if (++sequence > channel.TotalPhotos)
             {
@@ -109,7 +114,7 @@ public static class TrayMenuHelper
     }
 
 
-    private static async void SetWallPaper(UnsplashChannel channel, int sequence, bool random = false)
+    private static async Task SetWallPaper(UnsplashChannel channel, int sequence, bool random = false)
     {
         var (shardIndex, shardPositionIndex) = CalShardIndex(sequence);
 
@@ -119,19 +124,23 @@ public static class TrayMenuHelper
             PageIndex = shardIndex
         };
 
+        // _currentScreen is null once app started
+        CheckPointer();
+        
         // var res = await UnsplashCache.LoadPhotosAsync(photosCache);
         string? path;
+        UnsplashPhoto? photo;
         if (UnsplashCache.CachedPhotos.TryGetValue(photosCachePageIndex, out var res))
         {
             // Console.WriteLine(@">>> Set wallpaper from cache.");
-            path = await WallpaperUtil.SetWallpaper(res[shardPositionIndex]);
+            photo = res[shardPositionIndex];
+            path = await WallpaperUtil.SetWallpaper(photo);
         }
         else
         {
             // Console.WriteLine(@">>> Set wallpaper from web.");
             const int pageSize = 10;
             var httpService = new UnsplashHttpService(new UnsplashHttpClientWrapper());
-            UnsplashPhoto? photo;
             if (random)
             {
                 photo = await httpService.GetRandomPhotoInChannel(channel.Id);
@@ -162,8 +171,10 @@ public static class TrayMenuHelper
         // Push photo file into wallpaper history stack
         if (path is not null)
         {
-            _wallpaperHistory.Push(path);
-            _wallpaperStack[_currentScreen] = _wallpaperHistory;
+            WallpaperHistory.Push(path);
+            CurrentWallpaper[_currentScreen!] = photo.Id;
+            WallpaperStack[_currentScreen!] = WallpaperHistory;
+            await GetWallpaperInfo();
         }
     }
 
@@ -187,7 +198,7 @@ public static class TrayMenuHelper
     }
 
     // 检查指针在哪个屏幕
-    public static void CheckPointer(object sender)
+    public static void CheckPointer()
     {
         _currentScreen = DisplayInfoHelper.CheckDisplay().name;
     }
@@ -198,11 +209,10 @@ public static class TrayMenuHelper
     }
 
 
-    public static void WallpaperInfo(ChannelViewModel selectedChannel)
+    public static async Task GetWallpaperInfo()
     {
         // TODO 多显示器时注意
-        // sequence
-        var sequence = --CachedWallpaperSequence[selectedChannel.Id];
+        /*var sequence = --CachedWallpaperSequence[selectedChannel.Id];
         var (shardIndex, shardPositionIndex) = CalShardIndex(sequence);
         PhotosCachePageIndex photosCachePageIndex = new()
         {
@@ -212,7 +222,24 @@ public static class TrayMenuHelper
         // Key must exist
         // UnsplashCache.CachedPhotos.TryGetValue(photosCachePageIndex, out var res);
         var res = UnsplashCache.CachedPhotos[photosCachePageIndex];
-        var photo = res[shardPositionIndex];
+        var photo = res[shardPositionIndex];*/
+        if (_currentScreen is null)
+        {
+            CheckPointer();
+        }
+
+        if (!CurrentWallpaper.TryGetValue(_currentScreen!, out var photoId)) return;
+        // Photos cached by collectionId do not contain downloads info 
+        var httpService = IHttpClient.GetUnsplashHttpService();
+        if (await httpService.GetPhotoInfoById(photoId) is { } photo)
+        {
+            var trayViewModel = Application.Current.Resources["TrayViewModel"] as TrayViewModel;
+            
+            trayViewModel!.AboutWallpaper.WallpaperLikes = (int)photo.Likes;
+            trayViewModel.AboutWallpaper.WallpaperDownloads = (int)photo.Downloads;
+            trayViewModel.AboutWallpaper.WallpaperAuthor = photo.User.Name;
+            trayViewModel.AboutWallpaper.AuthorProfile = photo.User.Links.Html.OriginalString;
+        }
     }
 
     public static async void PreviousWallpaper()
@@ -220,17 +247,17 @@ public static class TrayMenuHelper
         // TODO 多显示器时注意
         // Do nothing when stack is empty or stack has only current wallpaper
         // This happens when app starts up
-        if (_wallpaperHistory.Count <= 1) return;
-        _wallpaperHistory.Pop();
-        var path = _wallpaperHistory.Peek();
+        if (WallpaperHistory.Count <= 1) return;
+        WallpaperHistory.Pop();
+        var path = WallpaperHistory.Peek();
         await WallpaperUtil.SetWallpaper(null, path);
     }
 
     public static bool DownloadCurrentWallpaper(string dest)
     {
         // TODO 多显示器时注意
-        if (_wallpaperHistory.Count < 1) return false;
-        var path = _wallpaperHistory.Peek();
+        if (WallpaperHistory.Count < 1) return false;
+        var path = WallpaperHistory.Peek();
         FileUtils.CopyFileToDir(path, dest);
         return true;
     }

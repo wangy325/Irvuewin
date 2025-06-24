@@ -108,7 +108,7 @@ namespace Irvuewin.Controls
                 Image icon = new()
                 {
                     Source = new BitmapImage(
-                        new Uri("pack://application:,,,/Irvuewin;component/icons/settings/folder.ico")),
+                        new Uri("pack://application:,,,/Irvuewin;component/icons/settings/folder_line.ico")),
                     Width = iconSize,
                     Height = iconSize,
                     Margin = new Thickness(0, 0, 0, 0)

@@ -13,9 +13,9 @@
     Background="WhiteSmoke" ShowInTaskbar="False" ResizeMode="NoResize"
     WindowStartupLocation="CenterScreen">
 
-    <helpers:LocationAwareWindow.DataContext>
+    <!--<helpers:LocationAwareWindow.DataContext>
         <StaticResource ResourceKey="ChannelsViewModel" />
-    </helpers:LocationAwareWindow.DataContext>
+    </helpers:LocationAwareWindow.DataContext>-->
 
     <helpers:LocationAwareWindow.Resources>
         <ResourceDictionary>

@@ -19,18 +19,20 @@ namespace Irvuewin
     {
         private TaskbarIcon? _taskbarIcon;
         private bool _isExit;
+        private ChannelsViewModel? _channelsViewModel;
 
-        protected override void OnStartup(StartupEventArgs e)
+        protected override async void OnStartup(StartupEventArgs e)
         {
-            base.OnStartup(e);
-            if (FindResource("NotifyIcon") is TaskbarIcon taskbarIcon)
-                _taskbarIcon = taskbarIcon;
-
             // AutoMapper config
             var config = new MapperConfiguration(cfg =>
                 cfg.CreateMap<UnsplashChannel, ChannelViewModel>());
             var mapper = config.CreateMapper();
             MapperProvider.Mapper = mapper;
+            
+            // Create ChannelsViewModel singleton instance
+            _channelsViewModel = await ChannelsViewModel.GetChannelsViewModelInstance();
+            Resources.Add("ChannelsViewModel", _channelsViewModel);
+
 
             // Load wallpaper sequence cache
             // 启动时若未启用随机壁纸则加载序列缓存
@@ -38,11 +40,18 @@ namespace Irvuewin
             Console.WriteLine($@"RandomWallpaper: {randomWallpaper}");
             if (!randomWallpaper)
             {
-                TrayMenuHelper.LoadCachedSequence();
+                await TrayMenuHelper.LoadCachedSequence();
             }
 
-            var trayViewModel = Current.Resources["TrayViewModel"] as TrayViewModel;
-            Console.WriteLine($@"trayViewModel: {trayViewModel?.WallpaperInfo.WallpaperLikes}");
+            // _channelsViewModel= (Current.Resources["ChannelsViewModel"] as ChannelsViewModel)!;
+            // Change wallpaper when app start
+            await TrayMenuHelper.ChangeCurrentWallpaper(_channelsViewModel.SelectedChannel);
+            // Init Wallpaper info when app start
+            // await TrayMenuHelper.GetWallpaperInfo();
+            
+            if (FindResource("NotifyIcon") is TaskbarIcon taskbarIcon)
+                _taskbarIcon = taskbarIcon;
+            base.OnStartup(e);
         }
 
         protected override void OnExit(ExitEventArgs e)
@@ -57,25 +66,15 @@ namespace Irvuewin
         }
 
         //----------------------------------- TrayMenu ---------------------------------//
-        private void AboutCurrentWallpaper_Click(object sender, RoutedEventArgs e)
-        {
-            var viewModel = Current.Resources["ChannelsViewModel"] as ChannelsViewModel;
-            var selectedChannel = viewModel?.SelectedChannel!;
-            TrayMenuHelper.WallpaperInfo(selectedChannel);
-        }
 
-        private void ChangeCurrentWallpaper_Click(object sender, RoutedEventArgs args)
+        private async void ChangeCurrentWallpaper_Click(object sender, RoutedEventArgs args)
         {
-            var viewModel = Current.Resources["ChannelsViewModel"] as ChannelsViewModel;
-            var selectedChannel = viewModel?.SelectedChannel!;
-            TrayMenuHelper.ChangeCurrentWallpaper(selectedChannel);
+            await TrayMenuHelper.ChangeCurrentWallpaper(_channelsViewModel!.SelectedChannel);
         }
 
         private void ChangeAllWallpaper_Click(object sender, RoutedEventArgs e)
         {
-            var viewModel = Current.Resources["ChannelsViewModel"] as ChannelsViewModel;
-            var selectedChannel = viewModel?.SelectedChannel!;
-            TrayMenuHelper.ChangeAllWallpaper(selectedChannel);
+            TrayMenuHelper.ChangeAllWallpaper(_channelsViewModel!.SelectedChannel);
         }
 
         private void LoadPreviousWallpaper_Click(object sender, RoutedEventArgs e)
@@ -95,10 +94,6 @@ namespace Irvuewin
         }
 
         //----------------------------- Channels ---------------------------//
-        private void AddNewChannel_Click(object sender, RoutedEventArgs e)
-        {
-            // TODO Add new channel
-        }
 
         // 打开频道管理页
         private void ManageChannel_Click(object sender, RoutedEventArgs e)
