@@ -75,7 +75,7 @@
 
         <TabControl Grid.Row="0" Margin="20" BorderThickness="0" Background="WhiteSmoke">
             <TabItem Header="通用"
-                     helpers:TabItemHelper.IconSource="/Icons/settings/general.ico"
+                     helpers:TabItemHelper.IconSource="/Icons/Settings/general.ico"
                      Style="{StaticResource TabStyle}">
                 <Grid>
                     <Grid.RowDefinitions>
@@ -220,7 +220,7 @@
                 </Grid>
             </TabItem>
             <TabItem Header="过滤"
-                     helpers:TabItemHelper.IconSource="/Icons/settings/filter.ico"
+                     helpers:TabItemHelper.IconSource="/Icons/Settings/filter.ico"
                      Style="{StaticResource TabStyle}">
                 <Grid>
                     <Grid.RowDefinitions>
@@ -294,7 +294,7 @@
                 </Grid>
             </TabItem>
             <TabItem Header="关于"
-                     helpers:TabItemHelper.IconSource="/Icons/settings/about.ico"
+                     helpers:TabItemHelper.IconSource="/Icons/Settings/about.ico"
                      Style="{StaticResource TabStyle}">
                 <Grid Margin="10">
                     <Label Content="An Irvue like application for Windows..." />

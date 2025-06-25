@@ -148,7 +148,7 @@
 
             <tb:TaskbarIcon x:Key="NotifyIcon"
                             ToolTipText="Irvuewin"
-                            IconSource="/Icons/tray.ico"
+                            IconSource="/Icons/Tray.ico"
                             TrayLeftMouseUp="TrayMouseLeft_Click">
 
                 <tb:TaskbarIcon.ContextMenu>
@@ -172,7 +172,7 @@
                                       IsCheckable="False"
                                       IsEnabled="False">
                                 <MenuItem.Icon>
-                                    <Image Source="/Icons/tray/like.ico"
+                                    <Image Source="/Icons/Tray/like.ico"
                                            Width="16" Height="16"
                                            VerticalAlignment="Center" />
                                 </MenuItem.Icon>
@@ -185,7 +185,7 @@
                             </MenuItem>
                             <MenuItem IsEnabled="False" IsCheckable="False">
                                 <MenuItem.Icon>
-                                    <Image Source="/Icons/tray/download_bold.ico"
+                                    <Image Source="/Icons/Tray/download_bold.ico"
                                            Width="16" Height="16"
                                            VerticalAlignment="Center" />
                                 </MenuItem.Icon>
@@ -204,7 +204,7 @@
                                              Content="{Binding Source={StaticResource TrayViewModel}, Path=AboutWallpaper.Location}" />
                                 </MenuItem.ToolTip>
                                 <MenuItem.Icon>
-                                    <Image Source="/Icons/tray/location_bold.ico"
+                                    <Image Source="/Icons/Tray/location_bold.ico"
                                            Width="16" Height="16"
                                            VerticalAlignment="Center" />
                                 </MenuItem.Icon>
@@ -220,7 +220,7 @@
                             <MenuItem
                                 Command="{Binding Source={StaticResource TrayViewModel}, Path=AuthorInfoPageOpenCommand }">
                                 <MenuItem.Icon>
-                                    <Image Source="/Icons/tray/author.ico"
+                                    <Image Source="/Icons/Tray/author.ico"
                                            Width="16" Height="16"
                                            VerticalAlignment="Center" />
                                 </MenuItem.Icon>
@@ -235,7 +235,7 @@
                             <MenuItem Margin="0, 0,0,10"
                                       Command="{Binding Source={StaticResource TrayViewModel}, Path=WallpaperInfoPageOpenCommand }">
                                 <MenuItem.Icon>
-                                    <Image Source="/Icons/tray/photo.ico"
+                                    <Image Source="/Icons/Tray/photo.ico"
                                            Width="16" Height="16"
                                            VerticalAlignment="Center" />
                                 </MenuItem.Icon>

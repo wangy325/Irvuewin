@@ -30,74 +30,68 @@
     <Resource Include="Icons\application_64.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="Icons\channels\default_channel.ico">
+    <Resource Include="Icons\Channels\default_channel.ico">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="Icons\channels\link.ico">
+    <Resource Include="Icons\Channels\link.ico">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="Icons\settings\about.ico">
+    <Resource Include="Icons\Settings\about.ico">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="Icons\settings\filter.ico">
+    <Resource Include="Icons\Settings\filter.ico">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="Icons\settings\folder.ico">
+    <Resource Include="Icons\Settings\folder.ico">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="Icons\settings\general.ico">
+    <Resource Include="Icons\Settings\general.ico">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
     <Resource Include="Icons\tray.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
     <None Remove="Icons\channels\eye.ico" />
-    <Resource Include="Icons\channels\eye.ico">
+    <Resource Include="Icons\Channels\eye.ico">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
     <None Remove="Icons\settings\folder_line.ico" />
-    <Resource Include="Icons\settings\folder_line.ico">
+    <Resource Include="Icons\Settings\folder_line.ico">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
     <None Remove="Icons\download.ico" />
     <None Remove="Icons\like.ico" />
-    <Resource Include="Icons\tray\download.ico">
+    <Resource Include="Icons\Tray\download.ico">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="Icons\tray\like.ico">
+    <Resource Include="Icons\Tray\like.ico">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
     <None Remove="Icons\settings\folder_fill.ico" />
-    <Resource Include="Icons\settings\folder_fill.ico">
+    <Resource Include="Icons\Settings\folder_fill.ico">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
     <None Remove="Icons\tray\location.ico" />
-    <Resource Include="Icons\tray\location.ico">
+    <Resource Include="Icons\Tray\location.ico">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
     <None Remove="Icons\tray\photo.ico" />
     <None Remove="Icons\tray\user.ico" />
     <None Remove="Icons\tray\author.ico" />
-    <Resource Include="Icons\tray\author.ico">
+    <Resource Include="Icons\Tray\author.ico">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
     <None Remove="Icons\tray\Pictogrammers-Material-Image.ico" />
-    <Resource Include="Icons\tray\photo.ico">
+    <Resource Include="Icons\Tray\photo.ico">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
     <None Remove="Icons\tray\Pictogrammers-Material-Download.ico" />
-    <Resource Include="Icons\tray\download_bold.ico">
+    <Resource Include="Icons\Tray\download_bold.ico">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
     <None Remove="Icons\tray\Ionic-Ionicons-Location-sharp.ico" />
-    <Resource Include="Icons\tray\location_bold.ico">
+    <Resource Include="Icons\Tray\location_bold.ico">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Resource>
-    <Page Remove="Themes\Generic.xaml" />
-    <Resource Include="Themes\Generic.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <XamlRuntime>Wpf</XamlRuntime>
-      <SubType>Designer</SubType>
     </Resource>
   </ItemGroup>
 

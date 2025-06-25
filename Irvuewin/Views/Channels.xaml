@@ -209,7 +209,7 @@
                                         Background="WhiteSmoke"
                                         Click="Channels_Detail_Click"
                                         Style="{StaticResource ButtonStyle}">
-                                    <Image Source="/Icons/channels/link.ico" Width="10" />
+                                    <Image Source="/Icons/Channels/link.ico" Width="10" />
                                 </Button>
                             </StackPanel>
                         </Label.Content>
