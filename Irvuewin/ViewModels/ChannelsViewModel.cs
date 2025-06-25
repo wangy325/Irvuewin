@@ -36,7 +36,6 @@ public class ChannelsViewModel : INotifyPropertyChanged
     }
 
     // private int ShardIndex { get; set; } = 1;
-    private static int PageSize { get; set; } = 12;
     private bool IsBusy { get; set; } = false;
     private UnsplashQueryParams DefaultQuery { get; set; }
     public ICommand ItemSelected { get; set; }
@@ -99,7 +98,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
             DefaultQuery = new UnsplashQueryParams
             {
                 Page = 1,
-                PerPage = PageSize,
+                PerPage = IAppConst.PageSize,
                 Orientation = Properties.Settings.Default.WallpaperOrientation
             }
         };
@@ -253,7 +252,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
             UnsplashQueryParams query = new()
             {
                 Page = _shardIndex[SelectedChannel.Id],
-                PerPage = PageSize,
+                PerPage = IAppConst.PageSize,
                 Orientation = Properties.Settings.Default.WallpaperOrientation
             };
             AllPhotosLoaded = !await LoadPhotos(SelectedChannel.Id, query, true);

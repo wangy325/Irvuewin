@@ -60,12 +60,44 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
     <None Remove="Icons\download.ico" />
-    <Resource Include="Icons\download.ico">
+    <None Remove="Icons\like.ico" />
+    <Resource Include="Icons\tray\download.ico">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
-    <None Remove="Icons\like.ico" />
-    <Resource Include="Icons\like.ico">
+    <Resource Include="Icons\tray\like.ico">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <None Remove="Icons\settings\folder_fill.ico" />
+    <Resource Include="Icons\settings\folder_fill.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <None Remove="Icons\tray\location.ico" />
+    <Resource Include="Icons\tray\location.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <None Remove="Icons\tray\photo.ico" />
+    <None Remove="Icons\tray\user.ico" />
+    <None Remove="Icons\tray\author.ico" />
+    <Resource Include="Icons\tray\author.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <None Remove="Icons\tray\Pictogrammers-Material-Image.ico" />
+    <Resource Include="Icons\tray\photo.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <None Remove="Icons\tray\Pictogrammers-Material-Download.ico" />
+    <Resource Include="Icons\tray\download_bold.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <None Remove="Icons\tray\Ionic-Ionicons-Location-sharp.ico" />
+    <Resource Include="Icons\tray\location_bold.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Page Remove="Themes\Generic.xaml" />
+    <Resource Include="Themes\Generic.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <XamlRuntime>Wpf</XamlRuntime>
+      <SubType>Designer</SubType>
     </Resource>
   </ItemGroup>
 
@@ -115,11 +147,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Page Update="Themes\Generic.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <XamlRuntime>Wpf</XamlRuntime>
-      <SubType>Designer</SubType>
-    </Page>
     <Page Update="Views\Channels.xaml">
       <Generator>MSBuild:Compile</Generator>
       <XamlRuntime>Wpf</XamlRuntime>

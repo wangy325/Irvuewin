@@ -7,6 +7,7 @@
     xmlns:controls="clr-namespace:Irvuewin.Controls"
     xmlns:helpers="clr-namespace:Irvuewin.Helpers"
     xmlns:viewModels="clr-namespace:Irvuewin.ViewModels"
+    xmlns:converters="clr-namespace:Irvuewin.Helpers.Converters"
     mc:Ignorable="d"
     Title="Settings" Icon="/Icons/application_64.ico"
     Height="450" Width="350" MinWidth="200" MaxWidth="350"
@@ -24,6 +25,45 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="/Themes/Generic.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            
+            <converters:ByteToBooleanConverter x:Key="Byte2BoolConverter" />
+            <converters:FloatToStringConverter x:Key="Float2StringConverter" />
+            
+            <!-- wallpaper save path display style -->
+            <Style TargetType="{x:Type controls:PathDisplayControl}">
+                <Setter Property="Foreground" Value="Gray" />
+                <Setter Property="Background" Value="Transparent" />
+                <Setter Property="BorderThickness" Value="0" />
+                <Setter Property="BorderBrush" Value="WhiteSmoke" />
+                <Setter Property="Height" Value="Auto" />
+                <Setter Property="MinHeight" Value="25" />
+                <Setter Property="Padding" Value="5" />
+                <Setter Property="Margin" Value="5, 0" />
+                <Setter Property="VerticalContentAlignment" Value="Center" />
+                <Setter Property="HorizontalContentAlignment" Value="Center" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="{x:Type controls:PathDisplayControl}">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <Border Background="{TemplateBinding Background}"
+                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                        BorderThickness="{TemplateBinding BorderThickness}"
+                                        Padding="{TemplateBinding Padding}" />
+                                <ScrollViewer Grid.Row="0" Grid.Column="0"
+                                              HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Hidden">
+                                    <StackPanel x:Name="PART_Panel" Orientation="Horizontal" />
+                                </ScrollViewer>
+                            </Grid>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
         </ResourceDictionary>
     </helpers:LocationAwareWindow.Resources>
 
@@ -148,7 +188,7 @@
 
                     <controls:PathDisplayControl Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="5"
                                                  x:Name="PathDisplayControl"
-                                                 HorizontalAlignment="Left"
+                                                 HorizontalAlignment="Center"
                                                  VerticalAlignment="Center"
                                                  Width="286"
                                                  FullPath="{Binding WallpaperSavedPath}">
@@ -257,7 +297,7 @@
                      helpers:TabItemHelper.IconSource="/Icons/settings/about.ico"
                      Style="{StaticResource TabStyle}">
                 <Grid Margin="10">
-                    <Label Content="An Irvue like application for Window..." />
+                    <Label Content="An Irvue like application for Windows..." />
                 </Grid>
             </TabItem>
         </TabControl>

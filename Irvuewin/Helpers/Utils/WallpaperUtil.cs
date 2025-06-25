@@ -18,7 +18,7 @@ namespace Irvuewin.Helpers.Utils
         private const uint SPIF_UPDATEINIFILE = 0x01; // 将修改写入用户配置文件 WIN.INI (虽然现代Windows不完全依赖它,但习惯上设置)
 
         private const uint SPIF_SENDCHANGE = 0x02; // 广播 WM_SETTINGCHANGE 消息通知其他应用壁纸已更改
-        
+
         public static async Task<string?> SetWallpaper(UnsplashPhoto? photo, string? path = null)
         {
             using (var key = Registry.CurrentUser.CreateSubKey(@"Control Panel\Desktop", true)!)
@@ -66,6 +66,7 @@ namespace Irvuewin.Helpers.Utils
             }
 
             if (photo == null) throw new ArgumentNullException($"Photo can't be null.");
+            // download photo
             var imagePath = await GetWallpaper(photo);
             if (imagePath != null)
             {
@@ -88,12 +89,7 @@ namespace Irvuewin.Helpers.Utils
             // image name
             var imageName = photo.Id + fileExtension;
             var localImagePath = Path.Combine(dir, imageName);
-            if (File.Exists(localImagePath))
-            {
-                // Console.WriteLine(@"Wallpaper already exists, skipping download.");
-                return localImagePath;
-            }
-
+            if (File.Exists(localImagePath)) return localImagePath;
             // Fetch from web
             using HttpClient httpClient = new();
             // TODO Crop photo

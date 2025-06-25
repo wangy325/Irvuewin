@@ -10,7 +10,8 @@ namespace Irvuewin.Models
     {
         // TODO Necessary?
         // public static List<UnsplashChannel> CachedChannels = [];
-        public static readonly Dictionary<PhotosCachePageIndex, List<UnsplashPhoto>> CachedPhotos = new();
+        // This may take huge memory usage
+        // public static readonly Dictionary<PhotosCachePageIndex, List<UnsplashPhoto>> CachedPhotos = new();
 
 
         public static async Task CacheChannelsAsync(List<UnsplashChannel> channels)
@@ -45,7 +46,6 @@ namespace Irvuewin.Models
                 var channels = JsonConvert.DeserializeObject<List<UnsplashChannel>>(
                     channelString,
                     JsonHelper.Settings) ?? [];
-                // Console.WriteLine($@"Loaded {channels.Count} channels from cache");
                 return channels;
             }
             catch (Exception e)
@@ -57,7 +57,7 @@ namespace Irvuewin.Models
 
         public static async Task CachePhotosAsync(PhotosCachePageIndex index, List<UnsplashPhoto> photos)
         {
-            CachedPhotos[index] = photos;
+            // CachedPhotos[index] = photos;
             try
             {
                 // Full path name: appDataFolder/photos/channelId/filename
@@ -84,18 +84,16 @@ namespace Irvuewin.Models
             try
             {
                 var photoString = await File.ReadAllTextAsync(filePath);
-                CachedPhotos[index] = JsonConvert.DeserializeObject<List<UnsplashPhoto>>(
+                /*CachedPhotos[index] = JsonConvert.DeserializeObject<List<UnsplashPhoto>>(
                     photoString,
-                    JsonHelper.Settings) ?? [];
+                    JsonHelper.Settings) ?? [];*/
                 // Console.WriteLine(
                 //     $@"Loaded {CachedPhotos[index].Count} photos from cache for channel {index.ChannelId}:{index.PageIndex}");
-                return CachedPhotos[index];
-                /*var photos =  JsonConvert.DeserializeObject<List<UnsplashPhoto>>(
+                // return CachedPhotos[index];
+                var photos =  JsonConvert.DeserializeObject<List<UnsplashPhoto>>(
                     photoString,
                     JsonHelper.Settings) ?? [];
-                Console.WriteLine(
-                    $@"Loaded {photos.Count} photos from cache for channel {index.ChannelId}:{index.PageIndex}");
-                return photos;*/
+                return photos;
             }
             catch (Exception e)
             {
@@ -144,7 +142,7 @@ namespace Irvuewin.Models
         public static void UncacheChannelPhotos(string channelId)
         {
             // Remove cached photos sharding
-            var keysToRemove = CachedPhotos
+            /*var keysToRemove = CachedPhotos
                 .Where(pair => pair.Key.ChannelId == channelId)
                 .Select(pair => pair.Key)
                 .ToList();
@@ -152,7 +150,8 @@ namespace Irvuewin.Models
             foreach (var key in keysToRemove)
             {
                 CachedPhotos.Remove(key);
-            }
+            }*/
+
             // Remove disk caches
             var dir = Path.Combine(FileUtils.CachedPhotoBaseFolder, channelId);
             FileUtils.DeleteFolder(dir);
@@ -161,8 +160,8 @@ namespace Irvuewin.Models
 
     public class PhotosCachePageIndex
     {
-        public required string ChannelId { get; set; }
-        public required int PageIndex { get; set; }
+        public required string ChannelId { get; init; }
+        public required int PageIndex { get; init; }
 
         public override bool Equals(object? obj)
         {

@@ -126,11 +126,11 @@ public static class TrayMenuHelper
 
         // _currentScreen is null once app started
         CheckPointer();
-        
-        // var res = await UnsplashCache.LoadPhotosAsync(photosCache);
+
+        // wallpaper file cache path
         string? path;
         UnsplashPhoto? photo;
-        if (UnsplashCache.CachedPhotos.TryGetValue(photosCachePageIndex, out var res))
+        if (await UnsplashCache.LoadPhotosAsync(photosCachePageIndex) is { } res)
         {
             // Console.WriteLine(@">>> Set wallpaper from cache.");
             photo = res[shardPositionIndex];
@@ -140,7 +140,7 @@ public static class TrayMenuHelper
         {
             // Console.WriteLine(@">>> Set wallpaper from web.");
             const int pageSize = 10;
-            var httpService = new UnsplashHttpService(new UnsplashHttpClientWrapper());
+            var httpService = IHttpClient.GetUnsplashHttpService();
             if (random)
             {
                 photo = await httpService.GetRandomPhotoInChannel(channel.Id);
@@ -180,18 +180,17 @@ public static class TrayMenuHelper
 
     private static (int shardIndex, int shardPositionIndex) CalShardIndex(int sequence)
     {
-        const int pageSize = 10;
         int shardIndex, shardPositionIndex;
         // Index starts from 1
-        if (sequence % pageSize == 0)
+        if (sequence % IAppConst.PageSize == 0)
         {
-            shardIndex = sequence / pageSize;
-            shardPositionIndex = pageSize - 1;
+            shardIndex = sequence / IAppConst.PageSize;
+            shardPositionIndex = IAppConst.PageSize - 1;
         }
         else
         {
-            shardIndex = sequence / pageSize + 1;
-            shardPositionIndex = sequence % pageSize - 1;
+            shardIndex = sequence / IAppConst.PageSize + 1;
+            shardPositionIndex = sequence % IAppConst.PageSize - 1;
         }
 
         return (shardIndex, shardPositionIndex);
@@ -211,18 +210,7 @@ public static class TrayMenuHelper
 
     public static async Task GetWallpaperInfo()
     {
-        // TODO 多显示器时注意
-        /*var sequence = --CachedWallpaperSequence[selectedChannel.Id];
-        var (shardIndex, shardPositionIndex) = CalShardIndex(sequence);
-        PhotosCachePageIndex photosCachePageIndex = new()
-        {
-            ChannelId = selectedChannel.Id,
-            PageIndex = shardIndex
-        };
-        // Key must exist
-        // UnsplashCache.CachedPhotos.TryGetValue(photosCachePageIndex, out var res);
-        var res = UnsplashCache.CachedPhotos[photosCachePageIndex];
-        var photo = res[shardPositionIndex];*/
+        // TODO 多显示器
         if (_currentScreen is null)
         {
             CheckPointer();
@@ -234,17 +222,19 @@ public static class TrayMenuHelper
         if (await httpService.GetPhotoInfoById(photoId) is { } photo)
         {
             var trayViewModel = Application.Current.Resources["TrayViewModel"] as TrayViewModel;
-            
-            trayViewModel!.AboutWallpaper.WallpaperLikes = (int)photo.Likes;
-            trayViewModel.AboutWallpaper.WallpaperDownloads = (int)photo.Downloads;
-            trayViewModel.AboutWallpaper.WallpaperAuthor = photo.User.Name;
-            trayViewModel.AboutWallpaper.AuthorProfile = photo.User.Links.Html.OriginalString;
+
+            trayViewModel!.AboutWallpaper.Likes = photo.Likes.ToString();
+            trayViewModel.AboutWallpaper.Downloads = photo.Downloads.ToString();
+            trayViewModel.AboutWallpaper.Location = photo.Location.Name;
+            trayViewModel.AboutWallpaper.ProfileLink = photo.Links.Html.OriginalString;
+            trayViewModel.AboutWallpaper.Author = photo.User.Name;
+            trayViewModel.AboutWallpaper.AuthorProfilePageLink = photo.User.Links.Html.OriginalString;
         }
     }
 
+    // TODO 多显示器
     public static async void PreviousWallpaper()
     {
-        // TODO 多显示器时注意
         // Do nothing when stack is empty or stack has only current wallpaper
         // This happens when app starts up
         if (WallpaperHistory.Count <= 1) return;
@@ -255,7 +245,6 @@ public static class TrayMenuHelper
 
     public static bool DownloadCurrentWallpaper(string dest)
     {
-        // TODO 多显示器时注意
         if (WallpaperHistory.Count < 1) return false;
         var path = WallpaperHistory.Peek();
         FileUtils.CopyFileToDir(path, dest);

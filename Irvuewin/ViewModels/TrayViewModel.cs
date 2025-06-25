@@ -66,7 +66,24 @@ public class TrayViewModel : INotifyPropertyChanged
     public ICommand SaveCachedSequence { get; } = new RelayCommand<object>(OnSaveCachedSequence);
     public ICommand OpenAddChannelWindowCommand { get; } = new RelayCommand<object>(OnAddNeeChannel);
     // TODO Constructor initialization
-    public ICommand AuthorPageOpenCommand => new RelayCommand<object>(OnAuthorNameClicked);
+    public ICommand AuthorInfoPageOpenCommand => new RelayCommand<object>(OnAuthorNameClicked);
+    public ICommand WallpaperInfoPageOpenCommand => new RelayCommand<object>(OnWallpaperInfoClicked);
+
+    private void OnWallpaperInfoClicked(object obj)
+    {
+        try
+        {
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+            {
+                FileName = AboutWallpaper.ProfileLink,
+                UseShellExecute = true
+            });
+        }
+        catch (Exception ex)
+        {
+            // Ignore
+        }
+    }
 
     private void OnAuthorNameClicked(object obj)
     {
@@ -74,7 +91,7 @@ public class TrayViewModel : INotifyPropertyChanged
         {
             System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
             {
-                FileName = AboutWallpaper.AuthorProfile,
+                FileName = AboutWallpaper.AuthorProfilePageLink,
                 UseShellExecute = true
             });
         }
@@ -118,41 +135,55 @@ public class TrayViewModel : INotifyPropertyChanged
 public class WallpaperInfo : INotifyPropertyChanged
 {
 
-    private int _wallpaperLikes;
-    public int WallpaperLikes { get => _wallpaperLikes;
+    private string _likes;
+    public string Likes { get => _likes;
         set
         {
-            _wallpaperLikes = value;
+            _likes = $"{value} Likes";
             OnPropertyChanged();
         }
     }
     
-    private int _wallpaperDownloads;
-    public int WallpaperDownloads { get=>_wallpaperDownloads;
+    private string _downloads;
+    public string Downloads { get=>_downloads;
         set
         {
-            _wallpaperDownloads = value;
+            _downloads = $"{value} Downloads";
             OnPropertyChanged();
         }
     }
-    
-    public string Author { get; set; }
-    
-    private string _wallpaperAuthor ;
 
-    public string WallpaperAuthor
+    public static string Profile { get; } = "Wallpaper Details...";
+
+    public string ProfileLink { get; set; }
+
+
+    private string _author ;
+
+    public string Author
     {
-        get => _wallpaperAuthor;
+        get => _author;
         set
         {
-            _wallpaperAuthor = $"Photo by {value}";
+            _author = $"Photo by {value}";
             OnPropertyChanged();
         }
     }
-    // public string WallpaperAuthor => $"Photo by {Author}";
     
     // https://unsplash.com/@parentrap/collections
-    public string AuthorProfile { get; set; }
+    public string AuthorProfilePageLink { get; set; }
+
+    private string _location;
+    
+    public string Location
+    {
+        get => _location;
+        set
+        {
+            _location = value;
+            OnPropertyChanged();
+        }
+    }
 
     public event PropertyChangedEventHandler? PropertyChanged;
 

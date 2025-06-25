@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using Irvuewin.Helpers;
 
 namespace Irvuewin.ViewModels;
 
@@ -97,7 +98,9 @@ public class SettingsViewModel: INotifyPropertyChanged
 
         public string WallpaperSavedPath
         {
-            get => _wallpaperSavedPath;
+            get => string.IsNullOrWhiteSpace(_wallpaperSavedPath) 
+                ? IAppConst.DefaultWallpaperDownloadDir
+                : _wallpaperSavedPath;
             set
             {
                 if (_wallpaperSavedPath == value) return;
