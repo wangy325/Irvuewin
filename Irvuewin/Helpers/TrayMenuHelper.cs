@@ -16,6 +16,7 @@ namespace Irvuewin.Helpers;
 ///</summary>
 public static class TrayMenuHelper
 {
+    // Wallpaper history(file path) stack
     private static readonly Stack<string> WallpaperHistory = new(10);
 
     private static int _sequenceModify;
@@ -212,7 +213,7 @@ public static class TrayMenuHelper
     }
 
 
-    public static async Task GetWallpaperInfo()
+    private static async Task GetWallpaperInfo()
     {
         // TODO 多显示器
         if (_currentScreen is null)
@@ -256,20 +257,70 @@ public static class TrayMenuHelper
     }
     
     public static Timer? WallpaperTimer;
-    public static void InitWallpaperChangeSchedule()
+    
+    public static void InitWallpaperChangeScheduler()
     { 
         // ms
-        var interval = Properties.Settings.Default.WallpaperChangeInterval * 60 * 1000;
+        var interval = Properties.Settings.Default.WallpaperChangeInterval;
+        if (interval <= 0) return;
 
-        // 初始化定时器
-        WallpaperTimer = new Timer(interval);
+        WallpaperTimer = new Timer(interval* 60 * 1000);
         WallpaperTimer.Elapsed += OnWallpaperTimerElapsed;
         WallpaperTimer.AutoReset = true;
         WallpaperTimer.Enabled = true;
+        UpdateNextWallpaperChangeTriggerTime(interval);
     }
 
-    private static void OnWallpaperTimerElapsed(object? sender, ElapsedEventArgs e)
+    public static void UpdateWallpaperChangeScheduler()
     {
-        throw new NotImplementedException();
+        var trayViewModel = Application.Current.Resources["TrayViewModel"] as TrayViewModel;
+        var interval = Properties.Settings.Default.WallpaperChangeInterval;
+        // non zero -> 0
+        if (interval <= 0)
+        {
+            // Release Timer
+            WallpaperTimer?.Stop();
+            WallpaperTimer = null;
+            trayViewModel!.NextWallpaperChangeTime = DateTimeOffset.MinValue;
+            return;
+        }
+        // 0 -> non zero
+        if (WallpaperTimer == null)
+        {
+            InitWallpaperChangeScheduler();
+            return;
+        }
+        
+        WallpaperTimer.Stop();
+        WallpaperTimer.Interval = interval * 60 * 1000;
+        WallpaperTimer.Start();
+        UpdateNextWallpaperChangeTriggerTime(interval);
+    }
+
+    private static void UpdateNextWallpaperChangeTriggerTime(ushort interval)
+    {
+        var trayViewModel = Application.Current.Resources["TrayViewModel"] as TrayViewModel;
+        var nextTrigger = DateTimeOffset.Now.AddMinutes(interval);
+        trayViewModel!.NextWallpaperChangeTime = nextTrigger;
+        Console.WriteLine($@"next trigger: {trayViewModel.NextWallpaperChangeTime:yyyy-MM-dd HH:mm:ss}");
+        /*Application.Current.Dispatcher.InvokeAsync(() =>
+        {
+            trayViewModel!.NextWallpaperChangeTime = DateTimeOffset.Now.AddMilliseconds(interval);
+        });*/
+    }
+
+    private static async void OnWallpaperTimerElapsed(object? sender, ElapsedEventArgs e)
+    {
+        try
+        {
+            // ChangeAllWallpaper();
+            Console.WriteLine($@"{DateTimeOffset.Now:yyyy-MM-dd HH:mm:ss}: scheduled wallpaper change");
+            await ChangeCurrentWallpaper();
+            UpdateNextWallpaperChangeTriggerTime(Properties.Settings.Default.WallpaperChangeInterval);
+        }
+        catch (Exception ex)
+        {
+            // ignored
+        }
     }
 }

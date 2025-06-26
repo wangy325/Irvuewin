@@ -51,8 +51,9 @@ namespace Irvuewin
 
             // Change wallpaper when app start
             await TrayMenuHelper.ChangeCurrentWallpaper();
-            // Init Wallpaper info when app start
-            // await TrayMenuHelper.GetWallpaperInfo();
+            
+            // Init wallpaper change schedule Timer
+            TrayMenuHelper.InitWallpaperChangeScheduler();
 
             if (FindResource("NotifyIcon") is TaskbarIcon taskbarIcon)
                 _taskbarIcon = taskbarIcon;
@@ -136,6 +137,8 @@ namespace Irvuewin
             ushort.TryParse(clickedItem.Tag as string, out var result);
             Irvuewin.Properties.Settings.Default.WallpaperChangeInterval = result;
             Irvuewin.Properties.Settings.Default.Save();
+            // update Timer
+            TrayMenuHelper.UpdateWallpaperChangeScheduler();
         }
 
         //------------------------------------ Settings --------------------------------//

@@ -1,5 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Windows.Forms;
 using System.Windows.Input;
@@ -21,8 +22,9 @@ public class TrayViewModel : INotifyPropertyChanged
     public static string HAboutCurrentWallpaper { get; } = "About Wallpaper";
 
     private WallpaperInfo _aboutWallpaper = new();
-    public WallpaperInfo AboutWallpaper 
-    { 
+
+    public WallpaperInfo AboutWallpaper
+    {
         get => _aboutWallpaper;
         set
         {
@@ -46,8 +48,8 @@ public class TrayViewModel : INotifyPropertyChanged
     public static string HChangeAllWallpaper { get; } = "Change All Wallpaper";
     public static string HPreviousWallpaper { get; } = "Previous Wallpaper";
     public static string HDownloadWallpaper { get; } = "Download Wallpaper";
-    
-    public static int IntervalsItemCount => Intervals.Count; 
+
+    public static int IntervalsItemCount => Intervals.Count;
 
     public static string HChannelSelector { get; } = "Channels";
     public static string HManageChannel { get; } = "Manage Channel";
@@ -59,12 +61,29 @@ public class TrayViewModel : INotifyPropertyChanged
     public static string HSettings { get; } = "Settings";
 
     public static string HExit { get; } = "Exit";
-    
-    
+
+    private DateTimeOffset _nextWallpaperChangeTime;
+
+    public DateTimeOffset NextWallpaperChangeTime
+    {
+        get => _nextWallpaperChangeTime;
+        set
+        {
+            _nextWallpaperChangeTime = value;
+            OnPropertyChanged(nameof(NextWallpaperChangeTime));
+            Console.WriteLine($@"Next Wallpaper Change Time: {NextWallpaperChangeTime:yyyy-MM-dd HH:mm:ss}");
+        }
+    }
+
+
+    // public string NextWallpaperChangeTimeString => NextWallpaperChangeTime.ToString("yyyy-MM-dd HH:mm:ss");
+
 
     public ICommand LoadCachedSequence { get; } = new RelayCommand<object>(OnLoadCachedSequence);
     public ICommand SaveCachedSequence { get; } = new RelayCommand<object>(OnSaveCachedSequence);
+
     public ICommand OpenAddChannelWindowCommand { get; } = new RelayCommand<object>(OnAddNeeChannel);
+
     // TODO Constructor initialization
     public ICommand AuthorInfoPageOpenCommand => new RelayCommand<object>(OnAuthorNameClicked);
     public ICommand WallpaperInfoPageOpenCommand => new RelayCommand<object>(OnWallpaperInfoClicked);
@@ -126,26 +145,29 @@ public class TrayViewModel : INotifyPropertyChanged
 
     private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
     {
-        var handler = PropertyChanged;
-        handler?.Invoke(null, new PropertyChangedEventArgs(propertyName));
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
-    
 }
 
 public class WallpaperInfo : INotifyPropertyChanged
 {
-
     private string _likes;
-    public string Likes { get => _likes;
+
+    public string Likes
+    {
+        get => _likes;
         set
         {
             _likes = $"{value} Likes";
             OnPropertyChanged();
         }
     }
-    
+
     private string _downloads;
-    public string Downloads { get=>_downloads;
+
+    public string Downloads
+    {
+        get => _downloads;
         set
         {
             _downloads = $"{value} Downloads";
@@ -158,7 +180,7 @@ public class WallpaperInfo : INotifyPropertyChanged
     public string ProfileLink { get; set; }
 
 
-    private string _author ;
+    private string _author;
 
     public string Author
     {
@@ -169,12 +191,12 @@ public class WallpaperInfo : INotifyPropertyChanged
             OnPropertyChanged();
         }
     }
-    
+
     // https://unsplash.com/@parentrap/collections
     public string AuthorProfilePageLink { get; set; }
 
     private string _location;
-    
+
     public string Location
     {
         get => _location;
@@ -185,13 +207,13 @@ public class WallpaperInfo : INotifyPropertyChanged
         }
     }
 
+    // TODO UTC
     public event PropertyChangedEventHandler? PropertyChanged;
 
     protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
-    
 }
 
 public class WallpaperChangeInterval
