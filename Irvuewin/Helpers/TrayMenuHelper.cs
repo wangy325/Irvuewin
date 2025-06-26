@@ -1,9 +1,11 @@
 ﻿using System.Diagnostics;
+using System.Timers;
 using System.Windows;
 using Irvuewin.Helpers.Utils;
 using Irvuewin.Models;
 using Irvuewin.Models.Unsplash;
 using Irvuewin.ViewModels;
+using Timer = System.Timers.Timer;
 
 namespace Irvuewin.Helpers;
 
@@ -85,8 +87,10 @@ public static class TrayMenuHelper
         _sequenceModify = 0;
     }
 
-    public static async Task ChangeCurrentWallpaper(UnsplashChannel channel)
+    public static async Task ChangeCurrentWallpaper()
     {
+        var channelsViewModel = await ChannelsViewModel.GetInstanceAsync();
+        var channel = channelsViewModel.SelectedChannel;
         var randomWallpaper = Properties.Settings.Default.RandomWallpaper;
         if (randomWallpaper)
         {
@@ -202,7 +206,7 @@ public static class TrayMenuHelper
         _currentScreen = DisplayInfoHelper.CheckDisplay().name;
     }
 
-    public static void ChangeAllWallpaper(ChannelViewModel channel)
+    public static void ChangeAllWallpaper()
     {
         // TODO change all wallpaper
     }
@@ -249,5 +253,23 @@ public static class TrayMenuHelper
         var path = WallpaperHistory.Peek();
         FileUtils.CopyFileToDir(path, dest);
         return true;
+    }
+    
+    public static Timer? WallpaperTimer;
+    public static void InitWallpaperChangeSchedule()
+    { 
+        // ms
+        var interval = Properties.Settings.Default.WallpaperChangeInterval * 60 * 1000;
+
+        // 初始化定时器
+        WallpaperTimer = new Timer(interval);
+        WallpaperTimer.Elapsed += OnWallpaperTimerElapsed;
+        WallpaperTimer.AutoReset = true;
+        WallpaperTimer.Enabled = true;
+    }
+
+    private static void OnWallpaperTimerElapsed(object? sender, ElapsedEventArgs e)
+    {
+        throw new NotImplementedException();
     }
 }

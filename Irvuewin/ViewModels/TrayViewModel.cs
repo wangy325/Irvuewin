@@ -153,7 +153,7 @@ public class WallpaperInfo : INotifyPropertyChanged
         }
     }
 
-    public static string Profile { get; } = "Wallpaper Details...";
+    public static string Profile { get; } = "Wallpaper Details";
 
     public string ProfileLink { get; set; }
 

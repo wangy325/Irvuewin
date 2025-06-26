@@ -28,11 +28,17 @@ namespace Irvuewin
                 cfg.CreateMap<UnsplashChannel, ChannelViewModel>());
             var mapper = config.CreateMapper();
             MapperProvider.Mapper = mapper;
+
+            /*await Application.Current.Dispatcher.InvokeAsync(() =>
+            {
+            });*/
             
             // Create ChannelsViewModel singleton instance
-            _channelsViewModel = await ChannelsViewModel.GetChannelsViewModelInstance();
+            _channelsViewModel = await ChannelsViewModel.GetInstanceAsync();
             Resources.Add("ChannelsViewModel", _channelsViewModel);
-
+            
+            //  Create a copy of Channels in TrayViewModel
+            TrayViewModel.Channels = _channelsViewModel.Channels;
 
             // Load wallpaper sequence cache
             // 启动时若未启用随机壁纸则加载序列缓存
@@ -43,15 +49,19 @@ namespace Irvuewin
                 await TrayMenuHelper.LoadCachedSequence();
             }
 
-            // _channelsViewModel= (Current.Resources["ChannelsViewModel"] as ChannelsViewModel)!;
             // Change wallpaper when app start
-            await TrayMenuHelper.ChangeCurrentWallpaper(_channelsViewModel.SelectedChannel);
+            await TrayMenuHelper.ChangeCurrentWallpaper();
             // Init Wallpaper info when app start
             // await TrayMenuHelper.GetWallpaperInfo();
-            
+
             if (FindResource("NotifyIcon") is TaskbarIcon taskbarIcon)
                 _taskbarIcon = taskbarIcon;
             base.OnStartup(e);
+        }
+
+        private void OnChannelsInited(object? sender, EventArgs e)
+        {
+            Console.WriteLine(@"Channels Inited event handler");
         }
 
         protected override void OnExit(ExitEventArgs e)
@@ -69,12 +79,12 @@ namespace Irvuewin
 
         private async void ChangeCurrentWallpaper_Click(object sender, RoutedEventArgs args)
         {
-            await TrayMenuHelper.ChangeCurrentWallpaper(_channelsViewModel!.SelectedChannel);
+            await TrayMenuHelper.ChangeCurrentWallpaper();
         }
 
         private void ChangeAllWallpaper_Click(object sender, RoutedEventArgs e)
         {
-            TrayMenuHelper.ChangeAllWallpaper(_channelsViewModel!.SelectedChannel);
+            TrayMenuHelper.ChangeAllWallpaper();
         }
 
         private void LoadPreviousWallpaper_Click(object sender, RoutedEventArgs e)
@@ -106,30 +116,26 @@ namespace Irvuewin
 
         private void WallpaperChangeInterval_Click(object sender, RoutedEventArgs e)
         {
-            if (sender is MenuItem clickedItem)
+            if (sender is not MenuItem clickedItem) return;
+            var parent = ItemsControl.ItemsControlFromItemContainer(clickedItem);
+            if (parent != null)
             {
-                var parent = ItemsControl.ItemsControlFromItemContainer(clickedItem);
-                if (parent != null)
+                foreach (var item in parent.Items)
                 {
-                    foreach (var item in parent.Items)
+                    if (parent.ItemContainerGenerator.ContainerFromItem(item) is MenuItem menuItem &&
+                        menuItem != clickedItem)
                     {
-                        if (parent.ItemContainerGenerator.ContainerFromItem(item) is MenuItem menuItem &&
-                            menuItem != clickedItem)
-                        {
-                            menuItem.IsChecked = false;
-                        }
+                        menuItem.IsChecked = false;
                     }
-
-                    clickedItem.IsChecked = true;
                 }
 
-                // save configure
-                ushort.TryParse(clickedItem.Tag as string, out var result);
-                Irvuewin.Properties.Settings.Default.WallpaperChangeInterval = result;
-                Irvuewin.Properties.Settings.Default.Save();
-                Console.WriteLine(
-                    @$"Current Interval: {Irvuewin.Properties.Settings.Default.WallpaperChangeInterval} ");
+                clickedItem.IsChecked = true;
             }
+
+            // save configure
+            ushort.TryParse(clickedItem.Tag as string, out var result);
+            Irvuewin.Properties.Settings.Default.WallpaperChangeInterval = result;
+            Irvuewin.Properties.Settings.Default.Save();
         }
 
         //------------------------------------ Settings --------------------------------//

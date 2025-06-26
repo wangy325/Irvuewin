@@ -36,7 +36,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
     }
 
     // private int ShardIndex { get; set; } = 1;
-    private bool IsBusy { get; set; } = false;
+    private bool IsBusy { get; set; }
     private UnsplashQueryParams DefaultQuery { get; set; }
     public ICommand ItemSelected { get; set; }
     public ICommand LoadMorePhotos { get; set; }
@@ -86,34 +86,34 @@ public class ChannelsViewModel : INotifyPropertyChanged
         }
     }
 
-    /*private ChannelsViewModel()
-    {
-    }*/
+    private static readonly Lazy<Task<ChannelsViewModel>> Instance = new(Init);
 
-    public static async Task<ChannelsViewModel> GetChannelsViewModelInstance()
+    private static async Task<ChannelsViewModel> Init()
     {
-        ChannelsViewModel inst = new()
-        {
-            _selectedChannel = new ChannelViewModel(), // useless
-            DefaultQuery = new UnsplashQueryParams
-            {
-                Page = 1,
-                PerPage = IAppConst.PageSize,
-                Orientation = Properties.Settings.Default.WallpaperOrientation
-            }
-        };
-
-        inst.ItemSelected = new RelayCommand<ChannelViewModel>(inst.OnListBoxItemSelected);
-        inst.LoadMorePhotos = new RelayCommand<object>(inst.OnLoadMorePhotos);
-        await inst.InitializeAsync();
-        // Create a copy of Channels in TrayViewModel
-        TrayViewModel.Channels = inst.Channels;
-        Console.WriteLine(@"=========> ChannelsViewModel initialized.");
-        return inst;
+        var instance = new ChannelsViewModel();
+        await instance.InitAsync();
+        return instance;
     }
 
+    private ChannelsViewModel()
+    {
+        _selectedChannel = new ChannelViewModel(); // useless
+        DefaultQuery = new UnsplashQueryParams
+        {
+            Page = 1,
+            PerPage = IAppConst.PageSize,
+            Orientation = Properties.Settings.Default.WallpaperOrientation
+        };
+        LoadMorePhotos = new RelayCommand<object>(OnLoadMorePhotos);
+        ItemSelected = new RelayCommand<ChannelViewModel>(OnListBoxItemSelected);
+    }
 
-    private async Task InitializeAsync()
+    public static Task<ChannelsViewModel> GetInstanceAsync()
+    {
+        return Instance.Value;
+    }
+    
+    private async Task InitAsync()
     {
         // Channels
         await LoadChannels();
@@ -127,7 +127,9 @@ public class ChannelsViewModel : INotifyPropertyChanged
         SelectedChannel = Channels[SelectedIndex];
         // Load 1st page of channel's photos 
         await LoadPhotos(SelectedChannel.Id, DefaultQuery);
+        Console.WriteLine(@"=========> ChannelsViewModel initialized.");
     }
+
 
     private async Task LoadChannels()
     {

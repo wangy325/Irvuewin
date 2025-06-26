@@ -4,7 +4,20 @@
                     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                     mc:Ignorable="d">
-    
+
+    <Style x:Key="SeparatorStyle" TargetType="Separator">
+        <Setter Property="Margin" Value="0,2,0,2" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Separator">
+                    <Rectangle Height="1" Fill="LightGray"
+                               HorizontalAlignment="Stretch"
+                               VerticalAlignment="Center" />
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <Style x:Key="LabelStyle" TargetType="Label">
         <Setter Property="Margin" Value="0, 5" />
         <Setter Property="VerticalAlignment" Value="Center" />
@@ -400,8 +413,6 @@
             </Setter.Value>
         </Setter>
     </Style>
-
-    
 
 
     <Style x:Key="ScrollBarPageButton" TargetType="{x:Type RepeatButton}">
