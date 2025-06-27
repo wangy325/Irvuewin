@@ -25,10 +25,10 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="/Themes/Generic.xaml" />
             </ResourceDictionary.MergedDictionaries>
-            
+
             <converters:ByteToBooleanConverter x:Key="Byte2BoolConverter" />
             <converters:FloatToStringConverter x:Key="Float2StringConverter" />
-            
+
             <!-- wallpaper save path display style -->
             <Style TargetType="{x:Type controls:PathDisplayControl}">
                 <Setter Property="Foreground" Value="Gray" />
@@ -36,7 +36,7 @@
                 <Setter Property="BorderThickness" Value="0" />
                 <Setter Property="BorderBrush" Value="WhiteSmoke" />
                 <Setter Property="Height" Value="Auto" />
-                <Setter Property="MinHeight" Value="25" />
+                <Setter Property="MinHeight" Value="30" />
                 <Setter Property="Padding" Value="5" />
                 <Setter Property="Margin" Value="5, 0" />
                 <Setter Property="VerticalContentAlignment" Value="Center" />
@@ -45,20 +45,11 @@
                     <Setter.Value>
                         <ControlTemplate TargetType="{x:Type controls:PathDisplayControl}">
                             <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto" />
-                                </Grid.RowDefinitions>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
                                 <Border Background="{TemplateBinding Background}"
                                         BorderBrush="{TemplateBinding BorderBrush}"
                                         BorderThickness="{TemplateBinding BorderThickness}"
                                         Padding="{TemplateBinding Padding}" />
-                                <ScrollViewer Grid.Row="0" Grid.Column="0"
-                                              HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Hidden">
-                                    <StackPanel x:Name="PART_Panel" Orientation="Horizontal" />
-                                </ScrollViewer>
+                                <ContentPresenter HorizontalAlignment="Center" />
                             </Grid>
                         </ControlTemplate>
                     </Setter.Value>
@@ -97,109 +88,107 @@
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
 
+                    <Grid.Resources>
+                        <Style x:Key="MutiDisplayRadioStyle" TargetType="RadioButton"
+                               BasedOn="{StaticResource RadioStyle}">
+                            <Setter Property="GroupName" Value="MultiDisplay" />
+                            <Setter Property="IsChecked">
+                                <Setter.Value>
+                                    <MultiBinding Converter="{StaticResource Byte2BoolConverter}">
+                                        <Binding Path="MultiDisplay" />
+                                        <Binding Path="Tag"
+                                                 RelativeSource="{RelativeSource Self}" />
+                                    </MultiBinding>
+                                </Setter.Value>
+                            </Setter>
+                            <Setter Property="Command" Value="{Binding MultiDisplayCheckedCommand}" />
+                            <Setter Property="CommandParameter"
+                                    Value="{Binding Tag, RelativeSource={RelativeSource Mode=Self} }" />
+                        </Style>
 
-                    <Separator Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="5" Margin="0, 10" />
+                        <Style x:Key="DisplayModeRadioStyle" TargetType="RadioButton"
+                               BasedOn="{StaticResource RadioStyle}">
+                            <Setter Property="GroupName" Value="DisplayStyle" />
+                            <Setter Property="IsChecked">
+                                <Setter.Value>
+                                    <MultiBinding Converter="{StaticResource Byte2BoolConverter}">
+                                        <Binding Path="WallpaperMode" />
+                                        <Binding Path="Tag"
+                                                 RelativeSource="{RelativeSource Self}" />
+                                    </MultiBinding>
+                                </Setter.Value>
+                            </Setter>
+                            <Setter Property="Command" Value="{Binding DisplayModeCheckedCommand}" />
+                            <Setter Property="CommandParameter"
+                                    Value="{Binding Tag, RelativeSource={RelativeSource Mode=Self} }" />
+                        </Style>
+                    </Grid.Resources>
+
+                    <Separator Grid.ColumnSpan="5" 
+                               Margin="0, 10" 
+                               Style="{StaticResource SeparatorStyle}" />
                     <Label Grid.Row="1" Grid.Column="0"
                            Content="多显示器:"
                            Style="{StaticResource LabelStyle}" />
                     <RadioButton Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2"
-                                 Name="SameWallpaperButton"
                                  Content="相同壁纸"
-                                 GroupName="multiDisplay"
-                                 IsChecked="{Binding MultiDisplay, 
-                                            Mode=TwoWay,
-                                            Converter={StaticResource Byte2BoolConverter},
-                                            ConverterParameter=0,
-                                            UpdateSourceTrigger=PropertyChanged}"
-                                 Style="{StaticResource RadioStyle}" />
+                                 Tag="0"
+                                 Style="{StaticResource MutiDisplayRadioStyle}" />
                     <RadioButton Grid.Row="1" Grid.Column="3" Grid.ColumnSpan="2"
-                                 Name="DifferentWallpaperButton"
                                  Content="不同壁纸"
-                                 GroupName="multiDisplay"
-                                 IsChecked="{Binding MultiDisplay,
-                                            Mode=TwoWay,
-                                            Converter={StaticResource Byte2BoolConverter},
-                                            ConverterParameter=1,
-                                            UpdateSourceTrigger=PropertyChanged}"
-                                 Style="{StaticResource RadioStyle}" />
+                                 Tag="1"
+                                 Style="{StaticResource MutiDisplayRadioStyle}" />
 
                     <Label Grid.Row="2" Grid.Column="0"
                            Content="壁纸显示模式:"
                            Style="{StaticResource LabelStyle}" />
                     <RadioButton Grid.Row="2" Grid.Column="1"
-                                 Name="FillRadioButton"
-                                 Content="填充"
-                                 GroupName="DisplayStyle"
-                                 IsChecked="{Binding WallpaperMode,
-                                           Mode=TwoWay,
-                                           Converter={StaticResource Byte2BoolConverter},
-                                           ConverterParameter=0,
-                                           UpdateSourceTrigger=PropertyChanged}"
-                                 Style="{StaticResource RadioStyle}" />
+                                 Tag="0" Content="填充"
+                                 Style="{StaticResource DisplayModeRadioStyle}" />
                     <RadioButton Grid.Row="2" Grid.Column="2"
-                                 Name="FitRadioButton" Content="适应"
-                                 GroupName="DisplayStyle"
-                                 IsChecked="{Binding WallpaperMode,
-                                           Mode=TwoWay,
-                                           Converter={StaticResource Byte2BoolConverter},
-                                           ConverterParameter=1,
-                                           UpdateSourceTrigger=PropertyChanged}"
-                                 Style="{StaticResource RadioStyle}" />
+                                 Tag="1" Content="适应"
+                                 Style="{StaticResource DisplayModeRadioStyle}" />
                     <RadioButton Grid.Row="2" Grid.Column="3"
-                                 Name="StretchRadioButton"
-                                 Content="拉伸"
-                                 GroupName="DisplayStyle"
-                                 IsChecked="{Binding WallpaperMode,
-                                            Mode=TwoWay,
-                                            Converter={StaticResource Byte2BoolConverter},
-                                            ConverterParameter=2,
-                                            UpdateSourceTrigger=PropertyChanged}"
-                                 Style="{StaticResource RadioStyle}" />
-                    <!--<RadioButton Grid.Row="1" Grid.Column="4" 
-                                 Name="CenterRadioButton" 
-                                 Content="居中" 
-                                 GroupName="DisplayStyle" 
-                                 Style="{StaticResource RadioStyle}"/>
-                    <RadioButton Grid.Row="1" Grid.Column="5" 
-                                 Name="TileRadioButton" 
-                                 Content="平铺" 
-                                 GroupName="DisplayStyle" 
-                                 Style="{StaticResource RadioStyle}"/>-->
+                                 Tag="2" Content="拉伸"
+                                 Style="{StaticResource DisplayModeRadioStyle}" />
+                    <!--<RadioButton Grid.Row="2" Grid.Column="4" 
+                                 Tag="3" Content="居中" 
+                                 Style="{StaticResource DisplayModeRadioStyle}"/>-->
+                    <!--<RadioButton Grid.Row="1" Grid.Column="5" 
+                                 Tag="4" Content="平铺" 
+                                 Style="{StaticResource DisplayModeRadioStyle}"/>-->
 
                     <Label Grid.Row="3" Grid.Column="0"
                            Content="打开保存的壁纸:"
                            Style="{StaticResource LabelStyle}" />
                     <CheckBox Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2"
-                              Name="OpenSavedWallpaper"
                               Content="Enable"
                               IsChecked="{Binding OpenSavedWallpaper, 
-                                        Mode=TwoWay,
-                                        UpdateSourceTrigger=PropertyChanged}"
+                                        Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                               Style="{StaticResource CheckBoxStyle}" />
 
                     <Label Grid.Row="4" Grid.Column="0"
                            Content="壁纸保存路径:"
                            Style="{StaticResource LabelStyle}" />
                     <Button Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="2"
-                            Name="BrowseWallpaperSavePathButton"
                             Content="选择..."
                             Style="{StaticResource ButtonStyle}"
                             Click="BrowseWallpaperSavePathButton_Click" />
 
                     <controls:PathDisplayControl Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="5"
                                                  x:Name="PathDisplayControl"
-                                                 HorizontalAlignment="Center"
-                                                 VerticalAlignment="Center"
-                                                 Width="286"
                                                  FullPath="{Binding WallpaperSavedPath}">
                         <controls:PathDisplayControl.ToolTip>
                             <ToolTip Style="{StaticResource ToolTipStyle}">
-                                <TextBlock Text="{Binding WallpaperSavedPath}" />
+                                <TextBlock
+                                    Text="{Binding WallpaperSavedPath}" />
                             </ToolTip>
                         </controls:PathDisplayControl.ToolTip>
                     </controls:PathDisplayControl>
 
-                    <Separator Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="5" Margin="0, 10" />
+                    <Separator Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="5" 
+                               Margin="0, 10" 
+                               Style="{StaticResource SeparatorStyle}" />
 
                     <Label Grid.Row="8" Grid.Column="0"
                            Content="随Windows启动:"
@@ -211,14 +200,9 @@
                                          Mode=TwoWay,
                                          UpdateSourceTrigger=PropertyChanged}"
                               Style="{StaticResource CheckBoxStyle}" />
-
-                    <!--<Label Grid.Row="10" Grid.Column="4"
-                           Content="{Binding WallpaperMode, Mode=OneWay}" 
-                           Style="{StaticResource LabelStyle}"/>-->
-
-
                 </Grid>
             </TabItem>
+            
             <TabItem Header="过滤"
                      helpers:TabItemHelper.IconSource="/Icons/Settings/filter.ico"
                      Style="{StaticResource TabStyle}">
@@ -238,13 +222,14 @@
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
 
-                    <Separator Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Margin="0, 10" />
+                    <Separator Grid.ColumnSpan="4" 
+                               Margin="0, 10" 
+                               Style="{StaticResource SeparatorStyle}"/>
 
                     <Label Grid.Row="1" Grid.Column="0"
                            Content="壁纸比例偏好:"
                            Style="{StaticResource LabelStyle}" />
                     <ComboBox Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2"
-                              Name="ImageOrientationPreference"
                               Style="{StaticResource ComboBoxStyle}"
                               SelectedIndex="{Binding WallpaperOrientation, 
                                                       Mode=TwoWay, 
@@ -258,7 +243,6 @@
                            Content="智能过滤:"
                            Style="{StaticResource LabelStyle}" />
                     <ComboBox Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2"
-                              Name="SmartFilter"
                               Style="{StaticResource ComboBoxStyle}"
                               SelectedIndex="{Binding SmartFilter,
                                                       Mode=TwoWay,
@@ -272,7 +256,6 @@
                            Content="壁纸最小分辨率:"
                            Style="{StaticResource LabelStyle}" />
                     <ComboBox Grid.Row="3" Grid.Column="1"
-                              Name="MinimumResolution"
                               Style="{StaticResource ComboBoxStyle}"
                               SelectedValue="{Binding MinResolution,
                                                      Mode=TwoWay,

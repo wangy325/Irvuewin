@@ -33,7 +33,12 @@ public static class TrayMenuHelper
     // Current wallpaper of each screen (key is screen id, value is photoId)
     private static readonly Dictionary<string, string> CurrentWallpaper = new();
 
-    private static readonly Random Random = new();
+
+    // Reset sequence when channel refreshed
+    public static void ResetChannelSequence(string channelId)
+    {
+        CachedWallpaperSequence[channelId] = 1;
+    }
 
     // Once new channel added, add its sequence to cache
     public static void AddNewChannelSequence(List<UnsplashChannel> channels)
@@ -95,22 +100,18 @@ public static class TrayMenuHelper
         var randomWallpaper = Properties.Settings.Default.RandomWallpaper;
         if (randomWallpaper)
         {
-            var total = channel.TotalPhotos;
-            var random = Random.Next(1, total);
-            // var random = 10;
-            await SetWallPaper(channel, random, true);
+            await SetWallPaper(channel, random: true);
         }
         else
         {
-            // 软件启动时 （不主动更改壁纸）
-            // 是否需要缓存栈？ 暂时不需要，启动时空栈即可
             // TODO 多显示器的栈缓存还不一样呢
             var sequence = CachedWallpaperSequence[channel.Id];
             await SetWallPaper(channel, sequence);
-            // TODO 注意边界异常
-            if (++sequence > channel.TotalPhotos)
+            var loadedPhotos = channelsViewModel.LoadedPhotoCount[channel.Id];
+            Console.WriteLine($@"> loadedPhotos: {loadedPhotos}");
+            if (++sequence > loadedPhotos)
             {
-                sequence %= channel.TotalPhotos;
+                sequence %= loadedPhotos;
             }
 
             _sequenceModify++;
@@ -119,63 +120,70 @@ public static class TrayMenuHelper
     }
 
 
-    private static async Task SetWallPaper(UnsplashChannel channel, int sequence, bool random = false)
+    private static async Task SetWallPaper(UnsplashChannel channel, int sequence = 0, bool random = false)
     {
-        var (shardIndex, shardPositionIndex) = CalShardIndex(sequence);
-
-        PhotosCachePageIndex photosCachePageIndex = new()
+        UnsplashPhoto? photo = null;
+        var httpService = IHttpClient.GetUnsplashHttpService();
+        if (random)
         {
-            ChannelId = channel.Id,
-            PageIndex = shardIndex
-        };
-
-        // _currentScreen is null once app started
-        CheckPointer();
-
-        // wallpaper file cache path
-        string? path;
-        UnsplashPhoto? photo;
-        if (await UnsplashCache.LoadPhotosAsync(photosCachePageIndex) is { } res)
-        {
-            // Console.WriteLine(@">>> Set wallpaper from cache.");
-            photo = res[shardPositionIndex];
-            path = await WallpaperUtil.SetWallpaper(photo);
+            photo = await httpService.GetRandomPhotoInChannel(channel.Id);
         }
         else
         {
-            // Console.WriteLine(@">>> Set wallpaper from web.");
-            const int pageSize = 10;
-            var httpService = IHttpClient.GetUnsplashHttpService();
-            if (random)
+            var (shardIndex, shardPositionIndex) = CalShardIndex(sequence);
+            var channelsViewModel = await ChannelsViewModel.GetInstanceAsync();
+            PhotosCachePageIndex photosCachePageIndex = new()
             {
-                photo = await httpService.GetRandomPhotoInChannel(channel.Id);
-            }
-            else
+                ChannelId = channel.Id,
+                PageIndex = shardIndex
+            };
+            // wallpaper file cache path
+            if (await UnsplashCache.LoadPhotosShardAsync(photosCachePageIndex) is { } res)
             {
-                photo = null;
-                var query = new UnsplashQueryParams()
+                // TODO
+                // 0) 一定是从缓存中获取图片信息
+                // 1) 数据完整性问题
+                // 2) 数据过滤后，index可能越界的问题 -- 动态计算总图片数
+                // 理论上每页都会存在PageSize个条目，除了最后一页
+                Console.WriteLine($@"> sequence {sequence}. shard: {shardIndex}, position: {shardPositionIndex}");
+                if (shardPositionIndex == res.Count - 1)
                 {
-                    Page = shardIndex,
-                    PerPage = pageSize,
-                    Orientation = Properties.Settings.Default.WallpaperOrientation
-                };
-                if (await httpService.GetPhotosOfChannel(channel.Id, query) is { } photos
-                    && photos.Count != 0)
-                {
-                    // update cache
-                    await UnsplashCache.CachePhotosAsync(photosCachePageIndex, photos);
-                    photo = photos[shardPositionIndex];
+                    // Preload photos
+                    // Refresh loaded photos count
+                    var nextPage = new PhotosCachePageIndex
+                    {
+                        ChannelId = channel.Id,
+                        PageIndex = shardIndex + 1
+                    };
+                    if (await UnsplashCache.LoadPhotosShardAsync(nextPage) is null)
+                    {
+                        var query = new UnsplashQueryParams()
+                        {
+                            Page = nextPage.PageIndex,
+                            PerPage = IAppConst.PageSize,
+                            Orientation = Properties.Settings.Default.WallpaperOrientation
+                        };
+                        if (await httpService.GetPhotosOfChannel(channel.Id, query) is { } photos
+                            && photos.Count != 0)
+                        {
+                            // Cache new photos
+                            await UnsplashCache.CachePhotosAsync(nextPage, photos);
+                            // Ugly
+                            channelsViewModel.LoadedPhotoCount[channel.Id] += photos.Count;
+                        }
+                    }
                 }
-            }
 
-            // TODO null pointer?
-            Debug.Assert(photo != null, nameof(photo) + " != null");
-            path = await WallpaperUtil.SetWallpaper(photo);
+                photo = res[shardPositionIndex];
+            }
         }
 
-        // Push photo file into wallpaper history stack
-        if (path is not null)
+        if (photo is null) return;
+        if (await WallpaperUtil.SetWallpaper(photo) is { } path)
         {
+            // _currentScreen is null once app started
+            CheckPointer();
+            // Push photo file into wallpaper history stack
             WallpaperHistory.Push(path);
             CurrentWallpaper[_currentScreen!] = photo.Id;
             WallpaperStack[_currentScreen!] = WallpaperHistory;
@@ -185,6 +193,7 @@ public static class TrayMenuHelper
 
     private static (int shardIndex, int shardPositionIndex) CalShardIndex(int sequence)
     {
+        // page index, position index of page content
         int shardIndex, shardPositionIndex;
         // Index starts from 1
         if (sequence % IAppConst.PageSize == 0)
@@ -255,16 +264,16 @@ public static class TrayMenuHelper
         FileUtils.CopyFileToDir(path, dest);
         return true;
     }
-    
+
     public static Timer? WallpaperTimer;
-    
+
     public static void InitWallpaperChangeScheduler()
-    { 
+    {
         // ms
         var interval = Properties.Settings.Default.WallpaperChangeInterval;
         if (interval <= 0) return;
 
-        WallpaperTimer = new Timer(interval* 60 * 1000);
+        WallpaperTimer = new Timer(interval * 60 * 1000);
         WallpaperTimer.Elapsed += OnWallpaperTimerElapsed;
         WallpaperTimer.AutoReset = true;
         WallpaperTimer.Enabled = true;
@@ -284,13 +293,14 @@ public static class TrayMenuHelper
             trayViewModel!.NextWallpaperChangeTime = DateTimeOffset.MinValue;
             return;
         }
+
         // 0 -> non zero
         if (WallpaperTimer == null)
         {
             InitWallpaperChangeScheduler();
             return;
         }
-        
+
         WallpaperTimer.Stop();
         WallpaperTimer.Interval = interval * 60 * 1000;
         WallpaperTimer.Start();
@@ -302,7 +312,6 @@ public static class TrayMenuHelper
         var trayViewModel = Application.Current.Resources["TrayViewModel"] as TrayViewModel;
         var nextTrigger = DateTimeOffset.Now.AddMinutes(interval);
         trayViewModel!.NextWallpaperChangeTime = nextTrigger;
-        Console.WriteLine($@"next trigger: {trayViewModel.NextWallpaperChangeTime:yyyy-MM-dd HH:mm:ss}");
         /*Application.Current.Dispatcher.InvokeAsync(() =>
         {
             trayViewModel!.NextWallpaperChangeTime = DateTimeOffset.Now.AddMilliseconds(interval);
@@ -314,7 +323,7 @@ public static class TrayMenuHelper
         try
         {
             // ChangeAllWallpaper();
-            Console.WriteLine($@"{DateTimeOffset.Now:yyyy-MM-dd HH:mm:ss}: scheduled wallpaper change");
+            // Console.WriteLine($@"{DateTimeOffset.Now:yyyy-MM-dd HH:mm:ss}: scheduled wallpaper change");
             await ChangeCurrentWallpaper();
             UpdateNextWallpaperChangeTriggerTime(Properties.Settings.Default.WallpaperChangeInterval);
         }

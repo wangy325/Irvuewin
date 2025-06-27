@@ -1,5 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Windows.Controls;
+using System.Windows.Input;
 using Irvuewin.Helpers;
 
 namespace Irvuewin.ViewModels;
@@ -44,6 +46,12 @@ public class SettingsViewModel: INotifyPropertyChanged
         /// </summary>
         private float _minResolution = Properties.Settings.Default.MinResolution;
 
+        public SettingsViewModel()
+        {
+            DisplayModeCheckedCommand = new RelayCommand<object>(OnDisplayModeChecked);
+            MultiDisplayCheckedCommand = new RelayCommand<object>(OnMultiDisplayChecked);
+        }
+
         public bool OpenSavedWallpaper
         {
             get => _openSavedWallpaper;
@@ -63,8 +71,6 @@ public class SettingsViewModel: INotifyPropertyChanged
             {
                 if (_multiDisplay == value) return;
                 _multiDisplay = value;
-                Properties.Settings.Default.MultiDisplay = _multiDisplay;
-                Properties.Settings.Default.Save();
                 OnPropertyChanged();
             }
         }
@@ -76,10 +82,7 @@ public class SettingsViewModel: INotifyPropertyChanged
             {
                 if (_wallpaperMode == value) return;
                 _wallpaperMode = value;
-                Properties.Settings.Default.WallpaperMode = _wallpaperMode;
-                Properties.Settings.Default.Save();
                 OnPropertyChanged();
-                System.Diagnostics.Debug.WriteLine($"WallpaperMode saved: {_wallpaperMode}");
             }
         }
 
@@ -105,8 +108,6 @@ public class SettingsViewModel: INotifyPropertyChanged
             {
                 if (_wallpaperSavedPath == value) return;
                 _wallpaperSavedPath = value;
-                Properties.Settings.Default.WallpaperSavedPath = _wallpaperSavedPath;
-                Properties.Settings.Default.Save();
                 OnPropertyChanged();
             }
         }
@@ -149,6 +150,27 @@ public class SettingsViewModel: INotifyPropertyChanged
                 Properties.Settings.Default.Save();
                 OnPropertyChanged();
             }
+        }
+
+        public ICommand MultiDisplayCheckedCommand { get; }
+        public ICommand DisplayModeCheckedCommand { get; }
+
+        private void OnMultiDisplayChecked(object obj)
+        {
+            if (obj is not string tag) return;
+            if(byte.TryParse(tag, out var res)) MultiDisplay = res;
+            
+            Properties.Settings.Default.MultiDisplay = MultiDisplay;
+            Properties.Settings.Default.Save();
+        }
+        
+        private void OnDisplayModeChecked(object obj)
+        { 
+            if (obj is not string tag) return;
+            if(byte.TryParse(tag, out var res)) WallpaperMode = res;
+            
+            Properties.Settings.Default.WallpaperMode = WallpaperMode;
+            Properties.Settings.Default.Save();
         }
 
         protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)

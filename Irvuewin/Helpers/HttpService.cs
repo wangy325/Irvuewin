@@ -10,7 +10,7 @@ namespace Irvuewin.Helpers
     {
         Task<HttpResponseMessage> GetAsync(string url);
         
-        private static readonly UnsplashHttpService HttpClient = new UnsplashHttpService(new UnsplashHttpClientWrapper());
+        private static readonly UnsplashHttpService HttpClient = new(new UnsplashHttpClientWrapper());
 
         static UnsplashHttpService GetUnsplashHttpService()
         {

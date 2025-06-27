@@ -51,7 +51,7 @@ namespace Irvuewin.Controls
 
         private static void OnFullPathChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            PathDisplayControl control = (PathDisplayControl)d;
+            var control = (PathDisplayControl)d;
             control.UpdateDisplay();
         }
 
@@ -71,7 +71,7 @@ namespace Irvuewin.Controls
 
             // 取后半部分路径
             double accumulatedWidth = 0;
-            const int iconSize = 14;
+            const int iconSize = 16;
 
             Stack<TextBlock> stackBlocks = new();
             for (var i = (directories.Length - 1); i >= 0; i--)
@@ -86,6 +86,7 @@ namespace Irvuewin.Controls
                     Margin = new Thickness(3, 0, 3, 0),
                     //FontFamily = new FontFamily("YaHei UI"),
                     HorizontalAlignment = HorizontalAlignment.Center,
+                    VerticalAlignment = VerticalAlignment.Center,
                     //FontSize = 14,
                 };
                 textBlock.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));

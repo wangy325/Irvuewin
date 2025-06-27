@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
@@ -10,6 +10,7 @@ using Exception = System.Exception;
 
 namespace Irvuewin.ViewModels;
 
+// Singleton
 public class ChannelsViewModel : INotifyPropertyChanged
 {
     public event PropertyChangedEventHandler? PropertyChanged;
@@ -23,6 +24,11 @@ public class ChannelsViewModel : INotifyPropertyChanged
 
     // Wallpaper shard index for each channel
     private readonly Dictionary<string, int> _shardIndex = new();
+
+
+    // Loaded photos for each channel (dynamic update)
+    public Dictionary<string, int> LoadedPhotoCount { get; set; } = [];
+
     private bool _allPhotosLoaded;
 
     public bool AllPhotosLoaded
@@ -113,6 +119,11 @@ public class ChannelsViewModel : INotifyPropertyChanged
         return Instance.Value;
     }
     
+    public static ChannelsViewModel GetInstance()
+    {
+        return Instance.Value.Result;
+    }
+
     private async Task InitAsync()
     {
         // Channels
@@ -125,6 +136,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
         }
 
         SelectedChannel = Channels[SelectedIndex];
+        LoadedPhotoCount[SelectedChannel.Id] = await UnsplashCache.LoadPhotoCountAsync(SelectedChannel.Id);
         // Load 1st page of channel's photos 
         await LoadPhotos(SelectedChannel.Id, DefaultQuery);
         Console.WriteLine(@"=========> ChannelsViewModel initialized.");
@@ -167,15 +179,14 @@ public class ChannelsViewModel : INotifyPropertyChanged
             ChannelId = channelId,
             PageIndex = query.Page
         };
-        // load from cache
-        if (await UnsplashCache.LoadPhotosAsync(cacheIndex) is { } cachedPhotos
+        if (await UnsplashCache.LoadPhotosShardAsync(cacheIndex) is { } cachedPhotos
             && cachedPhotos.Any())
+            // load from cache
         {
             RenewChannelPhotos(cachedPhotos, append);
-            return true;
         }
-        // load from web
         else
+            // load from web
         {
             var httpService = IHttpClient.GetUnsplashHttpService();
             if (await httpService.GetPhotosOfChannel(channelId, query) is { } photos
@@ -184,11 +195,11 @@ public class ChannelsViewModel : INotifyPropertyChanged
                 RenewChannelPhotos(photos, append);
                 // update cache
                 await CachePhotos(cacheIndex, photos);
-                return true;
+                LoadedPhotoCount[channelId] = photos.Count;
             }
         }
 
-        return false;
+        return Photos.Count > 0;
     }
 
     private void RenewChannelPhotos(List<UnsplashPhoto> photos, bool append)
@@ -239,6 +250,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
         }
         catch (Exception e)
         {
+            // ignore
             // TODO handle exception
         }
     }
@@ -262,6 +274,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
         }
         catch (Exception e)
         {
+            // ignore
             Console.WriteLine(e);
         }
     }
@@ -269,6 +282,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
     public async Task RefreshPhotos(string channelId)
     {
         var httpService = IHttpClient.GetUnsplashHttpService();
+        UnCachePhotos(channelId);
         DefaultQuery.Orientation = Properties.Settings.Default.WallpaperOrientation;
         if (await httpService.GetPhotosOfChannel(channelId, DefaultQuery) is { } photos
             && photos.Count != 0)
@@ -282,7 +296,9 @@ public class ChannelsViewModel : INotifyPropertyChanged
             };
             await CachePhotos(cacheIndex, photos);
         }
-
+        TrayMenuHelper.ResetChannelSequence(channelId);
+        // reset photos count
+        LoadedPhotoCount[channelId] = Photos.Count;
         Console.WriteLine(@$"Refreshed photos for channel {channelId}");
     }
 
@@ -295,8 +311,13 @@ public class ChannelsViewModel : INotifyPropertyChanged
     {
         await UnsplashCache.CachePhotosAsync(cachePageIndex, photos);
     }
+    
+    public void UnCachePhotos(string channelId)
+    {
+        UnsplashCache.UnCacheChannelPhotos(channelId);
+    }
 
-    public async void AddChannel(List<UnsplashChannel> selectedChannels)
+    public void AddChannel(List<UnsplashChannel> selectedChannels)
     {
         var newChannels = string.Join(",", selectedChannels.Select(channel => channel.Id));
         SavedChannels = SavedChannels + "," + newChannels;
@@ -318,7 +339,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
         TrayMenuHelper.AddNewChannelSequence(selectedChannels);
     }
 
-    public async void DeleteSelectedChannel()
+    public void DeleteSelectedChannel()
     {
         Console.WriteLine($@"Saved channels Before: {SavedChannels}");
         var id = SelectedChannel.Id;
@@ -344,34 +365,11 @@ public class ChannelsViewModel : INotifyPropertyChanged
         TrayMenuHelper.DelChannelSequence(id);
 
         // Clear cached memory/disk channel photos
-        UnsplashCache.UncacheChannelPhotos(id);
+        UnsplashCache.UnCacheChannelPhotos(id);
     }
 
     private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-    }
-}
-
-public class RelayCommand<T> : ICommand
-{
-    public event EventHandler? CanExecuteChanged;
-    private readonly Action<object>? _execute;
-    private readonly Predicate<object>? _canExecute;
-
-    public RelayCommand(Action<object> execute, Predicate<object>? canExecute = null)
-    {
-        _execute = execute ?? throw new ArgumentNullException(nameof(execute));
-        _canExecute = canExecute;
-    }
-
-    public bool CanExecute(object? parameter)
-    {
-        return _canExecute == null || _canExecute(parameter);
-    }
-
-    public void Execute(object? parameter)
-    {
-        _execute(parameter);
     }
 }

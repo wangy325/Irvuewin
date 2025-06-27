@@ -9,4 +9,7 @@ public interface IAppConst
     
     static string DefaultWallpaperDownloadDir = GetFolderPath(MyPictures);
 
+    const string CachedPhotosNamePrefix = "photos_";
+    const string CachedPhotosNameSuffix = "cached.json";
+
 }

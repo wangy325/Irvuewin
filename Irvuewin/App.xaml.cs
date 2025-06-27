@@ -59,12 +59,7 @@ namespace Irvuewin
                 _taskbarIcon = taskbarIcon;
             base.OnStartup(e);
         }
-
-        private void OnChannelsInited(object? sender, EventArgs e)
-        {
-            Console.WriteLine(@"Channels Inited event handler");
-        }
-
+        
         protected override void OnExit(ExitEventArgs e)
         {
             base.OnExit(e);

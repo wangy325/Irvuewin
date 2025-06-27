@@ -1,7 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using System.Windows;
 using System.Windows.Input;
 using Irvuewin.Helpers;
 using Irvuewin.Models.Unsplash;
@@ -12,7 +11,7 @@ public class AddChannelViewModel : INotifyPropertyChanged
 {
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    private readonly ChannelsViewModel? _channelsViewModel;
+    private readonly ChannelsViewModel _channelsViewModel;
 
     public string InputBox { get; } = "Please input unsplash url";
     public string Resolving { get; } = " + ";
@@ -61,7 +60,7 @@ public class AddChannelViewModel : INotifyPropertyChanged
         set
         {
             _isLoading = value;
-            OnPropertyChanged(nameof(IsLoading));
+            OnPropertyChanged();
         }
     }
 
@@ -70,7 +69,8 @@ public class AddChannelViewModel : INotifyPropertyChanged
 
     public AddChannelViewModel()
     {
-        _channelsViewModel = Application.Current.Resources["ChannelsViewModel"] as ChannelsViewModel;
+        // _channelsViewModel = Application.Current.Resources["ChannelsViewModel"] as ChannelsViewModel;
+        _channelsViewModel = ChannelsViewModel.GetInstance();
         PreChannelsUpdated = new RelayCommand<object>(OnPreChannelsUpdated);
         OpenUnsplashCommand = new RelayCommand<object>(OnUnsplashOpenButtonClick);
         Console.WriteLine(@">>>>>>>>>>>> AddChannelViewModel inited..");
@@ -103,10 +103,10 @@ public class AddChannelViewModel : INotifyPropertyChanged
         // Reduce channels already added
         var channels =
             SelectedChannels.Where(
-                c => _channelsViewModel!.Channels.All(ch => ch.Id != c.Id)
+                c => _channelsViewModel.Channels.All(ch => ch.Id != c.Id)
             ).ToList();
         if (channels.Count <= 0) return;
-        _channelsViewModel?.AddChannel(channels);
+        _channelsViewModel.AddChannel(channels);
     }
 
     /// <summary>

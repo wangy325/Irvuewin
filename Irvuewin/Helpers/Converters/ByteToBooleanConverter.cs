@@ -3,7 +3,7 @@ using System.Windows.Data;
 
 namespace Irvuewin.Helpers.Converters
 {
-    public class ByteToBooleanConverter : IValueConverter
+    public class ByteToBooleanConverter : IValueConverter, IMultiValueConverter
     {
         /// <summary>
         /// source -> target
@@ -17,7 +17,7 @@ namespace Irvuewin.Helpers.Converters
         {
             if (value is not byte val || parameter is not string p || !byte.TryParse(p, out var res))
                 return false;
-            System.Diagnostics.Debug.WriteLine($"source -> target: val: {val}, res: {res}, p: {p}");
+            // System.Diagnostics.Debug.WriteLine($"source -> target: val: {val}, res: {res}, p: {p}");
             return val == res;
         }
 
@@ -33,9 +33,26 @@ namespace Irvuewin.Helpers.Converters
         {
             if (value is not bool val || parameter is not string p || !byte.TryParse(p, out var res))
                 return Binding.DoNothing;
-            System.Diagnostics.Debug.WriteLine($"target -> source: val: {val}, p: {p}, res: {res}");
+            // System.Diagnostics.Debug.WriteLine($"target -> source: val: {val}, p: {p}, res: {res}");
             // 如果选中，返回 转换参数的值（byte），否则返回 0 
             return val ? res : Binding.DoNothing;
+        }
+
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (values.Length < 2) return false;
+            if (values[0] is byte intValue && values[1] is string tagValue &&
+                byte.TryParse(tagValue, out var tagInt))
+            {
+                return intValue == tagInt;
+            }
+
+            return false;
+        }
+
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+        {
+            return [Binding.DoNothing, Binding.DoNothing];
         }
     }
 }
