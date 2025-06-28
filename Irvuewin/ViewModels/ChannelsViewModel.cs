@@ -195,7 +195,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
             RenewChannelPhotos(photos, append);
             // update cache
             await CachePhotos(cacheIndex, photos);
-            LoadedPhotoCount[channelId] = photos.Count;
+            LoadedPhotoCount[channelId] = Photos.Count;
             return true;
         }
 

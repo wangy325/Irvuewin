@@ -357,9 +357,6 @@
                             <Setter TargetName="Bd" Property="Background" Value="LightGray" />
                             <Setter Property="Foreground" Value="Black" />
                         </Trigger>
-                        <Trigger Property="IsEnabled" Value="False">
-                            <Setter Property="Foreground" Value="#FF888888" />
-                        </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>

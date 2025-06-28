@@ -36,13 +36,13 @@ namespace Irvuewin.Helpers.Utils
                         key.SetValue(@"TileWallpaper", "0");
                         break;
                     case 2:
-                        // stretch
-                        key.SetValue(@"WallpaperStyle", "2");
+                        // center
+                        key.SetValue(@"WallpaperStyle", "0");
                         key.SetValue(@"TileWallpaper", "0");
                         break;
                     case 3:
-                        // center
-                        key.SetValue(@"WallpaperStyle", "0");
+                        // stretch
+                        key.SetValue(@"WallpaperStyle", "2");
                         key.SetValue(@"TileWallpaper", "0");
                         break;
                     case 4:
