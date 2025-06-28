@@ -29,9 +29,8 @@ public class ChannelViewModel : UnsplashChannel, INotifyPropertyChanged
     {
         if (param is not ChannelViewModel item) return;
         item.IsSelected = true;
-        // 当前应用静态实例
-        var channelsWindow =Application.Current.Resources["ChannelsViewModel"] as ChannelsViewModel;
-        foreach (var channel in channelsWindow?.Channels!)
+        var channelsWindow = ChannelsViewModel.GetInstance();
+        foreach (var channel in channelsWindow.Channels!)
         {
             if (channel == item) continue;
             channel.IsSelected = false;

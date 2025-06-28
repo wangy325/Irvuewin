@@ -69,7 +69,6 @@ public class AddChannelViewModel : INotifyPropertyChanged
 
     public AddChannelViewModel()
     {
-        // _channelsViewModel = Application.Current.Resources["ChannelsViewModel"] as ChannelsViewModel;
         _channelsViewModel = ChannelsViewModel.GetInstance();
         PreChannelsUpdated = new RelayCommand<object>(OnPreChannelsUpdated);
         OpenUnsplashCommand = new RelayCommand<object>(OnUnsplashOpenButtonClick);

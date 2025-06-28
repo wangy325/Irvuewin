@@ -15,7 +15,7 @@ public partial class Channels : LocationAwareWindow
     public Channels()
     {
         InitializeComponent();
-        DataContext = Application.Current.Resources["ChannelsViewModel"];
+        DataContext = ChannelsViewModel.GetInstance();
         Loaded += ChannelsWindow_Loaded;
         Loaded += (s, e) => _isInitialized = true;
         Closing += ChannelsWindow_Closing;
@@ -141,6 +141,7 @@ public partial class Channels : LocationAwareWindow
         // Load more photos
         if (DataContext is ChannelsViewModel viewModel && viewModel.LoadMorePhotos.CanExecute(null))
         {
+            Console.WriteLine($@">> On load more photos");
             viewModel.LoadMorePhotos.Execute(null);
         }
     }

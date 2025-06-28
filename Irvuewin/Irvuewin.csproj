@@ -93,6 +93,10 @@
     <Resource Include="Icons\Tray\location_bold.ico">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
+    <None Remove="Icons\Channels\question.ico" />
+    <Resource Include="Icons\Channels\question.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
   </ItemGroup>
 
   <ItemGroup>

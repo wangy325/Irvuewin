@@ -6,6 +6,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:helpers="clr-namespace:Irvuewin.Helpers"
     xmlns:m="clr-namespace:Irvuewin.Models.Unsplash"
+    xmlns:vm="clr-namespace:Irvuewin.ViewModels"
     xmlns:vwp="clr-namespace:WpfToolkit.Controls;assembly=VirtualizingWrapPanel"
     mc:Ignorable="d"
     Title="Channels" Icon="/Icons/application_64.ico"
@@ -13,15 +14,19 @@
     Background="WhiteSmoke" ShowInTaskbar="False" ResizeMode="NoResize"
     WindowStartupLocation="CenterScreen">
 
-    <!--<helpers:LocationAwareWindow.DataContext>
-        <StaticResource ResourceKey="ChannelsViewModel" />
-    </helpers:LocationAwareWindow.DataContext>-->
+    <!-- <helpers:LocationAwareWindow.DataContext> -->
+    <!-- <StaticResource ResourceKey="ChannelsViewModel" /> -->
+    <!-- <Binding Path="DataContext" RelativeSource="{RelativeSource Self}"/> -->
+    <!-- </helpers:LocationAwareWindow.DataContext> -->
+
 
     <helpers:LocationAwareWindow.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="/Themes/Generic.xaml" />
             </ResourceDictionary.MergedDictionaries>
+
+            <m:UnsplashChannel x:Key="UnsplashChannel" />
 
             <DataTemplate x:Key="VItemControlTemplate" DataType="{x:Type m:UnsplashPhoto}">
                 <Grid>
@@ -193,7 +198,8 @@
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="100" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="60" />
                     </Grid.ColumnDefinitions>
                     <Label Grid.Column="0"
                            Padding="20,0"
@@ -215,10 +221,37 @@
                         </Label.Content>
                     </Label>
                     <Button Grid.Column="1"
-                            Content="刷新"
-                            Width="50" Height="20"
+                            x:Name="RefreshButton"
+                            Content="刷新图片"
+                            Width="80"
+                            Margin="0"
                             Click="RefreshButton_OnClick"
                             Style="{StaticResource BottomButtonStyle}" />
+                    
+                    <Border Grid.Column="2"
+                            Width="20" Height="20">
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Setter Property="CornerRadius" Value="10" />
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="LightGray"/>
+                                    </Trigger>
+                                    <Trigger Property="IsMouseOver" Value="False">
+                                        <Setter Property="Background" Value="Transparent"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                        <Border.ToolTip>
+                            <ToolTip Content="会重置非随机模式下的壁纸切换顺序"
+                                     Placement="Left"
+                                     PlacementTarget="{Binding ElementName=RefreshButton}"
+                                     Style="{StaticResource ToolTipStyle}" />
+                        </Border.ToolTip>
+                        <Image Source="/Icons/Channels/question.ico"/>
+                    </Border>
+                    
                 </Grid>
             </Grid>
 
@@ -233,7 +266,7 @@
                                           ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                                           ScrollViewer.VerticalScrollBarVisibility="Auto"
                                           ScrollViewer.ScrollChanged="VirtualizingItemsControl_ScrollChanged"
-                                          ItemsSource="{Binding Path=Photos}">
+                                          ItemsSource="{Binding  Path=Photos}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
                         <vwp:VirtualizingWrapPanel

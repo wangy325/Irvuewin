@@ -118,7 +118,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
     {
         return Instance.Value;
     }
-    
+
     public static ChannelsViewModel GetInstance()
     {
         return Instance.Value.Result;
@@ -184,22 +184,22 @@ public class ChannelsViewModel : INotifyPropertyChanged
             // load from cache
         {
             RenewChannelPhotos(cachedPhotos, append);
-        }
-        else
-            // load from web
-        {
-            var httpService = IHttpClient.GetUnsplashHttpService();
-            if (await httpService.GetPhotosOfChannel(channelId, query) is { } photos
-                && photos.Count != 0)
-            {
-                RenewChannelPhotos(photos, append);
-                // update cache
-                await CachePhotos(cacheIndex, photos);
-                LoadedPhotoCount[channelId] = photos.Count;
-            }
+            return true;
         }
 
-        return Photos.Count > 0;
+        // load from web
+        var httpService = IHttpClient.GetUnsplashHttpService();
+        if (await httpService.GetPhotosOfChannel(channelId, query) is { } photos
+            && photos.Count != 0)
+        {
+            RenewChannelPhotos(photos, append);
+            // update cache
+            await CachePhotos(cacheIndex, photos);
+            LoadedPhotoCount[channelId] = photos.Count;
+            return true;
+        }
+
+        return false;
     }
 
     private void RenewChannelPhotos(List<UnsplashPhoto> photos, bool append)
@@ -296,7 +296,11 @@ public class ChannelsViewModel : INotifyPropertyChanged
             };
             await CachePhotos(cacheIndex, photos);
         }
+
+        // reset
         TrayMenuHelper.ResetChannelSequence(channelId);
+        _shardIndex[channelId] = 1;
+        AllPhotosLoaded = false;
         // reset photos count
         LoadedPhotoCount[channelId] = Photos.Count;
         Console.WriteLine(@$"Refreshed photos for channel {channelId}");
@@ -311,7 +315,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
     {
         await UnsplashCache.CachePhotosAsync(cachePageIndex, photos);
     }
-    
+
     public void UnCachePhotos(string channelId)
     {
         UnsplashCache.UnCacheChannelPhotos(channelId);
