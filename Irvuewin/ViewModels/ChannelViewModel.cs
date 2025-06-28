@@ -28,18 +28,8 @@ public class ChannelViewModel : UnsplashChannel, INotifyPropertyChanged
     private static void OnTrayChannelSelected(object param)
     {
         if (param is not ChannelViewModel item) return;
-        item.IsSelected = true;
         var channelsWindow = ChannelsViewModel.GetInstance();
-        foreach (var channel in channelsWindow.Channels!)
-        {
-            if (channel == item) continue;
-            channel.IsSelected = false;
-        }
-        channelsWindow.SelectedChannel = item;
-        // 更新index
-        Properties.Settings.Default.SelectedChannelIndex = (sbyte)channelsWindow.Channels.IndexOf(item);
-        Properties.Settings.Default.Save();
-        Debug.WriteLine(">>>>> selected index saved...");
+        channelsWindow.ItemSelected.Execute(item);
     }
 
 

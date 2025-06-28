@@ -222,6 +222,8 @@ public class ChannelsViewModel : INotifyPropertyChanged
     {
         try
         {
+            if (param is not ChannelViewModel item) return;
+            
             // Reset photos loaded status and shard index
             AllPhotosLoaded = false;
             foreach (var key in _shardIndex.Keys.ToList())
@@ -230,7 +232,6 @@ public class ChannelsViewModel : INotifyPropertyChanged
             }
 
             // Update selected status
-            if (param is not ChannelViewModel item) return;
             item.IsSelected = true;
             _selectedChannel = item;
             foreach (var channel in Channels)
@@ -238,6 +239,8 @@ public class ChannelsViewModel : INotifyPropertyChanged
                 if (channel == _selectedChannel) continue;
                 channel.IsSelected = false;
             }
+
+            LoadedPhotoCount[item.Id] = await UnsplashCache.LoadPhotoCountAsync(item.Id);
 
             // Update selected index to settings
             SelectedIndex = (sbyte)Channels.IndexOf(_selectedChannel);

@@ -69,10 +69,10 @@ public partial class Channels : LocationAwareWindow
         if (sender is ListBox listBox && DataContext is ChannelsViewModel viewModel)
         {
             var selectedItem = listBox.SelectedItem;
-            System.Diagnostics.Debug.WriteLine($"ListBox_SelectionChanged Index: {listBox.SelectedIndex}");
             // 传入索引
             if (listBox.SelectedIndex != Properties.Settings.Default.SelectedChannelIndex)
             {
+                Console.WriteLine($@"ListBox_SelectionChanged Index: {listBox.SelectedIndex}");
                 viewModel.SelectedIndex = (sbyte)listBox.SelectedIndex;
                 viewModel.ItemSelected.Execute(selectedItem);
             }
@@ -141,7 +141,6 @@ public partial class Channels : LocationAwareWindow
         // Load more photos
         if (DataContext is ChannelsViewModel viewModel && viewModel.LoadMorePhotos.CanExecute(null))
         {
-            Console.WriteLine($@">> On load more photos");
             viewModel.LoadMorePhotos.Execute(null);
         }
     }
