@@ -34,6 +34,7 @@ namespace Irvuewin
             });*/
             
             // Create ChannelsViewModel singleton instance
+            // TODO 优化初始化过程
             _channelsViewModel = await ChannelsViewModel.GetInstanceAsync();
             Resources.Add("ChannelsViewModel", _channelsViewModel);
             
@@ -50,7 +51,7 @@ namespace Irvuewin
             }
 
             // Change wallpaper when app start
-            await TrayMenuHelper.ChangeCurrentWallpaper();
+            _ = TrayMenuHelper.ChangeCurrentWallpaper().ConfigureAwait(false);
             
             // Init wallpaper change schedule Timer
             TrayMenuHelper.InitWallpaperChangeScheduler();
@@ -91,6 +92,10 @@ namespace Irvuewin
         private void DownloadCurrentWallpaper_Click(object sender, RoutedEventArgs e)
         {
             var dest = Irvuewin.Properties.Settings.Default.WallpaperSavedPath;
+            if (string.IsNullOrWhiteSpace(dest))
+            {
+                dest = IAppConst.DefaultWallpaperDownloadDir;
+            }
             if (!TrayMenuHelper.DownloadCurrentWallpaper(dest)) return;
             var openFolder = Irvuewin.Properties.Settings.Default.OpenSavedWallpaper;
             if (openFolder)
