@@ -12,4 +12,11 @@ public interface IAppConst
     const string CachedPhotosNamePrefix = "photos_";
     const string CachedPhotosNameSuffix = "cached.json";
 
+    const string ChooseFolder = "选择文件夹";
+
+    struct Hints
+    {
+        public const string MessageBoxCaption = "提示";
+        public const string IllegalFolder = "不能选择系统或隐藏文件夹";
+    }
 }
