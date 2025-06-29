@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.IO;
 using System.Timers;
 using System.Windows;
 using Irvuewin.Helpers.Utils;
@@ -249,12 +250,15 @@ public static class TrayMenuHelper
     // TODO 多显示器
     public static async void PreviousWallpaper()
     {
-        // Do nothing when stack is empty or stack has only current wallpaper
+        // Do nothing when stack is empty or stack has only 1 wallpaper
         // This happens when app starts up
         if (WallpaperHistory.Count <= 1) return;
         WallpaperHistory.Pop();
         var path = WallpaperHistory.Peek();
         await WallpaperUtil.SetWallpaper(null, path);
+        var pid = Path.GetFileNameWithoutExtension(path);
+        CurrentWallpaper[_currentScreen!] = pid;
+        await GetWallpaperInfo();
     }
 
     public static bool DownloadCurrentWallpaper(string dest)

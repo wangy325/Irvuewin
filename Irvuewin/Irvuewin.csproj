@@ -8,6 +8,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
     <NuGetAuditLevel>low</NuGetAuditLevel>
+    <ApplicationIcon>Icons\tray.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
