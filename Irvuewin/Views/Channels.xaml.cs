@@ -65,18 +65,12 @@ public partial class Channels : LocationAwareWindow
     private void ListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         if (!_isInitialized) return;
-
-        if (sender is ListBox listBox && DataContext is ChannelsViewModel viewModel)
-        {
-            var selectedItem = listBox.SelectedItem;
-            // 传入索引
-            if (listBox.SelectedIndex != Properties.Settings.Default.SelectedChannelIndex)
-            {
-                Console.WriteLine($@"ListBox_SelectionChanged Index: {listBox.SelectedIndex}");
-                viewModel.SelectedIndex = (sbyte)listBox.SelectedIndex;
-                viewModel.ItemSelected.Execute(selectedItem);
-            }
-        }
+        if (sender is not ListBox listBox || DataContext is not ChannelsViewModel viewModel) return;
+        
+        var selectedItem = listBox.SelectedItem;
+        Console.WriteLine($@"ListBox_SelectionChanged Index: {listBox.SelectedIndex}");
+        viewModel.SelectedIndex = (sbyte)listBox.SelectedIndex;
+        viewModel.ItemSelected.Execute(selectedItem);
     }
 
     /// <summary>
@@ -185,9 +179,9 @@ public partial class Channels : LocationAwareWindow
             MessageBox.Show("Can not delete system Reserved channel.");
             return;
         }
+
         if (DataContext is ChannelsViewModel viewModel)
         {
-            
             viewModel.DeleteSelectedChannel();
         }
     }

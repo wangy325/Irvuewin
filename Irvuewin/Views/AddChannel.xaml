@@ -98,9 +98,10 @@
                 </StackPanel>
             </DataTemplate>
 
-            <Style x:Key="ListBoxStyle2" TargetType="ListBox" BasedOn="{StaticResource ListBoxStyle}">
+            <Style x:Key="ChannelMultipleSelectorStyle" TargetType="ListBox" BasedOn="{StaticResource ListBoxStyle}">
                 <Setter Property="Margin" Value="0,5, 0,0" />
                 <Setter Property="BorderThickness" Value="1" />
+                <Setter Property="SelectionMode" Value="Multiple" />
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="ListBox">
@@ -136,52 +137,11 @@
                 </Setter>
             </Style>
 
-            <!-- TODO: 可以抽取为公共样式 -->
-            <Style x:Key="ListBoxItemStyle" TargetType="ListBoxItem">
-                <!-- 基础属性设置 -->
-                <Setter Property="Background" Value="WhiteSmoke" />
-                <Setter Property="BorderThickness" Value="0" />
-                <Setter Property="Height" Value="40" />
+            <Style x:Key="ChannelSelectorBoxItemStyle"
+                   TargetType="ListBoxItem"
+                   BasedOn="{StaticResource ListBoxItemStyle}">
                 <Setter Property="Margin" Value="0,2" />
-                <Setter Property="HorizontalContentAlignment" Value="Left" />
-                <Setter Property="VerticalContentAlignment" Value="Center" />
-                <Setter Property="Template">
-                    <Setter.Value>
-                        <ControlTemplate TargetType="ListBoxItem">
-                            <Border x:Name="Bd"
-                                    Background="{TemplateBinding Background}"
-                                    BorderBrush="{TemplateBinding BorderBrush}"
-                                    BorderThickness="{TemplateBinding BorderThickness}"
-                                    CornerRadius="5"
-                                    SnapsToDevicePixels="True">
-                                <ContentPresenter x:Name="ContentPresenter"
-                                                  HorizontalAlignment="{TemplateBinding HorizontalAlignment}"
-                                                  VerticalAlignment="{TemplateBinding VerticalAlignment}" />
-                            </Border>
-                            <!-- 视觉状态管理 -->
-                            <ControlTemplate.Triggers>
-                                <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="Bd" Property="Background" Value="LightGray" />
-                                    <Setter TargetName="ContentPresenter" Property="TextElement.Foreground"
-                                            Value="Black" />
-                                </Trigger>
-                                <Trigger Property="IsSelected" Value="True">
-                                    <Setter TargetName="Bd" Property="Background" Value="LightGray" />
-                                    <Setter TargetName="ContentPresenter" Property="TextElement.Foreground"
-                                            Value="Black" />
-                                    <!-- <Setter TargetName="PART_RadioButton" Property="IsChecked" Value="True" /> -->
-                                </Trigger>
-                                <Trigger Property="IsEnabled" Value="False">
-                                    <Setter TargetName="ContentPresenter" Property="TextElement.Foreground"
-                                            Value="#FF888888" />
-                                </Trigger>
-                            </ControlTemplate.Triggers>
-                        </ControlTemplate>
-                    </Setter.Value>
-                </Setter>
             </Style>
-
-
         </ResourceDictionary>
     </helper:LocationAwareWindow.Resources>
 
@@ -312,11 +272,10 @@
 
                 <ListBox Grid.Row="3"
                          x:Name="PreChannelsListBox"
-                         SelectionMode="Multiple"
                          helper:ListBoxSelectedItemsBehavior.BindableSelectedItems="{Binding SelectedChannels, Mode=TwoWay}"
-                         Style="{StaticResource ListBoxStyle2}"
+                         Style="{StaticResource ChannelMultipleSelectorStyle}"
                          ItemsSource="{Binding PreChannels}"
-                         ItemContainerStyle="{StaticResource ListBoxItemStyle}"
+                         ItemContainerStyle="{StaticResource ChannelSelectorBoxItemStyle}"
                          ItemTemplate="{StaticResource ResolvingChannelsTemplate}">
 
                     <ListBox.ItemsPanel>

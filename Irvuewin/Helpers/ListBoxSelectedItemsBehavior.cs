@@ -4,6 +4,7 @@ using System.Windows.Controls;
 
 namespace Irvuewin.Helpers
 {
+    // Multiple ListBox item selected binding tools
     public static class ListBoxSelectedItemsBehavior
     {
         public static readonly DependencyProperty BindableSelectedItemsProperty =

@@ -54,9 +54,6 @@ public class ChannelsViewModel : INotifyPropertyChanged
         {
             if (_selectedIndex == value) return;
             _selectedIndex = value;
-            Properties.Settings.Default.SelectedChannelIndex = _selectedIndex;
-            Properties.Settings.Default.Save();
-            Console.WriteLine($@"Set SelectedIndex==> Selected channel Index: {value}");
             OnPropertyChanged();
         }
     }
