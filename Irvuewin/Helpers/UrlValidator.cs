@@ -1,4 +1,4 @@
-﻿using System.Text.RegularExpressions;
+using System.Text.RegularExpressions;
 
 namespace Irvuewin.Helpers;
 
@@ -6,34 +6,27 @@ public static class UrlValidator
 {
         public static (string, bool)? ValidateUrl(string url) 
         {
-            if (!Uri.TryCreate(url, UriKind.Absolute, out var uriResult) ||
+            /*if (!Uri.TryCreate(url, UriKind.Absolute, out var uriResult) ||
                 !(uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps))
             {
                 return null;
+            }*/
+
+            var collectionsRegex =  new Regex(@"^https?://(?:www\.)?unsplash\.com/collections/([^/]+)/([^/]+)$");
+            var match = collectionsRegex.Match(url);
+            if (match.Success)
+            {
+                return (match.Groups[1].Value, true);
             }
 
-            if (!uriResult.Host.EndsWith("unsplash.com", StringComparison.OrdinalIgnoreCase))
+            // 判断是否匹配 @username 格式
+            var userRegex = new Regex(@"^https?://(?:www\.)?unsplash\.com/@([\w-]+)$");
+            match = userRegex.Match(url);
+            if (match.Success)
             {
-                return null;
+                return (match.Groups[1].Value, false);
             }
-            else
-            {
-                var collectionsRegex =  new Regex(@"^https?://(?:www\.)?unsplash\.com/collections/([^/]+)/([^/]+)$");
-                var match = collectionsRegex.Match(url);
-                if (match.Success)
-                {
-                    return (match.Groups[1].Value, true);
-                }
 
-                // 判断是否匹配 @username 格式
-                var userRegex = new Regex(@"^https?://(?:www\.)?unsplash\.com/@([\w-]+)$");
-                match = userRegex.Match(url);
-                if (match.Success)
-                {
-                    return (match.Groups[1].Value, false);
-                }
-            }
-            
             return null;
         }
 }

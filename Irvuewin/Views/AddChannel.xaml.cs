@@ -1,4 +1,5 @@
-﻿using System.Windows;
+using System.Windows;
+using System.Windows.Input;
 using Irvuewin.Helpers;
 using Irvuewin.Models.Unsplash;
 using Irvuewin.ViewModels;
@@ -38,28 +39,43 @@ public partial class AddChannel : LocationAwareWindow
 
     private async void ResolvingChannel_Click(object sender, RoutedEventArgs e)
     {
+        if (DataContext is not AddChannelViewModel { } viewModel) return;
         var url = InputChannelUrl.Text;
         if (url.Length <= 0) return;
-        Console.WriteLine($@"ResolvingChannel: {url}");
-        var tuple = UrlValidator.ValidateUrl(url);
-        if (DataContext is not AddChannelViewModel { } viewModel) return;
-        viewModel.IsLoading = true;
-        if (tuple is ({ } idOrName, var isCollectionId))
+        try
         {
-            Console.WriteLine($@"ResolvingChannel: {idOrName}, {isCollectionId}");
-            var channels = await viewModel.ResolvingChannel(idOrName, isCollectionId);
-            Console.WriteLine($@"Pre channel: {string.Join(",", channels.Select(c => c.Id))}");
-            // clear textbox
-            InputChannelUrl.Text = "";
+            var tuple = UrlValidator.ValidateUrl(url);
+            viewModel.IsLoading = true;
+            if (tuple is ({ } idOrName, var isCollectionId))
+            {
+                Console.WriteLine($@"ResolvingChannel: {idOrName}, {isCollectionId}");
+                var channels = await viewModel.ResolvingChannel(idOrName, isCollectionId);
+                Console.WriteLine($@"Pre channel: {string.Join(",", channels.Select(c => c.Id))}");
+                // clear textbox
+                InputChannelUrl.Text = "";
+            }
+            else
+            {
+                // handle input as search keywords
+                await viewModel.SearchChannels(url);
+            }
         }
-        else
+        catch (Exception ex)
         {
-            // handle input as search keywords
-            await viewModel.SearchChannels(url);
+            // ignore
         }
-        viewModel.IsLoading = false;
-        // TODO 如何提示？
-        // MessageBox.Show("Invalid URL", "Error");
+        finally
+        {
+            viewModel.IsLoading = false;
+        }
+    }
+
+    private void InputChannelUrl_KeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.Enter)
+        {
+            ResolvingChannel_Click(sender, e);
+        }
     }
 
     private void AddChannelWindow_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
