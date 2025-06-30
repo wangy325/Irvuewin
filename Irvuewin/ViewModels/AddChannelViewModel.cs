@@ -18,7 +18,7 @@ public class AddChannelViewModel : INotifyPropertyChanged
     public string HintTitle { get; } = "You can use URLs from unsplash, such as:";
     public string Hint1 { get; } = "- https://unsplash.com/@leanspok";
     public string Hint2 { get; } = "- https://unsplash.com/collection/276189/colors";
-    
+
     public string Hint4Channels { get; } = " Explore Unsplash to find new channels: ";
     public string ButtonOpenUnsplash { get; } = "Open Unsplash.com";
 
@@ -64,8 +64,6 @@ public class AddChannelViewModel : INotifyPropertyChanged
         }
     }
 
-  
-
 
     public AddChannelViewModel()
     {
@@ -101,8 +99,7 @@ public class AddChannelViewModel : INotifyPropertyChanged
     {
         // Reduce channels already added
         var channels =
-            SelectedChannels.Where(
-                c => _channelsViewModel.Channels.All(ch => ch.Id != c.Id)
+            SelectedChannels.Where(c => _channelsViewModel.Channels.All(ch => ch.Id != c.Id)
             ).ToList();
         if (channels.Count <= 0) return;
         _channelsViewModel.AddChannel(channels);

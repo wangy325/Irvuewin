@@ -42,11 +42,13 @@ public static class TrayMenuHelper
     }
 
     // Once new channel added, add its sequence to cache
-    public static void AddNewChannelSequence(List<UnsplashChannel> channels)
+    public static void AddNewChannelSequence(List<ChannelViewModel> channels)
     {
+        var trayViewModel = Application.Current.Resources["TrayViewModel"] as TrayViewModel;
         foreach (var channel in channels)
         {
             CachedWallpaperSequence[channel.Id] = 1;
+            trayViewModel!.Channels.Add(channel);
         }
 
         _sequenceModify++;
@@ -54,8 +56,16 @@ public static class TrayMenuHelper
 
     public static void DelChannelSequence(string key)
     {
+        var trayViewModel = Application.Current.Resources["TrayViewModel"] as TrayViewModel;
         CachedWallpaperSequence.Remove(key);
         _sequenceModify++;
+        var filteredList = trayViewModel!.Channels.Where(channel => channel.Id != key).ToList();
+
+        trayViewModel.Channels = [..filteredList];
+        /*foreach (var channel in filteredList)
+        {
+            trayViewModel.Channels.Add(channel);
+        }*/
     }
 
     public static async Task LoadCachedSequence()

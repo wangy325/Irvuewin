@@ -334,7 +334,8 @@ public class ChannelsViewModel : INotifyPropertyChanged
 
         // Map to ChannelViewModel list
         var cvm = selectedChannels.Select(channel => MapperProvider.Mapper.Map<ChannelViewModel>(channel));
-        Channels = [..Channels.Concat(cvm).ToList()];
+        var channelViewModels = cvm.ToList();
+        Channels = [..Channels.Concat(channelViewModels).ToList()];
         Console.WriteLine($@">>>>>>New Channels: {string.Join(",", Channels.Select(channel => channel.Id))}");
 
         // Update shard index and wallpaper sequence
@@ -343,15 +344,13 @@ public class ChannelsViewModel : INotifyPropertyChanged
             _shardIndex.Add(channel.Id, 1);
         }
 
-        TrayMenuHelper.AddNewChannelSequence(selectedChannels);
+        TrayMenuHelper.AddNewChannelSequence(channelViewModels);
     }
 
     public void DeleteSelectedChannel()
     {
-        Console.WriteLine($@"Saved channels Before: {SavedChannels}");
         var id = SelectedChannel.Id;
         SavedChannels = string.Join(",", SavedChannels.Split(",").Where(item => item != id));
-        Console.WriteLine($@"Saved channels After: {SavedChannels}");
 
         Properties.Settings.Default.UserUnsplashChannels = SavedChannels;
         Properties.Settings.Default.Save();

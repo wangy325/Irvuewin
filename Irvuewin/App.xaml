@@ -144,7 +144,7 @@
                             <i:EventTrigger EventName="Opened">
                                 <i:InvokeCommandAction
                                     Command="{Binding Source={StaticResource TrayViewModel}, 
-                                Path=TrayMenuOpened}" />
+                                Path=TrayMenuOpenedCommand}" />
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
 
@@ -359,11 +359,11 @@
                             <i:Interaction.Triggers>
                                 <i:EventTrigger EventName="Checked">
                                     <i:InvokeCommandAction
-                                        Command="{Binding Source={StaticResource TrayViewModel}, Path=SaveCachedSequence}" />
+                                        Command="{Binding Source={StaticResource TrayViewModel}, Path=SaveCachedSequenceCommand}" />
                                 </i:EventTrigger>
                                 <i:EventTrigger EventName="Unchecked">
                                     <i:InvokeCommandAction
-                                        Command="{Binding Source={StaticResource TrayViewModel}, Path=LoadCachedSequence}" />
+                                        Command="{Binding Source={StaticResource TrayViewModel}, Path=LoadCachedSequenceCommand}" />
                                 </i:EventTrigger>
                             </i:Interaction.Triggers>
                         </MenuItem>

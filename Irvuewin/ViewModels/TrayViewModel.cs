@@ -11,14 +11,20 @@ namespace Irvuewin.ViewModels;
 
 public class TrayViewModel : INotifyPropertyChanged
 {
-    public ICommand TrayMenuOpened { set; get; } = new RelayCommand<object>(CheckDisplayCommand);
+    
+    // Static property should implement INotifyPropertyChanged manually
+    // Even though it's an observation collection
+    private ObservableCollection<ChannelViewModel> _channels = [];
 
-    private static void CheckDisplayCommand(object param)
+    public ObservableCollection<ChannelViewModel> Channels
     {
-        TrayMenuHelper.CheckPointer();
+        get => _channels;
+        set
+        {
+            _channels = value;
+            OnPropertyChanged();
+        }
     }
-
-    public static ObservableCollection<ChannelViewModel> Channels { set; get; } = [];
     public static string HAboutCurrentWallpaper { get; } = "About Wallpaper";
 
     private WallpaperInfo _aboutWallpaper = new();
@@ -79,14 +85,22 @@ public class TrayViewModel : INotifyPropertyChanged
     // public string NextWallpaperChangeTimeString => NextWallpaperChangeTime.ToString("yyyy-MM-dd HH:mm:ss");
 
 
-    public ICommand LoadCachedSequence { get; } = new RelayCommand<object>(OnLoadCachedSequence);
-    public ICommand SaveCachedSequence { get; } = new RelayCommand<object>(OnSaveCachedSequence);
+    public ICommand LoadCachedSequenceCommand { get; } = new RelayCommand<object>(OnLoadCachedSequence);
+    public ICommand SaveCachedSequenceCommand { get; } = new RelayCommand<object>(OnSaveCachedSequence);
 
     public ICommand OpenAddChannelWindowCommand { get; } = new RelayCommand<object>(OnAddNeeChannel);
 
     // TODO Constructor initialization
     public ICommand AuthorInfoPageOpenCommand => new RelayCommand<object>(OnAuthorNameClicked);
     public ICommand WallpaperInfoPageOpenCommand => new RelayCommand<object>(OnWallpaperInfoClicked);
+
+    public ICommand TrayMenuOpenedCommand { get; } = new RelayCommand<object>(OnCheckDisplay);
+
+    private static void OnCheckDisplay(object param)
+    {
+        TrayMenuHelper.CheckPointer();
+    }
+
 
     private void OnWallpaperInfoClicked(object obj)
     {
@@ -130,7 +144,7 @@ public class TrayViewModel : INotifyPropertyChanged
     private static void OnLoadCachedSequence(object obj)
     {
         // Load Cached resources
-        TrayMenuHelper.LoadCachedSequence();
+        Task.Run(TrayMenuHelper.LoadCachedSequence);
         Properties.Settings.Default.Save();
     }
 
