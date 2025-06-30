@@ -48,7 +48,7 @@ public static class TrayMenuHelper
         foreach (var channel in channels)
         {
             CachedWallpaperSequence[channel.Id] = 1;
-            trayViewModel!.Channels.Add(channel);
+            trayViewModel!.AddedChannels.Add(channel);
         }
 
         _sequenceModify++;
@@ -59,9 +59,9 @@ public static class TrayMenuHelper
         var trayViewModel = Application.Current.Resources["TrayViewModel"] as TrayViewModel;
         CachedWallpaperSequence.Remove(key);
         _sequenceModify++;
-        var filteredList = trayViewModel!.Channels.Where(channel => channel.Id != key).ToList();
+        var filteredList = trayViewModel!.AddedChannels.Where(channel => channel.Id != key).ToList();
 
-        trayViewModel.Channels = [..filteredList];
+        trayViewModel.AddedChannels = [..filteredList];
         /*foreach (var channel in filteredList)
         {
             trayViewModel.Channels.Add(channel);
@@ -117,8 +117,10 @@ public static class TrayMenuHelper
         {
             // TODO 多显示器的栈缓存还不一样呢
             var sequence = CachedWallpaperSequence[channel.Id];
-            await SetWallPaper(channel, sequence);
             var loadedPhotos = channelsViewModel.LoadedPhotoCount[channel.Id];
+            // Do nothing when collections can not load photo(s) through api
+            if (loadedPhotos == 0) return;
+            await SetWallPaper(channel, sequence);
             Console.WriteLine($@"> loadedPhotos: {loadedPhotos}");
             if (++sequence > loadedPhotos)
             {
@@ -151,6 +153,7 @@ public static class TrayMenuHelper
             // wallpaper file cache path
             if (await UnsplashCache.LoadPhotosShardAsync(photosCachePageIndex) is { } res)
             {
+                if (!res.Any()) return;
                 // TODO
                 // 0) 一定是从缓存中获取图片信息
                 // 1) 数据完整性问题

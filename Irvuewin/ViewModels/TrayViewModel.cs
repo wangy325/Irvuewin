@@ -1,10 +1,9 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Globalization;
 using System.Runtime.CompilerServices;
-using System.Windows.Forms;
 using System.Windows.Input;
 using Irvuewin.Helpers;
+using Irvuewin.Helpers.Utils;
 using Irvuewin.Views;
 
 namespace Irvuewin.ViewModels;
@@ -14,14 +13,14 @@ public class TrayViewModel : INotifyPropertyChanged
     
     // Static property should implement INotifyPropertyChanged manually
     // Even though it's an observation collection
-    private ObservableCollection<ChannelViewModel> _channels = [];
+    private ObservableCollection<ChannelViewModel> _addedChannels = [];
 
-    public ObservableCollection<ChannelViewModel> Channels
+    public ObservableCollection<ChannelViewModel> AddedChannels
     {
-        get => _channels;
+        get => _addedChannels;
         set
         {
-            _channels = value;
+            _addedChannels = value;
             OnPropertyChanged();
         }
     }
@@ -88,7 +87,7 @@ public class TrayViewModel : INotifyPropertyChanged
     public ICommand LoadCachedSequenceCommand { get; } = new RelayCommand<object>(OnLoadCachedSequence);
     public ICommand SaveCachedSequenceCommand { get; } = new RelayCommand<object>(OnSaveCachedSequence);
 
-    public ICommand OpenAddChannelWindowCommand { get; } = new RelayCommand<object>(OnAddNeeChannel);
+    public ICommand OpenAddChannelWindowCommand { get; } = new RelayCommand<object>(OnAddNewChannel);
 
     // TODO Constructor initialization
     public ICommand AuthorInfoPageOpenCommand => new RelayCommand<object>(OnAuthorNameClicked);
@@ -135,10 +134,10 @@ public class TrayViewModel : INotifyPropertyChanged
     }
 
 
-    private static void OnAddNeeChannel(object obj)
+    private static void OnAddNewChannel(object obj)
     {
-        new Channels().Show();
-        new AddChannel().ShowDialog();
+        WindowManager.ShowWindow(nameof(Channels), () => new Channels() );
+        WindowManager.ShowWindow(nameof(AddChannel), ()=> new AddChannel(), true);
     }
 
     private static void OnLoadCachedSequence(object obj)

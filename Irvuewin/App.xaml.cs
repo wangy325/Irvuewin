@@ -40,7 +40,7 @@ namespace Irvuewin
             
             //  Create a copy of Channels in TrayViewModel
             var trayViewModel = Current.Resources["TrayViewModel"] as TrayViewModel;
-            trayViewModel!.Channels = _channelsViewModel.Channels;
+            trayViewModel!.AddedChannels = _channelsViewModel.Channels;
 
             // Load wallpaper sequence cache
             // 启动时若未启用随机壁纸则加载序列缓存

@@ -189,12 +189,17 @@ public class ChannelsViewModel : INotifyPropertyChanged
 
         // load from web
         var httpService = IHttpClient.GetUnsplashHttpService();
-        if (await httpService.GetPhotosOfChannel(channelId, query) is { } photos
-            && photos.Count != 0)
+        if (await httpService.GetPhotosOfChannel(channelId, query) is { } photos)
         {
+            // Sometimes api can not get photos of a channel
+            // Though channel contains photo(s)
+            if (!photos.Any() && append)
+            {
+                return false;
+            }
             RenewChannelPhotos(photos, append);
             // update cache
-            await CachePhotos(cacheIndex, photos);
+            if (photos.Any()) await CachePhotos(cacheIndex, photos);
             LoadedPhotoCount[channelId] = Photos.Count;
             return true;
         }

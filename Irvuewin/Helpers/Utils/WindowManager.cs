@@ -8,7 +8,7 @@ namespace Irvuewin.Helpers.Utils
     {
         private static readonly Dictionary<string, WeakReference<Window>> _windows = [];
 
-        public static void ShowWindow<T>(string key, Func<T> windowFactory) where T : Window
+        public static void ShowWindow<T>(string key, Func<T> windowFactory, bool dialog = false) where T : Window
         {
             if (_windows.TryGetValue(key, out var reference) &&
                 reference.TryGetTarget(out var window))
@@ -21,8 +21,10 @@ namespace Irvuewin.Helpers.Utils
             newWindow.Closed += (s, e) => _windows.Remove(key);
 
             _windows[key] = new WeakReference<Window>(newWindow);
-            newWindow.Show();
+            if (!dialog) newWindow.Show();
+            else newWindow.ShowDialog();
         }
+        
 
         public static void SaveWindowPosition<T>(T window, string key) where T : Window
         {
@@ -54,9 +56,9 @@ namespace Irvuewin.Helpers.Utils
 
                 // 判断窗口位置是否在有效屏幕区域内
                 var isWithinBounds = position.Left >= workArea.Left &&
-                                      position.Top >= workArea.Top &&
-                                      position.Left + position.Width <= workArea.Right &&
-                                      position.Top + position.Height <= workArea.Bottom;
+                                     position.Top >= workArea.Top &&
+                                     position.Left + position.Width <= workArea.Right &&
+                                     position.Top + position.Height <= workArea.Bottom;
 
                 if (isWithinBounds)
                 {

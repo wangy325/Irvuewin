@@ -8,6 +8,7 @@
     xmlns:m="clr-namespace:Irvuewin.Models.Unsplash"
     xmlns:vm="clr-namespace:Irvuewin.ViewModels"
     xmlns:vwp="clr-namespace:WpfToolkit.Controls;assembly=VirtualizingWrapPanel"
+    xmlns:views="clr-namespace:Irvuewin.Views"
     mc:Ignorable="d"
     Title="Channels" Icon="/Icons/application_64.ico"
     Height="720" Width="960" MinWidth="500"
@@ -16,7 +17,7 @@
 
     <!-- <helpers:LocationAwareWindow.DataContext> -->
     <!-- <StaticResource ResourceKey="ChannelsViewModel" /> -->
-    <!-- <Binding Path="DataContext" RelativeSource="{RelativeSource Self}"/> -->
+    <!-- <Binding Path="DataContext" RelativeSource="{RelativeSource Self}" /> -->
     <!-- </helpers:LocationAwareWindow.DataContext> -->
 
 
@@ -26,45 +27,7 @@
                 <ResourceDictionary Source="/Themes/Generic.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
-            <m:UnsplashChannel x:Key="UnsplashChannel" />
 
-            <DataTemplate x:Key="VItemControlTemplate" DataType="{x:Type m:UnsplashPhoto}">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="150" />
-                        <RowDefinition Height="Auto" />
-                    </Grid.RowDefinitions>
-                    <Image Grid.Row="0"
-                           Margin="10, 10, 20, 0"
-                           Width="200"
-                           Source="{Binding Urls.Small}">
-                        <Image.Style>
-                            <Style TargetType="Image">
-                                <Setter Property="Stretch" Value="UniformToFill" />
-                                <Setter Property="Clip">
-                                    <Setter.Value>
-                                        <RectangleGeometry RadiusX="5" RadiusY="5" Rect="0,0,200,140" />
-                                    </Setter.Value>
-                                </Setter>
-                            </Style>
-                        </Image.Style>
-                    </Image>
-                    <StackPanel Grid.Row="1" Orientation="Horizontal"
-                                VerticalAlignment="Center">
-                        <Image Width="24" Height="24" Margin="20,0,5,0"
-                               Source="{Binding User.ProfileImage.Small}">
-                            <Image.Clip>
-                                <EllipseGeometry Center="12,12" RadiusX="12" RadiusY="12" />
-                            </Image.Clip>
-                        </Image>
-                        <Label Content="{Binding User.Name}"
-                               Foreground="Gray"
-                               FontStyle="Italic"
-                               FontFamily="Segoe UI"
-                               Style="{StaticResource LabelStyle}" />
-                    </StackPanel>
-                </Grid>
-            </DataTemplate>
         </ResourceDictionary>
     </helpers:LocationAwareWindow.Resources>
 
@@ -162,12 +125,13 @@
                 <RowDefinition Height="45" />
             </Grid.RowDefinitions>
             <ListBox Grid.Row="0" x:Name="ChannelsListBox"
-                     ItemsSource="{Binding Channels}"
-                     SelectedItem="{Binding SelectedChannel}"
-                     SelectedIndex="{Binding SelectedIndex, Mode=OneWay}"
+                     ItemsSource="{Binding RelativeSource={RelativeSource AncestorType=helpers:LocationAwareWindow}, Path =DataContext.(vm:ChannelsViewModel.Channels)}"
+                     SelectedItem="{Binding RelativeSource={RelativeSource AncestorType=helpers:LocationAwareWindow}, Path =DataContext.(vm:ChannelsViewModel.SelectedChannel)}"
+                     SelectedIndex="{Binding RelativeSource={RelativeSource AncestorType=helpers:LocationAwareWindow}, Path =DataContext.(vm:ChannelsViewModel.SelectedIndex), Mode=OneWay}"
                      SelectionChanged="ListBox_SelectionChanged"
                      ItemContainerStyle="{StaticResource ListBoxItemStyle}"
                      Style="{StaticResource ListBoxStyle}">
+                     <!-- ItemTemplate="{StaticResource ChannelsItemTemplate}" -->
             </ListBox>
             <StackPanel Grid.Row="1"
                         Orientation="Horizontal"
@@ -194,6 +158,68 @@
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
+            <Grid.Resources>
+                <DataTemplate x:Key="VItemControlTemplate" DataType="{x:Type m:UnsplashPhoto}">
+                    <Grid>
+                        <TextBlock
+                            Text="{Binding DataContext.Photos.Count, RelativeSource={RelativeSource AncestorType=helpers:LocationAwareWindow}}"
+                            Foreground="Red" />
+
+                        <Grid x:Name="PhotoShowCase">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="150" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <Image Grid.Row="0"
+                                   Margin="10, 10, 20, 0"
+                                   Width="200"
+                                   Source="{Binding Urls.Small}">
+                                <Image.Style>
+                                    <Style TargetType="Image">
+                                        <Setter Property="Stretch" Value="UniformToFill" />
+                                        <Setter Property="Clip">
+                                            <Setter.Value>
+                                                <RectangleGeometry RadiusX="5" RadiusY="5" Rect="0,0,200,140" />
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </Image.Style>
+                            </Image>
+                            <StackPanel Grid.Row="1" Orientation="Horizontal"
+                                        VerticalAlignment="Center">
+                                <Image Width="24" Height="24" Margin="20,0,5,0"
+                                       Source="{Binding User.ProfileImage.Small}">
+                                    <Image.Clip>
+                                        <EllipseGeometry Center="12,12" RadiusX="12" RadiusY="12" />
+                                    </Image.Clip>
+                                </Image>
+                                <Label Content="{Binding User.Name}"
+                                       Foreground="Gray"
+                                       FontStyle="Italic"
+                                       FontFamily="Segoe UI"
+                                       Style="{StaticResource LabelStyle}" />
+                            </StackPanel>
+                        </Grid>
+                        <Grid x:Name="NoPhotos" Visibility="Collapsed">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+                            <TextBlock Text="No photos available in this channel!"
+                                       Style="{StaticResource TextBlockStyle}" />
+                        </Grid>
+                    </Grid>
+                    <DataTemplate.Triggers>
+                        <DataTrigger
+                            Binding="{Binding RelativeSource={RelativeSource AncestorType=helpers:LocationAwareWindow}, Path=DataContext.Photos.Count}"
+                            Value="0">
+                            <Setter TargetName="PhotoShowCase" Property="Visibility" Value="Collapsed" />
+                            <Setter TargetName="NoPhotos" Property="Visibility" Value="Visible" />
+
+                        </DataTrigger>
+                    </DataTemplate.Triggers>
+                </DataTemplate>
+            </Grid.Resources>
+
             <Grid Grid.Row="0">
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -207,8 +233,9 @@
                            Style="{StaticResource LabelStyle}">
                         <Label.Content>
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="{Binding SelectedChannel.Title}"
-                                           Style="{StaticResource TextBlockStyle}" />
+                                <TextBlock
+                                    Text="{Binding RelativeSource={RelativeSource AncestorType=helpers:LocationAwareWindow}, Path =DataContext.(vm:ChannelsViewModel.SelectedChannel).Title}"
+                                    Style="{StaticResource TextBlockStyle}" />
                                 <Button Width="15" Height="15" Margin="0,0,0,5"
                                         VerticalAlignment="Top"
                                         HorizontalAlignment="Right"
@@ -220,6 +247,7 @@
                             </StackPanel>
                         </Label.Content>
                     </Label>
+                    <!-- TODO animation -->
                     <Button Grid.Column="1"
                             x:Name="RefreshButton"
                             Content="刷新图片"
@@ -227,7 +255,7 @@
                             Margin="0"
                             Click="RefreshButton_OnClick"
                             Style="{StaticResource BottomButtonStyle}" />
-                    
+
                     <Border Grid.Column="2"
                             Width="20" Height="20">
                         <Border.Style>
@@ -235,10 +263,10 @@
                                 <Setter Property="CornerRadius" Value="10" />
                                 <Style.Triggers>
                                     <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter Property="Background" Value="LightGray"/>
+                                        <Setter Property="Background" Value="LightGray" />
                                     </Trigger>
                                     <Trigger Property="IsMouseOver" Value="False">
-                                        <Setter Property="Background" Value="Transparent"/>
+                                        <Setter Property="Background" Value="Transparent" />
                                     </Trigger>
                                 </Style.Triggers>
                             </Style>
@@ -249,15 +277,17 @@
                                      PlacementTarget="{Binding ElementName=RefreshButton}"
                                      Style="{StaticResource ToolTipStyle}" />
                         </Border.ToolTip>
-                        <Image Source="/Icons/Channels/question.ico"/>
+                        <Image Source="/Icons/Channels/question.ico" />
                     </Border>
-                    
+
                 </Grid>
             </Grid>
 
             <Separator Grid.Row="1" Margin="0,0,10,0" />
 
-            <vwp:VirtualizingItemsControl Grid.Row="2" Margin="0,0,0,10"
+            <vwp:VirtualizingItemsControl Grid.Row="2" 
+                                          Margin="0,0,0,10"
+                                          ItemsSource="{Binding RelativeSource={RelativeSource AncestorType=helpers:LocationAwareWindow}, Path=DataContext.(vm:ChannelsViewModel.Photos)}"
                                           ItemTemplate="{StaticResource VItemControlTemplate}"
                                           VirtualizingPanel.CacheLengthUnit="Page"
                                           VirtualizingPanel.CacheLength="1,1"
@@ -265,8 +295,7 @@
                                           VirtualizingPanel.VirtualizationMode="Recycling"
                                           ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                                           ScrollViewer.VerticalScrollBarVisibility="Auto"
-                                          ScrollViewer.ScrollChanged="VirtualizingItemsControl_ScrollChanged"
-                                          ItemsSource="{Binding  Path=Photos}">
+                                          ScrollViewer.ScrollChanged="VirtualizingItemsControl_ScrollChanged">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
                         <vwp:VirtualizingWrapPanel
