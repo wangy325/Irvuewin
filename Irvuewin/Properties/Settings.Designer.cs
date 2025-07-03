@@ -144,18 +144,6 @@ namespace Irvuewin.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0")]
-        public sbyte SelectedChannelIndex {
-            get {
-                return ((sbyte)(this["SelectedChannelIndex"]));
-            }
-            set {
-                this["SelectedChannelIndex"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("Client-ID gOjCXnSXiHRasWqeABszxQQCsBJgceXSjHdZYVTfZR8")]
         public string DefaultUnsplashApiKey {
             get {
@@ -187,6 +175,18 @@ namespace Irvuewin.Properties {
             }
             set {
                 this["UserUnsplashChannels"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("317099")]
+        public string UserSelecctedChannel {
+            get {
+                return ((string)(this["UserSelecctedChannel"]));
+            }
+            set {
+                this["UserSelecctedChannel"] = value;
             }
         }
     }

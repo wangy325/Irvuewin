@@ -1,7 +1,5 @@
 ﻿using System.ComponentModel;
-using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using System.Windows;
 using System.Windows.Input;
 using Irvuewin.Helpers;
 using Irvuewin.Models.Unsplash;
@@ -11,21 +9,22 @@ namespace Irvuewin.ViewModels;
 
 public class ChannelViewModel : UnsplashChannel, INotifyPropertyChanged
 {
-    private bool _isSelected;
-    public bool IsSelected { get => _isSelected;
+    private bool _isChecked;
+    public bool IsChecked { get => _isChecked;
         set
         {
-            if (_isSelected == value) return;
-            _isSelected = value;
+            if (_isChecked == value) return;
+            _isChecked = value;
             OnPropertyChanged();
         }
-    } 
+    }
+    
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    public ICommand ItemSelected { set; get; } = new RelayCommand<object>(OnTrayChannelSelected);
+    public ICommand ItemChecked { set; get; } = new RelayCommand<object>(OnChannelChecked);
 
 
-    private static void OnTrayChannelSelected(object param)
+    private static void OnChannelChecked(object param)
     {
         if (param is not ChannelViewModel item) return;
         var channelsWindow = ChannelsViewModel.GetInstance();

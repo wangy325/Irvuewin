@@ -122,6 +122,10 @@ public class AddChannelViewModel : INotifyPropertyChanged
                 var channel = await httpService.GetChannelById(tag);
                 if (channel != null) res.Add(channel);
             }
+            else
+            {
+                // TODO show hint
+            }
         }
         else
         {

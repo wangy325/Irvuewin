@@ -10,39 +10,28 @@ namespace Irvuewin.Views;
 
 public partial class Channels : LocationAwareWindow
 {
-    private bool _isInitialized = false;
+    private bool _isInitialized;
 
     public Channels()
     {
         InitializeComponent();
         DataContext = ChannelsViewModel.GetInstance();
         Loaded += ChannelsWindow_Loaded;
-        Loaded += (s, e) => _isInitialized = true;
+        Loaded += (_, _) => _isInitialized = true;
         Closing += ChannelsWindow_Closing;
     }
 
-    /// <summary>
-    /// Load channel data when window is loaded
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
+
     private void ChannelsWindow_Loaded(object sender, RoutedEventArgs e)
     {
-        System.Diagnostics.Debug.WriteLine($"Window_Loaded: ------------------ ");
-        if (DataContext is ChannelsViewModel viewModel)
-        {
-            var selectedChannelIndex = Properties.Settings.Default.SelectedChannelIndex;
-            System.Diagnostics.Debug.WriteLine($"Window_Loaded: Selected channel Index: {selectedChannelIndex}");
-            if (selectedChannelIndex > 0)
-                viewModel.SelectedIndex = selectedChannelIndex;
-        }
+        Console.WriteLine($@"Window_Loaded: ------------------ ");
+        var viewModel = DataContext as ChannelsViewModel;
+        var selectedChannel = Properties.Settings.Default.UserSelecctedChannel;
+        Console.WriteLine($@"Window_Loaded: Selected channel Index: {selectedChannel}");
+        // viewModel!.CheckedChannel = selectedChannel;
     }
 
-    /// <summary>
-    /// Serializing channel data when window is closing
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
+
     private async void ChannelsWindow_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
     {
         _isInitialized = false;
@@ -57,74 +46,36 @@ public partial class Channels : LocationAwareWindow
         Console.WriteLine(@"Window Closed.");
     }
 
-    /// <summary>
-    /// Channel's list selection changed event
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
-    private void ListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-    {
-        if (!_isInitialized) return;
-        if (sender is not ListBox listBox || DataContext is not ChannelsViewModel viewModel) return;
-        
-        var selectedItem = listBox.SelectedItem;
-        Console.WriteLine($@"ListBox_SelectionChanged Index: {listBox.SelectedIndex}");
-        viewModel.SelectedIndex = (sbyte)listBox.SelectedIndex;
-        viewModel.ItemSelected.Execute(selectedItem);
-    }
-
-    /// <summary>
-    /// channel's details info page url
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
     private void Channels_Detail_Click(object sender, RoutedEventArgs e)
     {
         var viewModel = DataContext as ChannelsViewModel;
-
-        if (viewModel?.SelectedChannel is UnsplashChannel sc)
+        var checkedChannel = viewModel!.Channels.First(c => c.Id == viewModel.CheckedChannel);
+        Console.WriteLine($@"Selected Channel: {checkedChannel.Title}");
+        try
         {
-            System.Diagnostics.Debug.WriteLine($"Selected Channel: {sc.Title}");
-            if (sc.Links.Html is { } url)
+            // Open link with default browser
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
             {
-                System.Diagnostics.Debug.WriteLine($"Opening URL: {url}");
-                try
-                {
-                    // 使用默认浏览器打开链接
-                    System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
-                    {
-                        FileName = url.OriginalString,
-                        UseShellExecute = true
-                    });
-                }
-                catch (Exception ex)
-                {
-                    System.Diagnostics.Debug.WriteLine($"打开链接失败: {ex.Message}");
-                }
-            }
+                FileName = checkedChannel.Links.Html.OriginalString,
+                UseShellExecute = true
+            });
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($@"打开链接失败: {ex.Message}");
         }
     }
 
 
-    /// <summary>
-    /// Refresh photos of channel
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
-    /// <exception cref="NotImplementedException"></exception>
-    private async void RefreshButton_OnClick(object sender, RoutedEventArgs e)
+    private void RefreshButton_OnClick(object sender, RoutedEventArgs e)
     {
         if (DataContext is ChannelsViewModel viewModel)
         {
-            await viewModel.RefreshPhotos(viewModel.SelectedChannel.Id);
+            _ = viewModel.RefreshPhotos(viewModel.CheckedChannel).ConfigureAwait(false);
         }
     }
 
-    /// <summary>
-    /// Scroll update
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
+    // Scrolling event
     private void VirtualizingItemsControl_ScrollChanged(object sender, ScrollChangedEventArgs e)
     {
         if (sender is not VirtualizingItemsControl itemsControl) return;
@@ -172,6 +123,7 @@ public partial class Channels : LocationAwareWindow
 
     private void DeleteChannel_Click(object sender, RoutedEventArgs e)
     {
+        if (!_isInitialized) return;
         if (ChannelsListBox.SelectedItem is not UnsplashChannel channel) return;
         // Can not delete system Reserved channel
         if (channel.Id == "317099")
@@ -182,7 +134,7 @@ public partial class Channels : LocationAwareWindow
 
         if (DataContext is ChannelsViewModel viewModel)
         {
-            viewModel.DeleteSelectedChannel();
+            viewModel.DeleteSelectedChannel(channel.Id);
         }
     }
 }

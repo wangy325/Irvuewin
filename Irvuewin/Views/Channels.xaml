@@ -8,6 +8,7 @@
     xmlns:m="clr-namespace:Irvuewin.Models.Unsplash"
     xmlns:vm="clr-namespace:Irvuewin.ViewModels"
     xmlns:vwp="clr-namespace:WpfToolkit.Controls;assembly=VirtualizingWrapPanel"
+    xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
     mc:Ignorable="d"
     Title="Channels" Icon="/Icons/application_64.ico"
     Height="720" Width="960" MinWidth="500"
@@ -79,9 +80,18 @@
                                      Grid.Column="2"
                                      Margin="10,0,5,0"
                                      HorizontalAlignment="Right"
+                                     GroupName="ChannelCheckRadio"
                                      IsEnabled="{TemplateBinding IsEnabled}"
-                                     IsChecked="{Binding RelativeSource={RelativeSource AncestorType=ListBoxItem}, Path=IsSelected}"
-                                     Style="{StaticResource RadioStyle}" />
+                                     IsChecked="{Binding Path=IsChecked}"
+                                     Style="{StaticResource RadioStyle}">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="Checked">
+                                    <i:InvokeCommandAction
+                                        Command="{Binding ItemChecked}"
+                                        CommandParameter="{Binding}" />
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </RadioButton>
                     </Grid>
                 </DataTemplate>
             </Grid.Resources>
@@ -89,11 +99,10 @@
                 <RowDefinition Height="*" />
                 <RowDefinition Height="45" />
             </Grid.RowDefinitions>
+            <!-- SelectedItem="{Binding Path =DataContext.(vm:ChannelsViewModel.SelectedChannel), RelativeSource={RelativeSource AncestorType=helpers:LocationAwareWindow}}" -->
+            <!-- SelectedIndex="{Binding Path =DataContext.(vm:ChannelsViewModel.SelectedIndex), RelativeSource={RelativeSource AncestorType=helpers:LocationAwareWindow}}" -->
             <ListBox Grid.Row="0" x:Name="ChannelsListBox"
-                     ItemsSource="{Binding RelativeSource={RelativeSource AncestorType=helpers:LocationAwareWindow}, Path =DataContext.(vm:ChannelsViewModel.Channels)}"
-                     SelectedItem="{Binding RelativeSource={RelativeSource AncestorType=helpers:LocationAwareWindow}, Path =DataContext.(vm:ChannelsViewModel.SelectedChannel)}"
-                     SelectedIndex="{Binding RelativeSource={RelativeSource AncestorType=helpers:LocationAwareWindow}, Path =DataContext.(vm:ChannelsViewModel.SelectedIndex)}"
-                     SelectionChanged="ListBox_SelectionChanged"
+                     ItemsSource="{Binding Path =DataContext.(vm:ChannelsViewModel.Channels), RelativeSource={RelativeSource AncestorType=helpers:LocationAwareWindow}}"
                      Style="{StaticResource ListBoxStyle}"
                      ItemTemplate="{StaticResource ChannelsItemTemplate}"
                      ItemContainerStyle="{StaticResource ChannelsBoxItemStyle}">
@@ -206,7 +215,7 @@
                         <Label.Content>
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock
-                                    Text="{Binding RelativeSource={RelativeSource AncestorType=helpers:LocationAwareWindow}, Path =DataContext.(vm:ChannelsViewModel.SelectedChannel).Title}"
+                                    Text="{Binding Path =DataContext.(vm:ChannelsViewModel.CheckedChannelName), RelativeSource={RelativeSource AncestorType=helpers:LocationAwareWindow}}"
                                     Style="{StaticResource TextBlockStyle}" />
                                 <Button Width="15" Height="15" Margin="0,0,0,5"
                                         VerticalAlignment="Top"
@@ -256,7 +265,7 @@
             </Grid>
 
             <Separator Grid.Row="1" Margin="0,0,10,0" />
-            
+
             <vwp:VirtualizingItemsControl
                 Grid.Row="2"
                 Style="{StaticResource PhotoShowCaseStyle}"
@@ -278,11 +287,10 @@
                 </ItemsControl.ItemsPanel>
             </vwp:VirtualizingItemsControl>
 
-            <!-- TODO DO NOT work -->
+            <!-- DO NOT WORK -->
             <TextBlock Grid.Row="3"
-                       Text="{Binding RelativeSource={RelativeSource AncestorType=helpers:LocationAwareWindow}, Path=DataContext.(vm:ChannelsViewModel.Photos).Count}"
+                       Text="No photos available in this channel!"
                        Visibility="Collapsed">
-                <!-- Text="No photos available in this channel!" -->
                 <TextBlock.Style>
                     <Style TargetType="TextBlock">
                         <Style.Triggers>

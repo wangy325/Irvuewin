@@ -32,9 +32,6 @@
     <Setting Name="RandomWallpaper" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
-    <Setting Name="SelectedChannelIndex" Type="System.SByte" Scope="User">
-      <Value Profile="(Default)">0</Value>
-    </Setting>
     <Setting Name="DefaultUnsplashApiKey" Type="System.String" Scope="User">
       <Value Profile="(Default)">Client-ID gOjCXnSXiHRasWqeABszxQQCsBJgceXSjHdZYVTfZR8</Value>
     </Setting>
@@ -43,6 +40,9 @@
     </Setting>
     <Setting Name="UserUnsplashChannels" Type="System.String" Scope="User">
       <Value Profile="(Default)">317099,7282015</Value>
+    </Setting>
+    <Setting Name="UserSelecctedChannel" Type="System.String" Scope="User">
+      <Value Profile="(Default)">317099</Value>
     </Setting>
   </Settings>
 </SettingsFile>

@@ -123,7 +123,7 @@ public class SettingsViewModel : INotifyPropertyChanged
             Properties.Settings.Default.Save();
             OnPropertyChanged();
             var cvm = ChannelsViewModel.GetInstance();
-            Task.Run(() => cvm.RefreshPhotos(cvm.SelectedChannel.Id));
+            Task.Run(() => cvm.RefreshPhotos(cvm.CheckedChannel));
         }
     }
 

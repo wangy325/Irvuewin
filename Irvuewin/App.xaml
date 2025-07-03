@@ -294,10 +294,10 @@
                                     <Setter Property="Header"
                                             Value="{Binding  Path = (vm:ChannelViewModel.Title)}" />
                                     <Setter Property="IsChecked"
-                                            Value="{Binding  Path=(vm:ChannelViewModel.IsSelected)}" />
-                                    <Setter Property="Command"
-                                            Value="{Binding Source={StaticResource ChannelViewModel}, Path=ItemSelected}" />
-                                    <Setter Property="CommandParameter" Value="{Binding}" />
+                                            Value="{Binding  Path=(vm:ChannelViewModel.IsChecked)}" />
+                                    <!--<Setter Property="Command"
+                                            Value="{Binding Source={StaticResource ChannelViewModel}, Path=ItemChecked}" />
+                                    <Setter Property="CommandParameter" Value="{Binding}" />-->
                                 </Style>
                             </MenuItem.ItemContainerStyle>
                         </MenuItem>

@@ -106,8 +106,8 @@ public static class TrayMenuHelper
 
     public static async Task ChangeCurrentWallpaper()
     {
-        var channelsViewModel = await ChannelsViewModel.GetInstanceAsync();
-        var channel = channelsViewModel.SelectedChannel;
+        var cvm = await ChannelsViewModel.GetInstanceAsync();
+        var channel = cvm.Channels.First(c => c.IsChecked);
         var randomWallpaper = Properties.Settings.Default.RandomWallpaper;
         if (randomWallpaper)
         {
@@ -117,7 +117,7 @@ public static class TrayMenuHelper
         {
             // TODO 多显示器的栈缓存还不一样呢
             var sequence = CachedWallpaperSequence[channel.Id];
-            var loadedPhotos = channelsViewModel.LoadedPhotoCount[channel.Id];
+            var loadedPhotos = cvm.LoadedPhotoCount[channel.Id];
             // Do nothing when collections can not load photo(s) through api
             if (loadedPhotos == 0) return;
             await SetWallPaper(channel, sequence);

@@ -17,10 +17,52 @@ public class ChannelsViewModel : INotifyPropertyChanged
 
     private string SavedChannels { get; set; } = Properties.Settings.Default.UserUnsplashChannels;
     private ObservableCollection<UnsplashPhoto> _photos = [];
-    private ObservableCollection<ChannelViewModel> _channels = [];
-    private ChannelViewModel _selectedChannel;
 
-    private sbyte _selectedIndex = Properties.Settings.Default.SelectedChannelIndex;
+    public ObservableCollection<UnsplashPhoto> Photos
+    {
+        get => _photos;
+        set
+        {
+            _photos = value;
+            OnPropertyChanged();
+        }
+    }
+
+    private ObservableCollection<ChannelViewModel> _channels = [];
+
+    public ObservableCollection<ChannelViewModel> Channels
+    {
+        get => _channels;
+        set
+        {
+            _channels = value;
+            OnPropertyChanged();
+        }
+    }
+
+    private string _checkedChannel = Properties.Settings.Default.UserSelecctedChannel;
+
+    public string CheckedChannel
+    {
+        get => _checkedChannel;
+        set
+        {
+            _checkedChannel = value;
+            OnPropertyChanged();
+        }
+    }
+
+    private string _checkedChannelName = "";
+
+    public string CheckedChannelName
+    {
+        get => _checkedChannelName;
+        set
+        {
+            _checkedChannelName = value;
+            OnPropertyChanged();
+        }
+    }
 
     // Wallpaper shard index for each channel
     private readonly Dictionary<string, int> _shardIndex = new();
@@ -47,48 +89,6 @@ public class ChannelsViewModel : INotifyPropertyChanged
     public ICommand ItemSelected { get; set; }
     public ICommand LoadMorePhotos { get; set; }
 
-    public sbyte SelectedIndex
-    {
-        get => _selectedIndex;
-        set
-        {
-            if (_selectedIndex == value) return;
-            _selectedIndex = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public ChannelViewModel SelectedChannel
-    {
-        get => _selectedChannel;
-        set
-        {
-            _selectedChannel = value;
-            OnPropertyChanged();
-            // ItemSelected.Execute(value);
-        }
-    }
-
-    public ObservableCollection<UnsplashPhoto> Photos
-    {
-        get => _photos;
-        set
-        {
-            _photos = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public ObservableCollection<ChannelViewModel> Channels
-    {
-        get => _channels;
-        set
-        {
-            _channels = value;
-            OnPropertyChanged();
-        }
-    }
-
     private static readonly Lazy<Task<ChannelsViewModel>> Instance = new(Init);
 
     private static async Task<ChannelsViewModel> Init()
@@ -100,7 +100,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
 
     private ChannelsViewModel()
     {
-        _selectedChannel = new ChannelViewModel(); // useless
+        // _selectedChannel = new ChannelViewModel(); // useless
         DefaultQuery = new UnsplashQueryParams
         {
             Page = 1,
@@ -125,17 +125,17 @@ public class ChannelsViewModel : INotifyPropertyChanged
     {
         // Channels
         await LoadChannels();
-        Channels[SelectedIndex].IsSelected = true;
+        Channels.First(c => c.Id == _checkedChannel).IsChecked = true;
+        CheckedChannelName = Channels.First(c => c.Id == _checkedChannel).Title;
         // Init Channels photo shard index
         foreach (var channel in Channels)
         {
             _shardIndex[channel.Id] = 1;
         }
 
-        SelectedChannel = Channels[SelectedIndex];
-        LoadedPhotoCount[SelectedChannel.Id] = await UnsplashCache.LoadPhotoCountAsync(SelectedChannel.Id);
+        LoadedPhotoCount[CheckedChannel] = await UnsplashCache.LoadPhotoCountAsync(CheckedChannel);
         // Load 1st page of channel's photos 
-        await LoadPhotos(SelectedChannel.Id, DefaultQuery);
+        await LoadPhotos(CheckedChannel, DefaultQuery);
         Console.WriteLine(@"=========> ChannelsViewModel initialized.");
     }
 
@@ -194,6 +194,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
             {
                 return false;
             }
+
             RenewChannelPhotos(photos, append);
             // update cache
             if (photos.Any()) await CachePhotos(cacheIndex, photos);
@@ -225,7 +226,6 @@ public class ChannelsViewModel : INotifyPropertyChanged
         try
         {
             if (param is not ChannelViewModel item) return;
-            
             // Reset photos loaded status and shard index
             AllPhotosLoaded = false;
             foreach (var key in _shardIndex.Keys.ToList())
@@ -234,21 +234,21 @@ public class ChannelsViewModel : INotifyPropertyChanged
             }
 
             // Update selected status
-            item.IsSelected = true;
-            _selectedChannel = item;
-            foreach (var channel in Channels)
-            {
-                if (channel == _selectedChannel) continue;
-                channel.IsSelected = false;
-            }
+            item.IsChecked = true;
+            CheckedChannel = item.Id;
+            CheckedChannelName = item.Title;
+            Channels.Where(c => c != item)
+                .ToList()
+                .ForEach(c => c.IsChecked = false);
 
             LoadedPhotoCount[item.Id] = await UnsplashCache.LoadPhotoCountAsync(item.Id);
 
             // Update selected index to settings
-            SelectedIndex = (sbyte)Channels.IndexOf(_selectedChannel);
-            Properties.Settings.Default.SelectedChannelIndex = SelectedIndex;
+            // SelectedIndex = (sbyte)Channels.IndexOf(_selectedChannel);
+            // Properties.Settings.Default.SelectedChannelIndex = SelectedIndex;
+            Properties.Settings.Default.UserSelecctedChannel = CheckedChannel;
             Properties.Settings.Default.Save();
-            Console.WriteLine($@"Selected Index saved: {SelectedIndex}");
+            Console.WriteLine($@"Selected Index saved: {CheckedChannel}");
             // Load photos
             DefaultQuery.Orientation = Properties.Settings.Default.WallpaperOrientation;
             await LoadPhotos(item.Id, DefaultQuery);
@@ -265,16 +265,16 @@ public class ChannelsViewModel : INotifyPropertyChanged
         if (IsBusy) return;
         if (AllPhotosLoaded) return;
         IsBusy = true;
-        _shardIndex[SelectedChannel.Id]++;
+        _shardIndex[CheckedChannel]++;
         try
         {
             UnsplashQueryParams query = new()
             {
-                Page = _shardIndex[SelectedChannel.Id],
+                Page = _shardIndex[CheckedChannel],
                 PerPage = IAppConst.PageSize,
                 Orientation = Properties.Settings.Default.WallpaperOrientation
             };
-            AllPhotosLoaded = !await LoadPhotos(SelectedChannel.Id, query, true);
+            AllPhotosLoaded = !await LoadPhotos(CheckedChannel, query, true);
             IsBusy = false;
         }
         catch (Exception e)
@@ -349,31 +349,31 @@ public class ChannelsViewModel : INotifyPropertyChanged
         TrayMenuHelper.AddNewChannelSequence(channelViewModels);
     }
 
-    public void DeleteSelectedChannel()
+    public void DeleteSelectedChannel(string channelId)
     {
-        var id = SelectedChannel.Id;
-        SavedChannels = string.Join(",", SavedChannels.Split(",").Where(item => item != id));
+        SavedChannels = string.Join(",", SavedChannels.Split(",").Where(item => item != channelId));
 
         Properties.Settings.Default.UserUnsplashChannels = SavedChannels;
         Properties.Settings.Default.Save();
 
-        var item = Channels.FirstOrDefault(c => c.Id == id);
-        if (item != null)
-        {
-            Channels.Remove(item);
-        }
+        var item = Channels.FirstOrDefault(c => c.Id == channelId);
+        if (item != null) Channels.Remove(item);
 
-        // Channels = [..Channels.Where(channel => channel.Id != id)];
-        // TODO 优化ListBoxItem和Radio的绑定关系
-        SelectedChannel = Channels[0];
-        SelectedIndex = (sbyte)Channels.IndexOf(SelectedChannel);
+        // SelectedChannel = Channels[0];
+        // SelectedIndex = (sbyte)Channels.IndexOf(SelectedChannel);
 
         // Refresh shard index and wallpaper sequence
-        _shardIndex.Remove(id);
-        TrayMenuHelper.DelChannelSequence(id);
-
+        _shardIndex.Remove(channelId);
+        TrayMenuHelper.DelChannelSequence(channelId);
         // Clear cached memory/disk channel photos
-        UnsplashCache.UnCacheChannelPhotos(id);
+        UnsplashCache.UnCacheChannelPhotos(channelId);
+
+        if (channelId != CheckedChannel) return;
+        {
+            // reset to default
+            CheckedChannel = Channels[0].Id;
+            Channels.First(c => c.Id == CheckedChannel).IsChecked = true;
+        }
     }
 
     private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
