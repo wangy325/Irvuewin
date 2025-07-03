@@ -117,16 +117,19 @@ public class AddChannelViewModel : INotifyPropertyChanged
         var res = new List<UnsplashChannel>();
         if (flag)
         {
-            var channel = await httpService.GetChannelById(tag);
-            if (channel is not null)
-                res.Add(channel);
+            if (await ChannelFilter(tag))
+            {
+                var channel = await httpService.GetChannelById(tag);
+                if (channel != null) res.Add(channel);
+            }
         }
         else
         {
             var channels = await httpService.GetUserChannels(tag);
             if (channels is not null)
             {
-                res.AddRange(channels);
+                var filteredChannels = await ChannelFilter(channels);
+                res.AddRange(filteredChannels);
             }
         }
 
@@ -137,17 +140,6 @@ public class AddChannelViewModel : INotifyPropertyChanged
         if (newer.Count > 0)
         {
             PreChannels = [..PreChannels.Concat(newer).ToList()];
-            // foreach (var channel in newer)
-            // {
-            //     PreChannels.Add(channel);
-            // }
-            /*var defaultSelected =
-                PreChannels.Where(c => SelectedChannels.All(sc => sc.Id != c.Id)).ToList();*/
-            /*foreach (var channel in newer)
-            {
-                SelectedChannels.Add(channel);
-            }*/
-            // SelectedChannels = [..SelectedChannels.Concat(defaultSelected).ToList()];
         }
 
         return [..PreChannels];
@@ -159,11 +151,6 @@ public class AddChannelViewModel : INotifyPropertyChanged
         var newer =
             PreChannels.Where(c => SelectedChannels.All(sc => sc.Id != c.Id)).ToList();
         SelectedChannels = [..Enumerable.Concat(SelectedChannels, newer).ToList()];
-        // SelectedChannels = [..PreChannels];
-        /*foreach (var channel in newer)
-        {
-            SelectedChannels.Add(channel);
-        }*/
     }
 
     // Search channels by keywords
@@ -185,29 +172,40 @@ public class AddChannelViewModel : INotifyPropertyChanged
             if (newChannels.Count <= 0) return [..PreChannels];
             foreach (var channel in newChannels)
             {
-                PreChannels.Add(channel);
+                if (await ChannelFilter(channel)) PreChannels.Add(channel);
+            }
+        }
+        return [..PreChannels];
+    }
+
+    // Unavailable channel filter
+    // Some channels may contain photos, but can not get by unsplash api
+    private async Task<List<UnsplashChannel>> ChannelFilter(List<UnsplashChannel> channels)
+    {
+        List<UnsplashChannel> res = [];
+        var httpClient = IHttpClient.GetUnsplashHttpService();
+        foreach (var channel in channels)
+        {
+            if (await httpClient.GetPhotosOfChannel(channel.Id, query: null) is not { } photo)
+            {
+                res.Add(channel);
             }
         }
 
-        // Get random 10 collections
-        // Not all page returns
-        // If page too large, api may return empty collection list 
-        /*var totalPage = res.TotalPages;
-        var random = new Random().Next(1, totalPage);
-        query.Page = random;
-        if (await httpService.SearchChannels(keywords, query) is not { } res2) return [];
-        if (res2.Results is { } results && results.Any(r => true))
-        {
-            var newChannels =
-                results.Where(c => PreChannels.All(r => r.Id != c.Id)).ToList();
-            // Do not toggle PreChannelsUpdated command
-            // PreChannels = [..PreChannels.Concat(newChannels).ToList()];
-            if (newChannels.Count <= 0) return [..PreChannels];
-            foreach (var channel in newChannels)
-            {
-                PreChannels.Add(channel);
-            }
-        }*/
-        return [..PreChannels];
+        return res;
+    }
+
+    private async Task<bool> ChannelFilter(UnsplashChannel channel)
+    {
+        var httpClient = IHttpClient.GetUnsplashHttpService();
+        return await httpClient.GetPhotosOfChannel(channel.Id, query: null) is { } res
+            && res.Any();
+    }
+
+    private async Task<bool> ChannelFilter(string channelId)
+    {
+        var httpClient = IHttpClient.GetUnsplashHttpService();
+        return await httpClient.GetPhotosOfChannel(channelId, query: null) is { } res
+               && res.Any();
     }
 }

@@ -9,7 +9,7 @@ namespace Irvuewin.Helpers
     public interface IHttpClient
     {
         Task<HttpResponseMessage> GetAsync(string url);
-        
+
         private static readonly UnsplashHttpService HttpClient = new(new UnsplashHttpClientWrapper());
 
         static UnsplashHttpService GetUnsplashHttpService()
@@ -85,7 +85,7 @@ namespace Irvuewin.Helpers
             var url = $"{Photos}/{id}";
             return await GetAsync<UnsplashPhoto>(url);
         }
-        
+
         // Get a single page from the Editorial feed
         // Query params: page and per_page
         public async Task<List<UnsplashPhoto>?> GetEditorialFeed(UnsplashQueryParams query)
@@ -93,7 +93,7 @@ namespace Irvuewin.Helpers
             var url = $"{Photos}?{query.ToQueryString()}";
             return await GetAsync<List<UnsplashPhoto>>(url);
         }
-        
+
         // Get a single collection by ID
         public async Task<UnsplashChannel?> GetChannelById(string id)
         {
@@ -102,12 +102,16 @@ namespace Irvuewin.Helpers
         }
 
         // Get a single page of photos in a collection
-        public async Task<List<UnsplashPhoto>?> GetPhotosOfChannel(string channelId, UnsplashQueryParams query)
+        public async Task<List<UnsplashPhoto>?> GetPhotosOfChannel(string channelId, UnsplashQueryParams? query)
         {
-            var url = $"{Collections}/{channelId}/{Photos}?{query.ToQueryString()}";
+            var url = $"{Collections}/{channelId}/{Photos}";
+            if (query != null)
+            {
+                url += $"?{query.ToQueryString()}";
+            }
             return await GetAsync<List<UnsplashPhoto>>(url);
         }
-        
+
         // Get a Random photo in a specific collection
         public async Task<UnsplashPhoto?> GetRandomPhotoInChannel(string channelId)
         {
@@ -120,29 +124,28 @@ namespace Irvuewin.Helpers
                 // 2 => $"{url}&orientation=squarish",
                 _ => url
             };
-           return await GetAsync<UnsplashPhoto>(url);
+            return await GetAsync<UnsplashPhoto>(url);
         }
-        
+
         // Get user profile by username
         public async Task<UnsplashUser?> GetUserProfile(string username)
         {
             var url = $"{User}/{username}";
             return await GetAsync<UnsplashUser>(url);
         }
-        
+
         // Get first 10 collections(channels) by username (paginated by default)
         public async Task<List<UnsplashChannel>?> GetUserChannels(string username)
         {
             var url = $"{User}/{username}/{Collections}";
             return await GetAsync<List<UnsplashChannel>>(url);
         }
-        
+
         // Search collections by keywords
         public async Task<UnsplashSearchResult?> SearchChannels(string keywords, UnsplashQueryParams query)
         {
             var url = $"{Search}/{Collections}?query={keywords}&{query.ToQueryString()}";
             return await GetAsync<UnsplashSearchResult>(url);
         }
-        
     }
 }

@@ -1,4 +1,4 @@
-﻿<helpers:LocationAwareWindow
+<helpers:LocationAwareWindow
     x:Class="Irvuewin.Views.Channels"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -121,68 +121,75 @@
                 <RowDefinition Height="40" />
                 <RowDefinition Height="10" />
                 <RowDefinition Height="*" />
+                <RowDefinition Height="0" />
             </Grid.RowDefinitions>
 
             <Grid.Resources>
                 <DataTemplate x:Key="VItemControlTemplate" DataType="{x:Type m:UnsplashPhoto}">
                     <Grid>
-                        <TextBlock
-                            Text="{Binding DataContext.Photos.Count, RelativeSource={RelativeSource AncestorType=helpers:LocationAwareWindow}}"
-                            Foreground="Red" />
-
-                        <Grid x:Name="PhotoShowCase">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="150" />
-                                <RowDefinition Height="Auto" />
-                            </Grid.RowDefinitions>
-                            <Image Grid.Row="0"
-                                   Margin="10, 10, 20, 0"
-                                   Width="200"
-                                   Source="{Binding Urls.Small}">
-                                <Image.Style>
-                                    <Style TargetType="Image">
-                                        <Setter Property="Stretch" Value="UniformToFill" />
-                                        <Setter Property="Clip">
-                                            <Setter.Value>
-                                                <RectangleGeometry RadiusX="5" RadiusY="5" Rect="0,0,200,140" />
-                                            </Setter.Value>
-                                        </Setter>
-                                    </Style>
-                                </Image.Style>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="150" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Image Grid.Row="0"
+                               Margin="10, 10, 20, 0"
+                               Width="200"
+                               Source="{Binding Urls.Small}">
+                            <Image.Style>
+                                <Style TargetType="Image">
+                                    <Setter Property="Stretch" Value="UniformToFill" />
+                                    <Setter Property="Clip">
+                                        <Setter.Value>
+                                            <RectangleGeometry RadiusX="5" RadiusY="5" Rect="0,0,200,140" />
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </Image.Style>
+                        </Image>
+                        <StackPanel Grid.Row="1" Orientation="Horizontal"
+                                    VerticalAlignment="Center">
+                            <Image Width="24" Height="24" Margin="20,0,5,0"
+                                   Source="{Binding User.ProfileImage.Small}">
+                                <Image.Clip>
+                                    <EllipseGeometry Center="12,12" RadiusX="12" RadiusY="12" />
+                                </Image.Clip>
                             </Image>
-                            <StackPanel Grid.Row="1" Orientation="Horizontal"
-                                        VerticalAlignment="Center">
-                                <Image Width="24" Height="24" Margin="20,0,5,0"
-                                       Source="{Binding User.ProfileImage.Small}">
-                                    <Image.Clip>
-                                        <EllipseGeometry Center="12,12" RadiusX="12" RadiusY="12" />
-                                    </Image.Clip>
-                                </Image>
-                                <Label Content="{Binding User.Name}"
-                                       Foreground="Gray"
-                                       FontStyle="Italic"
-                                       FontFamily="Segoe UI"
-                                       Style="{StaticResource LabelStyle}" />
-                            </StackPanel>
-                        </Grid>
-                        <Grid x:Name="NoPhotos" Visibility="Collapsed">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="*" />
-                            </Grid.RowDefinitions>
-                            <TextBlock Text="No photos available in this channel!"
-                                       Style="{StaticResource TextBlockStyle}" />
-                        </Grid>
+                            <Label Content="{Binding User.Name}"
+                                   Foreground="Gray"
+                                   FontStyle="Italic"
+                                   FontFamily="Segoe UI"
+                                   Style="{StaticResource LabelStyle}" />
+                        </StackPanel>
                     </Grid>
-                    <DataTemplate.Triggers>
-                        <DataTrigger
-                            Binding="{Binding RelativeSource={RelativeSource AncestorType=helpers:LocationAwareWindow}, Path=DataContext.Photos.Count}"
-                            Value="0">
-                            <Setter TargetName="PhotoShowCase" Property="Visibility" Value="Collapsed" />
-                            <Setter TargetName="NoPhotos" Property="Visibility" Value="Visible" />
-
-                        </DataTrigger>
-                    </DataTemplate.Triggers>
                 </DataTemplate>
+
+                <Style x:Key="PhotoShowCaseStyle" TargetType="vwp:VirtualizingItemsControl">
+                    <Setter Property="Margin" Value="0 0 0 10" />
+                    <Setter Property="BorderThickness" Value="1" />
+                    <Setter Property="BorderBrush" Value="Transparent" />
+                    <Setter Property="VirtualizingPanel.CacheLengthUnit" Value="Page" />
+                    <Setter Property="VirtualizingPanel.CacheLength" Value="1,1" />
+                    <Setter Property="VirtualizingPanel.ScrollUnit" Value="Pixel" />
+                    <Setter Property="VirtualizingPanel.VirtualizationMode" Value="Recycling" />
+                    <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled" />
+                    <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto" />
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="vwp:VirtualizingItemsControl">
+                                <Border Background="{TemplateBinding Background}"
+                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                        BorderThickness="{TemplateBinding BorderThickness}">
+                                    <Grid>
+                                        <ScrollViewer x:Name="PhotoShowCaseScrollViewer"
+                                                      HorizontalScrollBarVisibility="Disabled"
+                                                      VerticalScrollBarVisibility="Auto">
+                                        </ScrollViewer>
+                                    </Grid>
+                                </Border>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
             </Grid.Resources>
 
             <Grid Grid.Row="0" Name="ChannelsWindowBanner">
@@ -249,18 +256,13 @@
             </Grid>
 
             <Separator Grid.Row="1" Margin="0,0,10,0" />
-
-            <vwp:VirtualizingItemsControl Grid.Row="2"
-                                          Margin="0,0,0,10"
-                                          ItemsSource="{Binding RelativeSource={RelativeSource AncestorType=helpers:LocationAwareWindow}, Path=DataContext.(vm:ChannelsViewModel.Photos)}"
-                                          ItemTemplate="{StaticResource VItemControlTemplate}"
-                                          VirtualizingPanel.CacheLengthUnit="Page"
-                                          VirtualizingPanel.CacheLength="1,1"
-                                          VirtualizingPanel.ScrollUnit="Pixel"
-                                          VirtualizingPanel.VirtualizationMode="Recycling"
-                                          ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                                          ScrollViewer.VerticalScrollBarVisibility="Auto"
-                                          ScrollViewer.ScrollChanged="VirtualizingItemsControl_ScrollChanged">
+            
+            <vwp:VirtualizingItemsControl
+                Grid.Row="2"
+                Style="{StaticResource PhotoShowCaseStyle}"
+                ItemsSource="{Binding RelativeSource={RelativeSource AncestorType=helpers:LocationAwareWindow}, Path=DataContext.(vm:ChannelsViewModel.Photos)}"
+                ItemTemplate="{StaticResource VItemControlTemplate}"
+                ScrollViewer.ScrollChanged="VirtualizingItemsControl_ScrollChanged">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
                         <vwp:VirtualizingWrapPanel
@@ -276,6 +278,23 @@
                 </ItemsControl.ItemsPanel>
             </vwp:VirtualizingItemsControl>
 
+            <!-- TODO DO NOT work -->
+            <TextBlock Grid.Row="3"
+                       Text="{Binding RelativeSource={RelativeSource AncestorType=helpers:LocationAwareWindow}, Path=DataContext.(vm:ChannelsViewModel.Photos).Count}"
+                       Visibility="Collapsed">
+                <!-- Text="No photos available in this channel!" -->
+                <TextBlock.Style>
+                    <Style TargetType="TextBlock">
+                        <Style.Triggers>
+                            <DataTrigger
+                                Binding="{Binding RelativeSource={RelativeSource AncestorType=helpers:LocationAwareWindow}, Path=DataContext.(vm:ChannelsViewModel.Photos).Count}"
+                                Value="0">
+                                <Setter Property="Visibility" Value="Visible" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </TextBlock.Style>
+            </TextBlock>
         </Grid>
     </Grid>
 </helpers:LocationAwareWindow>
