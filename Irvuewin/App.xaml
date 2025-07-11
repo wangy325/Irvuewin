@@ -221,7 +221,8 @@
                                 </MenuItem.Header>
                             </MenuItem>
                             <MenuItem
-                                Command="{Binding Source={StaticResource TrayViewModel}, Path=AuthorInfoPageOpenCommand }">
+                                Command="{Binding Source={StaticResource TrayViewModel}, Path=WallpaperInfoPageOpenCommand }"
+                                CommandParameter="{Binding Source={StaticResource TrayViewModel}, Path=AboutWallpaper.AuthorProfilePageLink}">
                                 <MenuItem.Icon>
                                     <Image Source="/Icons/Tray/author.ico"
                                            Width="16" Height="16"
@@ -236,7 +237,8 @@
                                 </MenuItem.Header>
                             </MenuItem>
                             <MenuItem Margin="0, 0,0,10"
-                                      Command="{Binding Source={StaticResource TrayViewModel}, Path=WallpaperInfoPageOpenCommand }">
+                                      Command="{Binding Source={StaticResource TrayViewModel}, Path=WallpaperInfoPageOpenCommand }"
+                                      CommandParameter="{Binding Source={StaticResource TrayViewModel}, Path=AboutWallpaper.ProfileLink}">
                                 <MenuItem.Icon>
                                     <Image Source="/Icons/Tray/photo.ico"
                                            Width="16" Height="16"

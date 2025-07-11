@@ -28,10 +28,6 @@ namespace Irvuewin
                 cfg.CreateMap<UnsplashChannel, ChannelViewModel>());
             var mapper = config.CreateMapper();
             MapperProvider.Mapper = mapper;
-
-            /*await Application.Current.Dispatcher.InvokeAsync(() =>
-            {
-            });*/
             
             // Create ChannelsViewModel singleton instance
             // TODO 优化初始化过程
@@ -43,7 +39,6 @@ namespace Irvuewin
             trayViewModel!.AddedChannels = _channelsViewModel.Channels;
 
             // Load wallpaper sequence cache
-            // 启动时若未启用随机壁纸则加载序列缓存
             var randomWallpaper = Irvuewin.Properties.Settings.Default.RandomWallpaper;
             Console.WriteLine($@"RandomWallpaper: {randomWallpaper}");
             if (!randomWallpaper)
@@ -51,7 +46,7 @@ namespace Irvuewin
                 await TrayMenuHelper.LoadCachedSequence();
             }
 
-            // Change wallpaper when app start
+            // Async Change wallpaper when app start
             _ = TrayMenuHelper.ChangeCurrentWallpaper().ConfigureAwait(false);
             
             // Init wallpaper change schedule Timer
@@ -65,12 +60,9 @@ namespace Irvuewin
         protected override void OnExit(ExitEventArgs e)
         {
             base.OnExit(e);
-            // TODO Is necessary?
-            if (!_isExit)
-            {
-                _taskbarIcon?.Dispose();
-                Current.Shutdown();
-            }
+            if (_isExit) return;
+            _taskbarIcon?.Dispose();
+            Current.Shutdown();
         }
 
         //----------------------------------- TrayMenu ---------------------------------//

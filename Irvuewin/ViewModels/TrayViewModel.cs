@@ -10,7 +10,6 @@ namespace Irvuewin.ViewModels;
 
 public class TrayViewModel : INotifyPropertyChanged
 {
-    
     // Static property should implement INotifyPropertyChanged manually
     // Even though it's an observation collection
     private ObservableCollection<ChannelViewModel> _addedChannels = [];
@@ -24,6 +23,7 @@ public class TrayViewModel : INotifyPropertyChanged
             OnPropertyChanged();
         }
     }
+
     public static string HAboutCurrentWallpaper { get; } = "About Wallpaper";
 
     private WallpaperInfo _aboutWallpaper = new();
@@ -75,8 +75,7 @@ public class TrayViewModel : INotifyPropertyChanged
         set
         {
             _nextWallpaperChangeTime = value;
-            OnPropertyChanged(nameof(NextWallpaperChangeTime));
-            Console.WriteLine($@"Next Wallpaper Change Time: {NextWallpaperChangeTime:yyyy-MM-dd HH:mm:ss}");
+            OnPropertyChanged();
         }
     }
 
@@ -90,8 +89,7 @@ public class TrayViewModel : INotifyPropertyChanged
     public ICommand OpenAddChannelWindowCommand { get; } = new RelayCommand<object>(OnAddNewChannel);
 
     // TODO Constructor initialization
-    public ICommand AuthorInfoPageOpenCommand => new RelayCommand<object>(OnAuthorNameClicked);
-    public ICommand WallpaperInfoPageOpenCommand => new RelayCommand<object>(OnWallpaperInfoClicked);
+    public ICommand WallpaperInfoPageOpenCommand { get; } = new RelayCommand<object>(OnWallpaperInfoClicked);
 
     public ICommand TrayMenuOpenedCommand { get; } = new RelayCommand<object>(OnCheckDisplay);
 
@@ -101,13 +99,14 @@ public class TrayViewModel : INotifyPropertyChanged
     }
 
 
-    private void OnWallpaperInfoClicked(object obj)
+    private static void OnWallpaperInfoClicked(object obj)
     {
         try
         {
+            var url = obj as string;
             System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
             {
-                FileName = AboutWallpaper.ProfileLink,
+                FileName = url,
                 UseShellExecute = true
             });
         }
@@ -116,28 +115,11 @@ public class TrayViewModel : INotifyPropertyChanged
             // Ignore
         }
     }
-
-    private void OnAuthorNameClicked(object obj)
-    {
-        try
-        {
-            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
-            {
-                FileName = AboutWallpaper.AuthorProfilePageLink,
-                UseShellExecute = true
-            });
-        }
-        catch (Exception ex)
-        {
-            // Ignore
-        }
-    }
-
 
     private static void OnAddNewChannel(object obj)
     {
-        WindowManager.ShowWindow(nameof(Channels), () => new Channels() );
-        WindowManager.ShowWindow(nameof(AddChannel), ()=> new AddChannel(), true);
+        WindowManager.ShowWindow(nameof(Channels), () => new Channels());
+        WindowManager.ShowWindow(nameof(AddChannel), () => new AddChannel(), true);
     }
 
     private static void OnLoadCachedSequence(object obj)
@@ -162,9 +144,9 @@ public class TrayViewModel : INotifyPropertyChanged
     }
 }
 
-public class WallpaperInfo : INotifyPropertyChanged
+public sealed class WallpaperInfo : INotifyPropertyChanged
 {
-    private string _likes;
+    private string _likes = "";
 
     public string Likes
     {
@@ -176,7 +158,7 @@ public class WallpaperInfo : INotifyPropertyChanged
         }
     }
 
-    private string _downloads;
+    private string _downloads = "";
 
     public string Downloads
     {
@@ -190,10 +172,20 @@ public class WallpaperInfo : INotifyPropertyChanged
 
     public static string Profile { get; } = "Wallpaper Details";
 
-    public string ProfileLink { get; set; }
+    private string _profileLink = "";
+
+    public string ProfileLink
+    {
+        get => _profileLink;
+        set
+        {
+            _profileLink = value;
+            OnPropertyChanged();
+        }
+    }
 
 
-    private string _author;
+    private string _author = "";
 
     public string Author
     {
@@ -206,9 +198,19 @@ public class WallpaperInfo : INotifyPropertyChanged
     }
 
     // https://unsplash.com/@parentrap/collections
-    public string AuthorProfilePageLink { get; set; }
+    private string _authorProfilePageLink = "";
 
-    private string _location;
+    public string AuthorProfilePageLink
+    {
+        get => _authorProfilePageLink;
+        set
+        {
+            _authorProfilePageLink = value;
+            OnPropertyChanged();
+        }
+    }
+
+    private string _location = "";
 
     public string Location
     {
@@ -223,7 +225,7 @@ public class WallpaperInfo : INotifyPropertyChanged
     // TODO UTC
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+    private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }

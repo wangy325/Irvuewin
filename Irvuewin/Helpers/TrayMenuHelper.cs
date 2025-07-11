@@ -282,7 +282,7 @@ public static class TrayMenuHelper
         return true;
     }
 
-    public static Timer? WallpaperTimer;
+    private static Timer? _wallpaperTimer;
 
     public static void InitWallpaperChangeScheduler()
     {
@@ -290,10 +290,10 @@ public static class TrayMenuHelper
         var interval = Properties.Settings.Default.WallpaperChangeInterval;
         if (interval <= 0) return;
 
-        WallpaperTimer = new Timer(interval * 60 * 1000);
-        WallpaperTimer.Elapsed += OnWallpaperTimerElapsed;
-        WallpaperTimer.AutoReset = true;
-        WallpaperTimer.Enabled = true;
+        _wallpaperTimer = new Timer(interval * 60 * 1000);
+        _wallpaperTimer.Elapsed += OnWallpaperTimerElapsed;
+        _wallpaperTimer.AutoReset = true;
+        _wallpaperTimer.Enabled = true;
         UpdateNextWallpaperChangeTriggerTime(interval);
     }
 
@@ -305,22 +305,22 @@ public static class TrayMenuHelper
         if (interval <= 0)
         {
             // Release Timer
-            WallpaperTimer?.Stop();
-            WallpaperTimer = null;
+            _wallpaperTimer?.Stop();
+            _wallpaperTimer = null;
             trayViewModel!.NextWallpaperChangeTime = DateTimeOffset.MinValue;
             return;
         }
 
         // 0 -> non zero
-        if (WallpaperTimer == null)
+        if (_wallpaperTimer == null)
         {
             InitWallpaperChangeScheduler();
             return;
         }
 
-        WallpaperTimer.Stop();
-        WallpaperTimer.Interval = interval * 60 * 1000;
-        WallpaperTimer.Start();
+        _wallpaperTimer.Stop();
+        _wallpaperTimer.Interval = interval * 60 * 1000;
+        _wallpaperTimer.Start();
         UpdateNextWallpaperChangeTriggerTime(interval);
     }
 
