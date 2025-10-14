@@ -1,4 +1,6 @@
-﻿using Irvuewin.Helpers;
+﻿using System.Windows.Input;
+using Irvuewin.Helpers;
+using Irvuewin.Models.Unsplash;
 
 namespace Irvuewin.Tests.Helpers;
 
@@ -13,9 +15,21 @@ public class DisplayInfoHelperTests
         {
             new()
             {
-                name = "Display 1",
-                width = 3840,
-                height = 2160
+                Name = "Display 1",
+                Width = 3840,
+                LogicWidth = 3840,
+                Height = 2160,
+                LogicHeight = 2160,
+                DsrEnabled = false
+            },
+            new()
+            {
+                Name = "Display 2",
+                Width = 3840,
+                LogicWidth = 2560,
+                Height = 2160,
+                LogicHeight = 1440,
+                DsrEnabled = true
             }
         };
         // act
@@ -27,9 +41,15 @@ public class DisplayInfoHelperTests
         {
             var display = displays[i];
             var expect = expectList[i];
-            Console.WriteLine($@"{display.name} {display.width}x{display.height}");
-            Assert.AreEqual(expect.width, display.width);
-            Assert.AreEqual(expect.height, display.height);
+            Console.WriteLine($@"{display.Name} {display.Width}x{display.Height}");
+            Assert.AreEqual(expect.Width, display.Width);
+            Assert.AreEqual(expect.Height, display.Height);
         }
+    }
+
+    [TestMethod]
+    public void TestCursorPosition()
+    {
+        DisplayInfoHelper.CheckCursorPosition();
     }
 }

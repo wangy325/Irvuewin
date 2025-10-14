@@ -12,7 +12,6 @@ namespace Irvuewin.Helpers.Converters
             {
                 return $"{percentage:P0}";
             }
-            //Debug.WriteLine($"Convert: {value}");
             return string.Empty;
         }
 
@@ -22,7 +21,6 @@ namespace Irvuewin.Helpers.Converters
         {
             if (value is string str && float.TryParse(str.Trim('%'), out var result))
             {
-                //Debug.WriteLine($"ConvertBack: {result/100f}");
                 return result / 100f;
             }
             return Binding.DoNothing; 

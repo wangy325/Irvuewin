@@ -113,7 +113,7 @@ namespace Irvuewin.Helpers
         }
 
         // Get a Random photo in a specific collection
-        public async Task<UnsplashPhoto?> GetRandomPhotoInChannel(string channelId)
+        public async Task<List<UnsplashPhoto>?> GetRandomPhotoInChannel(string channelId, int count = 1)
         {
             var ori = Properties.Settings.Default.WallpaperOrientation;
             var url = $"{Photos}/random?{Collections}={channelId}";
@@ -124,7 +124,8 @@ namespace Irvuewin.Helpers
                 // 2 => $"{url}&orientation=squarish",
                 _ => url
             };
-            return await GetAsync<UnsplashPhoto>(url);
+            url = $"{url}&count={count}";
+            return await GetAsync<List<UnsplashPhoto>>(url);
         }
 
         // Get user profile by username

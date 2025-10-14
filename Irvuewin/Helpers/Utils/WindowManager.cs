@@ -1,5 +1,6 @@
 using System.IO;
 using System.Windows;
+using System.Windows.Forms;
 using System.Xml.Serialization;
 
 namespace Irvuewin.Helpers.Utils
@@ -24,7 +25,7 @@ namespace Irvuewin.Helpers.Utils
             if (!dialog) newWindow.Show();
             else newWindow.ShowDialog();
         }
-        
+
 
         public static void SaveWindowPosition<T>(T window, string key) where T : Window
         {
@@ -51,16 +52,14 @@ namespace Irvuewin.Helpers.Utils
             using var stream = new FileStream(config, FileMode.Open);
             if (serializer.Deserialize(stream) is WindowPosition position)
             {
-                // 获取主屏幕的工作区域（扣除任务栏）
+                // main screen
                 var workArea = SystemParameters.WorkArea;
-
-                // 判断窗口位置是否在有效屏幕区域内
-                var isWithinBounds = position.Left >= workArea.Left &&
-                                     position.Top >= workArea.Top &&
-                                     position.Left + position.Width <= workArea.Right &&
-                                     position.Top + position.Height <= workArea.Bottom;
-
-                if (isWithinBounds)
+                // check if window crossline
+                var screens = Screen.AllScreens;
+                var left = screens.Min(s => s.Bounds.Left);
+                var top = screens.Min(s => s.Bounds.Top);
+                var inBounds = position.Left >= left && position.Top >= top;
+                if (inBounds)
                 {
                     window.Left = position.Left;
                     window.Top = position.Top;
@@ -69,7 +68,7 @@ namespace Irvuewin.Helpers.Utils
                 }
                 else
                 {
-                    // 超出屏幕范围，则居中显示
+                    // reset to main screen
                     window.Width = position.Width;
                     window.Height = position.Height;
                     window.Left = (workArea.Width - window.Width) / 2 + workArea.Left;

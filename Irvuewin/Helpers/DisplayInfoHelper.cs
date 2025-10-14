@@ -51,42 +51,89 @@ namespace Irvuewin.Helpers
 
         private const int EnumCurrentSettings = -1;
 
+        private static List<Display> _displays = [];
+
         public static List<Display> GetDisplayInfo()
         {
+            _displays.Clear();
             var screens = Screen.AllScreens;
-            var displays = new List<Display>();
             foreach (var screen in screens)
             {
                 var dm = new DEVMODE();
                 dm.dmSize = (short)Marshal.SizeOf(dm);
 
-                if (EnumDisplaySettings(screen.DeviceName, EnumCurrentSettings, ref dm))
+                if (!EnumDisplaySettings(screen.DeviceName, EnumCurrentSettings, ref dm)) continue;
+
+                // var index = _displays.FindIndex(d => d.Name == screen.DeviceName);
+                _displays.Add(new Display
                 {
-                    displays.Add(new Display
-                    {
-                        name = screen.DeviceName,
-                        width = dm.dmPelsWidth,
-                        height = dm.dmPelsHeight
-                    });
-                }
+                    Name = screen.DeviceName,
+                    Width = dm.dmPelsWidth,
+                    LogicWidth = screen.Bounds.Width,
+                    Height = dm.dmPelsHeight,
+                    LogicHeight = screen.Bounds.Height,
+                    X = screen.Bounds.X,
+                    Y = screen.Bounds.Y,
+                    Left = screen.Bounds.Left,
+                    Right = screen.Bounds.Right,
+                    Top = screen.Bounds.Top,
+                    Bottom = screen.Bounds.Bottom
+                });
             }
 
-            return displays;
+            // _displays.ForEach(d => d.DsrEnabled = IsDsrEnabled(d));
+
+            return _displays;
         }
 
 
-        public static Display CheckDisplay()
+        private static bool IsDsrEnabled(Display display)
+        {
+            // 计算分辨率比例（DSR通常使用1.25x, 1.5x, 2.0x等比例）
+            var widthRatio = (double)display.Width / display.LogicWidth;
+            var heightRatio = (double)display.Height / display.LogicHeight;
+
+            // 检查比例是否接近DSR常用比例（允许一定误差）
+            var isDsrEnabled = IsCloseToDsrRatio(widthRatio) && IsCloseToDsrRatio(heightRatio);
+
+            Console.WriteLine($"DSR检测: {display.Name}, 物理分辨率: {display.Width}x{display.Height}, " +
+                              $"逻辑分辨率: {display.LogicWidth}x{display.LogicHeight}, " +
+                              $"比例: {widthRatio:F2}x{heightRatio:F2}, " +
+                              $"结果: {(isDsrEnabled ? "已启用" : "未启用")}");
+
+            return isDsrEnabled;
+        }
+
+        private static bool IsCloseToDsrRatio(double ratio)
+        {
+            // DSR常见比例：1.25, 1.5, 2.0（允许±0.05的误差）
+            double[] dsrRatios = [1.25, 1.5, 1.78, 2.0, 2.2, 3.0, 4.0];
+            const double tolerance = 0.05;
+
+            foreach (var r in dsrRatios)
+            {
+                if (Math.Abs(ratio - r) <= tolerance)
+                    return true;
+            }
+
+            return false;
+        }
+
+
+        public static Display CheckCursorPosition()
         {
             var cursorPosition = Cursor.Position;
+            Console.WriteLine($@"Cursor position: {cursorPosition.X}, {cursorPosition.Y}");
+            
             var displays = DisplayInfoHelper.GetDisplayInfo();
             var res = displays[0];
-            foreach (var display in displays)
+            foreach (var d in displays)
             {
-                var displayBounds = new Rectangle(0, 0, display.width, display.height);
+                var displayBounds = new Rectangle(d.X, d.Y, d.LogicWidth, d.LogicHeight);
 
                 if (!displayBounds.Contains(cursorPosition)) continue;
-                // System.Diagnostics.Debug.WriteLine($"鼠标位于显示器: {display.name}，分辨率: {display.width}x{display.height}");
-                res = display;
+                Console.WriteLine(@$"Display info: {d.Name}, {d.Width}x{d.Height}");
+                res = d;
                 break;
             }
 
@@ -96,8 +143,19 @@ namespace Irvuewin.Helpers
 
     public struct Display
     {
-        public string name;
-        public int width;
-        public int height;
+        public string Name;
+        public int Width;
+        public int LogicWidth;
+        public int Height;
+        public int LogicHeight;
+        // not used
+        public bool DsrEnabled;
+
+        public int X;
+        public int Y;
+        public int Left;
+        public int Right;
+        public int Top;
+        public int Bottom;
     }
 }

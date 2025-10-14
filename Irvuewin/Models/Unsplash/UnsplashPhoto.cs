@@ -136,4 +136,9 @@ namespace Irvuewin.Models.Unsplash
         public static string ToJson(this UnsplashPhoto self) =>
             JsonConvert.SerializeObject(self, JsonHelper.Settings);
     }
+
+    public partial class UnsplashPhoto
+    {
+        [JsonProperty("isFiltered")]public bool IsFiltered { get; set; }
+    }
 }

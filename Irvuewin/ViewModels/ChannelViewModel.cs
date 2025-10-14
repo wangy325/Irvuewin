@@ -6,11 +6,13 @@ using Irvuewin.Models.Unsplash;
 
 namespace Irvuewin.ViewModels;
 
-
 public class ChannelViewModel : UnsplashChannel, INotifyPropertyChanged
 {
     private bool _isChecked;
-    public bool IsChecked { get => _isChecked;
+
+    public bool IsChecked
+    {
+        get => _isChecked;
         set
         {
             if (_isChecked == value) return;
@@ -18,8 +20,6 @@ public class ChannelViewModel : UnsplashChannel, INotifyPropertyChanged
             OnPropertyChanged();
         }
     }
-    
-    public event PropertyChangedEventHandler? PropertyChanged;
 
     public ICommand ItemChecked { set; get; } = new RelayCommand<object>(OnChannelChecked);
 
@@ -31,6 +31,8 @@ public class ChannelViewModel : UnsplashChannel, INotifyPropertyChanged
         channelsWindow.ItemSelected.Execute(item);
     }
 
+
+    public event PropertyChangedEventHandler? PropertyChanged;
 
     protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
     {

@@ -79,26 +79,24 @@ public class TrayViewModel : INotifyPropertyChanged
         }
     }
 
-
-    // public string NextWallpaperChangeTimeString => NextWallpaperChangeTime.ToString("yyyy-MM-dd HH:mm:ss");
-
-
     public ICommand LoadCachedSequenceCommand { get; } = new RelayCommand<object>(OnLoadCachedSequence);
     public ICommand SaveCachedSequenceCommand { get; } = new RelayCommand<object>(OnSaveCachedSequence);
 
     public ICommand OpenAddChannelWindowCommand { get; } = new RelayCommand<object>(OnAddNewChannel);
 
-    // TODO Constructor initialization
     public ICommand WallpaperInfoPageOpenCommand { get; } = new RelayCommand<object>(OnWallpaperInfoClicked);
 
     public ICommand TrayMenuOpenedCommand { get; } = new RelayCommand<object>(OnCheckDisplay);
 
-    private static void OnCheckDisplay(object param)
+    private static string? _lastDisplayName;
+    private static async void OnCheckDisplay(object param)
     {
         TrayMenuHelper.CheckPointer();
+        // if (TrayMenuHelper.CurrentScreen.Name == _lastDisplayName) return;
+        // _lastDisplayName = TrayMenuHelper.CurrentScreen.Name;
+        await TrayMenuHelper.DisplayWallpaperInfo();
     }
-
-
+    
     private static void OnWallpaperInfoClicked(object obj)
     {
         try
@@ -110,7 +108,7 @@ public class TrayViewModel : INotifyPropertyChanged
                 UseShellExecute = true
             });
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             // Ignore
         }
