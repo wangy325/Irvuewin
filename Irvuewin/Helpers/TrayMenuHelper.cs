@@ -194,55 +194,57 @@ public static class TrayMenuHelper
             Debug.WriteLine($@"Get photo from channel error.");
             return;
         }
+        
+        
         // Already get wallpaper(s)
-
-
         if (multiSetUp)
         {
-            if (sameOrNot == 0)
+            var setUpRes = await WallpaperUtil.SetWallpaper(photos);
+            switch (setUpRes)
             {
-                // Multi displays share same wallpaper
-                if (await WallpaperUtil.SetWallpaper(photos) is { } result)
+                case { IsUnified: true }:
                 {
-                    // update all displays history stack
+                    // single wallpaper
+                    // update all display(s) history stack
                     foreach (var screen in Screen.AllScreens)
                     {
                         if (WallpaperStack.TryGetValue(screen.DeviceName, out var stack))
                         {
-                            stack.Push(result.UnifiedWallpaperPath!);
+                            stack.Push(setUpRes.UnifiedWallpaperPath!);
                         }
                         else
                         {
                             var initStack = new Stack<string>(capacity:10);
-                            initStack.Push(result.UnifiedWallpaperPath!);
+                            initStack.Push(setUpRes.UnifiedWallpaperPath!);
                             WallpaperStack[screen.DeviceName] = initStack;
                         }
 
                         CurrentWallpaper[screen.DeviceName] = photos[0].Id;
                     }
+
+                    break;
                 }
-            }
-            else
-            {
-                // 2+ wallpapers
-                if (await WallpaperUtil.SetWallpaper(photos) is { } result)
+                case {IsUnified: false}:
                 {
-                    foreach (var res in result.PerDisplayWallpapers!)
+                    // multi wallpapers
+                    var res = setUpRes.PerDisplayWallpapers!;
+                    foreach (var item in res.Select((kvp, idx) => new {kvp, idx}))
                     {
-                        if (WallpaperStack.TryGetValue(res.Key, out var stack))
+                        if (WallpaperStack.TryGetValue(item.kvp.Key, out var stack))
                         {
-                            stack.Push(res.Value);
+                            stack.Push(item.kvp.Value);
                         }
                         else
                         {
                             var initStack = new Stack<string>(capacity:10);
-                            initStack.Push(res.Value);
-                            WallpaperStack[res.Key] = initStack;
+                            initStack.Push(item.kvp.Value);
+                            WallpaperStack[item.kvp.Key] = initStack;
                         }
 
-                        CurrentWallpaper[res.Key] = photos[0].Id;
-                        Console.WriteLine($@"Set wallpaper for {res.Key}: {res.Value}");
+                        CurrentWallpaper[item.kvp.Key] = photos[item.idx].Id;
+                        Console.WriteLine($@"Set wallpaper for {item.kvp.Key}: {item.kvp.Value}");
                     }
+                    break;
                 }
             }
         }

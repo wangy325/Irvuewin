@@ -64,7 +64,7 @@ namespace Irvuewin.Helpers.Utils
             try
             {
                 SetWallpaperMode();
-                var deviceNamePrefix = "\\\\.\\DISPLAY";
+                const string deviceNamePrefix = "\\\\.\\DISPLAY";
                 var kvp = new Dictionary<string, string>();
                 var monitorCount = DesktopWallpaper.GetMonitorDevicePathCount();
                 var path = await GetWallpaperFullPath(photos[0], imagePath);
@@ -80,12 +80,12 @@ namespace Irvuewin.Helpers.Utils
                 }
                 else
                 {
-                    for (uint i = 0; i < monitorCount; i++)
+                    for (uint i = 0; i < monitorCount;)
                     {
                         path = await GetWallpaperFullPath(photos[(int)i], imagePath);
                         DesktopWallpaper.GetMonitorDevicePathAt(i, out var monitorId);
                         DesktopWallpaper.SetWallpaper(monitorId, path);
-                        kvp[deviceNamePrefix + i] = path;
+                        kvp[deviceNamePrefix + ++i] = path;
                     }
 
                     return new WallpaperSetUpResult { PerDisplayWallpapers = kvp };
