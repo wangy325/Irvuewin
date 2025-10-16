@@ -124,14 +124,14 @@ namespace Irvuewin.Helpers
         {
             var cursorPosition = Cursor.Position;
             Console.WriteLine($@"Cursor position: {cursorPosition.X}, {cursorPosition.Y}");
-            
+
             var displays = DisplayInfoHelper.GetDisplayInfo();
             var res = displays[0];
-            foreach (var d in displays)
+            foreach (var d in from d in displays
+                     let displayBounds = new Rectangle(d.X, d.Y, d.LogicWidth, d.LogicHeight)
+                     where displayBounds.Contains(cursorPosition)
+                     select d)
             {
-                var displayBounds = new Rectangle(d.X, d.Y, d.LogicWidth, d.LogicHeight);
-
-                if (!displayBounds.Contains(cursorPosition)) continue;
                 Console.WriteLine(@$"Display info: {d.Name}, {d.Width}x{d.Height}");
                 res = d;
                 break;
@@ -147,7 +147,9 @@ namespace Irvuewin.Helpers
         public int Width;
         public int LogicWidth;
         public int Height;
+
         public int LogicHeight;
+
         // not used
         public bool DsrEnabled;
 

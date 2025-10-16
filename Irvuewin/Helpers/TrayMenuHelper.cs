@@ -36,6 +36,8 @@ public static class TrayMenuHelper
     // Current wallpaper of each screen (key is screen id, value is photoId)
     private static readonly Dictionary<string, string> CurrentWallpaper = new();
 
+    // Flag of wallpaper changed for each screen, key is screen id
+    public static readonly Dictionary<string, bool> WallpaperChanged = new();
 
     // Reset sequence when channel refreshed
     public static void ResetChannelSequence(string channelId)
@@ -156,7 +158,7 @@ public static class TrayMenuHelper
     /// <param name="random">necessary if random wallpaper mode</param>
     /// <param name="multiSetUp">necessary if set up multi-displays wallpaper, default false</param>
     /// <param name="sameOrNot">if multiDisplay share same wallpaper: 0 yes, 1 no</param>
-    private static async Task SetUpWallPaper(
+    private static async Task<bool> SetUpWallPaper(
         UnsplashChannel channel,
         int sequence = 0,
         bool random = false,
@@ -192,16 +194,18 @@ public static class TrayMenuHelper
         if (photos == null || photos.Count == 0)
         {
             Debug.WriteLine($@"Get photo from channel error.");
-            return;
+            return false;
         }
-        
-        
+
+
         // Already get wallpaper(s)
         if (multiSetUp)
         {
             var setUpRes = await WallpaperUtil.SetWallpaper(photos);
             switch (setUpRes)
             {
+                case null:
+                    return false;
                 case { IsUnified: true }:
                 {
                     // single wallpaper
@@ -214,21 +218,22 @@ public static class TrayMenuHelper
                         }
                         else
                         {
-                            var initStack = new Stack<string>(capacity:10);
+                            var initStack = new Stack<string>(capacity: 10);
                             initStack.Push(setUpRes.UnifiedWallpaperPath!);
                             WallpaperStack[screen.DeviceName] = initStack;
                         }
 
                         CurrentWallpaper[screen.DeviceName] = photos[0].Id;
+                        WallpaperChanged[screen.DeviceName] = true;
                     }
 
                     break;
                 }
-                case {IsUnified: false}:
+                case { IsUnified: false }:
                 {
                     // multi wallpapers
                     var res = setUpRes.PerDisplayWallpapers!;
-                    foreach (var item in res.Select((kvp, idx) => new {kvp, idx}))
+                    foreach (var item in res.Select((kvp, idx) => new { kvp, idx }))
                     {
                         if (WallpaperStack.TryGetValue(item.kvp.Key, out var stack))
                         {
@@ -236,14 +241,16 @@ public static class TrayMenuHelper
                         }
                         else
                         {
-                            var initStack = new Stack<string>(capacity:10);
+                            var initStack = new Stack<string>(capacity: 10);
                             initStack.Push(item.kvp.Value);
                             WallpaperStack[item.kvp.Key] = initStack;
                         }
 
                         CurrentWallpaper[item.kvp.Key] = photos[item.idx].Id;
+                        WallpaperChanged[item.kvp.Key] = true;
                         Console.WriteLine($@"Set wallpaper for {item.kvp.Key}: {item.kvp.Value}");
                     }
+
                     break;
                 }
             }
@@ -251,23 +258,26 @@ public static class TrayMenuHelper
         else
         {
             // Setup single display's wallpaper
-            if (await WallpaperUtil.SetWallpaperForSpecificMonitor(CurrentScreen, photos[0]) is { } path)
+            if (await WallpaperUtil.SetWallpaperForSpecificMonitor(CurrentScreen, photos[0]) is not
+                { } path) return false;
+            // Push photo file into wallpaper history stack
+            if (WallpaperStack.TryGetValue(CurrentScreen.Name, out var s))
             {
-                // Push photo file into wallpaper history stack
-                if (WallpaperStack.TryGetValue(CurrentScreen.Name, out var s))
-                {
-                    s.Push(path);
-                }
-                else
-                {
-                    var initStack = new Stack<string>(capacity:10);
-                    initStack.Push(path);
-                    WallpaperStack[CurrentScreen.Name] = initStack;
-                }
-                CurrentWallpaper[CurrentScreen.Name] = photos[0].Id;
-                // await DisplayWallpaperInfo();
+                s.Push(path);
             }
+            else
+            {
+                var initStack = new Stack<string>(capacity: 10);
+                initStack.Push(path);
+                WallpaperStack[CurrentScreen.Name] = initStack;
+            }
+
+            CurrentWallpaper[CurrentScreen.Name] = photos[0].Id;
+            WallpaperChanged[CurrentScreen.Name] = true;
+            // await DisplayWallpaperInfo();
         }
+
+        return true;
     }
 
     /// <summary>
@@ -402,6 +412,13 @@ public static class TrayMenuHelper
     {
         Console.WriteLine($@"wallpaper info update");
         if (!CurrentWallpaper.TryGetValue(CurrentScreen.Name, out var photoId)) return;
+
+        // update all screen?
+        /*foreach (var kvp in CurrentWallpaper)
+        {
+
+        }*/
+
         // Photos cached by collectionId do not contain downloads info 
         var httpService = IHttpClient.GetUnsplashHttpService();
         if (await httpService.GetPhotoInfoById(photoId) is { } photo)
@@ -417,7 +434,6 @@ public static class TrayMenuHelper
         }
     }
 
-    // TODO 多显示器
     public static async void PreviousWallpaper()
     {
         // Do nothing when stack is empty or stack has only 1 wallpaper
@@ -430,6 +446,7 @@ public static class TrayMenuHelper
         await WallpaperUtil.SetWallpaperForSpecificMonitor(CurrentScreen, null, path);
         var pid = Path.GetFileNameWithoutExtension(path);
         CurrentWallpaper[CurrentScreen.Name] = pid;
+        WallpaperChanged[CurrentScreen.Name] = true;
         // await DisplayWallpaperInfo();
     }
 

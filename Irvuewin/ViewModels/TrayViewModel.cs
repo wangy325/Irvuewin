@@ -89,14 +89,41 @@ public class TrayViewModel : INotifyPropertyChanged
     public ICommand TrayMenuOpenedCommand { get; } = new RelayCommand<object>(OnCheckDisplay);
 
     private static string? _lastDisplayName;
+
     private static async void OnCheckDisplay(object param)
     {
         TrayMenuHelper.CheckPointer();
-        // if (TrayMenuHelper.CurrentScreen.Name == _lastDisplayName) return;
-        // _lastDisplayName = TrayMenuHelper.CurrentScreen.Name;
-        await TrayMenuHelper.DisplayWallpaperInfo();
+        var sid = TrayMenuHelper.CurrentScreen.Name;
+        if (_lastDisplayName is not null)
+        {
+            if (TrayMenuHelper.WallpaperChanged[sid])
+            {
+                if (sid != _lastDisplayName)
+                {
+                    _lastDisplayName = sid;
+                    if (Properties.Settings.Default.MultiDisplay != 1) return;
+                }
+
+                await TrayMenuHelper.DisplayWallpaperInfo();
+                TrayMenuHelper.WallpaperChanged[sid] = false;
+            }
+            else
+            {
+               if (sid == _lastDisplayName) return;
+               _lastDisplayName = sid;
+               if (Properties.Settings.Default.MultiDisplay == 1)
+               {
+                   await TrayMenuHelper.DisplayWallpaperInfo();
+               }
+            }
+        }
+        else
+        {
+            _lastDisplayName = TrayMenuHelper.CurrentScreen.Name;
+            await TrayMenuHelper.DisplayWallpaperInfo();
+        }
     }
-    
+
     private static void OnWallpaperInfoClicked(object obj)
     {
         try
