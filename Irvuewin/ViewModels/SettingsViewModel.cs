@@ -50,6 +50,7 @@ public class SettingsViewModel : INotifyPropertyChanged
     {
         DisplayModeCheckedCommand = new RelayCommand<object>(OnDisplayModeChecked);
         MultiDisplayCheckedCommand = new RelayCommand<object>(OnMultiDisplayChecked);
+        LaunchAtLoginCommand = new RelayCommand<object>(OnLaunchAtLoginChecked);
     }
 
     public bool OpenSavedWallpaper
@@ -93,8 +94,8 @@ public class SettingsViewModel : INotifyPropertyChanged
         {
             if (_launchAtLogin == value) return;
             _launchAtLogin = value;
-            Properties.Settings.Default.LaunchAtLogin = _launchAtLogin;
-            Properties.Settings.Default.Save();
+            // Properties.Settings.Default.LaunchAtLogin = _launchAtLogin;
+            // Properties.Settings.Default.Save();
             OnPropertyChanged();
         }
     }
@@ -157,6 +158,8 @@ public class SettingsViewModel : INotifyPropertyChanged
     public ICommand MultiDisplayCheckedCommand { get; }
     public ICommand DisplayModeCheckedCommand { get; }
 
+    public ICommand LaunchAtLoginCommand { get; }
+
     private void OnMultiDisplayChecked(object obj)
     {
         if (obj is not string tag) return;
@@ -174,6 +177,15 @@ public class SettingsViewModel : INotifyPropertyChanged
         Properties.Settings.Default.WallpaperMode = WallpaperMode;
         Properties.Settings.Default.Save();
     }
+
+    private void OnLaunchAtLoginChecked(object obj)
+    {
+        LaunchAtLogin = (bool)obj;
+        Properties.Settings.Default.LaunchAtLogin = LaunchAtLogin;
+        Properties.Settings.Default.Save();
+        StartUpHelper.SetStartup(LaunchAtLogin);
+    }
+
 
     protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
     {

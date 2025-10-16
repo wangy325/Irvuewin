@@ -122,6 +122,18 @@
                             <Setter Property="CommandParameter"
                                     Value="{Binding Tag, RelativeSource={RelativeSource Mode=Self} }" />
                         </Style>
+                        
+                        <Style x:Key="LaunchAtLoginCheckBoxStyle" TargetType="CheckBox"
+                               BasedOn="{StaticResource CheckBoxStyle}">
+                            <Setter Property="IsChecked">
+                                    <Setter.Value>
+                                        <Binding Path = "LaunchAtLogin" Mode="TwoWay"
+                                                 UpdateSourceTrigger="PropertyChanged"/>
+                                    </Setter.Value>                                    
+                            </Setter>
+                            <Setter Property="Command" Value="{Binding LaunchAtLoginCommand}"/>
+                            <Setter Property="CommandParameter" Value="{Binding Path=IsChecked, RelativeSource={RelativeSource Self}}"/>
+                        </Style>
                     </Grid.Resources>
 
                     <Separator Grid.ColumnSpan="5" 
@@ -199,7 +211,7 @@
                               IsChecked="{Binding LaunchAtLogin,
                                          Mode=TwoWay,
                                          UpdateSourceTrigger=PropertyChanged}"
-                              Style="{StaticResource CheckBoxStyle}" />
+                              Style="{StaticResource LaunchAtLoginCheckBoxStyle}" />
                 </Grid>
             </TabItem>
             

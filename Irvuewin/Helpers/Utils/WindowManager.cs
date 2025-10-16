@@ -7,11 +7,11 @@ namespace Irvuewin.Helpers.Utils
 {
     public static class WindowManager
     {
-        private static readonly Dictionary<string, WeakReference<Window>> _windows = [];
+        private static readonly Dictionary<string, WeakReference<Window>> Windows = [];
 
         public static void ShowWindow<T>(string key, Func<T> windowFactory, bool dialog = false) where T : Window
         {
-            if (_windows.TryGetValue(key, out var reference) &&
+            if (Windows.TryGetValue(key, out var reference) &&
                 reference.TryGetTarget(out var window))
             {
                 window.Activate();
@@ -19,9 +19,9 @@ namespace Irvuewin.Helpers.Utils
             }
 
             var newWindow = windowFactory();
-            newWindow.Closed += (s, e) => _windows.Remove(key);
+            newWindow.Closed += (s, e) => Windows.Remove(key);
 
-            _windows[key] = new WeakReference<Window>(newWindow);
+            Windows[key] = new WeakReference<Window>(newWindow);
             if (!dialog) newWindow.Show();
             else newWindow.ShowDialog();
         }
