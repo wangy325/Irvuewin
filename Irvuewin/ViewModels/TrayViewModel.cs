@@ -96,7 +96,7 @@ public class TrayViewModel : INotifyPropertyChanged
         var sid = TrayMenuHelper.CurrentScreen.Name;
         if (_lastDisplayName is not null)
         {
-            if (TrayMenuHelper.WallpaperChanged[sid])
+            if (TrayMenuHelper.WallpaperChanged.TryGetValue(sid, out var changed) && changed)
             {
                 if (sid != _lastDisplayName)
                 {
