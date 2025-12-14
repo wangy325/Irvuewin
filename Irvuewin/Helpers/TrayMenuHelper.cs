@@ -10,6 +10,7 @@ using Application = System.Windows.Application;
 using Timer = System.Timers.Timer;
 
 namespace Irvuewin.Helpers;
+using Serilog;
 
 ///<summary>
 ///Author: wangy325
@@ -21,6 +22,8 @@ public static class TrayMenuHelper
     // Wallpaper history(file path) stack
     [Obsolete("Will delete in future, replace with WallpaperStack", true)]
     private static readonly Stack<string> WallpaperHistory = new(10);
+
+    private static readonly ILogger Logger = Log.ForContext(typeof(TrayMenuHelper));
 
     private static int _sequenceModify;
 
@@ -96,7 +99,7 @@ public static class TrayMenuHelper
             }
         }
 
-        // Console.WriteLine($@">>> Load Cached wallpaper sequence: {CachedWallpaperSequence.Count}");
+        // Log.Debug($@">>> Load Cached wallpaper sequence: {CachedWallpaperSequence.Count}");
     }
 
     public static async void SaveCachedSequence()
@@ -138,7 +141,7 @@ public static class TrayMenuHelper
             // Do nothing when collections can not load photo(s) through api
             if (loadedPhotos == 0) return;
             await SetUpWallPaper(channel, sequence, multiSetUp: multiSetUp);
-            Console.WriteLine($@"> loadedPhotos: {loadedPhotos}");
+            Logger.Information(@"> loadedPhotos: {LoadedPhotos}", loadedPhotos);
             if (++sequence > loadedPhotos)
             {
                 sequence %= loadedPhotos;
@@ -193,7 +196,7 @@ public static class TrayMenuHelper
 
         if (photos == null || photos.Count == 0)
         {
-            Debug.WriteLine($@"Get photo from channel error.");
+            Logger.Debug($@"Get photo from channel error.");
             return false;
         }
 
@@ -248,7 +251,7 @@ public static class TrayMenuHelper
 
                         CurrentWallpaper[item.kvp.Key] = photos[item.idx].Id;
                         WallpaperChanged[item.kvp.Key] = true;
-                        Console.WriteLine($@"Set wallpaper for {item.kvp.Key}: {item.kvp.Value}");
+                        Logger.Information(@"Set wallpaper for {Key}: {Value}", item.kvp.Key, item.kvp.Value);
                     }
 
                     break;
@@ -288,7 +291,7 @@ public static class TrayMenuHelper
     /// <returns>wallpaper, nullable </returns>
     private static async Task<UnsplashPhoto?> GetSequenceWallpaper(UnsplashChannel channel, int sequence)
     {
-        Console.WriteLine($@"Get wallpaper sequence: {sequence}");
+        Logger.Information(@"Get wallpaper sequence: {Sequence}", sequence);
         var (shardIndex, shardPositionIndex) = CalShardIndex(sequence);
         var channelsViewModel = await ChannelsViewModel.GetInstanceAsync();
         PhotosCachePageIndex photosCachePageIndex = new()
@@ -303,7 +306,7 @@ public static class TrayMenuHelper
         // 1) 数据完整性问题
         // 2) 数据过滤后，index可能越界的问题 -- 动态计算总图片数
         // 理论上每页都会存在PageSize个条目，除了最后一页
-        Console.WriteLine($@"> sequence {sequence}. shard: {shardIndex}, position: {shardPositionIndex}");
+        Logger.Information(@"> sequence {Sequence}. shard: {ShardIndex}, position: {ShardPositionIndex}", sequence, shardIndex, shardPositionIndex);
         if (shardPositionIndex == res.Count - 1)
         {
             await PreloadChannelNextPage(channel, shardIndex, channelsViewModel);
@@ -390,7 +393,7 @@ public static class TrayMenuHelper
                 // Do nothing when collections can not load photo(s) through api
                 if (loadedPhotos == 0) return;
                 await SetUpWallPaper(channel, sequence, multiSetUp: true, sameOrNot: 1);
-                Console.WriteLine($@"> loadedPhotos: {loadedPhotos}");
+                Logger.Information(@"> loadedPhotos: {LoadedPhotos}", loadedPhotos);
                 var mc = Screen.AllScreens.Length;
                 sequence += mc;
                 if (sequence > loadedPhotos)
@@ -410,7 +413,7 @@ public static class TrayMenuHelper
     /// </summary>
     public static async Task DisplayWallpaperInfo()
     {
-        Console.WriteLine($@"wallpaper info update");
+        Logger.Information(@"wallpaper info update");
         if (!CurrentWallpaper.TryGetValue(CurrentScreen.Name, out var photoId)) return;
 
         // update all screen?

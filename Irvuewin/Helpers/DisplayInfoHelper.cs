@@ -4,8 +4,10 @@ using System.Windows.Forms;
 
 namespace Irvuewin.Helpers
 {
+    using Serilog;
     public static class DisplayInfoHelper
     {
+        private static readonly ILogger Logger = Log.ForContext(typeof(DisplayInfoHelper));
         [StructLayout(LayoutKind.Sequential)]
         private struct DEVMODE
         {
@@ -96,7 +98,7 @@ namespace Irvuewin.Helpers
             // 检查比例是否接近DSR常用比例（允许一定误差）
             var isDsrEnabled = IsCloseToDsrRatio(widthRatio) && IsCloseToDsrRatio(heightRatio);
 
-            Console.WriteLine($"DSR检测: {display.Name}, 物理分辨率: {display.Width}x{display.Height}, " +
+            Logger.Debug($@"DSR检测: {display.Name}, 物理分辨率: {display.Width}x{display.Height}, " +
                               $"逻辑分辨率: {display.LogicWidth}x{display.LogicHeight}, " +
                               $"比例: {widthRatio:F2}x{heightRatio:F2}, " +
                               $"结果: {(isDsrEnabled ? "已启用" : "未启用")}");
@@ -123,7 +125,7 @@ namespace Irvuewin.Helpers
         public static Display CheckCursorPosition()
         {
             var cursorPosition = Cursor.Position;
-            Console.WriteLine($@"Cursor position: {cursorPosition.X}, {cursorPosition.Y}");
+            Logger.Debug(@"Cursor position: {CursorPositionX}, {CursorPositionY}", cursorPosition.X, cursorPosition.Y);
 
             var displays = DisplayInfoHelper.GetDisplayInfo();
             var res = displays[0];
@@ -132,7 +134,7 @@ namespace Irvuewin.Helpers
                      where displayBounds.Contains(cursorPosition)
                      select d)
             {
-                Console.WriteLine(@$"Display info: {d.Name}, {d.Width}x{d.Height}");
+                Logger.Debug(@"Display info: {DName}, {DWidth}x{DHeight}", d.Name, d.Width, d.Height);
                 res = d;
                 break;
             }

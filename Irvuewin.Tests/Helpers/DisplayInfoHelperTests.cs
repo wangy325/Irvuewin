@@ -1,6 +1,7 @@
 ﻿using System.Windows.Input;
 using Irvuewin.Helpers;
 using Irvuewin.Models.Unsplash;
+using Serilog;
 
 namespace Irvuewin.Tests.Helpers;
 
@@ -41,7 +42,7 @@ public class DisplayInfoHelperTests
         {
             var display = displays[i];
             var expect = expectList[i];
-            Console.WriteLine($@"{display.Name} {display.Width}x{display.Height}");
+            Log.Information(@"{DisplayName} {DisplayWidth}x{DisplayHeight}", display.Name, display.Width, display.Height);
             Assert.AreEqual(expect.Width, display.Width);
             Assert.AreEqual(expect.Height, display.Height);
         }

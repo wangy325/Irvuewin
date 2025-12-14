@@ -3,11 +3,13 @@ using Irvuewin.Helpers;
 using Irvuewin.Helpers.Utils;
 using Irvuewin.Models.Unsplash;
 using Newtonsoft.Json;
+using Serilog;
 
 namespace Irvuewin.Models
 {
     public static class UnsplashCache
     {
+        private static readonly ILogger Logger = Log.ForContext(typeof(UnsplashCache));
         // TODO Necessary?
         // public static List<UnsplashChannel> CachedChannels = [];
         // This may take huge memory usage
@@ -25,7 +27,7 @@ namespace Irvuewin.Models
             }
             catch (Exception e)
             {
-                Console.WriteLine($@"{0}: {e.Message}");
+                Logger.Error(e, "CacheChannelsAsync error");
             }
         }
 
@@ -53,7 +55,7 @@ namespace Irvuewin.Models
             }
             catch (Exception e)
             {
-                Console.WriteLine($@"{0}: {e.Message}");
+                Logger.Error(e, "LoadChannelsAsync error");
                 return null;
             }
         }
@@ -72,7 +74,7 @@ namespace Irvuewin.Models
             }
             catch (Exception e)
             {
-                Console.WriteLine($@"{0}: {e.Message}");
+                Logger.Error(e, "CachePhotosAsync error");
             }
         }
 
@@ -104,7 +106,7 @@ namespace Irvuewin.Models
             }
             catch (Exception e)
             {
-                Console.WriteLine($@"{0}: {e.Message}");
+                Logger.Error(e, "LoadPhotosShardAsync error");
                 return null;
             }
         }
@@ -147,7 +149,7 @@ namespace Irvuewin.Models
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                Logger.Error(e, "ChannelSequence error");
                 throw;
             }
         }
@@ -167,7 +169,7 @@ namespace Irvuewin.Models
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                Logger.Error(e, "LoadChannelSequence error");
                 throw;
             }
         }

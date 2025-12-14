@@ -1,9 +1,9 @@
-﻿using System.Diagnostics;
-using System.IO;
+﻿using System.IO;
 using System.Net.Http;
 using System.Runtime.InteropServices;
 using Irvuewin.Models.Unsplash;
 using Microsoft.Win32;
+using Serilog;
 
 namespace Irvuewin.Helpers.Utils
 {
@@ -45,6 +45,8 @@ namespace Irvuewin.Helpers.Utils
 
     public static class WallpaperUtil
     {
+        private static readonly ILogger Logger = Log.ForContext(typeof(WallpaperUtil));
+
         [DllImport("user32.dll", CharSet = CharSet.Unicode)]
         private static extern int SystemParametersInfo(uint uiAction, uint uiParam, string pvParam, uint fWinIni);
         // private static extern bool SystemParametersInfo(uint uAction, uint uParam, IntPtr lpvParam, uint fuWinIni);
@@ -59,7 +61,8 @@ namespace Irvuewin.Helpers.Utils
 
         private static readonly IDesktopWallpaper DesktopWallpaper = (IDesktopWallpaper)new DesktopWallpaperClass();
 
-        public static async Task<WallpaperSetUpResult?> SetWallpaper(List<UnsplashPhoto> photos, string? imagePath = null)
+        public static async Task<WallpaperSetUpResult?> SetWallpaper(List<UnsplashPhoto> photos,
+            string? imagePath = null)
         {
             try
             {
@@ -93,7 +96,7 @@ namespace Irvuewin.Helpers.Utils
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($@"Setting wallpaper error: {ex.Message}");
+                Logger.Error(ex, @"Setting wallpaper error: {ExMessage}", ex.Message);
                 return null;
             }
         }
@@ -111,14 +114,12 @@ namespace Irvuewin.Helpers.Utils
                 var monitorId = GetMonitorIdFromDisplay(display);
                 if (monitorId == null) throw new ArgumentNullException($"MonitorId can not be null.");
                 DesktopWallpaper.SetWallpaper(monitorId, path);
-
-                Console.WriteLine(@$"monitorName: {display.Name}, monitorId: {monitorId}");
-
+                Logger.Information(@"monitorName: {DisplayName}, monitorId: {MonitorId}", display.Name, monitorId);
                 return path;
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($@"Setting wallpaper error: {ex.Message}");
+                Logger.Error(ex, @"Setting wallpaper error: {ExMessage}", ex.Message);
                 return null;
             }
         }
@@ -223,7 +224,7 @@ namespace Irvuewin.Helpers.Utils
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine($@"Load wallpaper path error: {ex.Message}");
+                    Logger.Error(ex, @"Load wallpaper path error: {ExMessage}", ex.Message);
                     throw new Exception("Load wallpaper path error");
                 }
             }
@@ -250,19 +251,18 @@ namespace Irvuewin.Helpers.Utils
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($@"Get wallpaper path error: {ex.Message}");
+                Logger.Error(ex, @"Get wallpaper path error: {ExMessage}", ex.Message);
                 return [];
             }
         }
-    }
-    
-    public class WallpaperSetUpResult
-    {
-        public string? UnifiedWallpaperPath { get; init; }
-        
-        public Dictionary<string, string>? PerDisplayWallpapers { get; init; }
 
-        public bool IsUnified => UnifiedWallpaperPath != null;
-    }
+        public class WallpaperSetUpResult
+        {
+            public string? UnifiedWallpaperPath { get; init; }
 
+            public Dictionary<string, string>? PerDisplayWallpapers { get; init; }
+
+            public bool IsUnified => UnifiedWallpaperPath != null;
+        }
+    }
 }

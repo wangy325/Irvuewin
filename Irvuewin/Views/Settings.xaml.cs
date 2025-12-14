@@ -6,7 +6,7 @@ using Irvuewin.ViewModels;
 
 namespace Irvuewin.Views;
 
-public partial class Settings : LocationAwareWindow
+public partial class Settings
 {
     public Settings()
     {

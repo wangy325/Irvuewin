@@ -8,7 +8,9 @@ using Irvuewin.Helpers.Utils;
 using Irvuewin.Models.Unsplash;
 using Irvuewin.ViewModels;
 using System.Windows.Interop;
+using Irvuewin.Helpers.Logging;
 using Irvuewin.Views;
+using Serilog;
 
 namespace Irvuewin
 {
@@ -18,12 +20,19 @@ namespace Irvuewin
     /// 
     public partial class App
     {
+        private static readonly ILogger Logger = Log.ForContext(typeof(App));
         private TaskbarIcon? _taskbarIcon;
         private bool _isExit;
         private ChannelsViewModel? _channelsViewModel;
 
         protected override async void OnStartup(StartupEventArgs e)
         {
+            // Init Logger
+            LogHelper.Init();
+            Logger.Information("Application Starting...");
+            
+            SetupExceptionHandling();
+            
             // AutoMapper config
             var config = new MapperConfiguration(cfg =>
                 cfg.CreateMap<UnsplashChannel, ChannelViewModel>());
@@ -41,7 +50,7 @@ namespace Irvuewin
 
             // Load wallpaper sequence cache
             var randomWallpaper = Irvuewin.Properties.Settings.Default.RandomWallpaper;
-            Console.WriteLine($@"RandomWallpaper: {randomWallpaper}");
+            Logger.Information("RandomWallpaper: {RandomWallpaper}", randomWallpaper);
             if (!randomWallpaper)
             {
                 await TrayMenuHelper.LoadCachedSequence();
@@ -68,7 +77,35 @@ namespace Irvuewin
             base.OnExit(e);
             if (_isExit) return;
             _taskbarIcon?.Dispose();
+            Logger.Information("Application Exiting...");
+            LogHelper.CloseAndFlush();
             Current.Shutdown();
+        }
+
+        private void SetupExceptionHandling()
+        {
+            // Catch exceptions from all threads in the AppDomain.
+            AppDomain.CurrentDomain.UnhandledException += (s, args) =>
+            {
+                var exception = args.ExceptionObject as Exception;
+                Logger.Fatal(exception, "AppDomain.CurrentDomain.UnhandledException");
+                LogHelper.CloseAndFlush();
+            };
+
+            // Catch exceptions from the main UI dispatcher thread.
+            DispatcherUnhandledException += (s, args) =>
+            {
+                Logger.Fatal(args.Exception, "DispatcherUnhandledException");
+                // args.Handled = true; // Uncomment if we want to prevent crash, but hazardous.
+                LogHelper.CloseAndFlush();
+            };
+
+            // Catch exceptions from unobserved tasks.
+            TaskScheduler.UnobservedTaskException += (s, args) =>
+            {
+                Logger.Error(args.Exception, "TaskScheduler.UnobservedTaskException");
+                args.SetObserved();
+            };
         }
 
         //----------------------------------- TrayMenu ---------------------------------//
@@ -153,7 +190,7 @@ namespace Irvuewin
             _isExit = true;
             // 退出时若未启用随机壁纸则保存缓存（sequence may be modified）
             var randomWallpaper = Irvuewin.Properties.Settings.Default.RandomWallpaper;
-            Console.WriteLine($@"RandomWallpaper: {randomWallpaper}");
+            Logger.Debug("RandomWallpaper: {RandomWallpaper}", randomWallpaper);
             if (!randomWallpaper)
             {
                 TrayMenuHelper.SaveCachedSequence();

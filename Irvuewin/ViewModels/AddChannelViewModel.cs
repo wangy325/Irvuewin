@@ -6,9 +6,11 @@ using Irvuewin.Helpers;
 using Irvuewin.Models.Unsplash;
 
 namespace Irvuewin.ViewModels;
+using Serilog;
 
 public class AddChannelViewModel : INotifyPropertyChanged
 {
+    private static readonly ILogger Logger = Log.ForContext(typeof(AddChannelViewModel));
     public event PropertyChangedEventHandler? PropertyChanged;
 
     private readonly ChannelsViewModel _channelsViewModel;
@@ -70,7 +72,7 @@ public class AddChannelViewModel : INotifyPropertyChanged
         _channelsViewModel = ChannelsViewModel.GetInstance();
         PreChannelsUpdated = new RelayCommand<object>(OnPreChannelsUpdated);
         OpenUnsplashCommand = new RelayCommand<object>(OnUnsplashOpenButtonClick);
-        Console.WriteLine(@">>>>>>>>>>>> AddChannelViewModel inited..");
+        Logger.Information(@">>>>>>>>>>>> AddChannelViewModel inited..");
     }
 
     private void OnUnsplashOpenButtonClick(object obj)

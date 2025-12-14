@@ -3,6 +3,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using Irvuewin.Models.Unsplash;
 using Newtonsoft.Json;
+using Serilog;
 
 namespace Irvuewin.Helpers
 {
@@ -37,6 +38,7 @@ namespace Irvuewin.Helpers
 
     public class UnsplashHttpService
     {
+        private static readonly ILogger Logger = Log.ForContext(typeof(UnsplashHttpService));
         private readonly IHttpClient _client;
         private const string BaseUrl = "https://api.unsplash.com";
         private const string Photos = "photos";
@@ -47,7 +49,7 @@ namespace Irvuewin.Helpers
         public UnsplashHttpService(IHttpClient service)
         {
             _client = service;
-            Debug.WriteLine("UnsplashApi initialized.");
+            Logger.Debug("UnsplashApi initialized.");
         }
 
         public async Task<T?> GetAsync<T>(string endpoint, string? query = null)
@@ -68,13 +70,13 @@ namespace Irvuewin.Helpers
             }
             catch (HttpRequestException ex)
             {
-                Debug.WriteLine($@"HTTP Request Error: {ex.Message}");
+                Logger.Error(@"HTTP Request Error: {ExMessage}", ex.Message);
                 // 返回泛型类型T的默认值(int返回0，对象返回null)
                 return default(T);
             }
             catch (JsonException ex)
             {
-                Debug.WriteLine($"JSON Deserialization Error: {ex.Message}");
+                Logger.Error("JSON Deserialization Error: {ExMessage}", ex.Message);
                 return default(T);
             }
         }

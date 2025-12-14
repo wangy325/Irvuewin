@@ -9,10 +9,12 @@ using Exception = System.Exception;
 
 
 namespace Irvuewin.ViewModels;
+using Serilog;
 
 // Singleton
 public class ChannelsViewModel : INotifyPropertyChanged
 {
+    private static readonly ILogger Logger = Log.ForContext(typeof(ChannelsViewModel));
     public event PropertyChangedEventHandler? PropertyChanged;
 
     private string SavedChannels { get; set; } = Properties.Settings.Default.UserUnsplashChannels;
@@ -139,7 +141,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
         
         // Load 1st page of channel's photos 
         await LoadPhotos(CheckedChannel, DefaultQuery);
-        Console.WriteLine(@"=========> ChannelsViewModel initialized.");
+        Logger.Information(@"=========> ChannelsViewModel initialized.");
     }
 
 
@@ -165,8 +167,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
                 if (await httpService.GetChannelById(id) is { } channel)
                     Channels.Add(MapperProvider.Mapper.Map<ChannelViewModel>(channel));
             }
-
-            Console.WriteLine($@"Loaded {Channels.Count} channels from web.");
+            Logger.Information(@"Loaded {ChannelsCount} channels from web.", Channels.Count);
             // cache channels
             // await CacheChannels();
         }
@@ -267,6 +268,8 @@ public class ChannelsViewModel : INotifyPropertyChanged
             
             // Update selected status
             item.IsChecked = true;
+            // Ignore continuous click
+            if (CheckedChannel == item.Id) return;
             CheckedChannel = item.Id;
             CheckedChannelName = item.Title;
             Channels.Where(c => c != item)
@@ -277,7 +280,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
             // Update selected index to settings
             Properties.Settings.Default.UserCheckedChannel = CheckedChannel;
             Properties.Settings.Default.Save();
-            Console.WriteLine($@"Checked Channel saved: {CheckedChannel}");
+            Logger.Information(@"Checked Channel saved: {S}", CheckedChannel);
         }
         catch (Exception e)
         {
@@ -305,7 +308,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
         catch (Exception e)
         {
             // ignore
-            Console.WriteLine(e);
+            Logger.Error(e, "Load more photos error");
         }
     }
 
@@ -333,7 +336,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
         AllPhotosLoaded = false;
         // reset photos count
         LoadedPhotoCount[channelId] = Photos.Count;
-        Console.WriteLine(@$"Refreshed photos for channel {channelId}");
+        Logger.Information(@"Refreshed photos for channel {ChannelId}", channelId);
     }
 
     public async Task CacheChannels()
@@ -363,7 +366,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
         var cvm = selectedChannels.Select(channel => MapperProvider.Mapper.Map<ChannelViewModel>(channel));
         var channelViewModels = cvm.ToList();
         Channels = [..Channels.Concat(channelViewModels).ToList()];
-        Console.WriteLine($@">>>>>>New Channels: {string.Join(",", Channels.Select(channel => channel.Id))}");
+        Logger.Information(@">>>>>>New Channels: {Join}", string.Join(",", Channels.Select(channel => channel.Id)));
 
         // Update shard index and wallpaper sequence
         foreach (var channel in selectedChannels)

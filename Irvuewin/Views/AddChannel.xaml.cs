@@ -1,13 +1,14 @@
 using System.Windows;
 using System.Windows.Input;
 using Irvuewin.Helpers;
-using Irvuewin.Models.Unsplash;
 using Irvuewin.ViewModels;
+using Serilog;
 
 namespace Irvuewin.Views;
 
-public partial class AddChannel : LocationAwareWindow
+public partial class AddChannel
 {
+    private static readonly ILogger Logger = Log.ForContext(typeof(AddChannel));
     public AddChannel()
     {
         InitializeComponent();
@@ -48,9 +49,9 @@ public partial class AddChannel : LocationAwareWindow
             viewModel.IsLoading = true;
             if (tuple is ({ } idOrName, var isCollectionId))
             {
-                Console.WriteLine($@"ResolvingChannel: {idOrName}, {isCollectionId}");
+                Logger.Information(@"ResolvingChannel: {IdOrName}, {IsCollectionId}", idOrName, isCollectionId);
                 var channels = await viewModel.ResolvingChannel(idOrName, isCollectionId);
-                Console.WriteLine($@"Pre channel: {string.Join(",", channels.Select(c => c.Id))}");
+                Logger.Information(@"Pre channel: {Join}", string.Join(",", channels.Select(c => c.Id)));
                 // clear textbox
                 InputChannelUrl.Text = "";
             }
@@ -82,6 +83,6 @@ public partial class AddChannel : LocationAwareWindow
     {
         if (DataContext is not AddChannelViewModel viewModel) return;
         // viewModel.PreChannels.Clear();
-        Console.WriteLine(@"Add Channel Window_Closing: clearing channels...");
+        Logger.Debug(@"Add Channel Window_Closing: clearing channels...");
     }
 }

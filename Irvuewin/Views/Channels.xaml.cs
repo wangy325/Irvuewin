@@ -1,15 +1,16 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-using Irvuewin.Helpers;
 using Irvuewin.Models.Unsplash;
 using Irvuewin.ViewModels;
 using WpfToolkit.Controls;
+using Serilog;
 
 namespace Irvuewin.Views;
 
-public partial class Channels : LocationAwareWindow
+public partial class Channels
 {
+    private static readonly ILogger Logger = Log.ForContext(typeof(Channels));
     private bool _isInitialized;
 
     public Channels()
@@ -24,11 +25,11 @@ public partial class Channels : LocationAwareWindow
 
     private void ChannelsWindow_Loaded(object sender, RoutedEventArgs e)
     {
-        Console.WriteLine($@"Window_Loaded: ------------------ ");
-        var viewModel = DataContext as ChannelsViewModel;
+        Logger.Information($@"Window_Loaded: ------------------ ");
+        // var viewModel = DataContext as ChannelsViewModel;
         var checkedChannel = Properties.Settings.Default.UserCheckedChannel;
-        Console.WriteLine($@"Window_Loaded: Checked channel Index: {checkedChannel}");
-        // viewModel!.CheckedChannel = selectedChannel;
+        Logger.Information(@"Window_Loaded: Checked channel Index: {CheckedChannel}", checkedChannel);
+        // viewModel!.CheckedChannel = selectedChannel;`
     }
 
 
@@ -38,19 +39,19 @@ public partial class Channels : LocationAwareWindow
         // 更新频道数据缓存
         if (DataContext is ChannelsViewModel viewModel)
         {
-            Console.WriteLine(@"Window_Closing: Saving channels...");
+            Logger.Information(@"Window_Closing: Saving channels...");
             // TODO Double check 
             await viewModel.CacheChannels();
         }
 
-        Console.WriteLine(@"Window Closed.");
+        Logger.Information(@"Window Closed.");
     }
 
     private void Channels_Detail_Click(object sender, RoutedEventArgs e)
     {
         var viewModel = DataContext as ChannelsViewModel;
         var checkedChannel = viewModel!.Channels.First(c => c.Id == viewModel.CheckedChannel);
-        Console.WriteLine($@"Selected Channel: {checkedChannel.Title}");
+        Logger.Information(@"Selected Channel: {CheckedChannelTitle}", checkedChannel.Title);
         try
         {
             // Open link with default browser
@@ -62,7 +63,7 @@ public partial class Channels : LocationAwareWindow
         }
         catch (Exception ex)
         {
-            Console.WriteLine($@"打开链接失败: {ex.Message}");
+            Logger.Error(@"打开链接失败: {ExMessage}", ex.Message);
         }
     }
 
