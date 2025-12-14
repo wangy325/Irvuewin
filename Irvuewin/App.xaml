@@ -2,7 +2,7 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
-             xmlns:tb="http://www.hardcodet.net/taskbar"
+             xmlns:tb="clr-namespace:H.NotifyIcon;assembly=H.NotifyIcon.Wpf"
              xmlns:local="clr-namespace:Irvuewin"
              xmlns:vm="clr-namespace:Irvuewin.ViewModels"
              xmlns:converters="clr-namespace:Irvuewin.Helpers.Converters"
@@ -132,258 +132,257 @@
                 <Setter Property="MaxWidth" Value="240" />
             </Style>
 
+            <ContextMenu x:Key="TrayContextMenu" Style="{StaticResource ContextMenuStyle}">
+                <i:Interaction.Triggers>
+                    <!-- 弹出菜单时检查显示器 -->
+                    <i:EventTrigger EventName="Opened">
+                        <i:InvokeCommandAction
+                            Command="{Binding Source={StaticResource TrayViewModel}, 
+                        Path=TrayMenuOpenedCommand}" />
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+
+
+                <MenuItem Margin="0, 10, 0 0"
+                          IsEnabled="False" IsCheckable="False">
+                    <MenuItem.Header>
+                        <TextBlock Foreground="Gray"
+                                   Text="{Binding Source={StaticResource TrayViewModel}, Path=NextWallpaperChangeTime, Converter={StaticResource DateTimeToStringConverter}}" />
+                    </MenuItem.Header>
+                </MenuItem>
+                <Separator Style="{StaticResource SeparatorStyle}" />
+
+                <MenuItem x:Name="AboutCurrentWallpaper">
+                    <MenuItem.Header>
+                        <uc:MenuItemHeader
+                            HeaderName="{Binding Source={StaticResource TrayViewModel}, 
+                        Path=HAboutCurrentWallpaper}" />
+                    </MenuItem.Header>
+                    <!-- All submenus must have a uniform style -->
+                    <MenuItem.ItemContainerStyle>
+                        <Style TargetType="MenuItem"
+                               BasedOn="{StaticResource {x:Type MenuItem}}">
+                            <Setter Property="Width" Value="200" />
+                        </Style>
+                    </MenuItem.ItemContainerStyle>
+                    <MenuItem Margin="0,10,0,0"
+                              IsCheckable="False"
+                              IsEnabled="False">
+                        <MenuItem.Icon>
+                            <Image Source="/Icons/Tray/like.ico"
+                                   Width="16" Height="16"
+                                   VerticalAlignment="Center" />
+                        </MenuItem.Icon>
+                        <MenuItem.Header>
+                            <TextBlock
+                                Margin="10,0,0,0"
+                                Text="{Binding Source={StaticResource TrayViewModel}, Path=AboutWallpaper.Likes}"
+                                Foreground="Gray" />
+                        </MenuItem.Header>
+                    </MenuItem>
+                    <MenuItem IsEnabled="False" IsCheckable="False">
+                        <MenuItem.Icon>
+                            <Image Source="/Icons/Tray/download_bold.ico"
+                                   Width="16" Height="16"
+                                   VerticalAlignment="Center" />
+                        </MenuItem.Icon>
+                        <MenuItem.Header>
+                            <TextBlock
+                                Margin="10,0,0,0"
+                                Text="{Binding Source={StaticResource TrayViewModel}, Path=AboutWallpaper.Downloads}"
+                                Foreground="Gray" />
+                        </MenuItem.Header>
+                    </MenuItem>
+                    <MenuItem IsEnabled="False" IsCheckable="False"
+                              ToolTipService.ShowOnDisabled="True"
+                              Visibility="{Binding Source={StaticResource TrayViewModel}, Path=AboutWallpaper.Location, Converter={StaticResource StringToVisibilityConverter}}">
+                        <MenuItem.ToolTip>
+                            <ToolTip Style="{StaticResource ToolTipStyle}"
+                                     Content="{Binding Source={StaticResource TrayViewModel}, Path=AboutWallpaper.Location}" />
+                        </MenuItem.ToolTip>
+                        <MenuItem.Icon>
+                            <Image Source="/Icons/Tray/location_bold.ico"
+                                   Width="16" Height="16"
+                                   VerticalAlignment="Center" />
+                        </MenuItem.Icon>
+                        <MenuItem.Header>
+                            <TextBlock
+                                Margin="10,0,0,0"
+                                Text="{Binding Source={StaticResource TrayViewModel}, Path=AboutWallpaper.Location}"
+                                TextWrapping="NoWrap"
+                                TextTrimming="CharacterEllipsis"
+                                Foreground="Gray" />
+                        </MenuItem.Header>
+                    </MenuItem>
+                    <MenuItem
+                        Command="{Binding Source={StaticResource TrayViewModel}, Path=WallpaperInfoPageOpenCommand }"
+                        CommandParameter="{Binding Source={StaticResource TrayViewModel}, Path=AboutWallpaper.AuthorProfilePageLink}">
+                        <MenuItem.Icon>
+                            <Image Source="/Icons/Tray/author.ico"
+                                   Width="16" Height="16"
+                                   VerticalAlignment="Center" />
+                        </MenuItem.Icon>
+                        <MenuItem.Header>
+                            <TextBlock
+                                Margin="10,0,0,0"
+                                Text="{Binding Source={StaticResource TrayViewModel}, Path=AboutWallpaper.Author}"
+                                TextWrapping="NoWrap"
+                                TextTrimming="CharacterEllipsis" />
+                        </MenuItem.Header>
+                    </MenuItem>
+                    <MenuItem Margin="0, 0,0,10"
+                              Command="{Binding Source={StaticResource TrayViewModel}, Path=WallpaperInfoPageOpenCommand }"
+                              CommandParameter="{Binding Source={StaticResource TrayViewModel}, Path=AboutWallpaper.ProfileLink}">
+                        <MenuItem.Icon>
+                            <Image Source="/Icons/Tray/photo.ico"
+                                   Width="16" Height="16"
+                                   VerticalAlignment="Center" />
+                        </MenuItem.Icon>
+                        <MenuItem.Header>
+                            <TextBlock
+                                Margin="10,0,0,0"
+                                Text="{Binding Source={StaticResource TrayViewModel}, Path=AboutWallpaper.Profile}" />
+                        </MenuItem.Header>
+                    </MenuItem>
+                </MenuItem>
+
+
+                <Separator Style="{StaticResource SeparatorStyle}" />
+
+                <MenuItem
+                    Header="{Binding Source={StaticResource TrayViewModel}, Path=HChangeCurrentWallpaper}"
+                    Name="ChangeCurrentWallpaper"
+                    Click="ChangeCurrentWallpaper_Click" />
+                <MenuItem Header="{Binding Source={StaticResource TrayViewModel}, Path=HChangeAllWallpaper}"
+                          Name="ChangeAllWallpaper"
+                          Click="ChangeAllWallpaper_Click" />
+                <MenuItem Header="{Binding Source={StaticResource TrayViewModel}, Path=HPreviousWallpaper}"
+                          Name="LoadPreviousWallpaper"
+                          Click="LoadPreviousWallpaper_Click" />
+                <MenuItem Header="{Binding Source={StaticResource TrayViewModel}, Path=HDownloadWallpaper}"
+                          Name="DownloadCurrentWallpaper"
+                          Click="DownloadCurrentWallpaper_Click" />
+
+                <Separator Style="{StaticResource SeparatorStyle}" />
+
+                <MenuItem Name="ChannelSelector">
+                    <MenuItem.Header>
+                        <uc:MenuItemHeader
+                            HeaderName="{Binding Source={StaticResource TrayViewModel}, Path=HChannelSelector}" />
+                    </MenuItem.Header>
+                    <MenuItem.ItemsSource>
+                        <CompositeCollection>
+                            <Separator Margin="0 ,10,0,0" Background="Transparent" />
+                            <CollectionContainer
+                                Collection="{Binding Source={StaticResource TrayViewModel}, Path=AddedChannels}" />
+                            <Separator Style="{StaticResource SeparatorStyle}" />
+                            <MenuItem
+                                Header="{Binding Source={StaticResource TrayViewModel}, Path=HAddNewChannel}"
+                                Margin="0,0,0,10"
+                                Name="AddNewChannel"
+                                IsCheckable="False"
+                                Command="{Binding Source={StaticResource TrayViewModel}, Path=OpenAddChannelWindowCommand}"
+                                Style="{StaticResource ChannelSelectorSubMenuItemStyle}" />
+                        </CompositeCollection>
+                    </MenuItem.ItemsSource>
+                    <MenuItem.ItemContainerStyle>
+                        <Style TargetType="MenuItem" BasedOn="{StaticResource ChannelSelectorSubMenuItemStyle}">
+                            <Setter Property="Header"
+                                    Value="{Binding  Path = (vm:ChannelViewModel.Title)}" />
+                            <Setter Property="IsChecked"
+                                    Value="{Binding  Path=(vm:ChannelViewModel.IsChecked)}" />
+                            <!--<Setter Property="Command"
+                                    Value="{Binding Source={StaticResource ChannelViewModel}, Path=ItemChecked}" />
+                            <Setter Property="CommandParameter" Value="{Binding}" />-->
+                        </Style>
+                    </MenuItem.ItemContainerStyle>
+                </MenuItem>
+
+                <MenuItem Header="{Binding Source={StaticResource TrayViewModel}, Path=HManageChannel}"
+                          Name="UnsplashChannelManage"
+                          Click="ManageChannel_Click" />
+
+                <MenuItem Name="WallpaperChangeInterval"
+                          AlternationCount="{Binding Source={StaticResource TrayViewModel}, Path=IntervalsItemCount }"
+                          ItemsSource="{Binding Source={StaticResource TrayViewModel}, Path=Intervals }">
+                    <MenuItem.Header>
+                        <uc:MenuItemHeader
+                            HeaderName="{Binding Source={StaticResource TrayViewModel}, Path=HWallpaperUpdateInterval}" />
+                    </MenuItem.Header>
+                    <MenuItem.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Path=Header}"
+                                       VerticalAlignment="Center"
+                                       HorizontalAlignment="Left" />
+                        </DataTemplate>
+                    </MenuItem.ItemTemplate>
+                    <MenuItem.ItemContainerStyle>
+                        <Style TargetType="MenuItem"
+                               BasedOn="{StaticResource {x:Type MenuItem}}">
+                            <Setter Property="StaysOpenOnClick" Value="True" />
+                            <Setter Property="IsCheckable" Value="True" />
+                            <Setter Property="MinWidth" Value="120" />
+                            <Setter Property="Tag" Value="{Binding Tag}" />
+                            <Setter Property="IsChecked">
+                                <Setter.Value>
+                                    <MultiBinding Converter="{StaticResource Ushort2BoolConverter}">
+                                        <Binding Source="{x:Static local:Properties.Settings.Default}"
+                                                 Path="WallpaperChangeInterval" />
+                                        <Binding Path="Tag" RelativeSource="{RelativeSource Self}" />
+                                    </MultiBinding>
+                                </Setter.Value>
+                            </Setter>
+                            <EventSetter Event="Click" Handler="WallpaperChangeInterval_Click" />
+                            <Style.Triggers>
+                                <Trigger Property="ItemsControl.AlternationIndex" Value="0">
+                                    <Setter Property="Margin" Value="0,10,0,0" />
+                                </Trigger>
+                                <!--TODO use AlternationIndex to set margin -->
+                                <Trigger Property="ItemsControl.AlternationIndex" Value="6">
+                                    <Setter Property="Margin" Value="0,0,0,10" />
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </MenuItem.ItemContainerStyle>
+                </MenuItem>
+
+                <MenuItem Header="{Binding Source={StaticResource TrayViewModel}, Path=HRandomWallpaper}"
+                          x:Name="RandomSwitch"
+                          IsCheckable="True" StaysOpenOnClick="True"
+                          IsChecked="{Binding Source={x:Static local:Properties.Settings.Default},
+                                  Path=RandomWallpaper, Mode=TwoWay}">
+                    <!--MVVM模式 事件触发器绑定命令-->
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="Checked">
+                            <i:InvokeCommandAction
+                                Command="{Binding Source={StaticResource TrayViewModel}, Path=SaveCachedSequenceCommand}" />
+                        </i:EventTrigger>
+                        <i:EventTrigger EventName="Unchecked">
+                            <i:InvokeCommandAction
+                                Command="{Binding Source={StaticResource TrayViewModel}, Path=LoadCachedSequenceCommand}" />
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </MenuItem>
+
+                <Separator Style="{StaticResource SeparatorStyle}" />
+
+                <MenuItem Header="{Binding Source={StaticResource TrayViewModel}, Path=HSettings}"
+                          x:Name="Settings"
+                          Click="Settings_Click" />
+
+                <Separator Style="{StaticResource SeparatorStyle}" />
+
+                <MenuItem Header="{Binding Source={StaticResource TrayViewModel}, Path=HExit}"
+                          x:Name="Exit"
+                          Margin="0,0,0,10"
+                          Click="Exit_Click" />
+            </ContextMenu>
+
             <tb:TaskbarIcon x:Key="NotifyIcon"
                             ToolTipText="Irvuewin"
                             IconSource="/Icons/Tray.ico"
-                            TrayLeftMouseUp="TrayMouseLeft_Click">
-
-                <tb:TaskbarIcon.ContextMenu>
-                    <ContextMenu Style="{StaticResource ContextMenuStyle}">
-                        <i:Interaction.Triggers>
-                            <!-- 弹出菜单时检查显示器 -->
-                            <i:EventTrigger EventName="Opened">
-                                <i:InvokeCommandAction
-                                    Command="{Binding Source={StaticResource TrayViewModel}, 
-                                Path=TrayMenuOpenedCommand}" />
-                            </i:EventTrigger>
-                        </i:Interaction.Triggers>
-                        
-
-                        <MenuItem Margin="0, 10, 0 0"
-                                  IsEnabled="False" IsCheckable="False">
-                            <MenuItem.Header>
-                                <TextBlock Foreground="Gray"
-                                           Text="{Binding Source={StaticResource TrayViewModel}, Path=NextWallpaperChangeTime, Converter={StaticResource DateTimeToStringConverter}}" />
-                            </MenuItem.Header>
-                        </MenuItem>
-                        <Separator Style="{StaticResource SeparatorStyle}" />
-
-                        <MenuItem x:Name="AboutCurrentWallpaper">
-                            <MenuItem.Header>
-                                <uc:MenuItemHeader
-                                    HeaderName="{Binding Source={StaticResource TrayViewModel}, 
-                                Path=HAboutCurrentWallpaper}" />
-                            </MenuItem.Header>
-                            <!-- All submenus must have a uniform style -->
-                            <MenuItem.ItemContainerStyle>
-                                <Style TargetType="MenuItem"
-                                       BasedOn="{StaticResource {x:Type MenuItem}}">
-                                    <Setter Property="Width" Value="200" />
-                                </Style>
-                            </MenuItem.ItemContainerStyle>
-                            <MenuItem Margin="0,10,0,0"
-                                      IsCheckable="False"
-                                      IsEnabled="False">
-                                <MenuItem.Icon>
-                                    <Image Source="/Icons/Tray/like.ico"
-                                           Width="16" Height="16"
-                                           VerticalAlignment="Center" />
-                                </MenuItem.Icon>
-                                <MenuItem.Header>
-                                    <TextBlock
-                                        Margin="10,0,0,0"
-                                        Text="{Binding Source={StaticResource TrayViewModel}, Path=AboutWallpaper.Likes}"
-                                        Foreground="Gray" />
-                                </MenuItem.Header>
-                            </MenuItem>
-                            <MenuItem IsEnabled="False" IsCheckable="False">
-                                <MenuItem.Icon>
-                                    <Image Source="/Icons/Tray/download_bold.ico"
-                                           Width="16" Height="16"
-                                           VerticalAlignment="Center" />
-                                </MenuItem.Icon>
-                                <MenuItem.Header>
-                                    <TextBlock
-                                        Margin="10,0,0,0"
-                                        Text="{Binding Source={StaticResource TrayViewModel}, Path=AboutWallpaper.Downloads}"
-                                        Foreground="Gray" />
-                                </MenuItem.Header>
-                            </MenuItem>
-                            <MenuItem IsEnabled="False" IsCheckable="False"
-                                      ToolTipService.ShowOnDisabled="True"
-                                      Visibility="{Binding Source={StaticResource TrayViewModel}, Path=AboutWallpaper.Location, Converter={StaticResource StringToVisibilityConverter}}">
-                                <MenuItem.ToolTip>
-                                    <ToolTip Style="{StaticResource ToolTipStyle}"
-                                             Content="{Binding Source={StaticResource TrayViewModel}, Path=AboutWallpaper.Location}" />
-                                </MenuItem.ToolTip>
-                                <MenuItem.Icon>
-                                    <Image Source="/Icons/Tray/location_bold.ico"
-                                           Width="16" Height="16"
-                                           VerticalAlignment="Center" />
-                                </MenuItem.Icon>
-                                <MenuItem.Header>
-                                    <TextBlock
-                                        Margin="10,0,0,0"
-                                        Text="{Binding Source={StaticResource TrayViewModel}, Path=AboutWallpaper.Location}"
-                                        TextWrapping="NoWrap"
-                                        TextTrimming="CharacterEllipsis"
-                                        Foreground="Gray" />
-                                </MenuItem.Header>
-                            </MenuItem>
-                            <MenuItem
-                                Command="{Binding Source={StaticResource TrayViewModel}, Path=WallpaperInfoPageOpenCommand }"
-                                CommandParameter="{Binding Source={StaticResource TrayViewModel}, Path=AboutWallpaper.AuthorProfilePageLink}">
-                                <MenuItem.Icon>
-                                    <Image Source="/Icons/Tray/author.ico"
-                                           Width="16" Height="16"
-                                           VerticalAlignment="Center" />
-                                </MenuItem.Icon>
-                                <MenuItem.Header>
-                                    <TextBlock
-                                        Margin="10,0,0,0"
-                                        Text="{Binding Source={StaticResource TrayViewModel}, Path=AboutWallpaper.Author}"
-                                        TextWrapping="NoWrap"
-                                        TextTrimming="CharacterEllipsis" />
-                                </MenuItem.Header>
-                            </MenuItem>
-                            <MenuItem Margin="0, 0,0,10"
-                                      Command="{Binding Source={StaticResource TrayViewModel}, Path=WallpaperInfoPageOpenCommand }"
-                                      CommandParameter="{Binding Source={StaticResource TrayViewModel}, Path=AboutWallpaper.ProfileLink}">
-                                <MenuItem.Icon>
-                                    <Image Source="/Icons/Tray/photo.ico"
-                                           Width="16" Height="16"
-                                           VerticalAlignment="Center" />
-                                </MenuItem.Icon>
-                                <MenuItem.Header>
-                                    <TextBlock
-                                        Margin="10,0,0,0"
-                                        Text="{Binding Source={StaticResource TrayViewModel}, Path=AboutWallpaper.Profile}" />
-                                </MenuItem.Header>
-                            </MenuItem>
-                        </MenuItem>
-
-
-                        <Separator Style="{StaticResource SeparatorStyle}" />
-
-                        <MenuItem
-                            Header="{Binding Source={StaticResource TrayViewModel}, Path=HChangeCurrentWallpaper}"
-                            Name="ChangeCurrentWallpaper"
-                            Click="ChangeCurrentWallpaper_Click" />
-                        <MenuItem Header="{Binding Source={StaticResource TrayViewModel}, Path=HChangeAllWallpaper}"
-                                  Name="ChangeAllWallpaper"
-                                  Click="ChangeAllWallpaper_Click" />
-                        <MenuItem Header="{Binding Source={StaticResource TrayViewModel}, Path=HPreviousWallpaper}"
-                                  Name="LoadPreviousWallpaper"
-                                  Click="LoadPreviousWallpaper_Click" />
-                        <MenuItem Header="{Binding Source={StaticResource TrayViewModel}, Path=HDownloadWallpaper}"
-                                  Name="DownloadCurrentWallpaper"
-                                  Click="DownloadCurrentWallpaper_Click" />
-
-                        <Separator Style="{StaticResource SeparatorStyle}" />
-
-                        <MenuItem Name="ChannelSelector">
-                            <MenuItem.Header>
-                                <uc:MenuItemHeader
-                                    HeaderName="{Binding Source={StaticResource TrayViewModel}, Path=HChannelSelector}" />
-                            </MenuItem.Header>
-                            <MenuItem.ItemsSource>
-                                <CompositeCollection>
-                                    <Separator Margin="0 ,10,0,0" Background="Transparent" />
-                                    <CollectionContainer
-                                        Collection="{Binding Source={StaticResource TrayViewModel}, Path=AddedChannels}" />
-                                    <Separator Style="{StaticResource SeparatorStyle}" />
-                                    <MenuItem
-                                        Header="{Binding Source={StaticResource TrayViewModel}, Path=HAddNewChannel}"
-                                        Margin="0,0,0,10"
-                                        Name="AddNewChannel"
-                                        IsCheckable="False"
-                                        Command="{Binding Source={StaticResource TrayViewModel}, Path=OpenAddChannelWindowCommand}"
-                                        Style="{StaticResource ChannelSelectorSubMenuItemStyle}" />
-                                </CompositeCollection>
-                            </MenuItem.ItemsSource>
-                            <MenuItem.ItemContainerStyle>
-                                <Style TargetType="MenuItem" BasedOn="{StaticResource ChannelSelectorSubMenuItemStyle}">
-                                    <Setter Property="Header"
-                                            Value="{Binding  Path = (vm:ChannelViewModel.Title)}" />
-                                    <Setter Property="IsChecked"
-                                            Value="{Binding  Path=(vm:ChannelViewModel.IsChecked)}" />
-                                    <!--<Setter Property="Command"
-                                            Value="{Binding Source={StaticResource ChannelViewModel}, Path=ItemChecked}" />
-                                    <Setter Property="CommandParameter" Value="{Binding}" />-->
-                                </Style>
-                            </MenuItem.ItemContainerStyle>
-                        </MenuItem>
-
-                        <MenuItem Header="{Binding Source={StaticResource TrayViewModel}, Path=HManageChannel}"
-                                  Name="UnsplashChannelManage"
-                                  Click="ManageChannel_Click" />
-
-                        <MenuItem Name="WallpaperChangeInterval"
-                                  AlternationCount="{Binding Source={StaticResource TrayViewModel}, Path=IntervalsItemCount }"
-                                  ItemsSource="{Binding Source={StaticResource TrayViewModel}, Path=Intervals }">
-                            <MenuItem.Header>
-                                <uc:MenuItemHeader
-                                    HeaderName="{Binding Source={StaticResource TrayViewModel}, Path=HWallpaperUpdateInterval}" />
-                            </MenuItem.Header>
-                            <MenuItem.ItemTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding Path=Header}"
-                                               VerticalAlignment="Center"
-                                               HorizontalAlignment="Left" />
-                                </DataTemplate>
-                            </MenuItem.ItemTemplate>
-                            <MenuItem.ItemContainerStyle>
-                                <Style TargetType="MenuItem"
-                                       BasedOn="{StaticResource {x:Type MenuItem}}">
-                                    <Setter Property="StaysOpenOnClick" Value="True" />
-                                    <Setter Property="IsCheckable" Value="True" />
-                                    <Setter Property="MinWidth" Value="120" />
-                                    <Setter Property="Tag" Value="{Binding Tag}" />
-                                    <Setter Property="IsChecked">
-                                        <Setter.Value>
-                                            <MultiBinding Converter="{StaticResource Ushort2BoolConverter}">
-                                                <Binding Source="{x:Static local:Properties.Settings.Default}"
-                                                         Path="WallpaperChangeInterval" />
-                                                <Binding Path="Tag" RelativeSource="{RelativeSource Self}" />
-                                            </MultiBinding>
-                                        </Setter.Value>
-                                    </Setter>
-                                    <EventSetter Event="Click" Handler="WallpaperChangeInterval_Click" />
-                                    <Style.Triggers>
-                                        <Trigger Property="ItemsControl.AlternationIndex" Value="0">
-                                            <Setter Property="Margin" Value="0,10,0,0" />
-                                        </Trigger>
-                                        <!--TODO use AlternationIndex to set margin -->
-                                        <Trigger Property="ItemsControl.AlternationIndex" Value="6">
-                                            <Setter Property="Margin" Value="0,0,0,10" />
-                                        </Trigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </MenuItem.ItemContainerStyle>
-                        </MenuItem>
-
-                        <MenuItem Header="{Binding Source={StaticResource TrayViewModel}, Path=HRandomWallpaper}"
-                                  x:Name="RandomSwitch"
-                                  IsCheckable="True" StaysOpenOnClick="True"
-                                  IsChecked="{Binding Source={x:Static local:Properties.Settings.Default},
-                                          Path=RandomWallpaper, Mode=TwoWay}">
-                            <!--MVVM模式 事件触发器绑定命令-->
-                            <i:Interaction.Triggers>
-                                <i:EventTrigger EventName="Checked">
-                                    <i:InvokeCommandAction
-                                        Command="{Binding Source={StaticResource TrayViewModel}, Path=SaveCachedSequenceCommand}" />
-                                </i:EventTrigger>
-                                <i:EventTrigger EventName="Unchecked">
-                                    <i:InvokeCommandAction
-                                        Command="{Binding Source={StaticResource TrayViewModel}, Path=LoadCachedSequenceCommand}" />
-                                </i:EventTrigger>
-                            </i:Interaction.Triggers>
-                        </MenuItem>
-
-                        <Separator Style="{StaticResource SeparatorStyle}" />
-
-                        <MenuItem Header="{Binding Source={StaticResource TrayViewModel}, Path=HSettings}"
-                                  x:Name="Settings"
-                                  Click="Settings_Click" />
-
-                        <Separator Style="{StaticResource SeparatorStyle}" />
-
-                        <MenuItem Header="{Binding Source={StaticResource TrayViewModel}, Path=HExit}"
-                                  x:Name="Exit"
-                                  Margin="0,0,0,10"
-                                  Click="Exit_Click" />
-                    </ContextMenu>
-                </tb:TaskbarIcon.ContextMenu>
+                            Visibility="Visible"
+                            TrayRightMouseUp="TrayMouseRight_Click">
             </tb:TaskbarIcon>
 
             <Window x:Key="TrayWindow" />

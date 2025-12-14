@@ -1,8 +1,6 @@
 ﻿using System.IO;
 using System.Windows;
-using System.Windows.Controls;
-using Hardcodet.Wpf.TaskbarNotification;
-using Irvuewin.Controls;
+using H.NotifyIcon;
 using Irvuewin.Helpers;
 using Irvuewin.ViewModels;
 
@@ -79,7 +77,7 @@ public partial class Settings : LocationAwareWindow
         // UNDONE: Get and save page data
 
         var _TaskBarIcon = (TaskbarIcon)FindResource("NotifyIcon");
-        _TaskBarIcon.ShowBalloonTip("INFO", "Saved Settings", BalloonIcon.Info);
+        // _TaskBarIcon.ShowBalloonTip("INFO", "Saved Settings", BalloonIcon.Info);
     }
 
     /// <summary>

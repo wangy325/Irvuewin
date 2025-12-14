@@ -94,6 +94,8 @@ public class TrayViewModel : INotifyPropertyChanged
     {
         TrayMenuHelper.CheckPointer();
         var sid = TrayMenuHelper.CurrentScreen.Name;
+        
+        // Update wallpaper info
         if (_lastDisplayName is not null)
         {
             if (TrayMenuHelper.WallpaperChanged.TryGetValue(sid, out var changed) && changed)
@@ -109,12 +111,12 @@ public class TrayViewModel : INotifyPropertyChanged
             }
             else
             {
-               if (sid == _lastDisplayName) return;
-               _lastDisplayName = sid;
-               if (Properties.Settings.Default.MultiDisplay == 1)
-               {
-                   await TrayMenuHelper.DisplayWallpaperInfo();
-               }
+                if (sid == _lastDisplayName) return;
+                _lastDisplayName = sid;
+                if (Properties.Settings.Default.MultiDisplay == 1)
+                {
+                    await TrayMenuHelper.DisplayWallpaperInfo();
+                }
             }
         }
         else

@@ -2,11 +2,12 @@
 using System.Windows;
 using System.Windows.Controls;
 using AutoMapper;
-using Hardcodet.Wpf.TaskbarNotification;
+using H.NotifyIcon;
 using Irvuewin.Helpers;
 using Irvuewin.Helpers.Utils;
 using Irvuewin.Models.Unsplash;
 using Irvuewin.ViewModels;
+using System.Windows.Interop;
 using Irvuewin.Views;
 
 namespace Irvuewin
@@ -28,12 +29,12 @@ namespace Irvuewin
                 cfg.CreateMap<UnsplashChannel, ChannelViewModel>());
             var mapper = config.CreateMapper();
             MapperProvider.Mapper = mapper;
-            
+
             // Create ChannelsViewModel singleton instance
             // TODO 优化初始化过程
             _channelsViewModel = await ChannelsViewModel.GetInstanceAsync();
             Resources.Add("ChannelsViewModel", _channelsViewModel);
-            
+
             //  Create a copy of Channels in TrayViewModel
             var trayViewModel = Current.Resources["TrayViewModel"] as TrayViewModel;
             trayViewModel!.AddedChannels = _channelsViewModel.Channels;
@@ -47,17 +48,21 @@ namespace Irvuewin
             }
 
             // Async Change wallpaper when app start
-            TrayMenuHelper.CheckPointer();
-            _ = TrayMenuHelper.ChangeAllWallpaper().ConfigureAwait(false);
-            
+            // TrayMenuHelper.CheckPointer();
+            // _ = TrayMenuHelper.ChangeAllWallpaper().ConfigureAwait(false);
+
             // Init wallpaper change schedule Timer
             TrayMenuHelper.InitWallpaperChangeScheduler();
 
             if (FindResource("NotifyIcon") is TaskbarIcon taskbarIcon)
+            {
                 _taskbarIcon = taskbarIcon;
+                _taskbarIcon.ForceCreate();
+            }
+
             base.OnStartup(e);
         }
-        
+
         protected override void OnExit(ExitEventArgs e)
         {
             base.OnExit(e);
@@ -90,6 +95,7 @@ namespace Irvuewin
             {
                 dest = IAppConst.DefaultWallpaperDownloadDir;
             }
+
             if (!TrayMenuHelper.DownloadCurrentWallpaper(dest)) return;
             var openFolder = Irvuewin.Properties.Settings.Default.OpenSavedWallpaper;
             if (openFolder)
@@ -157,16 +163,43 @@ namespace Irvuewin
             Current.Shutdown();
         }
 
+        private Views.DpiAnchorWindow? _anchorWindow;
+
         /// <summary>
-        /// 试图在菜单栏弹出后单击鼠标左键（不选中任何内容）时隐藏菜单栏
-        /// 貌似是冗余
+        /// 在菜单栏弹出时获取显示器的DPI信息，用于解决多显示器DPI不一致的显示问题
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void TrayMouseLeft_Click(object sender, RoutedEventArgs e)
+        private void TrayMouseRight_Click(object sender, RoutedEventArgs e)
         {
-            if (_taskbarIcon is not { IsVisible: true }) return;
-            if (_taskbarIcon.ContextMenu != null) _taskbarIcon.ContextMenu.IsOpen = false;
+            // Create anchor window if needed
+            if (_anchorWindow == null)
+            {
+                _anchorWindow = new Views.DpiAnchorWindow();
+                // Ensure handle is created
+                _anchorWindow.Show();
+                _anchorWindow.Hide();
+            }
+
+            // Get mouse position (Physical pixels)
+            var point = System.Windows.Forms.Cursor.Position;
+
+            // Use SetWindowPos to position the anchor window at the exact physical coordinates
+            var helper = new WindowInteropHelper(_anchorWindow);
+            NativeMethods.SetWindowPos(helper.Handle, NativeMethods.HWND_TOP, point.X, point.Y, 0, 0, 
+                NativeMethods.SWP_NOSIZE | NativeMethods.SWP_NOACTIVATE | NativeMethods.SWP_SHOWWINDOW);
+
+            // Set foreground window to ensure menu closes on outside click
+            NativeMethods.SetForegroundWindow(helper.Handle);
+            
+            // Get Context Menu from Resources
+            if (FindResource("TrayContextMenu") is not ContextMenu contextMenu) return;
+
+            contextMenu.PlacementTarget = _anchorWindow;
+            contextMenu.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom; 
+            contextMenu.IsOpen = true;
+            
+            contextMenu.Closed += (s, args) => _anchorWindow.Hide();
         }
     }
 }

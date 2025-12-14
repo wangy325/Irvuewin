@@ -10,6 +10,7 @@ public class ChannelViewModel : UnsplashChannel, INotifyPropertyChanged
 {
     private bool _isChecked;
 
+    // 'Checked' means that app will update wallpaper from this channel.
     public bool IsChecked
     {
         get => _isChecked;
@@ -24,6 +25,8 @@ public class ChannelViewModel : UnsplashChannel, INotifyPropertyChanged
     public ICommand ItemChecked { set; get; } = new RelayCommand<object>(OnChannelChecked);
 
 
+
+    // Change app status
     private static void OnChannelChecked(object param)
     {
         if (param is not ChannelViewModel item) return;

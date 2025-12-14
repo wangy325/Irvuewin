@@ -184,7 +184,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
             return true;
         }
 
-        // load from web
+        // Load from unsplash web API
         var httpService = IHttpClient.GetUnsplashHttpService();
         if (await httpService.GetPhotosOfChannel(channelId, query) is { } photos)
         {
