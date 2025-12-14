@@ -26,8 +26,8 @@ public partial class Channels : LocationAwareWindow
     {
         Console.WriteLine($@"Window_Loaded: ------------------ ");
         var viewModel = DataContext as ChannelsViewModel;
-        var selectedChannel = Properties.Settings.Default.UserSelecctedChannel;
-        Console.WriteLine($@"Window_Loaded: Selected channel Index: {selectedChannel}");
+        var checkedChannel = Properties.Settings.Default.UserCheckedChannel;
+        Console.WriteLine($@"Window_Loaded: Checked channel Index: {checkedChannel}");
         // viewModel!.CheckedChannel = selectedChannel;
     }
 

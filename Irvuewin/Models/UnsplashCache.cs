@@ -29,8 +29,11 @@ namespace Irvuewin.Models
             }
         }
 
-        // Load channels from cache
-        // May return empty list or null
+        /// <summary>
+        /// Load channels from cache
+        /// May return empty list or null
+        /// </summary>
+        /// <returns></returns>
         public static async Task<List<UnsplashChannel>?> LoadChannelsAsync()
         {
             try
@@ -73,8 +76,12 @@ namespace Irvuewin.Models
             }
         }
 
-        // Get sharding of channel's photo list from cache file
-        // Returns null if cache file does not exist or exception occurs
+        /// <summary>
+        /// Get sharding of channel's photo list from cache file
+        /// Returns null if cache file does not exist or exception occurs
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
         public static async Task<List<UnsplashPhoto>?> LoadPhotosShardAsync(PhotosCachePageIndex index)
         {
             var filePath = FileUtils.CachePath(
@@ -101,8 +108,12 @@ namespace Irvuewin.Models
                 return null;
             }
         }
-
-        // Load all cached photos count for specified channel
+    
+        /// <summary>
+        ///  Load all cached photos count of specified channel by ID
+        /// </summary>
+        /// <param name="channelId"></param>
+        /// <returns></returns>
         public static async Task<int> LoadPhotoCountAsync(string channelId)
         {
             var folder = Path.Combine(FileUtils.CachedPhotoBaseFolder, channelId);

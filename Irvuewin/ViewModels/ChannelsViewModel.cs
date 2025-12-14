@@ -40,7 +40,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
         }
     }
 
-    private string _checkedChannel = Properties.Settings.Default.UserSelecctedChannel;
+    private string _checkedChannel = Properties.Settings.Default.UserCheckedChannel;
 
     public string CheckedChannel
     {
@@ -86,7 +86,9 @@ public class ChannelsViewModel : INotifyPropertyChanged
     // private int ShardIndex { get; set; } = 1;
     private bool IsBusy { get; set; }
     private UnsplashQueryParams DefaultQuery { get; set; }
-    public ICommand ItemSelected { get; set; }
+
+    public ICommand ChannelSelected2 { get; set; }
+    public ICommand ChannelChecked2 { get; set; }
     public ICommand LoadMorePhotos { get; set; }
 
     private static readonly Lazy<Task<ChannelsViewModel>> Instance = new(Init);
@@ -108,7 +110,8 @@ public class ChannelsViewModel : INotifyPropertyChanged
             Orientation = Properties.Settings.Default.WallpaperOrientation
         };
         LoadMorePhotos = new RelayCommand<object>(OnLoadMorePhotos);
-        ItemSelected = new RelayCommand<ChannelViewModel>(OnListBoxItemSelected);
+        ChannelSelected2 = new RelayCommand<ChannelViewModel>(OnChannelSelected);
+        ChannelChecked2 = new RelayCommand<ChannelViewModel>(OnChannelChecked);
     }
 
     public static Task<ChannelsViewModel> GetInstanceAsync()
@@ -131,9 +134,9 @@ public class ChannelsViewModel : INotifyPropertyChanged
         foreach (var channel in Channels)
         {
             _shardIndex[channel.Id] = 1;
+            LoadedPhotoCount[channel.Id] = await UnsplashCache.LoadPhotoCountAsync(channel.Id);
         }
-
-        LoadedPhotoCount[CheckedChannel] = await UnsplashCache.LoadPhotoCountAsync(CheckedChannel);
+        
         // Load 1st page of channel's photos 
         await LoadPhotos(CheckedChannel, DefaultQuery);
         Console.WriteLine(@"=========> ChannelsViewModel initialized.");
@@ -221,7 +224,13 @@ public class ChannelsViewModel : INotifyPropertyChanged
         }
     }
 
-    private async void OnListBoxItemSelected(object param)
+    /// <summary>
+    /// This means user select a new channel from left side listbox to preview its photos.
+    /// But next wallpaper will still be fetched from checked channel (Radio).
+    /// This will reload all photos preview from selected photo.
+    /// </summary>
+    /// <param name="param"></param>
+    private async void OnChannelSelected(object param)
     {
         try
         {
@@ -233,6 +242,29 @@ public class ChannelsViewModel : INotifyPropertyChanged
                 _shardIndex[key] = 1;
             }
 
+            LoadedPhotoCount[item.Id] = await UnsplashCache.LoadPhotoCountAsync(item.Id);
+
+            // Load photos
+            DefaultQuery.Orientation = Properties.Settings.Default.WallpaperOrientation;
+            await LoadPhotos(item.Id, DefaultQuery);
+        }
+        catch (Exception e)
+        {
+            // ignore
+        }
+    }
+
+
+    /// <summary>
+    /// Once channel is checked, means next wallpaper is fetched from this channel.
+    /// </summary>
+    /// <param name="param"></param>
+    private void OnChannelChecked(object param)
+    {
+        try
+        {
+            if (param is not ChannelViewModel item) return;
+            
             // Update selected status
             item.IsChecked = true;
             CheckedChannel = item.Id;
@@ -241,22 +273,15 @@ public class ChannelsViewModel : INotifyPropertyChanged
                 .ToList()
                 .ForEach(c => c.IsChecked = false);
 
-            LoadedPhotoCount[item.Id] = await UnsplashCache.LoadPhotoCountAsync(item.Id);
 
             // Update selected index to settings
-            // SelectedIndex = (sbyte)Channels.IndexOf(_selectedChannel);
-            // Properties.Settings.Default.SelectedChannelIndex = SelectedIndex;
-            Properties.Settings.Default.UserSelecctedChannel = CheckedChannel;
+            Properties.Settings.Default.UserCheckedChannel = CheckedChannel;
             Properties.Settings.Default.Save();
-            Console.WriteLine($@"Selected Index saved: {CheckedChannel}");
-            // Load photos
-            DefaultQuery.Orientation = Properties.Settings.Default.WallpaperOrientation;
-            await LoadPhotos(item.Id, DefaultQuery);
+            Console.WriteLine($@"Checked Channel saved: {CheckedChannel}");
         }
         catch (Exception e)
         {
             // ignore
-            // TODO handle exception
         }
     }
 

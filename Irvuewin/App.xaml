@@ -291,9 +291,9 @@
                                     Value="{Binding  Path = (vm:ChannelViewModel.Title)}" />
                             <Setter Property="IsChecked"
                                     Value="{Binding  Path=(vm:ChannelViewModel.IsChecked)}" />
-                            <!--<Setter Property="Command"
-                                    Value="{Binding Source={StaticResource ChannelViewModel}, Path=ItemChecked}" />
-                            <Setter Property="CommandParameter" Value="{Binding}" />-->
+                            <Setter Property="Command"
+                                    Value="{Binding Source={StaticResource ChannelViewModel}, Path=ChannelChecked}" />
+                            <Setter Property="CommandParameter" Value="{Binding}" />
                         </Style>
                     </MenuItem.ItemContainerStyle>
                 </MenuItem>

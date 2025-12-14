@@ -181,12 +181,12 @@ namespace Irvuewin.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("317099")]
-        public string UserSelecctedChannel {
+        public string UserCheckedChannel {
             get {
-                return ((string)(this["UserSelecctedChannel"]));
+                return ((string)(this["UserCheckedChannel"]));
             }
             set {
-                this["UserSelecctedChannel"] = value;
+                this["UserCheckedChannel"] = value;
             }
         }
     }

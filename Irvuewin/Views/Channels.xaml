@@ -46,6 +46,13 @@
 
                 <DataTemplate x:Key="ChannelsItemTemplate" DataType="{x:Type vm:ChannelViewModel}">
                     <Grid>
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="Selected" SourceObject="{Binding RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}">
+                                <i:InvokeCommandAction
+                                    Command="{Binding ChannelSelected}"
+                                    CommandParameter="{Binding}" />
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="60" />
                             <ColumnDefinition Width="*" />
@@ -75,6 +82,7 @@
                                 <ToolTip Style="{StaticResource ToolTipStyle}"
                                          Content="{Binding Title}" />
                             </TextBlock.ToolTip>
+                            
                         </TextBlock>
                         <RadioButton x:Name="PART_RadioButton"
                                      Grid.Column="2"
@@ -83,14 +91,9 @@
                                      GroupName="ChannelCheckRadio"
                                      IsEnabled="{TemplateBinding IsEnabled}"
                                      IsChecked="{Binding Path=IsChecked}"
+                                     Command="{Binding ChannelChecked}"
+                                     CommandParameter="{Binding}"
                                      Style="{StaticResource RadioStyle}">
-                            <i:Interaction.Triggers>
-                                <i:EventTrigger EventName="Checked">
-                                    <i:InvokeCommandAction
-                                        Command="{Binding ItemChecked}"
-                                        CommandParameter="{Binding}" />
-                                </i:EventTrigger>
-                            </i:Interaction.Triggers>
                         </RadioButton>
                     </Grid>
                 </DataTemplate>
