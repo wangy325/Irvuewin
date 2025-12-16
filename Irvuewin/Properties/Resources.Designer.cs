@@ -22,7 +22,7 @@ namespace Irvuewin.Properties {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class Resources {
+    public class Resources {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
@@ -36,7 +36,7 @@ namespace Irvuewin.Properties {
         ///   返回此类使用的缓存的 ResourceManager 实例。
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Resources.ResourceManager ResourceManager {
+        public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
                     global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Irvuewin.Properties.Resources", typeof(Resources).Assembly);
@@ -51,12 +51,534 @@ namespace Irvuewin.Properties {
         ///   使用此强类型资源类的所有资源查找执行重写。
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Globalization.CultureInfo Culture {
+        public static global::System.Globalization.CultureInfo Culture {
             get {
                 return resourceCulture;
             }
             set {
                 resourceCulture = value;
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 No photos available in this channel! 的本地化字符串。
+        /// </summary>
+        public static string Channels_NoPhotos {
+            get {
+                return ResourceManager.GetString("Channels_NoPhotos", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Refresh 的本地化字符串。
+        /// </summary>
+        public static string Channels_Refresh {
+            get {
+                return ResourceManager.GetString("Channels_Refresh", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Will reset wallpaper sequence in non-random mode 的本地化字符串。
+        /// </summary>
+        public static string Channels_RefreshTooltip {
+            get {
+                return ResourceManager.GetString("Channels_RefreshTooltip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Everything is OK! 的本地化字符串。
+        /// </summary>
+        public static string Everything_Is_OK {
+            get {
+                return ResourceManager.GetString("Everything_Is_OK", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 {0} Day 的本地化字符串。
+        /// </summary>
+        public static string Interval_Day {
+            get {
+                return ResourceManager.GetString("Interval_Day", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 {0} Hour 的本地化字符串。
+        /// </summary>
+        public static string Interval_Hour {
+            get {
+                return ResourceManager.GetString("Interval_Hour", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 {0} Hours 的本地化字符串。
+        /// </summary>
+        public static string Interval_Hours {
+            get {
+                return ResourceManager.GetString("Interval_Hours", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Manual 的本地化字符串。
+        /// </summary>
+        public static string Interval_Manual {
+            get {
+                return ResourceManager.GetString("Interval_Manual", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 {0} Minutes 的本地化字符串。
+        /// </summary>
+        public static string Interval_Minutes {
+            get {
+                return ResourceManager.GetString("Interval_Minutes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Next Update:  的本地化字符串。
+        /// </summary>
+        public static string Next_Update {
+            get {
+                return ResourceManager.GetString("Next_Update", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 An Irvue like application for Windows... 的本地化字符串。
+        /// </summary>
+        public static string Settings_AboutContent {
+            get {
+                return ResourceManager.GetString("Settings_AboutContent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Browse... 的本地化字符串。
+        /// </summary>
+        public static string Settings_Browse {
+            get {
+                return ResourceManager.GetString("Settings_Browse", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Different Wallpaper 的本地化字符串。
+        /// </summary>
+        public static string Settings_DiffWallpaper {
+            get {
+                return ResourceManager.GetString("Settings_DiffWallpaper", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Wallpaper Display Mode: 的本地化字符串。
+        /// </summary>
+        public static string Settings_DisplayMode {
+            get {
+                return ResourceManager.GetString("Settings_DisplayMode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Enable 的本地化字符串。
+        /// </summary>
+        public static string Settings_Enable {
+            get {
+                return ResourceManager.GetString("Settings_Enable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Filter Portraits and Full Body 的本地化字符串。
+        /// </summary>
+        public static string Settings_Filter_AllPeople {
+            get {
+                return ResourceManager.GetString("Settings_Filter_AllPeople", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 None 的本地化字符串。
+        /// </summary>
+        public static string Settings_Filter_None {
+            get {
+                return ResourceManager.GetString("Settings_Filter_None", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Filter Portraits 的本地化字符串。
+        /// </summary>
+        public static string Settings_Filter_Portraits {
+            get {
+                return ResourceManager.GetString("Settings_Filter_Portraits", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Language: 的本地化字符串。
+        /// </summary>
+        public static string Settings_Language {
+            get {
+                return ResourceManager.GetString("Settings_Language", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Auto 的本地化字符串。
+        /// </summary>
+        public static string Settings_Language_Auto {
+            get {
+                return ResourceManager.GetString("Settings_Language_Auto", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Chinese 的本地化字符串。
+        /// </summary>
+        public static string Settings_Language_Chinese {
+            get {
+                return ResourceManager.GetString("Settings_Language_Chinese", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 English 的本地化字符串。
+        /// </summary>
+        public static string Settings_Language_English {
+            get {
+                return ResourceManager.GetString("Settings_Language_English", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Launch at Startup: 的本地化字符串。
+        /// </summary>
+        public static string Settings_LaunchAtStartup {
+            get {
+                return ResourceManager.GetString("Settings_LaunchAtStartup", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Min Resolution: 的本地化字符串。
+        /// </summary>
+        public static string Settings_MinResolution {
+            get {
+                return ResourceManager.GetString("Settings_MinResolution", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Center 的本地化字符串。
+        /// </summary>
+        public static string Settings_Mode_Center {
+            get {
+                return ResourceManager.GetString("Settings_Mode_Center", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Fill 的本地化字符串。
+        /// </summary>
+        public static string Settings_Mode_Fill {
+            get {
+                return ResourceManager.GetString("Settings_Mode_Fill", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Fit 的本地化字符串。
+        /// </summary>
+        public static string Settings_Mode_Fit {
+            get {
+                return ResourceManager.GetString("Settings_Mode_Fit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Monitor Resolution 的本地化字符串。
+        /// </summary>
+        public static string Settings_MonitorResolution {
+            get {
+                return ResourceManager.GetString("Settings_MonitorResolution", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Multi-Monitor: 的本地化字符串。
+        /// </summary>
+        public static string Settings_MultiMonitor {
+            get {
+                return ResourceManager.GetString("Settings_MultiMonitor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Open Saved Wallpapers: 的本地化字符串。
+        /// </summary>
+        public static string Settings_OpenSaved {
+            get {
+                return ResourceManager.GetString("Settings_OpenSaved", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Landscape and Portrait 的本地化字符串。
+        /// </summary>
+        public static string Settings_Ratio_Both {
+            get {
+                return ResourceManager.GetString("Settings_Ratio_Both", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Landscape 的本地化字符串。
+        /// </summary>
+        public static string Settings_Ratio_Landscape {
+            get {
+                return ResourceManager.GetString("Settings_Ratio_Landscape", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Portrait 的本地化字符串。
+        /// </summary>
+        public static string Settings_Ratio_Portrait {
+            get {
+                return ResourceManager.GetString("Settings_Ratio_Portrait", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Wallpaper Ratio Preference: 的本地化字符串。
+        /// </summary>
+        public static string Settings_RatioPref {
+            get {
+                return ResourceManager.GetString("Settings_RatioPref", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Same Wallpaper 的本地化字符串。
+        /// </summary>
+        public static string Settings_SameWallpaper {
+            get {
+                return ResourceManager.GetString("Settings_SameWallpaper", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Wallpaper Save Path: 的本地化字符串。
+        /// </summary>
+        public static string Settings_SavePath {
+            get {
+                return ResourceManager.GetString("Settings_SavePath", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Smart Filter: 的本地化字符串。
+        /// </summary>
+        public static string Settings_SmartFilter {
+            get {
+                return ResourceManager.GetString("Settings_SmartFilter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 About 的本地化字符串。
+        /// </summary>
+        public static string Settings_Tab_About {
+            get {
+                return ResourceManager.GetString("Settings_Tab_About", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Filter 的本地化字符串。
+        /// </summary>
+        public static string Settings_Tab_Filter {
+            get {
+                return ResourceManager.GetString("Settings_Tab_Filter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 General 的本地化字符串。
+        /// </summary>
+        public static string Settings_Tab_General {
+            get {
+                return ResourceManager.GetString("Settings_Tab_General", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 About Wallpaper 的本地化字符串。
+        /// </summary>
+        public static string Tray_AboutWallpaper {
+            get {
+                return ResourceManager.GetString("Tray_AboutWallpaper", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 + Add Channel 的本地化字符串。
+        /// </summary>
+        public static string Tray_AddChannel {
+            get {
+                return ResourceManager.GetString("Tray_AddChannel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Change All Wallpaper 的本地化字符串。
+        /// </summary>
+        public static string Tray_ChangeAllWallpaper {
+            get {
+                return ResourceManager.GetString("Tray_ChangeAllWallpaper", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Change Wallpaper 的本地化字符串。
+        /// </summary>
+        public static string Tray_ChangeWallpaper {
+            get {
+                return ResourceManager.GetString("Tray_ChangeWallpaper", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Channels 的本地化字符串。
+        /// </summary>
+        public static string Tray_Channels {
+            get {
+                return ResourceManager.GetString("Tray_Channels", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Download Wallpaper 的本地化字符串。
+        /// </summary>
+        public static string Tray_DownloadWallpaper {
+            get {
+                return ResourceManager.GetString("Tray_DownloadWallpaper", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Exit 的本地化字符串。
+        /// </summary>
+        public static string Tray_Exit {
+            get {
+                return ResourceManager.GetString("Tray_Exit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Manage Channel 的本地化字符串。
+        /// </summary>
+        public static string Tray_ManageChannel {
+            get {
+                return ResourceManager.GetString("Tray_ManageChannel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Previous Wallpaper 的本地化字符串。
+        /// </summary>
+        public static string Tray_PreviousWallpaper {
+            get {
+                return ResourceManager.GetString("Tray_PreviousWallpaper", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Random Wallpaper 的本地化字符串。
+        /// </summary>
+        public static string Tray_RandomWallpaper {
+            get {
+                return ResourceManager.GetString("Tray_RandomWallpaper", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Settings 的本地化字符串。
+        /// </summary>
+        public static string Tray_Settings {
+            get {
+                return ResourceManager.GetString("Tray_Settings", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Update Interval 的本地化字符串。
+        /// </summary>
+        public static string Tray_UpdateInterval {
+            get {
+                return ResourceManager.GetString("Tray_UpdateInterval", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Wallpaper Details 的本地化字符串。
+        /// </summary>
+        public static string Wallpaper_Details {
+            get {
+                return ResourceManager.GetString("Wallpaper_Details", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 {0} Downloads 的本地化字符串。
+        /// </summary>
+        public static string Wallpaper_Downloads {
+            get {
+                return ResourceManager.GetString("Wallpaper_Downloads", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 {0} Likes 的本地化字符串。
+        /// </summary>
+        public static string Wallpaper_Likes {
+            get {
+                return ResourceManager.GetString("Wallpaper_Likes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Photo by {0} 的本地化字符串。
+        /// </summary>
+        public static string Wallpaper_PhotoBy {
+            get {
+                return ResourceManager.GetString("Wallpaper_PhotoBy", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Channels 的本地化字符串。
+        /// </summary>
+        public static string Window_Channels_Title {
+            get {
+                return ResourceManager.GetString("Window_Channels_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Settings 的本地化字符串。
+        /// </summary>
+        public static string Window_Settings_Title {
+            get {
+                return ResourceManager.GetString("Window_Settings_Title", resourceCulture);
             }
         }
     }

@@ -8,10 +8,9 @@ public class DateTimeToStringConverter : IValueConverter
     public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         if (value is not DateTimeOffset dateTime) return Binding.DoNothing;
-        var prompt = "Next update";
         return dateTime.LocalDateTime > DateTimeOffset.Now
-            ? string.Format(culture, "{0}: {1:yyyy-MM-dd HH:mm:ss}", prompt, dateTime)
-            : $"Everything is OK!";
+            ? string.Format(culture, "{0} {1:yyyy-MM-dd HH:mm:ss}", Localization.Instance["Next_Update"], dateTime)
+            : Localization.Instance["Everything_Is_OK"];
     }
 
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)

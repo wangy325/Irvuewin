@@ -8,8 +8,9 @@
     xmlns:helpers="clr-namespace:Irvuewin.Helpers"
     xmlns:viewModels="clr-namespace:Irvuewin.ViewModels"
     xmlns:converters="clr-namespace:Irvuewin.Helpers.Converters"
+    xmlns:properties="clr-namespace:Irvuewin.Properties"
     mc:Ignorable="d"
-    Title="Settings" Icon="/Icons/application_64.ico"
+    Title="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Window_Settings_Title]}" Icon="/Icons/application_64.ico"
     Height="450" Width="350" MinWidth="200" MaxWidth="350"
     Background="WhiteSmoke"
     ShowInTaskbar="False" ResizeMode="NoResize"
@@ -65,11 +66,12 @@
         </Grid.RowDefinitions>
 
         <TabControl Grid.Row="0" Margin="20" BorderThickness="0" Background="WhiteSmoke">
-            <TabItem Header="通用"
+            <TabItem Header="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_Tab_General]}"
                      helpers:TabItemHelper.IconSource="/Icons/Settings/general.ico"
                      Style="{StaticResource TabStyle}">
                 <Grid>
                     <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
@@ -140,28 +142,28 @@
                                Margin="0, 10" 
                                Style="{StaticResource SeparatorStyle}" />
                     <Label Grid.Row="1" Grid.Column="0"
-                           Content="多显示器:"
+                           Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_MultiMonitor]}"
                            Style="{StaticResource LabelStyle}" />
                     <RadioButton Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2"
-                                 Content="相同壁纸"
+                                 Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_SameWallpaper]}"
                                  Tag="0"
                                  Style="{StaticResource MutiDisplayRadioStyle}" />
                     <RadioButton Grid.Row="1" Grid.Column="3" Grid.ColumnSpan="2"
-                                 Content="不同壁纸"
+                                 Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_DiffWallpaper]}"
                                  Tag="1"
                                  Style="{StaticResource MutiDisplayRadioStyle}" />
 
                     <Label Grid.Row="2" Grid.Column="0"
-                           Content="壁纸显示模式:"
+                           Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_DisplayMode]}"
                            Style="{StaticResource LabelStyle}" />
                     <RadioButton Grid.Row="2" Grid.Column="1"
-                                 Tag="0" Content="填充"
+                                 Tag="0" Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_Mode_Fill]}"
                                  Style="{StaticResource DisplayModeRadioStyle}" />
                     <RadioButton Grid.Row="2" Grid.Column="2"
-                                 Tag="1" Content="适应"
+                                 Tag="1" Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_Mode_Fit]}"
                                  Style="{StaticResource DisplayModeRadioStyle}" />
                     <RadioButton Grid.Row="2" Grid.Column="3"
-                                 Tag="2" Content="居中"
+                                 Tag="2" Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_Mode_Center]}"
                                  Style="{StaticResource DisplayModeRadioStyle}" />
                     <!--<RadioButton Grid.Row="2" Grid.Column="4" 
                                  Tag="3" Content="拉伸" 
@@ -171,19 +173,19 @@
                                  Style="{StaticResource DisplayModeRadioStyle}"/>-->
 
                     <Label Grid.Row="3" Grid.Column="0"
-                           Content="打开保存的壁纸:"
+                           Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_OpenSaved]}"
                            Style="{StaticResource LabelStyle}" />
                     <CheckBox Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2"
-                              Content="Enable"
+                              Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_Enable]}"
                               IsChecked="{Binding OpenSavedWallpaper, 
                                         Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                               Style="{StaticResource CheckBoxStyle}" />
 
                     <Label Grid.Row="4" Grid.Column="0"
-                           Content="壁纸保存路径:"
+                           Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_SavePath]}"
                            Style="{StaticResource LabelStyle}" />
                     <Button Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="2"
-                            Content="选择..."
+                            Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_Browse]}"
                             Style="{StaticResource ButtonStyle}"
                             Click="BrowseWallpaperSavePathButton_Click" />
 
@@ -203,19 +205,31 @@
                                Style="{StaticResource SeparatorStyle}" />
 
                     <Label Grid.Row="8" Grid.Column="0"
-                           Content="随Windows启动:"
+                           Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_LaunchAtStartup]}"
                            Style="{StaticResource LabelStyle}" />
                     <CheckBox Grid.Row="8" Grid.Column="1" Grid.ColumnSpan="2"
                               Name="LaunchAtLoginCheckBox"
-                              Content="Enable"
+                              Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_Enable]}"
                               IsChecked="{Binding LaunchAtLogin,
                                          Mode=TwoWay,
                                          UpdateSourceTrigger=PropertyChanged}"
                               Style="{StaticResource LaunchAtLoginCheckBoxStyle}" />
+
+                    <Label Grid.Row="9" Grid.Column="0"
+                           Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_Language]}"
+                           Style="{StaticResource LabelStyle}" />
+                    <ComboBox Grid.Row="9" Grid.Column="1" Grid.ColumnSpan="2"
+                              Style="{StaticResource ComboBoxStyle}"
+                              SelectedValue="{Binding Language, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                              SelectedValuePath="Tag">
+                        <ComboBoxItem Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_Language_Auto]}" Tag="Auto" Style="{StaticResource ComboBoxItemStyle}" />
+                        <ComboBoxItem Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_Language_English]}" Tag="en-US" Style="{StaticResource ComboBoxItemStyle}" />
+                        <ComboBoxItem Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_Language_Chinese]}" Tag="zh-CN" Style="{StaticResource ComboBoxItemStyle}" />
+                    </ComboBox>
                 </Grid>
             </TabItem>
             
-            <TabItem Header="过滤"
+            <TabItem Header="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_Tab_Filter]}"
                      helpers:TabItemHelper.IconSource="/Icons/Settings/filter.ico"
                      Style="{StaticResource TabStyle}">
                 <Grid>
@@ -239,33 +253,33 @@
                                Style="{StaticResource SeparatorStyle}"/>
 
                     <Label Grid.Row="1" Grid.Column="0"
-                           Content="壁纸比例偏好:"
+                           Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_RatioPref]}"
                            Style="{StaticResource LabelStyle}" />
                     <ComboBox Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2"
                               Style="{StaticResource ComboBoxStyle}"
                               SelectedIndex="{Binding WallpaperOrientation, 
                                                       Mode=TwoWay, 
                                                       UpdateSourceTrigger=PropertyChanged}">
-                        <ComboBoxItem Content="横向" Style="{StaticResource ComboBoxItemStyle}" />
-                        <ComboBoxItem Content="纵向" Style="{StaticResource ComboBoxItemStyle}" />
-                        <ComboBoxItem Content="横向和纵向" Style="{StaticResource ComboBoxItemStyle}" />
+                        <ComboBoxItem Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_Ratio_Landscape]}" Style="{StaticResource ComboBoxItemStyle}" />
+                        <ComboBoxItem Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_Ratio_Portrait]}" Style="{StaticResource ComboBoxItemStyle}" />
+                        <ComboBoxItem Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_Ratio_Both]}" Style="{StaticResource ComboBoxItemStyle}" />
                     </ComboBox>
 
                     <Label Grid.Row="2" Grid.Column="0"
-                           Content="智能过滤:"
+                           Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_SmartFilter]}"
                            Style="{StaticResource LabelStyle}" />
                     <ComboBox Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2"
                               Style="{StaticResource ComboBoxStyle}"
                               SelectedIndex="{Binding SmartFilter,
                                                       Mode=TwoWay,
                                                       UpdateSourceTrigger=PropertyChanged}">
-                        <ComboBoxItem Content="无" Style="{StaticResource ComboBoxItemStyle}" />
-                        <ComboBoxItem Content="过滤人像" Style="{StaticResource ComboBoxItemStyle}" />
-                        <ComboBoxItem Content="过滤人像和全身照" Style="{StaticResource ComboBoxItemStyle}" />
+                        <ComboBoxItem Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_Filter_None]}" Style="{StaticResource ComboBoxItemStyle}" />
+                        <ComboBoxItem Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_Filter_Portraits]}" Style="{StaticResource ComboBoxItemStyle}" />
+                        <ComboBoxItem Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_Filter_AllPeople]}" Style="{StaticResource ComboBoxItemStyle}" />
                     </ComboBox>
 
                     <Label Grid.Row="3" Grid.Column="0"
-                           Content="壁纸最小分辨率:"
+                           Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_MinResolution]}"
                            Style="{StaticResource LabelStyle}" />
                     <ComboBox Grid.Row="3" Grid.Column="1"
                               Style="{StaticResource ComboBoxStyle}"
@@ -279,7 +293,7 @@
                         <ComboBoxItem Content="80%" Style="{StaticResource ComboBoxItemStyle}" />
                     </ComboBox>
                     <Label Grid.Row="3" Grid.Column="2"
-                           Content="显示器分辨率"
+                           Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_MonitorResolution]}"
                            Style="{StaticResource LabelStyle}"
                            HorizontalAlignment="Left" />
 
@@ -288,11 +302,11 @@
 
                 </Grid>
             </TabItem>
-            <TabItem Header="关于"
+            <TabItem Header="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_Tab_About]}"
                      helpers:TabItemHelper.IconSource="/Icons/Settings/about.ico"
                      Style="{StaticResource TabStyle}">
                 <Grid Margin="10">
-                    <Label Content="An Irvue like application for Windows..." />
+                    <Label Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_AboutContent]}" />
                 </Grid>
             </TabItem>
         </TabControl>

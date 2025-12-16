@@ -155,6 +155,25 @@ public class SettingsViewModel : INotifyPropertyChanged
         }
     }
 
+    private string _language = Properties.Settings.Default.Language;
+
+    public string Language
+    {
+        get => _language;
+        set
+        {
+            if (_language == value) return;
+            _language = value;
+            Properties.Settings.Default.Language = _language;
+            Properties.Settings.Default.Save();
+
+            // Apply culture immediately via Localization helper
+            Localization.Instance.SetCulture(_language);
+            
+            OnPropertyChanged();
+        }
+    }
+
     public ICommand MultiDisplayCheckedCommand { get; }
     public ICommand DisplayModeCheckedCommand { get; }
 

@@ -7,6 +7,7 @@
              xmlns:vm="clr-namespace:Irvuewin.ViewModels"
              xmlns:converters="clr-namespace:Irvuewin.Helpers.Converters"
              xmlns:uc="clr-namespace:Irvuewin.Controls"
+             xmlns:helpers="clr-namespace:Irvuewin.Helpers"
              ShutdownMode="OnExplicitShutdown">
     <Application.Resources>
         <ResourceDictionary>
@@ -155,8 +156,7 @@
                 <MenuItem x:Name="AboutCurrentWallpaper">
                     <MenuItem.Header>
                         <uc:MenuItemHeader
-                            HeaderName="{Binding Source={StaticResource TrayViewModel}, 
-                        Path=HAboutCurrentWallpaper}" />
+                            HeaderName="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Tray_AboutWallpaper]}" />
                     </MenuItem.Header>
                     <!-- All submenus must have a uniform style -->
                     <MenuItem.ItemContainerStyle>
@@ -250,16 +250,16 @@
                 <Separator Style="{StaticResource SeparatorStyle}" />
 
                 <MenuItem
-                    Header="{Binding Source={StaticResource TrayViewModel}, Path=HChangeCurrentWallpaper}"
+                    Header="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Tray_ChangeWallpaper]}"
                     Name="ChangeCurrentWallpaper"
                     Click="ChangeCurrentWallpaper_Click" />
-                <MenuItem Header="{Binding Source={StaticResource TrayViewModel}, Path=HChangeAllWallpaper}"
+                <MenuItem Header="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Tray_ChangeAllWallpaper]}"
                           Name="ChangeAllWallpaper"
                           Click="ChangeAllWallpaper_Click" />
-                <MenuItem Header="{Binding Source={StaticResource TrayViewModel}, Path=HPreviousWallpaper}"
+                <MenuItem Header="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Tray_PreviousWallpaper]}"
                           Name="LoadPreviousWallpaper"
                           Click="LoadPreviousWallpaper_Click" />
-                <MenuItem Header="{Binding Source={StaticResource TrayViewModel}, Path=HDownloadWallpaper}"
+                <MenuItem Header="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Tray_DownloadWallpaper]}"
                           Name="DownloadCurrentWallpaper"
                           Click="DownloadCurrentWallpaper_Click" />
 
@@ -268,7 +268,7 @@
                 <MenuItem Name="ChannelSelector">
                     <MenuItem.Header>
                         <uc:MenuItemHeader
-                            HeaderName="{Binding Source={StaticResource TrayViewModel}, Path=HChannelSelector}" />
+                            HeaderName="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Tray_Channels]}" />
                     </MenuItem.Header>
                     <MenuItem.ItemsSource>
                         <CompositeCollection>
@@ -277,7 +277,7 @@
                                 Collection="{Binding Source={StaticResource TrayViewModel}, Path=AddedChannels}" />
                             <Separator Style="{StaticResource SeparatorStyle}" />
                             <MenuItem
-                                Header="{Binding Source={StaticResource TrayViewModel}, Path=HAddNewChannel}"
+                                Header="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Tray_AddChannel]}"
                                 Margin="0,0,0,10"
                                 Name="AddNewChannel"
                                 IsCheckable="False"
@@ -298,7 +298,7 @@
                     </MenuItem.ItemContainerStyle>
                 </MenuItem>
 
-                <MenuItem Header="{Binding Source={StaticResource TrayViewModel}, Path=HManageChannel}"
+                <MenuItem Header="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Tray_ManageChannel]}"
                           Name="UnsplashChannelManage"
                           Click="ManageChannel_Click" />
 
@@ -307,7 +307,7 @@
                           ItemsSource="{Binding Source={StaticResource TrayViewModel}, Path=Intervals }">
                     <MenuItem.Header>
                         <uc:MenuItemHeader
-                            HeaderName="{Binding Source={StaticResource TrayViewModel}, Path=HWallpaperUpdateInterval}" />
+                            HeaderName="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Tray_UpdateInterval]}" />
                     </MenuItem.Header>
                     <MenuItem.ItemTemplate>
                         <DataTemplate>
@@ -346,7 +346,7 @@
                     </MenuItem.ItemContainerStyle>
                 </MenuItem>
 
-                <MenuItem Header="{Binding Source={StaticResource TrayViewModel}, Path=HRandomWallpaper}"
+                <MenuItem Header="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Tray_RandomWallpaper]}"
                           x:Name="RandomSwitch"
                           IsCheckable="True" StaysOpenOnClick="True"
                           IsChecked="{Binding Source={x:Static local:Properties.Settings.Default},
@@ -366,13 +366,13 @@
 
                 <Separator Style="{StaticResource SeparatorStyle}" />
 
-                <MenuItem Header="{Binding Source={StaticResource TrayViewModel}, Path=HSettings}"
+                <MenuItem Header="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Tray_Settings]}"
                           x:Name="Settings"
                           Click="Settings_Click" />
 
                 <Separator Style="{StaticResource SeparatorStyle}" />
 
-                <MenuItem Header="{Binding Source={StaticResource TrayViewModel}, Path=HExit}"
+                <MenuItem Header="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Tray_Exit]}"
                           x:Name="Exit"
                           Margin="0,0,0,10"
                           Click="Exit_Click" />

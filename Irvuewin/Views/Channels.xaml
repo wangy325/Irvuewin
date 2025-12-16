@@ -9,8 +9,9 @@
     xmlns:vm="clr-namespace:Irvuewin.ViewModels"
     xmlns:vwp="clr-namespace:WpfToolkit.Controls;assembly=VirtualizingWrapPanel"
     xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+    xmlns:properties="clr-namespace:Irvuewin.Properties"
     mc:Ignorable="d"
-    Title="Channels" Icon="/Icons/application_64.ico"
+    Title="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Window_Channels_Title]}" Icon="/Icons/application_64.ico"
     Height="720" Width="960" MinWidth="500"
     Background="WhiteSmoke" ShowInTaskbar="False" ResizeMode="NoResize"
     WindowStartupLocation="CenterScreen">
@@ -234,7 +235,7 @@
                     <!-- TODO animation -->
                     <Button Grid.Column="1"
                             x:Name="RefreshButton"
-                            Content="刷新图片"
+                            Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Channels_Refresh]}"
                             Width="80"
                             Margin="0"
                             Click="RefreshButton_OnClick"
@@ -256,7 +257,7 @@
                             </Style>
                         </Border.Style>
                         <Border.ToolTip>
-                            <ToolTip Content="会重置非随机模式下的壁纸切换顺序"
+                            <ToolTip Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Channels_RefreshTooltip]}"
                                      Placement="Left"
                                      PlacementTarget="{Binding ElementName=RefreshButton}"
                                      Style="{StaticResource ToolTipStyle}" />
@@ -292,7 +293,7 @@
 
             <!-- DO NOT WORK -->
             <TextBlock Grid.Row="3"
-                       Text="No photos available in this channel!"
+                       Text="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Channels_NoPhotos]}"
                        Visibility="Collapsed">
                 <TextBlock.Style>
                     <Style TargetType="TextBlock">

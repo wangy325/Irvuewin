@@ -1,0 +1,294 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Channels_NoPhotos" xml:space="preserve">
+    <value>该频道没有照片！</value>
+  </data>
+  <data name="Channels_Refresh" xml:space="preserve">
+    <value>刷新壁纸</value>
+  </data>
+  <data name="Channels_RefreshTooltip" xml:space="preserve">
+    <value>会重置非随机模式下的壁纸切换顺序</value>
+  </data>
+  <data name="Interval_Day" xml:space="preserve">
+    <value>{0} 天</value>
+  </data>
+  <data name="Interval_Hour" xml:space="preserve">
+    <value>{0} 小时</value>
+  </data>
+  <data name="Interval_Hours" xml:space="preserve">
+    <value>{0} 小时</value>
+  </data>
+  <data name="Interval_Manual" xml:space="preserve">
+    <value>手动</value>
+  </data>
+  <data name="Interval_Minutes" xml:space="preserve">
+    <value>{0} 分钟</value>
+  </data>
+  <data name="Settings_AboutContent" xml:space="preserve">
+    <value>Windows 版 Irvue...</value>
+  </data>
+  <data name="Settings_Browse" xml:space="preserve">
+    <value>选择...</value>
+  </data>
+  <data name="Settings_DiffWallpaper" xml:space="preserve">
+    <value>不同壁纸</value>
+  </data>
+  <data name="Settings_DisplayMode" xml:space="preserve">
+    <value>壁纸显示模式:</value>
+  </data>
+  <data name="Settings_Enable" xml:space="preserve">
+    <value>启用</value>
+  </data>
+  <data name="Settings_Filter_AllPeople" xml:space="preserve">
+    <value>过滤人像和全身照</value>
+  </data>
+  <data name="Settings_Filter_None" xml:space="preserve">
+    <value>无</value>
+  </data>
+  <data name="Settings_Filter_Portraits" xml:space="preserve">
+    <value>过滤人像</value>
+  </data>
+  <data name="Settings_Language" xml:space="preserve">
+    <value>语言</value>
+  </data>
+  <data name="Settings_Language_Auto" xml:space="preserve">
+    <value>自动</value>
+  </data>
+  <data name="Settings_Language_Chinese" xml:space="preserve">
+    <value>简体中文</value>
+  </data>
+  <data name="Settings_Language_English" xml:space="preserve">
+    <value>英语</value>
+  </data>
+  <data name="Settings_LaunchAtStartup" xml:space="preserve">
+    <value>随Windows启动:</value>
+  </data>
+  <data name="Settings_MinResolution" xml:space="preserve">
+    <value>壁纸最小分辨率:</value>
+  </data>
+  <data name="Settings_Mode_Center" xml:space="preserve">
+    <value>居中</value>
+  </data>
+  <data name="Settings_Mode_Fill" xml:space="preserve">
+    <value>填充</value>
+  </data>
+  <data name="Settings_Mode_Fit" xml:space="preserve">
+    <value>适应</value>
+  </data>
+  <data name="Settings_MonitorResolution" xml:space="preserve">
+    <value>显示器分辨率</value>
+  </data>
+  <data name="Settings_MultiMonitor" xml:space="preserve">
+    <value>多显示器:</value>
+  </data>
+  <data name="Settings_OpenSaved" xml:space="preserve">
+    <value>打开保存的壁纸:</value>
+  </data>
+  <data name="Settings_RatioPref" xml:space="preserve">
+    <value>壁纸比例偏好:</value>
+  </data>
+  <data name="Settings_Ratio_Both" xml:space="preserve">
+    <value>横向和纵向</value>
+  </data>
+  <data name="Settings_Ratio_Landscape" xml:space="preserve">
+    <value>横向</value>
+  </data>
+  <data name="Settings_Ratio_Portrait" xml:space="preserve">
+    <value>纵向</value>
+  </data>
+  <data name="Settings_SameWallpaper" xml:space="preserve">
+    <value>相同壁纸</value>
+  </data>
+  <data name="Settings_SavePath" xml:space="preserve">
+    <value>壁纸保存路径:</value>
+  </data>
+  <data name="Settings_SmartFilter" xml:space="preserve">
+    <value>智能过滤:</value>
+  </data>
+  <data name="Settings_Tab_About" xml:space="preserve">
+    <value>关于</value>
+  </data>
+  <data name="Settings_Tab_Filter" xml:space="preserve">
+    <value>过滤</value>
+  </data>
+  <data name="Settings_Tab_General" xml:space="preserve">
+    <value>通用</value>
+  </data>
+  <data name="Tray_AboutWallpaper" xml:space="preserve">
+    <value>关于壁纸</value>
+  </data>
+  <data name="Tray_AddChannel" xml:space="preserve">
+    <value>+ 添加频道</value>
+  </data>
+  <data name="Tray_ChangeAllWallpaper" xml:space="preserve">
+    <value>切换所有壁纸</value>
+  </data>
+  <data name="Tray_ChangeWallpaper" xml:space="preserve">
+    <value>切换壁纸</value>
+  </data>
+  <data name="Tray_Channels" xml:space="preserve">
+    <value>频道</value>
+  </data>
+  <data name="Tray_DownloadWallpaper" xml:space="preserve">
+    <value>下载壁纸</value>
+  </data>
+  <data name="Tray_Exit" xml:space="preserve">
+    <value>退出</value>
+  </data>
+  <data name="Tray_ManageChannel" xml:space="preserve">
+    <value>管理频道</value>
+  </data>
+  <data name="Tray_PreviousWallpaper" xml:space="preserve">
+    <value>上一张壁纸</value>
+  </data>
+  <data name="Tray_RandomWallpaper" xml:space="preserve">
+    <value>随机壁纸</value>
+  </data>
+  <data name="Tray_Settings" xml:space="preserve">
+    <value>设置</value>
+  </data>
+  <data name="Tray_UpdateInterval" xml:space="preserve">
+    <value>更新间隔</value>
+  </data>
+  <data name="Wallpaper_Details" xml:space="preserve">
+    <value>壁纸详情</value>
+  </data>
+  <data name="Wallpaper_Downloads" xml:space="preserve">
+    <value>{0} 下载</value>
+  </data>
+  <data name="Wallpaper_Likes" xml:space="preserve">
+    <value>{0} 喜欢</value>
+  </data>
+  <data name="Wallpaper_PhotoBy" xml:space="preserve">
+    <value>摄影师 {0}</value>
+  </data>
+  <data name="Window_Channels_Title" xml:space="preserve">
+    <value>频道</value>
+  </data>
+  <data name="Window_Settings_Title" xml:space="preserve">
+    <value>设置</value>
+  </data>
+  <data name="Everything_Is_OK" xml:space="preserve">
+    <value>一切正常！</value>
+  </data>
+  <data name="Next_Update" xml:space="preserve">
+    <value>下次更新：</value>
+  </data>
+</root>

@@ -44,6 +44,9 @@
     <Setting Name="UserCheckedChannel" Type="System.String" Scope="User">
       <Value Profile="(Default)">317099</Value>
     </Setting>
+    <Setting Name="Language" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Auto</Value>
+    </Setting>
   </Settings>
 </SettingsFile>
 

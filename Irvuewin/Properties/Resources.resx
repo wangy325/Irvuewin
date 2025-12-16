@@ -1,101 +1,216 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
-	<!-- 
-		Microsoft ResX Schema
-
-		Version 1.3
-
-		The primary goals of this format is to allow a simple XML format 
-		that is mostly human readable. The generation and parsing of the 
-		various data types are done through the TypeConverter classes 
-		associated with the data types.
-
-		Example:
-
-		... ado.net/XML headers & schema ...
-		<resheader name="resmimetype">text/microsoft-resx</resheader>
-		<resheader name="version">1.3</resheader>
-		<resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
-		<resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
-		<data name="Name1">this is my long string</data>
-		<data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
-		<data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
-			[base64 mime encoded serialized .NET Framework object]
-		</data>
-		<data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-			[base64 mime encoded string representing a byte array form of the .NET Framework object]
-		</data>
-
-		There are any number of "resheader" rows that contain simple 
-		name/value pairs.
-
-		Each data row contains a name, and value. The row also contains a 
-		type or mimetype. Type corresponds to a .NET class that support 
-		text/value conversion through the TypeConverter architecture. 
-		Classes that don't support this are serialized and stored with the 
-		mimetype set.
-
-		The mimetype is used for serialized objects, and tells the 
-		ResXResourceReader how to depersist the object. This is currently not 
-		extensible. For a given mimetype the value must be set accordingly:
-
-		Note - application/x-microsoft.net.object.binary.base64 is the format 
-		that the ResXResourceWriter will generate, however the reader can 
-		read any of the formats listed below.
-
-		mimetype: application/x-microsoft.net.object.binary.base64
-		value   : The object must be serialized with 
-			: System.Serialization.Formatters.Binary.BinaryFormatter
-			: and then encoded with base64 encoding.
-
-		mimetype: application/x-microsoft.net.object.soap.base64
-		value   : The object must be serialized with 
-			: System.Runtime.Serialization.Formatters.Soap.SoapFormatter
-			: and then encoded with base64 encoding.
-
-		mimetype: application/x-microsoft.net.object.bytearray.base64
-		value   : The object must be serialized into a byte array 
-			: using a System.ComponentModel.TypeConverter
-			: and then encoded with base64 encoding.
-	-->
-	
-	<xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
-		<xsd:element name="root" msdata:IsDataSet="true">
-			<xsd:complexType>
-				<xsd:choice maxOccurs="unbounded">
-					<xsd:element name="data">
-						<xsd:complexType>
-							<xsd:sequence>
-								<xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
-								<xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
-							</xsd:sequence>
-							<xsd:attribute name="name" type="xsd:string" msdata:Ordinal="1" />
-							<xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
-							<xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
-						</xsd:complexType>
-					</xsd:element>
-					<xsd:element name="resheader">
-						<xsd:complexType>
-							<xsd:sequence>
-								<xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
-							</xsd:sequence>
-							<xsd:attribute name="name" type="xsd:string" use="required" />
-						</xsd:complexType>
-					</xsd:element>
-				</xsd:choice>
-			</xsd:complexType>
-		</xsd:element>
-	</xsd:schema>
-	<resheader name="resmimetype">
-		<value>text/microsoft-resx</value>
-	</resheader>
-	<resheader name="version">
-		<value>1.3</value>
-	</resheader>
-	<resheader name="reader">
-		<value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.3500.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-	</resheader>
-	<resheader name="writer">
-		<value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.3500.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-	</resheader>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>1.3</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Channels_NoPhotos" xml:space="preserve">
+    <value>No photos available in this channel!</value>
+  </data>
+  <data name="Channels_Refresh" xml:space="preserve">
+    <value>Refresh</value>
+  </data>
+  <data name="Channels_RefreshTooltip" xml:space="preserve">
+    <value>Will reset wallpaper sequence in non-random mode</value>
+  </data>
+  <data name="Interval_Day" xml:space="preserve">
+    <value>{0} Day</value>
+  </data>
+  <data name="Interval_Hour" xml:space="preserve">
+    <value>{0} Hour</value>
+  </data>
+  <data name="Interval_Hours" xml:space="preserve">
+    <value>{0} Hours</value>
+  </data>
+  <data name="Interval_Manual" xml:space="preserve">
+    <value>Manual</value>
+  </data>
+  <data name="Interval_Minutes" xml:space="preserve">
+    <value>{0} Minutes</value>
+  </data>
+  <data name="Settings_AboutContent" xml:space="preserve">
+    <value>An Irvue like application for Windows...</value>
+  </data>
+  <data name="Settings_Browse" xml:space="preserve">
+    <value>Browse...</value>
+  </data>
+  <data name="Settings_DiffWallpaper" xml:space="preserve">
+    <value>Different Wallpaper</value>
+  </data>
+  <data name="Settings_DisplayMode" xml:space="preserve">
+    <value>Wallpaper Display Mode:</value>
+  </data>
+  <data name="Settings_Enable" xml:space="preserve">
+    <value>Enable</value>
+  </data>
+  <data name="Settings_Filter_AllPeople" xml:space="preserve">
+    <value>Filter Portraits and Full Body</value>
+  </data>
+  <data name="Settings_Filter_None" xml:space="preserve">
+    <value>None</value>
+  </data>
+  <data name="Settings_Filter_Portraits" xml:space="preserve">
+    <value>Filter Portraits</value>
+  </data>
+  <data name="Settings_Language" xml:space="preserve">
+    <value>Language:</value>
+  </data>
+  <data name="Settings_Language_Auto" xml:space="preserve">
+    <value>Auto</value>
+  </data>
+  <data name="Settings_Language_Chinese" xml:space="preserve">
+    <value>Chinese</value>
+  </data>
+  <data name="Settings_Language_English" xml:space="preserve">
+    <value>English</value>
+  </data>
+  <data name="Settings_LaunchAtStartup" xml:space="preserve">
+    <value>Launch at Startup:</value>
+  </data>
+  <data name="Settings_MinResolution" xml:space="preserve">
+    <value>Min Resolution:</value>
+  </data>
+  <data name="Settings_Mode_Center" xml:space="preserve">
+    <value>Center</value>
+  </data>
+  <data name="Settings_Mode_Fill" xml:space="preserve">
+    <value>Fill</value>
+  </data>
+  <data name="Settings_Mode_Fit" xml:space="preserve">
+    <value>Fit</value>
+  </data>
+  <data name="Settings_MonitorResolution" xml:space="preserve">
+    <value>Monitor Resolution</value>
+  </data>
+  <data name="Settings_MultiMonitor" xml:space="preserve">
+    <value>Multi-Monitor:</value>
+  </data>
+  <data name="Settings_OpenSaved" xml:space="preserve">
+    <value>Open Saved Wallpapers:</value>
+  </data>
+  <data name="Settings_RatioPref" xml:space="preserve">
+    <value>Wallpaper Ratio Preference:</value>
+  </data>
+  <data name="Settings_Ratio_Both" xml:space="preserve">
+    <value>Landscape and Portrait</value>
+  </data>
+  <data name="Settings_Ratio_Landscape" xml:space="preserve">
+    <value>Landscape</value>
+  </data>
+  <data name="Settings_Ratio_Portrait" xml:space="preserve">
+    <value>Portrait</value>
+  </data>
+  <data name="Settings_SameWallpaper" xml:space="preserve">
+    <value>Same Wallpaper</value>
+  </data>
+  <data name="Settings_SavePath" xml:space="preserve">
+    <value>Wallpaper Save Path:</value>
+  </data>
+  <data name="Settings_SmartFilter" xml:space="preserve">
+    <value>Smart Filter:</value>
+  </data>
+  <data name="Settings_Tab_About" xml:space="preserve">
+    <value>About</value>
+  </data>
+  <data name="Settings_Tab_Filter" xml:space="preserve">
+    <value>Filter</value>
+  </data>
+  <data name="Settings_Tab_General" xml:space="preserve">
+    <value>General</value>
+  </data>
+  <data name="Tray_AboutWallpaper" xml:space="preserve">
+    <value>About Wallpaper</value>
+  </data>
+  <data name="Tray_AddChannel" xml:space="preserve">
+    <value>+ Add Channel</value>
+  </data>
+  <data name="Tray_ChangeAllWallpaper" xml:space="preserve">
+    <value>Change All Wallpaper</value>
+  </data>
+  <data name="Tray_ChangeWallpaper" xml:space="preserve">
+    <value>Change Wallpaper</value>
+  </data>
+  <data name="Tray_Channels" xml:space="preserve">
+    <value>Channels</value>
+  </data>
+  <data name="Tray_DownloadWallpaper" xml:space="preserve">
+    <value>Download Wallpaper</value>
+  </data>
+  <data name="Tray_Exit" xml:space="preserve">
+    <value>Exit</value>
+  </data>
+  <data name="Tray_ManageChannel" xml:space="preserve">
+    <value>Manage Channel</value>
+  </data>
+  <data name="Tray_PreviousWallpaper" xml:space="preserve">
+    <value>Previous Wallpaper</value>
+  </data>
+  <data name="Tray_RandomWallpaper" xml:space="preserve">
+    <value>Random Wallpaper</value>
+  </data>
+  <data name="Tray_Settings" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="Tray_UpdateInterval" xml:space="preserve">
+    <value>Update Interval</value>
+  </data>
+  <data name="Wallpaper_Details" xml:space="preserve">
+    <value>Wallpaper Details</value>
+  </data>
+  <data name="Wallpaper_Downloads" xml:space="preserve">
+    <value>{0} Downloads</value>
+  </data>
+  <data name="Wallpaper_Likes" xml:space="preserve">
+    <value>{0} Likes</value>
+  </data>
+  <data name="Wallpaper_PhotoBy" xml:space="preserve">
+    <value>Photo by {0}</value>
+  </data>
+  <data name="Window_Channels_Title" xml:space="preserve">
+    <value>Channels</value>
+  </data>
+  <data name="Window_Settings_Title" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="Everything_Is_OK" xml:space="preserve">
+    <value>Everything is OK!</value>
+  </data>
+  <data name="Next_Update" xml:space="preserve">
+    <value>Next Update: </value>
+  </data>
 </root>

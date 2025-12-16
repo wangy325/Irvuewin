@@ -11,6 +11,7 @@ using System.Windows.Interop;
 using Irvuewin.Helpers.Logging;
 using Irvuewin.Views;
 using Serilog;
+using Localization = Irvuewin.Helpers.Localization;
 
 namespace Irvuewin
 {
@@ -27,6 +28,10 @@ namespace Irvuewin
 
         protected override async void OnStartup(StartupEventArgs e)
         {
+            // Apply Language Setting
+            var language = Irvuewin.Properties.Settings.Default.Language;
+            Localization.Instance.SetCulture(language);
+
             // Init Logger
             LogHelper.Init();
             Logger.Information("Application Starting...");

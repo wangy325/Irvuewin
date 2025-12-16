@@ -1,10 +1,12 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Windows.Data;
 using System.Windows.Input;
 using Irvuewin.Helpers;
 using Irvuewin.Helpers.Utils;
 using Irvuewin.Views;
+
 
 namespace Irvuewin.ViewModels;
 
@@ -24,8 +26,6 @@ public class TrayViewModel : INotifyPropertyChanged
         }
     }
 
-    public static string HAboutCurrentWallpaper { get; } = "About Wallpaper";
-
     private WallpaperInfo _aboutWallpaper = new();
 
     public WallpaperInfo AboutWallpaper
@@ -38,34 +38,19 @@ public class TrayViewModel : INotifyPropertyChanged
         }
     }
 
-    public static List<WallpaperChangeInterval> Intervals { get; set; } =
-    [
-        new(10),
-        new(30),
-        new(60),
-        new(120),
-        new(180),
-        new(1440),
-        new(0)
-    ];
+    private ObservableCollection<WallpaperChangeInterval> _intervals;
+    public ObservableCollection<WallpaperChangeInterval> Intervals
+    {
+        get => _intervals;
+        set
+        {
+            _intervals = value;
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(IntervalsItemCount));
+        }
+    }
 
-    public static string HChangeCurrentWallpaper { get; } = "Change Wallpaper";
-    public static string HChangeAllWallpaper { get; } = "Change All Wallpaper";
-    public static string HPreviousWallpaper { get; } = "Previous Wallpaper";
-    public static string HDownloadWallpaper { get; } = "Download Wallpaper";
-
-    public static int IntervalsItemCount => Intervals.Count;
-
-    public static string HChannelSelector { get; } = "Channels";
-    public static string HManageChannel { get; } = "Manage Channel";
-    public static string HAddNewChannel { get; } = "+ Add Channel";
-
-    public static string HWallpaperUpdateInterval { get; } = "Update Interval";
-    public static string HRandomWallpaper { get; } = "Random Wallpaper";
-
-    public static string HSettings { get; } = "Settings";
-
-    public static string HExit { get; } = "Exit";
+    public int IntervalsItemCount => Intervals.Count;
 
     private DateTimeOffset _nextWallpaperChangeTime;
 
@@ -87,6 +72,39 @@ public class TrayViewModel : INotifyPropertyChanged
     public ICommand WallpaperInfoPageOpenCommand { get; } = new RelayCommand<object>(OnWallpaperInfoClicked);
 
     public ICommand TrayMenuOpenedCommand { get; } = new RelayCommand<object>(OnCheckDisplay);
+
+    public TrayViewModel()
+    {
+        _intervals = new ObservableCollection<WallpaperChangeInterval>(GenerateIntervals());
+        Localization.Instance.PropertyChanged += OnLocalizationChanged;
+    }
+
+    private void OnLocalizationChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == Binding.IndexerName || string.IsNullOrEmpty(e.PropertyName))
+        {
+            // Rebuild intervals to update text
+            Intervals = new ObservableCollection<WallpaperChangeInterval>(GenerateIntervals());
+            
+            OnPropertyChanged(nameof(NextWallpaperChangeTime));
+            // Refresh Wallpaper Info text
+            AboutWallpaper.RefreshLocalization();
+        }
+    }
+
+    private static List<WallpaperChangeInterval> GenerateIntervals()
+    {
+        return
+        [
+            new WallpaperChangeInterval(10),
+            new WallpaperChangeInterval(30),
+            new WallpaperChangeInterval(60),
+            new WallpaperChangeInterval(120),
+            new WallpaperChangeInterval(180),
+            new WallpaperChangeInterval(1440),
+            new WallpaperChangeInterval(0)
+        ];
+    }
 
     private static string? _lastDisplayName;
 
@@ -173,34 +191,34 @@ public class TrayViewModel : INotifyPropertyChanged
 
 public sealed class WallpaperInfo : INotifyPropertyChanged
 {
-    private string _likes = "";
-
+    private string _likesValue = "";
     public string Likes
     {
-        get => _likes;
+        get => string.Format(Localization.Instance["Wallpaper_Likes"], _likesValue);
         set
         {
-            _likes = $"{value} Likes";
+            _likesValue = value;
             OnPropertyChanged();
         }
     }
 
-    private string _downloads = "";
-
+    private string _downloadsValue = "";
     public string Downloads
     {
-        get => _downloads;
+        get => string.Format(Localization.Instance["Wallpaper_Downloads"], _downloadsValue);
         set
         {
-            _downloads = $"{value} Downloads";
+            _downloadsValue = value;
             OnPropertyChanged();
         }
     }
 
-    public static string Profile { get; } = "Wallpaper Details";
+    // Profile property isn't bound to data, just static resource "Wallpaper Details"
+    // But it was a static property in previous code: public static string Profile => ...
+    // Now make it instance and dynamic
+    public string Profile => Localization.Instance["Wallpaper_Details"];
 
     private string _profileLink = "";
-
     public string ProfileLink
     {
         get => _profileLink;
@@ -211,22 +229,19 @@ public sealed class WallpaperInfo : INotifyPropertyChanged
         }
     }
 
-
-    private string _author = "";
-
+    private string _authorValue = "";
     public string Author
     {
-        get => _author;
+        get => string.Format(Localization.Instance["Wallpaper_PhotoBy"], _authorValue);
         set
         {
-            _author = $"Photo by {value}";
+            _authorValue = value;
             OnPropertyChanged();
         }
     }
 
     // https://unsplash.com/@parentrap/collections
     private string _authorProfilePageLink = "";
-
     public string AuthorProfilePageLink
     {
         get => _authorProfilePageLink;
@@ -238,7 +253,6 @@ public sealed class WallpaperInfo : INotifyPropertyChanged
     }
 
     private string _location = "";
-
     public string Location
     {
         get => _location;
@@ -249,7 +263,14 @@ public sealed class WallpaperInfo : INotifyPropertyChanged
         }
     }
 
-    // TODO UTC
+    public void RefreshLocalization()
+    {
+        OnPropertyChanged(nameof(Likes));
+        OnPropertyChanged(nameof(Downloads));
+        OnPropertyChanged(nameof(Author));
+        OnPropertyChanged(nameof(Profile));
+    }
+
     public event PropertyChangedEventHandler? PropertyChanged;
 
     private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
@@ -269,13 +290,15 @@ public class WallpaperChangeInterval
         TagInt = tag;
         Tag = tag.ToString();
 
+        // Use Localization.Instance to get strings, ensuring current culture is used
+        var resources = Localization.Instance;
         Header = tag switch
         {
-            > 0 and < 60 => $"{TagInt} Minutes",
-            60 => $"{TagInt / 60} Hour",
-            > 60 and <= 180 => $"{TagInt / 60} Hours",
-            1440 => $"{TagInt / 1440} Day",
-            _ => "Manual"
+            > 0 and < 60 => string.Format(resources["Interval_Minutes"], TagInt),
+            60 => string.Format(resources["Interval_Hour"], TagInt / 60),
+            > 60 and <= 180 => string.Format(resources["Interval_Hours"], TagInt / 60),
+            1440 => string.Format(resources["Interval_Day"], TagInt / 1440),
+            _ => resources["Interval_Manual"]
         };
     }
 }
