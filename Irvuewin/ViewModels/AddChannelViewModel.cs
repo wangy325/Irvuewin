@@ -15,15 +15,10 @@ public class AddChannelViewModel : INotifyPropertyChanged
 
     private readonly ChannelsViewModel _channelsViewModel;
 
-    public string InputBox { get; } = "Please input unsplash url";
     public string Resolving { get; } = " + ";
-    public string HintTitle { get; } = "You can use URLs from unsplash, such as:";
     public string Hint1 { get; } = "- https://unsplash.com/@leanspok";
     public string Hint2 { get; } = "- https://unsplash.com/collection/276189/colors";
-
-    public string Hint4Channels { get; } = " Explore Unsplash to find new channels: ";
-    public string ButtonOpenUnsplash { get; } = "Open Unsplash.com";
-
+    
 
     private ObservableCollection<UnsplashChannel> _preChannels = [];
     private ICommand PreChannelsUpdated { get; }

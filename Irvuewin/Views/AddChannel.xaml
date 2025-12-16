@@ -10,7 +10,7 @@
     xmlns:converters="clr-namespace:Irvuewin.Helpers.Converters"
     xmlns:controls="clr-namespace:Irvuewin.Controls"
     mc:Ignorable="d"
-    Title="AddChannel" Icon="/Icons/application_64.ico"
+    Title="{Binding Source={x:Static helper:Localization.Instance}, Path=[Add_Channel]}" Icon="/Icons/application_64.ico"
     Height="450" Width="400"
     Background="WhiteSmoke"
     ShowInTaskbar="False" ResizeMode="NoResize"
@@ -86,12 +86,12 @@
             <DataTemplate x:Key="EmptyDataTemplate"
                           DataType="{x:Type vm:AddChannelViewModel}">
                 <StackPanel VerticalAlignment="Center">
-                    <TextBlock Text="{Binding Hint4Channels}"
+                    <TextBlock Text="{Binding Source={x:Static helper:Localization.Instance}, Path=[Add_Channel_Result_Placeholder]}"
                                HorizontalAlignment="Center"
                                VerticalAlignment="Center"
                                FontStyle="Italic"
                                Foreground="Gray" />
-                    <Button Content="{Binding ButtonOpenUnsplash}"
+                    <Button Content="{Binding Source={x:Static helper:Localization.Instance}, Path=[Add_Channel_Unsplash_Link]}"
                             Width="150"
                             Command="{Binding OpenUnsplashCommand}"
                             Style="{StaticResource BottomButtonStyle}" />
@@ -237,7 +237,7 @@
                         <TextBox Grid.Column="0"
                                  x:Name="InputChannelUrl"
                                  Style="{StaticResource PlaceholderTextBoxStyle}"
-                                 Tag="{Binding InputBox}"
+                                 Tag="{Binding Source={x:Static helper:Localization.Instance}, Path=[Add_Channel_Input_Placeholder]}"
                                  Text=""
                                  HorizontalAlignment="Stretch"
                                  VerticalAlignment="Center"
@@ -259,7 +259,7 @@
                             <Setter Property="Padding" Value="5,0,0,5" />
                         </Style>
                     </StackPanel.Resources>
-                    <TextBlock Text="{Binding HintTitle}"
+                    <TextBlock Text="{Binding Source={x:Static helper:Localization.Instance}, Path=[Add_Channel_Instruction]}"
                                Style="{StaticResource HintTextStyle}" />
                     <TextBlock Text="{Binding Hint1}"
                                Style="{StaticResource HintTextStyle}" />
@@ -302,10 +302,10 @@
                                 Orientation="Horizontal"
                                 HorizontalAlignment="Right">
 
-                        <Button Content="取消"
+                        <Button Content="{Binding Source={x:Static helper:Localization.Instance}, Path=[Cancel]}"
                                 Style="{StaticResource BottomButtonStyle}"
                                 Click="CancelAddChannel_Click" />
-                        <Button Content="添加"
+                        <Button Content="{Binding Source={x:Static helper:Localization.Instance}, Path=[Add_Channel_Confirm]}"
                                 Style="{StaticResource BottomButtonStyle}"
                                 Click="AddChannel_Click" />
                     </StackPanel>

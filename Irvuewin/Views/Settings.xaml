@@ -11,7 +11,7 @@
     xmlns:properties="clr-namespace:Irvuewin.Properties"
     mc:Ignorable="d"
     Title="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Window_Settings_Title]}" Icon="/Icons/application_64.ico"
-    Height="450" Width="350" MinWidth="200" MaxWidth="350"
+    Height="450" Width="500" MinWidth="400" MaxWidth="500"
     Background="WhiteSmoke"
     ShowInTaskbar="False" ResizeMode="NoResize"
     WindowStartupLocation="CenterScreen">
@@ -29,6 +29,46 @@
 
             <converters:ByteToBooleanConverter x:Key="Byte2BoolConverter" />
             <converters:FloatToStringConverter x:Key="Float2StringConverter" />
+
+            <!-- Center TabControl Style -->
+            <Style x:Key="CenterTabControlStyle" TargetType="TabControl">
+                <Setter Property="Margin" Value="20"/>
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="Background" Value="WhiteSmoke"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="TabControl">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <TabPanel x:Name="HeaderPanel"
+                                          Grid.Row="0"
+                                          Panel.ZIndex="1"
+                                          IsItemsHost="True"
+                                          HorizontalAlignment="Center"
+                                          Background="Transparent"/>
+                                <Border x:Name="ContentPanel"
+                                        Grid.Row="1"
+                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                        BorderThickness="{TemplateBinding BorderThickness}"
+                                        Background="{TemplateBinding Background}">
+                                    <ContentPresenter x:Name="PART_SelectedContentHost"
+                                                      ContentSource="SelectedContent"
+                                                      Margin="{TemplateBinding Padding}"
+                                                      SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+                                </Border>
+                            </Grid>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <!-- Settings TabItem Style -->
+            <Style x:Key="SettingsTabItemStyle" TargetType="TabItem" BasedOn="{StaticResource TabStyle}">
+                <Setter Property="Width" Value="80"/>
+            </Style>
 
             <!-- wallpaper save path display style -->
             <Style TargetType="{x:Type controls:PathDisplayControl}">
@@ -65,10 +105,11 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <TabControl Grid.Row="0" Margin="20" BorderThickness="0" Background="WhiteSmoke">
+        <TabControl Grid.Row="0" 
+                    Style="{StaticResource CenterTabControlStyle}">
             <TabItem Header="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_Tab_General]}"
                      helpers:TabItemHelper.IconSource="/Icons/Settings/general.ico"
-                     Style="{StaticResource TabStyle}">
+                     Style="{StaticResource SettingsTabItemStyle}">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
@@ -83,7 +124,7 @@
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="110" />
+                        <ColumnDefinition Width="180" MaxWidth="200" />
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="Auto" />
@@ -184,7 +225,7 @@
                     <Label Grid.Row="4" Grid.Column="0"
                            Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_SavePath]}"
                            Style="{StaticResource LabelStyle}" />
-                    <Button Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="2"
+                    <Button Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="1"
                             Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_Browse]}"
                             Style="{StaticResource ButtonStyle}"
                             Click="BrowseWallpaperSavePathButton_Click" />
@@ -218,7 +259,7 @@
                     <Label Grid.Row="9" Grid.Column="0"
                            Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_Language]}"
                            Style="{StaticResource LabelStyle}" />
-                    <ComboBox Grid.Row="9" Grid.Column="1" Grid.ColumnSpan="2"
+                    <ComboBox Grid.Row="9" Grid.Column="1" Grid.ColumnSpan="3"
                               Style="{StaticResource ComboBoxStyle}"
                               SelectedValue="{Binding Language, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                               SelectedValuePath="Tag">
@@ -231,7 +272,7 @@
             
             <TabItem Header="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_Tab_Filter]}"
                      helpers:TabItemHelper.IconSource="/Icons/Settings/filter.ico"
-                     Style="{StaticResource TabStyle}">
+                     Style="{StaticResource SettingsTabItemStyle}">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
@@ -242,7 +283,7 @@
 
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="110" />
+                        <ColumnDefinition Width="180" MaxWidth="200" />
                         <ColumnDefinition Width="Auto" MinWidth="80" />
                         <ColumnDefinition Width="Auto" MinWidth="80" />
                         <ColumnDefinition Width="*" />
@@ -302,9 +343,10 @@
 
                 </Grid>
             </TabItem>
+            
             <TabItem Header="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_Tab_About]}"
                      helpers:TabItemHelper.IconSource="/Icons/Settings/about.ico"
-                     Style="{StaticResource TabStyle}">
+                     Style="{StaticResource SettingsTabItemStyle}">
                 <Grid Margin="10">
                     <Label Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_AboutContent]}" />
                 </Grid>

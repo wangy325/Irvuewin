@@ -3,6 +3,7 @@ using System.Windows.Input;
 using Irvuewin.Helpers;
 using Irvuewin.ViewModels;
 using Serilog;
+using Localization = Irvuewin.Helpers.Localization;
 
 namespace Irvuewin.Views;
 
@@ -21,7 +22,7 @@ public partial class AddChannel
         var selectedItems = PreChannelsListBox.SelectedItems;
         if (selectedItems.Count <= 0)
         {
-            MessageBox.Show("Please select at least one channel.");
+            MessageBox.Show(Localization.Instance["Add_Channel_NoneSelect_Msg"]);
             return;
         }
 

@@ -61,6 +61,78 @@ namespace Irvuewin.Properties {
         }
         
         /// <summary>
+        ///   查找类似 AddChannel 的本地化字符串。
+        /// </summary>
+        public static string Add_Channel {
+            get {
+                return ResourceManager.GetString("Add_Channel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Add 的本地化字符串。
+        /// </summary>
+        public static string Add_Channel_Confirm {
+            get {
+                return ResourceManager.GetString("Add_Channel_Confirm", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Type keyword or Unsplash channel URL to search 的本地化字符串。
+        /// </summary>
+        public static string Add_Channel_Input_Placeholder {
+            get {
+                return ResourceManager.GetString("Add_Channel_Input_Placeholder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Unsplash URLs below are supported: 的本地化字符串。
+        /// </summary>
+        public static string Add_Channel_Instruction {
+            get {
+                return ResourceManager.GetString("Add_Channel_Instruction", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Please select at least 1 channel! 的本地化字符串。
+        /// </summary>
+        public static string Add_Channel_NoneSelect_Msg {
+            get {
+                return ResourceManager.GetString("Add_Channel_NoneSelect_Msg", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Explore Unsplash to find more channels: 的本地化字符串。
+        /// </summary>
+        public static string Add_Channel_Result_Placeholder {
+            get {
+                return ResourceManager.GetString("Add_Channel_Result_Placeholder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Open Unsplash.com 的本地化字符串。
+        /// </summary>
+        public static string Add_Channel_Unsplash_Link {
+            get {
+                return ResourceManager.GetString("Add_Channel_Unsplash_Link", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Cancel 的本地化字符串。
+        /// </summary>
+        public static string Cancel {
+            get {
+                return ResourceManager.GetString("Cancel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 No photos available in this channel! 的本地化字符串。
         /// </summary>
         public static string Channels_NoPhotos {
@@ -241,7 +313,7 @@ namespace Irvuewin.Properties {
         }
         
         /// <summary>
-        ///   查找类似 Chinese 的本地化字符串。
+        ///   查找类似 Chinese-Simplified 的本地化字符串。
         /// </summary>
         public static string Settings_Language_Chinese {
             get {
