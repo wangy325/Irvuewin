@@ -99,7 +99,7 @@
         </ResourceDictionary>
     </helpers:LocationAwareWindow.Resources>
 
-    <Grid>
+    <Grid Grid.IsSharedSizeScope="True">
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
@@ -124,7 +124,7 @@
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="180" MaxWidth="200" />
+                        <ColumnDefinition Width="Auto" SharedSizeGroup="Labels" MinWidth="180" />
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="Auto" />
@@ -283,7 +283,7 @@
 
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="180" MaxWidth="200" />
+                        <ColumnDefinition Width="Auto" SharedSizeGroup="Labels" MinWidth="180" />
                         <ColumnDefinition Width="Auto" MinWidth="80" />
                         <ColumnDefinition Width="Auto" MinWidth="80" />
                         <ColumnDefinition Width="*" />
