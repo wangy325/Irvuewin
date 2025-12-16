@@ -1,10 +1,12 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using Irvuewin.Helpers;
 using Irvuewin.Models.Unsplash;
 using Irvuewin.ViewModels;
 using WpfToolkit.Controls;
 using Serilog;
+using Localization = Irvuewin.Helpers.Localization;
 
 namespace Irvuewin.Views;
 
@@ -127,9 +129,10 @@ public partial class Channels
         if (!_isInitialized) return;
         if (ChannelsListBox.SelectedItem is not UnsplashChannel channel) return;
         // Can not delete system Reserved channel
-        if (channel.Id == "317099")
+        if (channel.Id is "317099" or "7282015")
         {
-            MessageBox.Show("Can not delete system Reserved channel.");
+            MessageBoxWindow.Show(Localization.Instance["Can_Not_Delete_Reserved_Channel"], 
+                Localization.Instance["Msg_Hint"]);
             return;
         }
 

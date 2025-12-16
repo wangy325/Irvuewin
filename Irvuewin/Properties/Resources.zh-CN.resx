@@ -313,6 +313,21 @@
     <value>打开Unsplash.com</value>
   </data>
   <data name="Add_Channel_NoneSelect_Msg" xml:space="preserve">
-    <value>请选择要添加的频道！</value>
+    <value>请选择要添加的频道</value>
+  </data>
+  <data name="Choose_Folder" xml:space="preserve">
+    <value>选择文件夹</value>
+  </data>
+  <data name="Msg_Hint" xml:space="preserve">
+    <value>提示</value>
+  </data>
+  <data name="Folder_Error" xml:space="preserve">
+    <value>不能选择系统或隐藏文件夹！</value>
+  </data>
+  <data name="Msg_Error" xml:space="preserve">
+    <value>错误</value>
+  </data>
+  <data name="Can_Not_Delete_Reserved_Channel" xml:space="preserve">
+    <value>不能删除系统保留的频道</value>
   </data>
 </root>

@@ -39,7 +39,7 @@
       <Value Profile="(Default)" />
     </Setting>
     <Setting Name="UserUnsplashChannels" Type="System.String" Scope="User">
-      <Value Profile="(Default)">317099,7282015</Value>
+      <Value Profile="(Default)">317099,7282015,5279,8498187</Value>
     </Setting>
     <Setting Name="UserCheckedChannel" Type="System.String" Scope="User">
       <Value Profile="(Default)">317099</Value>

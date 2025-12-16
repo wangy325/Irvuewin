@@ -3,6 +3,7 @@ using System.Windows;
 using H.NotifyIcon;
 using Irvuewin.Helpers;
 using Irvuewin.ViewModels;
+using Localization = Irvuewin.Helpers.Localization;
 
 namespace Irvuewin.Views;
 
@@ -19,7 +20,7 @@ public partial class Settings
     {
         var dialog = new Microsoft.WindowsAPICodePack.Dialogs.CommonOpenFileDialog
         {
-            Title = IAppConst.ChooseFolder,
+            Title = Localization.Instance["Choose_Folder"],
             IsFolderPicker = true,
             InitialDirectory = IAppConst.DefaultWallpaperDownloadDir,
             ShowHiddenItems = false,
@@ -44,10 +45,11 @@ public partial class Settings
             || (File.GetAttributes(selectedPath) & FileAttributes.Hidden) == FileAttributes.Hidden
             || selectedPath.Equals(Path.GetPathRoot(Environment.GetFolderPath(Environment.SpecialFolder.System))))
         {
-            MessageBox.Show(
-                IAppConst.Hints.IllegalFolder,
-                IAppConst.Hints.MessageBoxCaption,
-                MessageBoxButton.OK
+            MessageBoxWindow.Show(
+                Localization.Instance["Folder_Error"],
+                Localization.Instance["Msg_Error"],
+                MessageBoxButton.OK,
+                MessageBoxImage.Error
             );
             return;
         }

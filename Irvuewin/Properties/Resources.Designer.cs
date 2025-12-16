@@ -97,7 +97,7 @@ namespace Irvuewin.Properties {
         }
         
         /// <summary>
-        ///   查找类似 Please select at least 1 channel! 的本地化字符串。
+        ///   查找类似 Please select at least 1 channel 的本地化字符串。
         /// </summary>
         public static string Add_Channel_NoneSelect_Msg {
             get {
@@ -120,6 +120,15 @@ namespace Irvuewin.Properties {
         public static string Add_Channel_Unsplash_Link {
             get {
                 return ResourceManager.GetString("Add_Channel_Unsplash_Link", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Can not delete reserved channel 的本地化字符串。
+        /// </summary>
+        public static string Can_Not_Delete_Reserved_Channel {
+            get {
+                return ResourceManager.GetString("Can_Not_Delete_Reserved_Channel", resourceCulture);
             }
         }
         
@@ -160,11 +169,29 @@ namespace Irvuewin.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Select Folder 的本地化字符串。
+        /// </summary>
+        public static string Choose_Folder {
+            get {
+                return ResourceManager.GetString("Choose_Folder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Everything is OK! 的本地化字符串。
         /// </summary>
         public static string Everything_Is_OK {
             get {
                 return ResourceManager.GetString("Everything_Is_OK", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Cannot select system/hidden folder! 的本地化字符串。
+        /// </summary>
+        public static string Folder_Error {
+            get {
+                return ResourceManager.GetString("Folder_Error", resourceCulture);
             }
         }
         
@@ -210,6 +237,24 @@ namespace Irvuewin.Properties {
         public static string Interval_Minutes {
             get {
                 return ResourceManager.GetString("Interval_Minutes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Error 的本地化字符串。
+        /// </summary>
+        public static string Msg_Error {
+            get {
+                return ResourceManager.GetString("Msg_Error", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Info 的本地化字符串。
+        /// </summary>
+        public static string Msg_Hint {
+            get {
+                return ResourceManager.GetString("Msg_Hint", resourceCulture);
             }
         }
         

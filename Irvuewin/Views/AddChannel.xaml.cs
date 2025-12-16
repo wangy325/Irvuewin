@@ -10,6 +10,7 @@ namespace Irvuewin.Views;
 public partial class AddChannel
 {
     private static readonly ILogger Logger = Log.ForContext(typeof(AddChannel));
+
     public AddChannel()
     {
         InitializeComponent();
@@ -22,7 +23,10 @@ public partial class AddChannel
         var selectedItems = PreChannelsListBox.SelectedItems;
         if (selectedItems.Count <= 0)
         {
-            MessageBox.Show(Localization.Instance["Add_Channel_NoneSelect_Msg"]);
+            MessageBoxWindow.Show(Localization.Instance["Add_Channel_NoneSelect_Msg"],
+                Localization.Instance["Msg_Hint"],
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
             return;
         }
 

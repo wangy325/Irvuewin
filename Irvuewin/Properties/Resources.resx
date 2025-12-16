@@ -313,6 +313,21 @@
     <value>Open Unsplash.com</value>
   </data>
   <data name="Add_Channel_NoneSelect_Msg" xml:space="preserve">
-    <value>Please select at least 1 channel!</value>
+    <value>Please select at least 1 channel</value>
+  </data>
+  <data name="Choose_Folder" xml:space="preserve">
+    <value>Select Folder</value>
+  </data>
+  <data name="Msg_Hint" xml:space="preserve">
+    <value>Info</value>
+  </data>
+  <data name="Folder_Error" xml:space="preserve">
+    <value>Cannot select system/hidden folder!</value>
+  </data>
+  <data name="Msg_Error" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="Can_Not_Delete_Reserved_Channel" xml:space="preserve">
+    <value>Can not delete reserved channel</value>
   </data>
 </root>
