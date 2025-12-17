@@ -12,6 +12,7 @@
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Themes/Colors.xaml" />
                 <ResourceDictionary Source="/Themes/Generic.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
@@ -26,9 +27,9 @@
             <!-- <converters:CountToIndexConverter x:Key="CountToIndexConverter" /> -->
 
             <Style x:Key="ContextMenuStyle" TargetType="ContextMenu">
-                <Setter Property="Background" Value="White" />
-                <Setter Property="Foreground" Value="Transparent" />
-                <Setter Property="BorderBrush" Value="White" />
+                <Setter Property="Background" Value="{StaticResource WindowBackgroundBrush}" />
+                <Setter Property="Foreground" Value="{StaticResource TransparentBrush}" />
+                <Setter Property="BorderBrush" Value="{StaticResource ControlBackgroundBrush}" />
                 <Setter Property="Width" Value="Auto" />
                 <Setter Property="MaxWidth" Value="300" />
                 <Setter Property="MinWidth" Value="240" />
@@ -50,8 +51,8 @@
 
             <!-- 自定义MenuItem样式 -->
             <Style TargetType="MenuItem">
-                <Setter Property="Background" Value="Transparent" />
-                <Setter Property="Foreground" Value="Black" />
+                <Setter Property="Background" Value="{StaticResource TransparentBrush}" />
+                <Setter Property="Foreground" Value="{StaticResource PrimaryTextBrush}" />
                 <Setter Property="MinWidth" Value="240" />
                 <Setter Property="MaxWidth" Value="300" />
                 <Setter Property="Width" Value="Auto" />
@@ -77,7 +78,7 @@
                                                         VerticalAlignment="Center"
                                                         HorizontalAlignment="Center"
                                                         Visibility="Collapsed">
-                                            <Path Data="M0,5 L2,7 L7,2" Stroke="Black" StrokeThickness="2" />
+                                            <Path Data="M0,5 L2,7 L7,2" Stroke="{StaticResource PrimaryTextBrush}" StrokeThickness="2" />
                                         </ContentControl>
 
                                         <!-- Icon -->
@@ -103,7 +104,7 @@
                                        Focusable="False"
                                        PopupAnimation="Fade">
                                     <Border SnapsToDevicePixels="True"
-                                            Background="White"
+                                            Background="{StaticResource ControlBackgroundBrush}"
                                             MaxWidth="240"
                                             HorizontalAlignment="Left"
                                             CornerRadius="5">
@@ -113,7 +114,7 @@
                             </Grid>
                             <ControlTemplate.Triggers>
                                 <Trigger Property="IsHighlighted" Value="True">
-                                    <Setter Property="Background" Value="LightSkyBlue" />
+                                    <Setter Property="Background" Value="{StaticResource ControlMouseOverBrush}" />
                                 </Trigger>
                                 <Trigger Property="IsChecked" Value="True">
                                     <Setter TargetName="CheckIcon" Property="Visibility" Value="Visible" />
@@ -147,7 +148,7 @@
                 <MenuItem Margin="0, 10, 0 0"
                           IsEnabled="False" IsCheckable="False">
                     <MenuItem.Header>
-                        <TextBlock Foreground="Gray"
+                        <TextBlock Foreground="{StaticResource SecondaryTextBrush}"
                                    Text="{Binding Source={StaticResource TrayViewModel}, Path=NextWallpaperChangeTime, Converter={StaticResource DateTimeToStringConverter}}" />
                     </MenuItem.Header>
                 </MenuItem>
@@ -177,7 +178,7 @@
                             <TextBlock
                                 Margin="10,0,0,0"
                                 Text="{Binding Source={StaticResource TrayViewModel}, Path=AboutWallpaper.Likes}"
-                                Foreground="Gray" />
+                                Foreground="{StaticResource SecondaryTextBrush}" />
                         </MenuItem.Header>
                     </MenuItem>
                     <MenuItem IsEnabled="False" IsCheckable="False">
@@ -190,7 +191,7 @@
                             <TextBlock
                                 Margin="10,0,0,0"
                                 Text="{Binding Source={StaticResource TrayViewModel}, Path=AboutWallpaper.Downloads}"
-                                Foreground="Gray" />
+                                Foreground="{StaticResource SecondaryTextBrush}" />
                         </MenuItem.Header>
                     </MenuItem>
                     <MenuItem IsEnabled="False" IsCheckable="False"
@@ -211,7 +212,7 @@
                                 Text="{Binding Source={StaticResource TrayViewModel}, Path=AboutWallpaper.Location}"
                                 TextWrapping="NoWrap"
                                 TextTrimming="CharacterEllipsis"
-                                Foreground="Gray" />
+                                Foreground="{StaticResource SecondaryTextBrush}" />
                         </MenuItem.Header>
                     </MenuItem>
                     <MenuItem
@@ -272,7 +273,7 @@
                     </MenuItem.Header>
                     <MenuItem.ItemsSource>
                         <CompositeCollection>
-                            <Separator Margin="0 ,10,0,0" Background="Transparent" />
+                            <Separator Margin="0 ,10,0,0" Background="{StaticResource TransparentBrush}" />
                             <CollectionContainer
                                 Collection="{Binding Source={StaticResource TrayViewModel}, Path=AddedChannels}" />
                             <Separator Style="{StaticResource SeparatorStyle}" />

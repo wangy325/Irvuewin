@@ -13,7 +13,7 @@
     mc:Ignorable="d"
     Title="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Window_Channels_Title]}" Icon="/Icons/application_64.ico"
     Height="720" Width="960" MinWidth="500"
-    Background="WhiteSmoke" ShowInTaskbar="False" ResizeMode="NoResize"
+    Background="{StaticResource WindowBackgroundBrush}" ShowInTaskbar="False" ResizeMode="NoResize"
     WindowStartupLocation="CenterScreen">
 
     <!-- <helpers:LocationAwareWindow.DataContext> -->
@@ -25,6 +25,7 @@
     <helpers:LocationAwareWindow.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Themes/Colors.xaml" />
                 <ResourceDictionary Source="/Themes/Generic.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
@@ -123,7 +124,7 @@
             </StackPanel>
         </Grid>
 
-        <Separator Grid.Column="1" Background="LightGray">
+        <Separator Grid.Column="1" Background="{StaticResource BorderBrush}">
             <Separator.LayoutTransform>
                 <RotateTransform Angle="90" />
             </Separator.LayoutTransform>
@@ -168,7 +169,7 @@
                                 </Image.Clip>
                             </Image>
                             <Label Content="{Binding User.Name}"
-                                   Foreground="Gray"
+                                   Foreground="{StaticResource SecondaryTextBrush}"
                                    FontStyle="Italic"
                                    FontFamily="Segoe UI"
                                    Style="{StaticResource LabelStyle}" />
@@ -224,7 +225,7 @@
                                 <Button Width="15" Height="15" Margin="0,0,0,5"
                                         VerticalAlignment="Top"
                                         HorizontalAlignment="Right"
-                                        Background="WhiteSmoke"
+                                        Background="{StaticResource WindowBackgroundBrush}"
                                         Click="Channels_Detail_Click"
                                         Style="{StaticResource ButtonStyle}">
                                     <Image Source="/Icons/Channels/link.ico" Width="12" />
@@ -248,10 +249,10 @@
                                 <Setter Property="CornerRadius" Value="10" />
                                 <Style.Triggers>
                                     <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter Property="Background" Value="LightGray" />
+                                        <Setter Property="Background" Value="{StaticResource ControlMouseOverBrush}" />
                                     </Trigger>
                                     <Trigger Property="IsMouseOver" Value="False">
-                                        <Setter Property="Background" Value="Transparent" />
+                                        <Setter Property="Background" Value="{StaticResource TransparentBrush}" />
                                     </Trigger>
                                 </Style.Triggers>
                             </Style>

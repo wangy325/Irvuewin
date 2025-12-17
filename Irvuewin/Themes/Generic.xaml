@@ -10,7 +10,7 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Separator">
-                    <Rectangle Height="1" Fill="LightGray"
+                    <Rectangle Height="1" Fill="{StaticResource BorderBrush}"
                                HorizontalAlignment="Stretch"
                                VerticalAlignment="Center" />
                 </ControlTemplate>
@@ -34,15 +34,15 @@
                         <Border x:Name="RadioBorder"
                                 Width="13" Height="13"
                                 CornerRadius="7.5"
-                                Background="White"
-                                BorderBrush="LightGray"
+                                Background="{StaticResource ControlBackgroundBrush}"
+                                BorderBrush="{StaticResource BorderBrush}"
                                 BorderThickness="1"
                                 VerticalAlignment="Center"
                                 Margin="0,0,5,0">
                             <Grid>
                                 <Ellipse x:Name="RadioDot"
                                          Width="8" Height="8"
-                                         Fill="Transparent"
+                                         Fill="{StaticResource TransparentBrush}"
                                          HorizontalAlignment="Center"
                                          VerticalAlignment="Center" />
                             </Grid>
@@ -56,7 +56,7 @@
                                         Value="#3585FF"/>-->
                             <Setter TargetName="RadioDot"
                                     Property="Fill"
-                                    Value="#FF3585FF" />
+                                    Value="{StaticResource HighlightBrush}" />
                         </Trigger>
                         <!-- 失焦时样式变化 -->
                         <MultiDataTrigger>
@@ -75,7 +75,7 @@
                                         Value="#FFC0C0C0"/>-->
                             <Setter TargetName="RadioDot"
                                     Property="Fill"
-                                    Value="#FF888888" />
+                                    Value="{StaticResource ControlDisabledForegroundBrush}" />
                         </MultiDataTrigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -92,15 +92,15 @@
                         <Border x:Name="Border"
                                 Width="15" Height="15"
                                 CornerRadius="2"
-                                Background="White"
-                                BorderBrush="LightGray"
+                                Background="{StaticResource ControlBackgroundBrush}"
+                                BorderBrush="{StaticResource BorderBrush}"
                                 BorderThickness="1"
                                 VerticalAlignment="Center"
                                 Margin="0,0,5,0">
                             <Grid>
                                 <Path x:Name="CheckMark"
                                       Data="M 2 7 L 6 11 L 12 3"
-                                      Stroke="Transparent"
+                                      Stroke="{StaticResource TransparentBrush}"
                                       StrokeThickness="2"
                                       StrokeEndLineCap="Round"
                                       StrokeStartLineCap="Round"
@@ -114,10 +114,10 @@
                         <Trigger Property="IsChecked" Value="True">
                             <Setter TargetName="Border"
                                     Property="Background"
-                                    Value="#3585FF" />
+                                    Value="{StaticResource AccentBrush}" />
                             <Setter TargetName="CheckMark"
                                     Property="Stroke"
-                                    Value="white" />
+                                    Value="{StaticResource AccentForegroundBrush}" />
                         </Trigger>
                         <!-- 失焦时样式变化 -->
                         <MultiDataTrigger>
@@ -133,10 +133,10 @@
                             </MultiDataTrigger.Conditions>
                             <Setter TargetName="Border"
                                     Property="Background"
-                                    Value="#FFC0C0C0" />
+                                    Value="{StaticResource ControlDisabledBackgroundBrush}" />
                             <Setter TargetName="CheckMark"
                                     Property="Stroke"
-                                    Value="#FF888888" />
+                                    Value="{StaticResource ControlDisabledForegroundBrush}" />
                         </MultiDataTrigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -146,7 +146,7 @@
     <Style x:Key="ButtonStyle" TargetType="Button">
         <Setter Property="Margin" Value="5, 10" />
         <Setter Property="Height" Value="25" />
-        <Setter Property="Background" Value="LightGray" />
+        <Setter Property="Background" Value="{StaticResource ControlMouseOverBrush}" />
         <Setter Property="BorderThickness" Value="0" />
         <Setter Property="Cursor" Value="Hand" />
         <Setter Property="Template">
@@ -164,9 +164,8 @@
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter TargetName="xFileButton"
                                     Property="Background"
-                                    Value="LightGray" />
-                            <Setter Property="Cursor" Value="Hand" />
-                            <Setter Property="Foreground" Value="DarkBlue" />
+                                    Value="{StaticResource ButtonMouseOverBrush}" />
+                            <Setter Property="Cursor" Value="Arrow" />
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -176,7 +175,7 @@
     <Style x:Key="TextBlockStyle" TargetType="TextBlock">
         <Setter Property="Margin" Value="0,0" />
         <Setter Property="VerticalAlignment" Value="Center" />
-        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Background" Value="{StaticResource TransparentBrush}" />
     </Style>
     <Style x:Key="TabStyle" TargetType="TabItem">
         <Setter Property="Height" Value="Auto" />
@@ -209,12 +208,12 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsSelected" Value="True">
-                            <Setter TargetName="Bd" Property="Background" Value="LightGray" />
+                            <Setter TargetName="Bd" Property="Background" Value="{StaticResource ControlMouseOverBrush}" />
                             <!--<Setter Property="Foreground" Value="DarkBlue"/>-->
                             <!--<Setter TargetName="Bd" Property="BorderBrush" Value="#3585FF"/>-->
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
-                            <Setter Property="Foreground" Value="#FF888888" />
+                            <Setter Property="Foreground" Value="{StaticResource ControlDisabledForegroundBrush}" />
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -243,7 +242,7 @@
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter TargetName="xWindowButton"
                                     Property="Background"
-                                    Value="#bcbcbc" />
+                                    Value="{StaticResource ButtonMouseOverBrush}" />
                             <Setter Property="Cursor" Value="Arrow" />
                             <!-- <Setter Property="Foreground" Value="DarkBlue"/> -->
                         </Trigger>
@@ -267,9 +266,9 @@
                             IsChecked="{Binding Path=IsDropDownOpen, 
                                             Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
                             ClickMode="Press"
-                            Background="Transparent"
+                            Background="{StaticResource TransparentBrush}"
                             BorderThickness="1"
-                            BorderBrush="LightGray">
+                            BorderBrush="{StaticResource BorderBrush}">
                             <ToggleButton.Template>
                                 <ControlTemplate TargetType="ToggleButton">
                                     <Border x:Name="Border"
@@ -282,7 +281,7 @@
                                               HorizontalAlignment="Right"
                                               VerticalAlignment="Center"
                                               Data="M 0 0 L 4 4 L 8 0 Z"
-                                              Fill="Gray" />
+                                              Fill="{StaticResource SecondaryTextBrush}" />
                                     </Border>
                                 </ControlTemplate>
                             </ToggleButton.Template>
@@ -307,8 +306,8 @@
                                PopupAnimation="Slide">
                             <Border
                                 SnapsToDevicePixels="True"
-                                Background="WhiteSmoke"
-                                BorderBrush="LightGray"
+                                Background="{StaticResource WindowBackgroundBrush}"
+                                BorderBrush="{StaticResource BorderBrush}"
                                 BorderThickness="1"
                                 Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=ComboBox}}"
                                 CornerRadius="5">
@@ -321,7 +320,7 @@
                     </Grid>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsEnabled" Value="False">
-                            <Setter Property="Foreground" Value="Yellow" />
+                            <Setter Property="Foreground" Value="{StaticResource ControlDisabledForegroundBrush}" />
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -330,8 +329,8 @@
     </Style>
 
     <Style x:Key="ComboBoxItemStyle" TargetType="ComboBoxItem">
-        <Setter Property="Background" Value="WhiteSmoke" />
-        <Setter Property="Foreground" Value="Black" />
+        <Setter Property="Background" Value="{StaticResource WindowBackgroundBrush}" />
+        <Setter Property="Foreground" Value="{StaticResource PrimaryTextBrush}" />
         <Setter Property="Padding" Value="5,5" />
         <Setter Property="HorizontalContentAlignment" Value="Left" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
@@ -350,12 +349,12 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsHighlighted" Value="True">
-                            <Setter TargetName="Bd" Property="Background" Value="#FF3585FF" />
-                            <Setter Property="Foreground" Value="White" />
+                            <Setter TargetName="Bd" Property="Background" Value="{StaticResource AccentBrush}" />
+                            <Setter Property="Foreground" Value="{StaticResource AccentForegroundBrush}" />
                         </Trigger>
                         <Trigger Property="IsSelected" Value="True">
-                            <Setter TargetName="Bd" Property="Background" Value="LightGray" />
-                            <Setter Property="Foreground" Value="Black" />
+                            <Setter TargetName="Bd" Property="Background" Value="{StaticResource ControlMouseOverBrush}" />
+                            <Setter Property="Foreground" Value="{StaticResource PrimaryTextBrush}" />
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -364,12 +363,12 @@
     </Style>
 
     <Style x:Key="ToolTipStyle" TargetType="ToolTip">
-        <Setter Property="Background" Value="LightGray" />
-        <Setter Property="Foreground" Value="Black" />
+        <Setter Property="Background" Value="{StaticResource ControlMouseOverBrush}" />
+        <Setter Property="Foreground" Value="{StaticResource PrimaryTextBrush}" />
         <Setter Property="FontSize" Value="10" />
         <Setter Property="Margin" Value="10,5" />
         <Setter Property="BorderThickness" Value="0" />
-        <Setter Property="BorderBrush" Value="Black" />
+        <Setter Property="BorderBrush" Value="{StaticResource PrimaryTextBrush}" />
         <Setter Property="HorizontalOffset" Value="10" />
         <Setter Property="Template">
             <Setter.Value>
@@ -386,11 +385,11 @@
     </Style>
 
     <Style x:Key="ListBoxStyle" TargetType="ListBox">
-        <Setter Property="Background" Value="WhiteSmoke" />
+        <Setter Property="Background" Value="{StaticResource WindowBackgroundBrush}" />
         <Setter Property="Margin" Value="0,0" />
         <Setter Property="SelectionMode" Value="Single" />
         <Setter Property="BorderThickness" Value="0" />
-        <Setter Property="BorderBrush" Value="LightGray" />
+        <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="ListBox">
@@ -412,7 +411,7 @@
     </Style>
 
     <Style x:Key="ListBoxItemStyle" TargetType="ListBoxItem">
-        <Setter Property="Background" Value="WhiteSmoke" />
+        <Setter Property="Background" Value="{StaticResource WindowBackgroundBrush}" />
         <Setter Property="BorderThickness" Value="0" />
         <Setter Property="Height" Value="40" />
         <Setter Property="HorizontalContentAlignment" Value="Left" />
@@ -433,14 +432,14 @@
                     <!-- 视觉状态管理 -->
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Bd" Property="Background" Value="LightGray" />
+                            <Setter TargetName="Bd" Property="Background" Value="{StaticResource ControlMouseOverBrush}" />
                             <Setter TargetName="ContentPresenter" Property="TextElement.Foreground"
-                                    Value="Black" />
+                                    Value="{StaticResource PrimaryTextBrush}" />
                         </Trigger>
                         <Trigger Property="IsSelected" Value="True">
-                            <Setter TargetName="Bd" Property="Background" Value="LightGray" />
+                            <Setter TargetName="Bd" Property="Background" Value="{StaticResource ControlMouseOverBrush}" />
                             <Setter TargetName="ContentPresenter" Property="TextElement.Foreground"
-                                    Value="Black" />
+                                    Value="{StaticResource PrimaryTextBrush}" />
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -457,7 +456,7 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type RepeatButton}">
-                    <Border Background="Transparent" />
+                    <Border Background="{StaticResource TransparentBrush}" />
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
@@ -471,8 +470,8 @@
         <Setter Property="Background">
             <Setter.Value>
                 <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                    <GradientStop Color="#bcbcbc" Offset="0.0" />
-                    <GradientStop Color="#bcbcbc" Offset="1.0" />
+                    <GradientStop Color="{StaticResource ScrollBarThumbColor}" Offset="0.0" />
+                    <GradientStop Color="{StaticResource ScrollBarThumbColor}" Offset="1.0" />
                 </LinearGradientBrush>
             </Setter.Value>
         </Setter>
@@ -489,8 +488,8 @@
                             <Setter TargetName="ThumbBorder" Property="Background">
                                 <Setter.Value>
                                     <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                                        <GradientStop Color="#888888" Offset="0.0" />
-                                        <GradientStop Color="#888888" Offset="1.0" />
+                                        <GradientStop Color="{StaticResource ScrollBarThumbMouseOverColor}" Offset="0.0" />
+                                        <GradientStop Color="{StaticResource ScrollBarThumbMouseOverColor}" Offset="1.0" />
                                     </LinearGradientBrush>
                                 </Setter.Value>
                             </Setter>
@@ -505,7 +504,7 @@
         <Grid x:Name="ScrollBarGrid" Visibility="Visible">
             <Border Grid.RowSpan="3"
                     CornerRadius="2"
-                    Background="LightGray" />
+                    Background="{StaticResource ControlMouseOverBrush}" />
             <Track x:Name="PART_Track" IsDirectionReversed="true">
                 <Track.DecreaseRepeatButton>
                     <RepeatButton Style="{StaticResource ScrollBarPageButton}"

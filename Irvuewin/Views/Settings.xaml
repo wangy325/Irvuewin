@@ -12,7 +12,7 @@
     mc:Ignorable="d"
     Title="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Window_Settings_Title]}" Icon="/Icons/application_64.ico"
     Height="450" Width="500" MinWidth="400" MaxWidth="500"
-    Background="WhiteSmoke"
+    Background="{StaticResource WindowBackgroundBrush}"
     ShowInTaskbar="False" ResizeMode="NoResize"
     WindowStartupLocation="CenterScreen">
 
@@ -24,6 +24,7 @@
         <!--合并资源-->
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Themes/Colors.xaml" />
                 <ResourceDictionary Source="/Themes/Generic.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
@@ -34,7 +35,7 @@
             <Style x:Key="CenterTabControlStyle" TargetType="TabControl">
                 <Setter Property="Margin" Value="20"/>
                 <Setter Property="BorderThickness" Value="0"/>
-                <Setter Property="Background" Value="WhiteSmoke"/>
+                <Setter Property="Background" Value="{StaticResource WindowBackgroundBrush}"/>
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="TabControl">
@@ -72,10 +73,10 @@
 
             <!-- wallpaper save path display style -->
             <Style TargetType="{x:Type controls:PathDisplayControl}">
-                <Setter Property="Foreground" Value="Gray" />
-                <Setter Property="Background" Value="Transparent" />
+                <Setter Property="Foreground" Value="{StaticResource SecondaryTextBrush}" />
+                <Setter Property="Background" Value="{StaticResource TransparentBrush}" />
                 <Setter Property="BorderThickness" Value="0" />
-                <Setter Property="BorderBrush" Value="WhiteSmoke" />
+                <Setter Property="BorderBrush" Value="{StaticResource WindowBackgroundBrush}" />
                 <Setter Property="Height" Value="Auto" />
                 <Setter Property="MinHeight" Value="30" />
                 <Setter Property="Padding" Value="5" />
@@ -365,7 +366,7 @@
                                 Style="{StaticResource BottomButtonStyle}"
                                 MinWidth="120" MaxWidth="160"
                                 Margin="0,10,0,0"
-                                Background="#FFF44336" Foreground="White"
+                                Background="{StaticResource DangerBrush}" Foreground="White"
                                 Click="ResetApp_Click"/>
                     </StackPanel>
                 </Grid>
