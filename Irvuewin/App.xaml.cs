@@ -62,8 +62,8 @@ namespace Irvuewin
             }
 
             // Async Change wallpaper when app start
-            TrayMenuHelper.CheckPointer();
-            _ = TrayMenuHelper.ChangeAllWallpaper().ConfigureAwait(false);
+            // TrayMenuHelper.CheckPointer();
+            // _ = TrayMenuHelper.ChangeAllWallpaper().ConfigureAwait(false);
 
             // Init wallpaper change schedule Timer
             TrayMenuHelper.InitWallpaperChangeScheduler();

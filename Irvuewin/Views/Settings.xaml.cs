@@ -3,12 +3,14 @@ using System.Windows;
 using H.NotifyIcon;
 using Irvuewin.Helpers;
 using Irvuewin.ViewModels;
+using Serilog;
 using Localization = Irvuewin.Helpers.Localization;
 
 namespace Irvuewin.Views;
 
 public partial class Settings
 {
+    private static readonly ILogger  Logger = Log.ForContext(typeof(Settings)); 
     public Settings()
     {
         InitializeComponent();
@@ -90,5 +92,47 @@ public partial class Settings
     private void CancelSettingsButton_Click(object sender, RoutedEventArgs e)
     {
         this.Hide();
+    }
+
+    private void ClearCache_Click(object sender, RoutedEventArgs e)
+    {
+        var result = MessageBoxWindow.Show(
+            Localization.Instance["Settings_ClearCache_Confirm"],
+            Localization.Instance["Msg_Hint"],
+            MessageBoxButton.YesNo,
+            MessageBoxImage.Question);
+
+        if (result == MessageBoxResult.Yes)
+        {
+            var cachePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Irvuewin", "splash");
+            Logger.Debug(@"Deleting wallpaper cache {cachePath}",  cachePath);
+            // Delete cache logic
+            // if (Directory.Exists(cachePath))
+            // {
+            //     Directory.Delete(cachePath, true);
+            // }
+        }
+    }
+
+    private void ResetApp_Click(object sender, RoutedEventArgs e)
+    {
+        var result = MessageBoxWindow.Show(
+            Localization.Instance["Settings_ResetApp_Confirm"],
+            Localization.Instance["Msg_Hint"],
+            MessageBoxButton.YesNo,
+            MessageBoxImage.Question);
+
+        if (result == MessageBoxResult.Yes)
+        {
+            var appDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Irvuewin");
+            Logger.Debug(@"Reset app {appDataPath}",  appDataPath);
+            // Reset logic
+            // if (Directory.Exists(appDataPath))
+            // {
+            //      Directory.Delete(appDataPath, true);
+            // }
+            // System.Windows.Forms.Application.Restart();
+            // Application.Current.Shutdown();
+        }
     }
 }

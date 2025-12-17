@@ -330,4 +330,16 @@
   <data name="Can_Not_Delete_Reserved_Channel" xml:space="preserve">
     <value>不能删除系统保留的频道</value>
   </data>
+  <data name="Settings_ClearCache" xml:space="preserve">
+    <value>清除应用缓存</value>
+  </data>
+  <data name="Settings_ResetApp" xml:space="preserve">
+    <value>重置应用</value>
+  </data>
+  <data name="Settings_ClearCache_Confirm" xml:space="preserve">
+    <value>确认删除所有壁纸缓存？</value>
+  </data>
+  <data name="Settings_ResetApp_Confirm" xml:space="preserve">
+    <value>确认重置应用？这将删除所有数据并重启。</value>
+  </data>
 </root>

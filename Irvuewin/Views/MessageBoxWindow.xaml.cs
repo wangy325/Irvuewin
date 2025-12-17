@@ -22,11 +22,30 @@ namespace Irvuewin.Views
             window.InitIcon(icon);
             
             // Set Owner if possible for centering
-            if (Application.Current != null && Application.Current.MainWindow != null && Application.Current.MainWindow.IsVisible && Application.Current.MainWindow.WindowState != WindowState.Minimized)
+            Window ownerWindow = null;
+            if (Application.Current != null)
+            {
+               foreach (Window w in Application.Current.Windows)
+               {
+                   if (w.IsActive && w.IsVisible)
+                   {
+                       ownerWindow = w;
+                       break;
+                   }
+               }
+
+               // Fallback to MainWindow if no active window found (and MainWindow is visible)
+               if (ownerWindow == null && Application.Current.MainWindow != null && Application.Current.MainWindow.IsVisible && Application.Current.MainWindow.WindowState != WindowState.Minimized)
+               {
+                   ownerWindow = Application.Current.MainWindow;
+               }
+            }
+
+            if (ownerWindow != null)
             {
                 try 
                 {
-                    window.Owner = Application.Current.MainWindow;
+                    window.Owner = ownerWindow;
                     window.WindowStartupLocation = WindowStartupLocation.CenterOwner;
                 }
                 catch
@@ -103,18 +122,21 @@ namespace Irvuewin.Views
                     return;
             }
 
-            try {
+            try
+            {
                 IconPath.Data = Geometry.Parse(pathData);
                 IconPath.Fill = (Brush)new BrushConverter().ConvertFromString(color);
-            } catch { }
+            }
+            catch { // ignore
+            }
         }
 
         private void Btn_Click(object sender, RoutedEventArgs e)
         {
-            if (sender == BtnYes) Result = MessageBoxResult.Yes;
-            else if (sender == BtnNo) Result = MessageBoxResult.No;
-            else if (sender == BtnOK) Result = MessageBoxResult.OK;
-            else if (sender == BtnCancel) Result = MessageBoxResult.Cancel;
+            if (Equals(sender, BtnYes)) Result = MessageBoxResult.Yes;
+            else if (Equals(sender, BtnNo)) Result = MessageBoxResult.No;
+            else if (Equals(sender, BtnOK)) Result = MessageBoxResult.OK;
+            else if (Equals(sender, BtnCancel)) Result = MessageBoxResult.Cancel;
             
             Close();
         }

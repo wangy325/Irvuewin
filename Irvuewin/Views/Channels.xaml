@@ -101,7 +101,7 @@
             </Grid.Resources>
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" />
-                <RowDefinition Height="45" />
+                <RowDefinition Height="50" />
             </Grid.RowDefinitions>
             <!-- SelectedItem="{Binding Path =DataContext.(vm:ChannelsViewModel.SelectedChannel), RelativeSource={RelativeSource AncestorType=helpers:LocationAwareWindow}}" -->
             <!-- SelectedIndex="{Binding Path =DataContext.(vm:ChannelsViewModel.SelectedIndex), RelativeSource={RelativeSource AncestorType=helpers:LocationAwareWindow}}" -->
@@ -114,10 +114,10 @@
             <StackPanel Grid.Row="1"
                         Orientation="Horizontal"
                         HorizontalAlignment="Right">
-                <Button Content="+" Width="35"
+                <Button Content="+" Width="50"
                         Click="AddChannelPage_Click"
                         Style="{StaticResource BottomButtonStyle}" />
-                <Button Content="-" Width="35"
+                <Button Content="-" Width="50"
                         Click="DeleteChannel_Click"
                         Style="{StaticResource BottomButtonStyle}" />
             </StackPanel>
@@ -227,7 +227,7 @@
                                         Background="WhiteSmoke"
                                         Click="Channels_Detail_Click"
                                         Style="{StaticResource ButtonStyle}">
-                                    <Image Source="/Icons/Channels/link.ico" Width="10" />
+                                    <Image Source="/Icons/Channels/link.ico" Width="12" />
                                 </Button>
                             </StackPanel>
                         </Label.Content>

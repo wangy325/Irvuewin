@@ -24,7 +24,7 @@
         </Style>
     </Window.Resources>
 
-    <Border Background="White" CornerRadius="8" Margin="20" MinWidth="350" MaxWidth="500">
+    <Border Background="White" CornerRadius="5" Margin="20" MinWidth="250" MaxWidth="350">
         <Border.Effect>
             <DropShadowEffect BlurRadius="20" Direction="-90" RenderingBias="Quality" ShadowDepth="5" Opacity="0.15"/>
         </Border.Effect>
