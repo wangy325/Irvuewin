@@ -105,15 +105,17 @@ namespace Irvuewin.Controls
 
             foreach (var item in stackBlocks)
             {
-                // Image不能复用~ （WPF不允许）
-                Image icon = new()
+                // Image cannot be reused
+                System.Windows.Shapes.Path icon = new()
                 {
-                    Source = new BitmapImage(
-                        new Uri("pack://application:,,,/Irvuewin;component/icons/settings/folder_fill.ico")),
                     Width = iconSize,
                     Height = iconSize,
+                    Stretch = System.Windows.Media.Stretch.Uniform,
                     Margin = new Thickness(0, 0, 0, 0)
                 };
+                
+                icon.SetResourceReference(System.Windows.Shapes.Path.DataProperty, "Icon_Folder");
+                icon.SetResourceReference(System.Windows.Shapes.Shape.FillProperty, "SecondaryTextBrush");
                 _panel.Children.Add(icon);
                 // 添加目录名
                 _panel.Children.Add(item);

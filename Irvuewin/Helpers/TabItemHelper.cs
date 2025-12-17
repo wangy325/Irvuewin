@@ -23,6 +23,24 @@ namespace Irvuewin.Helpers
         {
             obj.SetValue(IconSourceProperty, value);
         }
+
+        public static readonly DependencyProperty IconGeometryProperty =
+            DependencyProperty.RegisterAttached(
+                "IconGeometry",
+                typeof(Geometry),
+                typeof(TabItemHelper),
+                new FrameworkPropertyMetadata(null)
+            );
+
+        public static Geometry GetIconGeometry(DependencyObject obj)
+        {
+            return (Geometry)obj.GetValue(IconGeometryProperty);
+        }
+
+        public static void SetIconGeometry(DependencyObject obj, Geometry value)
+        {
+            obj.SetValue(IconGeometryProperty, value);
+        }
     }
 
 }

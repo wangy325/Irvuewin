@@ -18,7 +18,11 @@ public static class FileUtils
         Directory.CreateDirectory(CachedPhotoBaseFolder);
     }
 
-    // key -> window's tile (unique)  
+    /// <summary>
+    /// key -> window's tile (unique)  
+    /// </summary>
+    /// <param name="key"></param>
+    /// <returns>window position file</returns>
     public static string WindowPositionPath(string key)
     {
         var fileName = $"{key}.position.xml";

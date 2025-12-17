@@ -126,18 +126,9 @@ namespace Irvuewin.Properties {
         /// <summary>
         ///   查找类似 Can not delete reserved channel 的本地化字符串。
         /// </summary>
-        public static string Can_Not_Delete_Reserved_Channel {
+        public static string Channel_Reserved_Channel {
             get {
-                return ResourceManager.GetString("Can_Not_Delete_Reserved_Channel", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   查找类似 Cancel 的本地化字符串。
-        /// </summary>
-        public static string Cancel {
-            get {
-                return ResourceManager.GetString("Cancel", resourceCulture);
+                return ResourceManager.GetString("Channel_Reserved_Channel", resourceCulture);
             }
         }
         
@@ -165,33 +156,6 @@ namespace Irvuewin.Properties {
         public static string Channels_RefreshTooltip {
             get {
                 return ResourceManager.GetString("Channels_RefreshTooltip", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   查找类似 Select Folder 的本地化字符串。
-        /// </summary>
-        public static string Choose_Folder {
-            get {
-                return ResourceManager.GetString("Choose_Folder", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   查找类似 Everything is OK! 的本地化字符串。
-        /// </summary>
-        public static string Everything_Is_OK {
-            get {
-                return ResourceManager.GetString("Everything_Is_OK", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   查找类似 Cannot select system/hidden folder! 的本地化字符串。
-        /// </summary>
-        public static string Folder_Error {
-            get {
-                return ResourceManager.GetString("Folder_Error", resourceCulture);
             }
         }
         
@@ -259,15 +223,6 @@ namespace Irvuewin.Properties {
         }
         
         /// <summary>
-        ///   查找类似 Next Update:  的本地化字符串。
-        /// </summary>
-        public static string Next_Update {
-            get {
-                return ResourceManager.GetString("Next_Update", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   查找类似 An Irvue like application for Windows... 的本地化字符串。
         /// </summary>
         public static string Settings_AboutContent {
@@ -282,6 +237,33 @@ namespace Irvuewin.Properties {
         public static string Settings_Browse {
             get {
                 return ResourceManager.GetString("Settings_Browse", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Select Folder 的本地化字符串。
+        /// </summary>
+        public static string Settings_Choose_Folder {
+            get {
+                return ResourceManager.GetString("Settings_Choose_Folder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Clear App Cache 的本地化字符串。
+        /// </summary>
+        public static string Settings_ClearCache {
+            get {
+                return ResourceManager.GetString("Settings_ClearCache", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Confirm to delete all wallpaper cache? 的本地化字符串。
+        /// </summary>
+        public static string Settings_ClearCache_Confirm {
+            get {
+                return ResourceManager.GetString("Settings_ClearCache_Confirm", resourceCulture);
             }
         }
         
@@ -336,6 +318,15 @@ namespace Irvuewin.Properties {
         public static string Settings_Filter_Portraits {
             get {
                 return ResourceManager.GetString("Settings_Filter_Portraits", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Cannot select system/hidden folder! 的本地化字符串。
+        /// </summary>
+        public static string Settings_Folder_Error {
+            get {
+                return ResourceManager.GetString("Settings_Folder_Error", resourceCulture);
             }
         }
         
@@ -484,6 +475,24 @@ namespace Irvuewin.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Reset App 的本地化字符串。
+        /// </summary>
+        public static string Settings_ResetApp {
+            get {
+                return ResourceManager.GetString("Settings_ResetApp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Are you sure you want to reset the app? This will delete all data and restart the application. 的本地化字符串。
+        /// </summary>
+        public static string Settings_ResetApp_Confirm {
+            get {
+                return ResourceManager.GetString("Settings_ResetApp_Confirm", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Same Wallpaper 的本地化字符串。
         /// </summary>
         public static string Settings_SameWallpaper {
@@ -534,6 +543,42 @@ namespace Irvuewin.Properties {
         public static string Settings_Tab_General {
             get {
                 return ResourceManager.GetString("Settings_Tab_General", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Theme: 的本地化字符串。
+        /// </summary>
+        public static string Settings_Theme {
+            get {
+                return ResourceManager.GetString("Settings_Theme", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Auto 的本地化字符串。
+        /// </summary>
+        public static string Settings_Theme_Auto {
+            get {
+                return ResourceManager.GetString("Settings_Theme_Auto", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Dark 的本地化字符串。
+        /// </summary>
+        public static string Settings_Theme_Dark {
+            get {
+                return ResourceManager.GetString("Settings_Theme_Dark", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Light 的本地化字符串。
+        /// </summary>
+        public static string Settings_Theme_Light {
+            get {
+                return ResourceManager.GetString("Settings_Theme_Light", resourceCulture);
             }
         }
         
@@ -592,6 +637,15 @@ namespace Irvuewin.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Everything is OK! 的本地化字符串。
+        /// </summary>
+        public static string Tray_Everything_Is_OK {
+            get {
+                return ResourceManager.GetString("Tray_Everything_Is_OK", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Exit 的本地化字符串。
         /// </summary>
         public static string Tray_Exit {
@@ -606,6 +660,15 @@ namespace Irvuewin.Properties {
         public static string Tray_ManageChannel {
             get {
                 return ResourceManager.GetString("Tray_ManageChannel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Next Update:  的本地化字符串。
+        /// </summary>
+        public static string Tray_Next_Update {
+            get {
+                return ResourceManager.GetString("Tray_Next_Update", resourceCulture);
             }
         }
         
@@ -642,6 +705,15 @@ namespace Irvuewin.Properties {
         public static string Tray_UpdateInterval {
             get {
                 return ResourceManager.GetString("Tray_UpdateInterval", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Cancel 的本地化字符串。
+        /// </summary>
+        public static string Uni_Cancel {
+            get {
+                return ResourceManager.GetString("Uni_Cancel", resourceCulture);
             }
         }
         

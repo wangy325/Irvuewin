@@ -8,6 +8,7 @@ using Irvuewin.Helpers.Utils;
 using Irvuewin.Models.Unsplash;
 using Irvuewin.ViewModels;
 using System.Windows.Interop;
+using System.Windows.Media;
 using Irvuewin.Helpers.Logging;
 using Irvuewin.Views;
 using Serilog;
@@ -31,6 +32,10 @@ namespace Irvuewin
             // Apply Language Setting
             var language = Irvuewin.Properties.Settings.Default.Language;
             Localization.Instance.SetCulture(language);
+
+            // Apply Theme Setting
+            var theme = Irvuewin.Properties.Settings.Default.Theme;
+            ThemeManager.SetTheme((ThemeType)theme);
 
             // Init Logger
             LogHelper.Init();
@@ -111,6 +116,21 @@ namespace Irvuewin
                 Logger.Error(args.Exception, "TaskScheduler.UnobservedTaskException");
                 args.SetObserved();
             };
+        }
+
+        public void RefreshTrayIcon()
+        {
+            var notifyIcon = FindResource("NotifyIcon") as H.NotifyIcon.TaskbarIcon;
+            if (notifyIcon == null) return;
+
+            var geometry = FindResource("Icon_AppLogo") as Geometry;
+            var brush = FindResource("PrimaryTextBrush") as Brush;
+
+            if (geometry != null && brush != null)
+            {
+                var icon = Helpers.IconHelper.GenerateIcon(geometry, brush, 32); // Use 32 for better quality on High DPI
+                notifyIcon.Icon = icon;
+            }
         }
 
         //----------------------------------- TrayMenu ---------------------------------//

@@ -11,9 +11,9 @@
     xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
     xmlns:properties="clr-namespace:Irvuewin.Properties"
     mc:Ignorable="d"
-    Title="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Window_Channels_Title]}" Icon="/Icons/application_64.ico"
+    Title="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Window_Channels_Title]}"
     Height="720" Width="960" MinWidth="500"
-    Background="{StaticResource WindowBackgroundBrush}" ShowInTaskbar="False" ResizeMode="NoResize"
+    Background="{DynamicResource WindowBackgroundBrush}" ShowInTaskbar="False" ResizeMode="NoResize"
     WindowStartupLocation="CenterScreen">
 
     <!-- <helpers:LocationAwareWindow.DataContext> -->
@@ -25,8 +25,6 @@
     <helpers:LocationAwareWindow.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/Themes/Colors.xaml" />
-                <ResourceDictionary Source="/Themes/Generic.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </helpers:LocationAwareWindow.Resources>
@@ -124,7 +122,7 @@
             </StackPanel>
         </Grid>
 
-        <Separator Grid.Column="1" Background="{StaticResource BorderBrush}">
+        <Separator Grid.Column="1" Background="{DynamicResource BorderBrush}">
             <Separator.LayoutTransform>
                 <RotateTransform Angle="90" />
             </Separator.LayoutTransform>
@@ -169,7 +167,7 @@
                                 </Image.Clip>
                             </Image>
                             <Label Content="{Binding User.Name}"
-                                   Foreground="{StaticResource SecondaryTextBrush}"
+                                   Foreground="{DynamicResource SecondaryTextBrush}"
                                    FontStyle="Italic"
                                    FontFamily="Segoe UI"
                                    Style="{StaticResource LabelStyle}" />
@@ -225,10 +223,10 @@
                                 <Button Width="15" Height="15" Margin="0,0,0,5"
                                         VerticalAlignment="Top"
                                         HorizontalAlignment="Right"
-                                        Background="{StaticResource WindowBackgroundBrush}"
+                                        Background="{DynamicResource WindowBackgroundBrush}"
                                         Click="Channels_Detail_Click"
                                         Style="{StaticResource ButtonStyle}">
-                                    <Image Source="/Icons/Channels/link.ico" Width="12" />
+                                    <Path Fill="{DynamicResource PrimaryTextBrush}" Data="{StaticResource Icon_Link}" Width="10" Height="10" Stretch="Uniform" />
                                 </Button>
                             </StackPanel>
                         </Label.Content>
@@ -249,10 +247,10 @@
                                 <Setter Property="CornerRadius" Value="10" />
                                 <Style.Triggers>
                                     <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter Property="Background" Value="{StaticResource ControlMouseOverBrush}" />
+                                        <Setter Property="Background" Value="{DynamicResource ControlMouseOverBrush}" />
                                     </Trigger>
                                     <Trigger Property="IsMouseOver" Value="False">
-                                        <Setter Property="Background" Value="{StaticResource TransparentBrush}" />
+                                        <Setter Property="Background" Value="{DynamicResource TransparentBrush}" />
                                     </Trigger>
                                 </Style.Triggers>
                             </Style>
@@ -263,7 +261,7 @@
                                      PlacementTarget="{Binding ElementName=RefreshButton}"
                                      Style="{StaticResource ToolTipStyle}" />
                         </Border.ToolTip>
-                        <Image Source="/Icons/Channels/question.ico" />
+                        <Path Fill="{DynamicResource PrimaryTextBrush}" Data="{StaticResource Icon_Question}" Stretch="Uniform" Margin="2" />
                     </Border>
 
                 </Grid>

@@ -22,7 +22,7 @@ public partial class Settings
     {
         var dialog = new Microsoft.WindowsAPICodePack.Dialogs.CommonOpenFileDialog
         {
-            Title = Localization.Instance["Choose_Folder"],
+            Title = Localization.Instance["Settings_Choose_Folder"],
             IsFolderPicker = true,
             InitialDirectory = IAppConst.DefaultWallpaperDownloadDir,
             ShowHiddenItems = false,
@@ -48,7 +48,7 @@ public partial class Settings
             || selectedPath.Equals(Path.GetPathRoot(Environment.GetFolderPath(Environment.SpecialFolder.System))))
         {
             MessageBoxWindow.Show(
-                Localization.Instance["Folder_Error"],
+                Localization.Instance["Settings_Folder_Error"],
                 Localization.Instance["Msg_Error"],
                 MessageBoxButton.OK,
                 MessageBoxImage.Error
@@ -105,12 +105,12 @@ public partial class Settings
         if (result == MessageBoxResult.Yes)
         {
             var cachePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Irvuewin", "splash");
-            Logger.Debug(@"Deleting wallpaper cache {cachePath}",  cachePath);
+            // Logger.Debug(@"Deleting wallpaper cache {cachePath}",  cachePath);
             // Delete cache logic
-            // if (Directory.Exists(cachePath))
-            // {
-            //     Directory.Delete(cachePath, true);
-            // }
+            if (Directory.Exists(cachePath))
+            {
+                Directory.Delete(cachePath, true);
+            }
         }
     }
 
@@ -125,14 +125,26 @@ public partial class Settings
         if (result == MessageBoxResult.Yes)
         {
             var appDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Irvuewin");
-            Logger.Debug(@"Reset app {appDataPath}",  appDataPath);
+            // Logger.Debug(@"Reset app {appDataPath}",  appDataPath);
+            
+            // Close and flush the logger to release the lock on the log file
+            Log.CloseAndFlush();
+            
             // Reset logic
-            // if (Directory.Exists(appDataPath))
-            // {
-            //      Directory.Delete(appDataPath, true);
-            // }
-            // System.Windows.Forms.Application.Restart();
-            // Application.Current.Shutdown();
+            if (Directory.Exists(appDataPath))
+            {
+                try
+                {
+                    Directory.Delete(appDataPath, true);
+                }
+                catch (Exception)
+                {
+                    // Ignore exceptions (e.g., if some files are still locked)
+                    // The app will restart and can handle partial state or overwrite on next run
+                }
+            }
+            System.Windows.Forms.Application.Restart();
+            Application.Current.Shutdown();
         }
     }
 }

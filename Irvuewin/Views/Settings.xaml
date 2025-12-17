@@ -10,9 +10,9 @@
     xmlns:converters="clr-namespace:Irvuewin.Helpers.Converters"
     xmlns:properties="clr-namespace:Irvuewin.Properties"
     mc:Ignorable="d"
-    Title="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Window_Settings_Title]}" Icon="/Icons/application_64.ico"
-    Height="450" Width="500" MinWidth="400" MaxWidth="500"
-    Background="{StaticResource WindowBackgroundBrush}"
+    Title="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Window_Settings_Title]}"
+    Height="470" Width="500" MinWidth="400" MaxWidth="500"
+    Background="{DynamicResource WindowBackgroundBrush}"
     ShowInTaskbar="False" ResizeMode="NoResize"
     WindowStartupLocation="CenterScreen">
 
@@ -24,8 +24,6 @@
         <!--合并资源-->
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/Themes/Colors.xaml" />
-                <ResourceDictionary Source="/Themes/Generic.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
             <converters:ByteToBooleanConverter x:Key="Byte2BoolConverter" />
@@ -35,7 +33,7 @@
             <Style x:Key="CenterTabControlStyle" TargetType="TabControl">
                 <Setter Property="Margin" Value="20"/>
                 <Setter Property="BorderThickness" Value="0"/>
-                <Setter Property="Background" Value="{StaticResource WindowBackgroundBrush}"/>
+                <Setter Property="Background" Value="{DynamicResource WindowBackgroundBrush}"/>
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="TabControl">
@@ -73,10 +71,10 @@
 
             <!-- wallpaper save path display style -->
             <Style TargetType="{x:Type controls:PathDisplayControl}">
-                <Setter Property="Foreground" Value="{StaticResource SecondaryTextBrush}" />
-                <Setter Property="Background" Value="{StaticResource TransparentBrush}" />
+                <Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}" />
+                <Setter Property="Background" Value="{DynamicResource TransparentBrush}" />
                 <Setter Property="BorderThickness" Value="0" />
-                <Setter Property="BorderBrush" Value="{StaticResource WindowBackgroundBrush}" />
+                <Setter Property="BorderBrush" Value="{DynamicResource WindowBackgroundBrush}" />
                 <Setter Property="Height" Value="Auto" />
                 <Setter Property="MinHeight" Value="30" />
                 <Setter Property="Padding" Value="5" />
@@ -109,10 +107,11 @@
         <TabControl Grid.Row="0" 
                     Style="{StaticResource CenterTabControlStyle}">
             <TabItem Header="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_Tab_General]}"
-                     helpers:TabItemHelper.IconSource="/Icons/Settings/general.ico"
+                     helpers:TabItemHelper.IconGeometry="{StaticResource Icon_General}"
                      Style="{StaticResource SettingsTabItemStyle}">
                 <Grid>
                     <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
@@ -268,11 +267,25 @@
                         <ComboBoxItem Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_Language_English]}" Tag="en-US" Style="{StaticResource ComboBoxItemStyle}" />
                         <ComboBoxItem Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_Language_Chinese]}" Tag="zh-CN" Style="{StaticResource ComboBoxItemStyle}" />
                     </ComboBox>
+
+                    <Label Grid.Row="10" Grid.Column="0"
+                           Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_Theme]}"
+                           Style="{StaticResource LabelStyle}" />
+                    <ComboBox Grid.Row="10" Grid.Column="1" Grid.ColumnSpan="2"
+                              Style="{StaticResource ComboBoxStyle}"
+                              SelectedIndex="{Binding Theme, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                        <ComboBoxItem Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_Theme_Light]}" 
+                                      Tag="0" Style="{StaticResource ComboBoxItemStyle}" />
+                        <ComboBoxItem Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_Theme_Dark]}" 
+                                      Tag="1" Style="{StaticResource ComboBoxItemStyle}" />
+                        <ComboBoxItem Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_Theme_Auto]}"
+                                      Tag="2" Style="{StaticResource ComboBoxItemStyle}" />
+                    </ComboBox>
                 </Grid>
             </TabItem>
             
             <TabItem Header="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_Tab_Filter]}"
-                     helpers:TabItemHelper.IconSource="/Icons/Settings/filter.ico"
+                     helpers:TabItemHelper.IconGeometry="{StaticResource Icon_Filter}"
                      Style="{StaticResource SettingsTabItemStyle}">
                 <Grid>
                     <Grid.RowDefinitions>
@@ -346,14 +359,16 @@
             </TabItem>
             
             <TabItem Header="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_Tab_About]}"
-                     helpers:TabItemHelper.IconSource="/Icons/Settings/about.ico"
+                     helpers:TabItemHelper.IconGeometry="{StaticResource Icon_About}"
                      Style="{StaticResource SettingsTabItemStyle}">
                 <Grid Margin="10">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
-                    <Label Grid.Row="0" Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_AboutContent]}"
+                    <Label Grid.Row="0"
+                           Foreground="{DynamicResource PrimaryTextBrush}"
+                           Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_AboutContent]}"
                            HorizontalContentAlignment="Center"/>
                     
                     <StackPanel Grid.Row="1" Orientation="Vertical" Margin="0,20,0,20">
@@ -366,7 +381,7 @@
                                 Style="{StaticResource BottomButtonStyle}"
                                 MinWidth="120" MaxWidth="160"
                                 Margin="0,10,0,0"
-                                Background="{StaticResource DangerBrush}" Foreground="White"
+                                Background="{DynamicResource DangerBrush}" Foreground="White"
                                 Click="ResetApp_Click"/>
                     </StackPanel>
                 </Grid>

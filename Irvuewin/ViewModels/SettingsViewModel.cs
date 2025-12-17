@@ -169,7 +169,26 @@ public class SettingsViewModel : INotifyPropertyChanged
 
             // Apply culture immediately via Localization helper
             Localization.Instance.SetCulture(_language);
-            
+
+            OnPropertyChanged();
+        }
+    }
+    
+    
+    // Default to 2 (Auto) if not saved
+    private int _theme = Properties.Settings.Default.Theme; 
+
+    public int Theme
+    {
+        get => _theme;
+        set
+        {
+            if (_theme == value) return;
+            _theme = value;
+            Properties.Settings.Default.Theme = _theme; 
+            Properties.Settings.Default.Save();
+
+            ThemeManager.SetTheme((ThemeType)_theme);
             OnPropertyChanged();
         }
     }

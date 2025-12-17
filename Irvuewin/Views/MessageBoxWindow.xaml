@@ -24,7 +24,7 @@
         </Style>
     </Window.Resources>
 
-    <Border Background="{StaticResource ControlBackgroundBrush}" CornerRadius="5" Margin="20" MinWidth="250" MaxWidth="350">
+    <Border Background="{DynamicResource ControlBackgroundBrush}" CornerRadius="5" Margin="20" MinWidth="250" MaxWidth="350">
         <Border.Effect>
             <DropShadowEffect BlurRadius="20" Direction="-90" RenderingBias="Quality" ShadowDepth="5" Opacity="0.15"/>
         </Border.Effect>
@@ -40,7 +40,7 @@
             <TextBlock x:Name="TitleText" Grid.Row="0"
                        Text="Title"
                        FontSize="18" FontWeight="SemiBold"
-                       Foreground="{StaticResource DarkTextBrush}" Margin="0,0,0,15"/>
+                       Foreground="{DynamicResource DarkTextBrush}" Margin="0,0,0,15"/>
 
             <!-- Content Area -->
             <Grid Grid.Row="1" Margin="0,0,0,25">
@@ -56,12 +56,12 @@
                       Stretch="Uniform" 
                       VerticalAlignment="Top"
                       Data="M12,2A10,10 0 1,0 22,12A10,10 0 0,0 12,2M11,17H13V11H11V17M12,9A1,1 0 1,0 11,8A1,1 0 0,0 12,9Z"
-                      Fill="{StaticResource AccentBrush}"/>
+                      Fill="{DynamicResource AccentBrush}"/>
 
                 <!-- Message -->
                 <TextBlock x:Name="MessageText" Grid.Column="1"
                            Text="This is a message content."
-                           FontSize="14" Foreground="{StaticResource MediumTextBrush}"
+                           FontSize="14" Foreground="{DynamicResource MediumTextBrush}"
                            TextWrapping="Wrap" 
                            LineHeight="22"
                            VerticalAlignment="Center"/>
@@ -73,14 +73,14 @@
                 
                 <Button x:Name="BtnYes" Content="Yes" 
                         Click="Btn_Click" Visibility="Collapsed"
-                        Background="{StaticResource AccentBrush}" Foreground="{StaticResource AccentForegroundBrush}" BorderBrush="{StaticResource AccentBrush}"/>
+                        Background="{DynamicResource AccentBrush}" Foreground="{DynamicResource AccentForegroundBrush}" BorderBrush="{DynamicResource AccentBrush}"/>
                 
                 <Button x:Name="BtnNo" Content="No" 
                         Click="Btn_Click" Visibility="Collapsed"/>
                 
                 <Button x:Name="BtnOK" Content="OK" 
                         Click="Btn_Click" Visibility="Collapsed"
-                        Background="{StaticResource AccentBrush}" Foreground="{StaticResource AccentForegroundBrush}" BorderBrush="{StaticResource AccentBrush}"/>
+                        Background="{DynamicResource AccentBrush}" Foreground="{DynamicResource AccentForegroundBrush}" BorderBrush="{DynamicResource AccentBrush}"/>
                 
                 <Button x:Name="BtnCancel" Content="Cancel" 
                         Click="Btn_Click" Visibility="Collapsed"/>

@@ -3,7 +3,7 @@
   <Profiles />
   <Settings>
     <Setting Name="MultiDisplay" Type="System.Byte" Scope="User">
-      <Value Profile="(Default)">1</Value>
+      <Value Profile="(Default)">0</Value>
     </Setting>
     <Setting Name="WallpaperMode" Type="System.Byte" Scope="User">
       <Value Profile="(Default)">0</Value>
@@ -15,7 +15,7 @@
       <Value Profile="(Default)" />
     </Setting>
     <Setting Name="LaunchAtLogin" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">True</Value>
+      <Value Profile="(Default)">False</Value>
     </Setting>
     <Setting Name="WallpaperOrientation" Type="System.Byte" Scope="User">
       <Value Profile="(Default)">0</Value>
@@ -46,6 +46,9 @@
     </Setting>
     <Setting Name="Language" Type="System.String" Scope="User">
       <Value Profile="(Default)">Auto</Value>
+    </Setting>
+    <Setting Name="Theme" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">2</Value>
     </Setting>
   </Settings>
 </SettingsFile>

@@ -131,7 +131,7 @@ public partial class Channels
         // Can not delete system Reserved channel
         if (channel.Id is "317099" or "7282015")
         {
-            MessageBoxWindow.Show(Localization.Instance["Can_Not_Delete_Reserved_Channel"], 
+            MessageBoxWindow.Show(Localization.Instance["Channel_Reserved_Channel"], 
                 Localization.Instance["Msg_Hint"]);
             return;
         }

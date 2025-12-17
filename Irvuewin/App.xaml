@@ -13,6 +13,7 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="/Themes/Colors.xaml" />
+                <ResourceDictionary Source="/Themes/Geometries.xaml" />
                 <ResourceDictionary Source="/Themes/Generic.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
@@ -27,9 +28,9 @@
             <!-- <converters:CountToIndexConverter x:Key="CountToIndexConverter" /> -->
 
             <Style x:Key="ContextMenuStyle" TargetType="ContextMenu">
-                <Setter Property="Background" Value="{StaticResource WindowBackgroundBrush}" />
-                <Setter Property="Foreground" Value="{StaticResource TransparentBrush}" />
-                <Setter Property="BorderBrush" Value="{StaticResource ControlBackgroundBrush}" />
+                <Setter Property="Background" Value="{DynamicResource WindowBackgroundBrush}" />
+                <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
+                <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
                 <Setter Property="Width" Value="Auto" />
                 <Setter Property="MaxWidth" Value="300" />
                 <Setter Property="MinWidth" Value="240" />
@@ -51,8 +52,8 @@
 
             <!-- 自定义MenuItem样式 -->
             <Style TargetType="MenuItem">
-                <Setter Property="Background" Value="{StaticResource TransparentBrush}" />
-                <Setter Property="Foreground" Value="{StaticResource PrimaryTextBrush}" />
+                <Setter Property="Background" Value="{DynamicResource TransparentBrush}" />
+                <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
                 <Setter Property="MinWidth" Value="240" />
                 <Setter Property="MaxWidth" Value="300" />
                 <Setter Property="Width" Value="Auto" />
@@ -78,7 +79,7 @@
                                                         VerticalAlignment="Center"
                                                         HorizontalAlignment="Center"
                                                         Visibility="Collapsed">
-                                            <Path Data="M0,5 L2,7 L7,2" Stroke="{StaticResource PrimaryTextBrush}" StrokeThickness="2" />
+                                            <Path Data="M0,5 L2,7 L7,2" Stroke="{DynamicResource PrimaryTextBrush}" StrokeThickness="2" />
                                         </ContentControl>
 
                                         <!-- Icon -->
@@ -104,7 +105,7 @@
                                        Focusable="False"
                                        PopupAnimation="Fade">
                                     <Border SnapsToDevicePixels="True"
-                                            Background="{StaticResource ControlBackgroundBrush}"
+                                            Background="{DynamicResource ControlBackgroundBrush}"
                                             MaxWidth="240"
                                             HorizontalAlignment="Left"
                                             CornerRadius="5">
@@ -114,7 +115,7 @@
                             </Grid>
                             <ControlTemplate.Triggers>
                                 <Trigger Property="IsHighlighted" Value="True">
-                                    <Setter Property="Background" Value="{StaticResource ControlMouseOverBrush}" />
+                                    <Setter Property="Background" Value="{DynamicResource ControlMouseOverBrush}" />
                                 </Trigger>
                                 <Trigger Property="IsChecked" Value="True">
                                     <Setter TargetName="CheckIcon" Property="Visibility" Value="Visible" />
@@ -148,7 +149,7 @@
                 <MenuItem Margin="0, 10, 0 0"
                           IsEnabled="False" IsCheckable="False">
                     <MenuItem.Header>
-                        <TextBlock Foreground="{StaticResource SecondaryTextBrush}"
+                        <TextBlock Foreground="{DynamicResource SecondaryTextBrush}"
                                    Text="{Binding Source={StaticResource TrayViewModel}, Path=NextWallpaperChangeTime, Converter={StaticResource DateTimeToStringConverter}}" />
                     </MenuItem.Header>
                 </MenuItem>
@@ -170,28 +171,24 @@
                               IsCheckable="False"
                               IsEnabled="False">
                         <MenuItem.Icon>
-                            <Image Source="/Icons/Tray/like.ico"
-                                   Width="16" Height="16"
-                                   VerticalAlignment="Center" />
+                            <Path Data="{StaticResource Icon_Like}" Fill="{DynamicResource PrimaryTextBrush}" Width="14" Height="14" Stretch="Uniform" />
                         </MenuItem.Icon>
                         <MenuItem.Header>
                             <TextBlock
                                 Margin="10,0,0,0"
                                 Text="{Binding Source={StaticResource TrayViewModel}, Path=AboutWallpaper.Likes}"
-                                Foreground="{StaticResource SecondaryTextBrush}" />
+                                Foreground="{DynamicResource SecondaryTextBrush}" />
                         </MenuItem.Header>
                     </MenuItem>
                     <MenuItem IsEnabled="False" IsCheckable="False">
                         <MenuItem.Icon>
-                            <Image Source="/Icons/Tray/download_bold.ico"
-                                   Width="16" Height="16"
-                                   VerticalAlignment="Center" />
+                            <Path Data="{StaticResource Icon_Download}" Fill="{DynamicResource PrimaryTextBrush}" Width="14" Height="14" Stretch="Uniform" />
                         </MenuItem.Icon>
                         <MenuItem.Header>
                             <TextBlock
                                 Margin="10,0,0,0"
                                 Text="{Binding Source={StaticResource TrayViewModel}, Path=AboutWallpaper.Downloads}"
-                                Foreground="{StaticResource SecondaryTextBrush}" />
+                                Foreground="{DynamicResource SecondaryTextBrush}" />
                         </MenuItem.Header>
                     </MenuItem>
                     <MenuItem IsEnabled="False" IsCheckable="False"
@@ -202,9 +199,7 @@
                                      Content="{Binding Source={StaticResource TrayViewModel}, Path=AboutWallpaper.Location}" />
                         </MenuItem.ToolTip>
                         <MenuItem.Icon>
-                            <Image Source="/Icons/Tray/location_bold.ico"
-                                   Width="16" Height="16"
-                                   VerticalAlignment="Center" />
+                            <Path Data="{StaticResource Icon_Location}" Fill="{DynamicResource PrimaryTextBrush}" Width="14" Height="14" Stretch="Uniform" />
                         </MenuItem.Icon>
                         <MenuItem.Header>
                             <TextBlock
@@ -212,16 +207,14 @@
                                 Text="{Binding Source={StaticResource TrayViewModel}, Path=AboutWallpaper.Location}"
                                 TextWrapping="NoWrap"
                                 TextTrimming="CharacterEllipsis"
-                                Foreground="{StaticResource SecondaryTextBrush}" />
+                                Foreground="{DynamicResource SecondaryTextBrush}" />
                         </MenuItem.Header>
                     </MenuItem>
                     <MenuItem
                         Command="{Binding Source={StaticResource TrayViewModel}, Path=WallpaperInfoPageOpenCommand }"
                         CommandParameter="{Binding Source={StaticResource TrayViewModel}, Path=AboutWallpaper.AuthorProfilePageLink}">
                         <MenuItem.Icon>
-                            <Image Source="/Icons/Tray/author.ico"
-                                   Width="16" Height="16"
-                                   VerticalAlignment="Center" />
+                            <Path Data="{StaticResource Icon_Author}" Fill="{DynamicResource PrimaryTextBrush}" Width="14" Height="14" Stretch="Uniform" />
                         </MenuItem.Icon>
                         <MenuItem.Header>
                             <TextBlock
@@ -235,9 +228,7 @@
                               Command="{Binding Source={StaticResource TrayViewModel}, Path=WallpaperInfoPageOpenCommand }"
                               CommandParameter="{Binding Source={StaticResource TrayViewModel}, Path=AboutWallpaper.ProfileLink}">
                         <MenuItem.Icon>
-                            <Image Source="/Icons/Tray/photo.ico"
-                                   Width="16" Height="16"
-                                   VerticalAlignment="Center" />
+                            <Path Data="{StaticResource Icon_Photo}" Fill="{DynamicResource PrimaryTextBrush}" Width="14" Height="14" Stretch="Uniform" />
                         </MenuItem.Icon>
                         <MenuItem.Header>
                             <TextBlock
@@ -273,7 +264,7 @@
                     </MenuItem.Header>
                     <MenuItem.ItemsSource>
                         <CompositeCollection>
-                            <Separator Margin="0 ,10,0,0" Background="{StaticResource TransparentBrush}" />
+                            <Separator Margin="0 ,10,0,0" Background="{DynamicResource TransparentBrush}" />
                             <CollectionContainer
                                 Collection="{Binding Source={StaticResource TrayViewModel}, Path=AddedChannels}" />
                             <Separator Style="{StaticResource SeparatorStyle}" />
