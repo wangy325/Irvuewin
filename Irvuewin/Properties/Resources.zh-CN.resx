@@ -285,6 +285,19 @@
   <data name="Window_Settings_Title" xml:space="preserve">
     <value>软件设置</value>
   </data>
+  <data name="ContextMenu_SetWallpaper" xml:space="preserve">
+    <value>设置为壁纸</value>
+  </data>
+  <data name="ContextMenu_Download" xml:space="preserve">
+    <value>下载壁纸</value>
+  </data>
+  <data name="ContextMenu_ViewPhoto" xml:space="preserve">
+    <value>在Unsplash上查看壁纸</value>
+  </data>
+  <data name="ContextMenu_ViewAuthor" xml:space="preserve">
+    <value>查看作者主页</value>
+  </data>
+
   <data name="Tray_Everything_Is_OK" xml:space="preserve">
     <value>一切正常！</value>
   </data>
@@ -353,5 +366,11 @@
   </data>
   <data name="Settings_Theme_Dark" xml:space="preserve">
     <value>深色</value>
+  </data>
+  <data name="ContextMenu_HideWallpaper" xml:space="preserve">
+    <value>隐藏壁纸</value>
+  </data>
+  <data name="ContextMenu_HideAuthor" xml:space="preserve">
+    <value>隐藏作者</value>
   </data>
 </root>

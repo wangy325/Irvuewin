@@ -71,7 +71,7 @@ namespace Irvuewin.Controls
 
             // 取后半部分路径
             double accumulatedWidth = 0;
-            const int iconSize = 16;
+            const int iconSize = 12;
 
             Stack<TextBlock> stackBlocks = new();
             for (var i = (directories.Length - 1); i >= 0; i--)
@@ -111,7 +111,7 @@ namespace Irvuewin.Controls
                     Width = iconSize,
                     Height = iconSize,
                     Stretch = System.Windows.Media.Stretch.Uniform,
-                    Margin = new Thickness(0, 0, 0, 0)
+                    Margin = new Thickness(3, 0, 3, 0)
                 };
                 
                 icon.SetResourceReference(System.Windows.Shapes.Path.DataProperty, "Icon_Folder");

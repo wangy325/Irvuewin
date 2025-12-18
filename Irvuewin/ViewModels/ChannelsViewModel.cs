@@ -5,6 +5,9 @@ using System.Windows.Input;
 using Irvuewin.Helpers;
 using Irvuewin.Models;
 using Irvuewin.Models.Unsplash;
+using Irvuewin.Helpers.Utils;
+using System.Diagnostics;
+using Irvuewin.Views;
 using Exception = System.Exception;
 
 
@@ -92,6 +95,14 @@ public class ChannelsViewModel : INotifyPropertyChanged
     public ICommand ChannelSelected2 { get; set; }
     public ICommand ChannelChecked2 { get; set; }
     public ICommand LoadMorePhotos { get; set; }
+    
+    public ICommand SetAsWallpaperCommand { get; set; }
+    public ICommand DownloadPhotoCommand { get; set; }
+    public ICommand ViewPhotoCommand { get; set; }
+    public ICommand ViewAuthorCommand { get; set; }
+    public ICommand HidePhotoCommand { get; set; }
+    public ICommand HideAuthorCommand { get; set; }
+    
 
     private static readonly Lazy<Task<ChannelsViewModel>> Instance = new(Init);
 
@@ -114,6 +125,13 @@ public class ChannelsViewModel : INotifyPropertyChanged
         LoadMorePhotos = new RelayCommand<object>(OnLoadMorePhotos);
         ChannelSelected2 = new RelayCommand<ChannelViewModel>(OnChannelSelected);
         ChannelChecked2 = new RelayCommand<ChannelViewModel>(OnChannelChecked);
+        
+        SetAsWallpaperCommand = new RelayCommand<object>(OnSetAsWallpaper);
+        DownloadPhotoCommand = new RelayCommand<object>(OnDownloadPhoto);
+        ViewPhotoCommand = new RelayCommand<object>(OnViewPhoto);
+        ViewAuthorCommand = new RelayCommand<object>(OnViewAuthor);
+        HidePhotoCommand = new RelayCommand<object>(OnHidePhoto);
+        HideAuthorCommand = new RelayCommand<object>(OnHideAuthor);
     }
 
     public static Task<ChannelsViewModel> GetInstanceAsync()
@@ -403,6 +421,72 @@ public class ChannelsViewModel : INotifyPropertyChanged
             CheckedChannel = Channels[0].Id;
             Channels.First(c => c.Id == CheckedChannel).IsChecked = true;
         }
+    }
+
+    private async void OnSetAsWallpaper(object obj)
+    {
+        if (obj is not UnsplashPhoto photo) return;
+        await WallpaperUtil.SetWallpaperForSpecificMonitor(TrayMenuHelper.CurrentScreen, photo);
+        TrayMenuHelper.CurrentWallpaper[TrayMenuHelper.CurrentScreen.Name] = photo.Id;
+        TrayMenuHelper.WallpaperChanged[TrayMenuHelper.CurrentScreen.Name] = true;
+    }
+
+    private async void OnDownloadPhoto(object obj)
+    {
+        if (obj is not UnsplashPhoto photo) return;
+        var dest = Properties.Settings.Default.WallpaperSavedPath;
+        if (string.IsNullOrWhiteSpace(dest))
+        {
+            dest = IAppConst.DefaultWallpaperDownloadDir;
+        }
+        // This will pre-download wallpaper
+        var path = await WallpaperUtil.GetWallpaperFullPath(photo, null);
+        FileUtils.CopyFileToDir(path, dest);
+        var openFolder = Properties.Settings.Default.OpenSavedWallpaper;
+        if (openFolder)
+        {
+            Process.Start("explorer.exe", dest);
+        }
+    }
+
+    private void OnViewPhoto(object obj)
+    {
+        if (obj is not UnsplashPhoto photo) return;
+        OpenUrl(photo.Links.Html.ToString());
+    }
+
+    private void OnViewAuthor(object obj)
+    {
+        if (obj is not UnsplashPhoto photo) return;
+        OpenUrl(photo.User.Links.Html.ToString());
+    }
+
+    private void OpenUrl(string url)
+    {
+        try
+        {
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = url,
+                UseShellExecute = true
+            });
+        }
+        catch (Exception ex)
+        {
+            Logger.Error(ex, "Failed to open url: {Url}", url);
+        }
+    }
+
+    private void OnHidePhoto(object obj)
+    {
+        // TODO
+        MessageBoxWindow.Show("?");
+    }
+
+    private void OnHideAuthor(object obj)
+    {
+        MessageBoxWindow.Show("!");
+        // TODO
     }
 
     private void OnPropertyChanged([CallerMemberName] string? propertyName = null)

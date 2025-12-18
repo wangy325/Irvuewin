@@ -26,6 +26,13 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
             </ResourceDictionary.MergedDictionaries>
+        <Style x:Key="ChannelContextMenuStyle" TargetType="ContextMenu"
+               BasedOn="{StaticResource ContextMenuStyle}">
+            <Setter Property="Width" Value="Auto" />
+            <Setter Property="MaxWidth" Value="180" />
+            <Setter Property="MinWidth" Value="100" />
+            <Setter Property="Height" Value="Auto" />
+        </Style>
         </ResourceDictionary>
     </helpers:LocationAwareWindow.Resources>
 
@@ -138,7 +145,29 @@
 
             <Grid.Resources>
                 <DataTemplate x:Key="VItemControlTemplate" DataType="{x:Type m:UnsplashPhoto}">
-                    <Grid>
+                    <Grid Tag="{Binding DataContext, RelativeSource={RelativeSource AncestorType=helpers:LocationAwareWindow}}">
+                        <Grid.ContextMenu>
+                            <ContextMenu Style="{StaticResource ChannelContextMenuStyle}">
+                                <MenuItem Header="{Binding Source={x:Static helpers:Localization.Instance}, Path=[ContextMenu_SetWallpaper]}"
+                                          Command="{Binding PlacementTarget.Tag.SetAsWallpaperCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                          CommandParameter="{Binding}" />
+                                <MenuItem Header="{Binding Source={x:Static helpers:Localization.Instance}, Path=[ContextMenu_Download]}"
+                                          Command="{Binding PlacementTarget.Tag.DownloadPhotoCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                          CommandParameter="{Binding}" />
+                                <MenuItem Header="{Binding Source={x:Static helpers:Localization.Instance}, Path=[ContextMenu_ViewPhoto]}"
+                                          Command="{Binding PlacementTarget.Tag.ViewPhotoCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                          CommandParameter="{Binding}" />
+                                <MenuItem Header="{Binding Source={x:Static helpers:Localization.Instance}, Path=[ContextMenu_ViewAuthor]}"
+                                          Command="{Binding PlacementTarget.Tag.ViewAuthorCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                          CommandParameter="{Binding}" />
+                                <MenuItem Header="{Binding Source={x:Static helpers:Localization.Instance}, Path=[ContextMenu_HideWallpaper]}"
+                                          Command="{Binding PlacementTarget.Tag.HidePhotoCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                          CommandParameter="{Binding}"/>
+                                <MenuItem Header="{Binding Source={x:Static helpers:Localization.Instance}, Path=[ContextMenu_HideAuthor]}"
+                                          Command="{Binding PlacementTarget.Tag.HideAuthorCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                          CommandParameter="{Binding}"/>
+                            </ContextMenu>
+                        </Grid.ContextMenu>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="150" />
                             <RowDefinition Height="Auto" />

@@ -125,6 +125,7 @@ namespace Irvuewin.Helpers.Utils
         }
 
         // set all displays' wallpaper by link/local disk path
+        [Obsolete("Use SetWallpaper or SetWallpaperForSpecificMonitor(Display) instead") ]
         public static async Task<string?> SetWallpaperLegacy(UnsplashPhoto? photo, string? path = null)
         {
             SetWallpaperMode();
@@ -192,8 +193,8 @@ namespace Irvuewin.Helpers.Utils
         /// </summary>
         /// <param name="photo">UnsplashPhoto</param>
         /// <param name="imagePath">wallpaper local full disk path, nullable</param>
-        /// <returns>file path if successes, or throw ex</returns>
-        private static async Task<string> GetWallpaperFullPath(UnsplashPhoto? photo, string? imagePath)
+        /// <returns>wallpaper file path if successes, or throw ex</returns>
+        public static async Task<string> GetWallpaperFullPath(UnsplashPhoto? photo, string? imagePath)
         {
             string path;
             if (imagePath != null)
@@ -202,7 +203,7 @@ namespace Irvuewin.Helpers.Utils
             }
             else
             {
-                if (photo == null) throw new ArgumentNullException($"Photo can't be null.");
+                ArgumentNullException.ThrowIfNull(photo);
                 // path = await GetWallpaperPath(photo);
                 const string fileExtension = ".jpg";
                 // wallpaper tmp folder
@@ -213,7 +214,6 @@ namespace Irvuewin.Helpers.Utils
                 if (File.Exists(localImagePath)) return localImagePath;
                 // Fetch from web
                 using HttpClient httpClient = new();
-                // TODO Crop photo
                 var uri = photo.Urls.Raw;
                 try
                 {

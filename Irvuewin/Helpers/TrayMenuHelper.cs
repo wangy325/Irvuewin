@@ -15,7 +15,7 @@ using Serilog;
 ///<summary>
 ///Author: wangy325
 ///Date: 2025-06-06 10:04:10
-///Desc: Wallpaper operation class
+///Desc: Core biz
 ///</summary>
 public static class TrayMenuHelper
 {
@@ -37,7 +37,7 @@ public static class TrayMenuHelper
     public static Display CurrentScreen;
 
     // Current wallpaper of each screen (key is screen id, value is photoId)
-    private static readonly Dictionary<string, string> CurrentWallpaper = new();
+    public static readonly Dictionary<string, string> CurrentWallpaper = new();
 
     // Flag of wallpaper changed for each screen, key is screen id
     public static readonly Dictionary<string, bool> WallpaperChanged = new();
@@ -118,7 +118,7 @@ public static class TrayMenuHelper
     }
 
     /// <summary>
-    /// Change current display's wallpaper
+    /// Change current display's wallpaper from tray command
     /// </summary>
     /// <param name="multiSetUp">false by default. For resuing.</param>
     public static async Task ChangeCurrentWallpaper(bool multiSetUp = false)
@@ -199,8 +199,7 @@ public static class TrayMenuHelper
             Logger.Debug($@"Get photo from channel error.");
             return false;
         }
-
-
+        
         // Already get wallpaper(s)
         if (multiSetUp)
         {
@@ -367,6 +366,9 @@ public static class TrayMenuHelper
     }
 
 
+    /// <summary>
+    /// Setup all displays wallpaper from tray command.
+    /// </summary>
     public static async Task ChangeAllWallpaper()
     {
         var cvm = await ChannelsViewModel.GetInstanceAsync();
