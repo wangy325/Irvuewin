@@ -25,7 +25,11 @@ namespace Irvuewin
         private static readonly ILogger Logger = Log.ForContext(typeof(App));
         private TaskbarIcon? _taskbarIcon;
         private bool _isExit;
+
         private ChannelsViewModel? _channelsViewModel;
+
+        // Used for tray menu position
+        private DpiAnchorWindow? _anchorWindow;
 
         protected override async void OnStartup(StartupEventArgs e)
         {
@@ -40,9 +44,17 @@ namespace Irvuewin
             // Init Logger
             LogHelper.Init();
             Logger.Information("Application Starting...");
-            
+
             SetupExceptionHandling();
-            
+
+            // Init _anchorWindow
+            {
+                _anchorWindow = new DpiAnchorWindow();
+                // Ensure handle is created
+                _anchorWindow.Show();
+                _anchorWindow.Hide();
+            }
+
             // AutoMapper config
             var config = new MapperConfiguration(cfg =>
                 cfg.CreateMap<UnsplashChannel, ChannelViewModel>());
@@ -50,7 +62,6 @@ namespace Irvuewin
             MapperProvider.Mapper = mapper;
 
             // Create ChannelsViewModel singleton instance
-            // TODO 优化初始化过程
             _channelsViewModel = await ChannelsViewModel.GetInstanceAsync();
             Resources.Add("ChannelsViewModel", _channelsViewModel);
 
@@ -128,7 +139,8 @@ namespace Irvuewin
 
             if (geometry != null && brush != null)
             {
-                var icon = Helpers.IconHelper.GenerateIcon(geometry, brush, 32); // Use 32 for better quality on High DPI
+                var icon = Helpers.IconHelper.GenerateIcon(geometry, brush,
+                    32); // Use 32 for better quality on High DPI
                 notifyIcon.Icon = icon;
             }
         }
@@ -225,7 +237,6 @@ namespace Irvuewin
             Current.Shutdown();
         }
 
-        private Views.DpiAnchorWindow? _anchorWindow;
 
         /// <summary>
         /// 在菜单栏弹出时获取显示器的DPI信息，用于解决多显示器DPI不一致的显示问题
@@ -235,33 +246,27 @@ namespace Irvuewin
         private void TrayMouseRight_Click(object sender, RoutedEventArgs e)
         {
             // Create anchor window if needed
-            if (_anchorWindow == null)
-            {
-                _anchorWindow = new Views.DpiAnchorWindow();
-                // Ensure handle is created
-                _anchorWindow.Show();
-                _anchorWindow.Hide();
-            }
+
 
             // Get mouse position (Physical pixels)
             var point = System.Windows.Forms.Cursor.Position;
 
             // Use SetWindowPos to position the anchor window at the exact physical coordinates
-            var helper = new WindowInteropHelper(_anchorWindow);
-            NativeMethods.SetWindowPos(helper.Handle, NativeMethods.HWND_TOP, point.X, point.Y, 0, 0, 
+            var helper = new WindowInteropHelper(_anchorWindow!);
+            NativeMethods.SetWindowPos(helper.Handle, NativeMethods.HWND_TOP, point.X, point.Y, 0, 0,
                 NativeMethods.SWP_NOSIZE | NativeMethods.SWP_NOACTIVATE | NativeMethods.SWP_SHOWWINDOW);
 
             // Set foreground window to ensure menu closes on outside click
             NativeMethods.SetForegroundWindow(helper.Handle);
-            
+
             // Get Context Menu from Resources
             if (FindResource("TrayContextMenu") is not ContextMenu contextMenu) return;
 
             contextMenu.PlacementTarget = _anchorWindow;
-            contextMenu.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom; 
+            contextMenu.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom;
             contextMenu.IsOpen = true;
-            
-            contextMenu.Closed += (s, args) => _anchorWindow.Hide();
+
+            contextMenu.Closed += (s, args) => _anchorWindow!.Hide();
         }
     }
 }

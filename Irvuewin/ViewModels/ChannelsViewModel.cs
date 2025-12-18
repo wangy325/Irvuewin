@@ -118,6 +118,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
 
     public static Task<ChannelsViewModel> GetInstanceAsync()
     {
+        // TODO 优化初始化过程
         return Instance.Value;
     }
 

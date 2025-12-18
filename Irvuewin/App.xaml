@@ -329,7 +329,7 @@
                                 <Trigger Property="ItemsControl.AlternationIndex" Value="0">
                                     <Setter Property="Margin" Value="0,10,0,0" />
                                 </Trigger>
-                                <!--TODO use AlternationIndex to set margin -->
+                                <!-- Use AlternationIndex to set margin -->
                                 <Trigger Property="ItemsControl.AlternationIndex" Value="6">
                                     <Setter Property="Margin" Value="0,0,0,10" />
                                 </Trigger>
@@ -372,7 +372,6 @@
 
             <tb:TaskbarIcon x:Key="NotifyIcon"
                             ToolTipText="Irvuewin"
-                            IconSource="/Icons/Tray.ico"
                             Visibility="Visible"
                             TrayRightMouseUp="TrayMouseRight_Click">
             </tb:TaskbarIcon>
