@@ -26,7 +26,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
     public ObservableCollection<UnsplashPhoto> Photos
     {
         get => _photos;
-        set
+        private set
         {
             _photos = value;
             OnPropertyChanged();
@@ -92,9 +92,9 @@ public class ChannelsViewModel : INotifyPropertyChanged
     private bool IsBusy { get; set; }
     private UnsplashQueryParams DefaultQuery { get; set; }
 
-    public ICommand ChannelSelected2 { get; set; }
-    public ICommand ChannelChecked2 { get; set; }
-    public ICommand LoadMorePhotos { get; set; }
+    public ICommand ChannelSelected2 { get; }
+    public ICommand ChannelChecked2 { get; }
+    public ICommand LoadMorePhotos { get; }
     
     public ICommand SetAsWallpaperCommand { get; set; }
     public ICommand DownloadPhotoCommand { get; set; }
@@ -200,7 +200,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
             PageIndex = query.Page
         };
         if (await UnsplashCache.LoadPhotosShardAsync(cacheIndex) is { } cachedPhotos
-            && cachedPhotos.Any())
+            && cachedPhotos.Count != 0)
             // load from cache
         {
             RenewChannelPhotos(cachedPhotos, append);
@@ -209,23 +209,20 @@ public class ChannelsViewModel : INotifyPropertyChanged
 
         // Load from unsplash web API
         var httpService = IHttpClient.GetUnsplashHttpService();
-        if (await httpService.GetPhotosOfChannel(channelId, query) is { } photos)
+        if (await httpService.GetPhotosOfChannel(channelId, query) is not { } photos) return false;
+        // Sometimes api can not get photos of a channel
+        // Though channel contains photo(s)
+        if (photos.Count == 0 && append)
         {
-            // Sometimes api can not get photos of a channel
-            // Though channel contains photo(s)
-            if (!photos.Any() && append)
-            {
-                return false;
-            }
-
-            RenewChannelPhotos(photos, append);
-            // update cache
-            if (photos.Any()) await CachePhotos(cacheIndex, photos);
-            LoadedPhotoCount[channelId] = Photos.Count;
-            return true;
+            return false;
         }
 
-        return false;
+        RenewChannelPhotos(photos, append);
+        // update cache
+        if (photos.Count != 0) await CachePhotos(cacheIndex, photos);
+        LoadedPhotoCount[channelId] = Photos.Count;
+        return true;
+
     }
 
     private void RenewChannelPhotos(List<UnsplashPhoto> photos, bool append)
@@ -426,9 +423,12 @@ public class ChannelsViewModel : INotifyPropertyChanged
     private async void OnSetAsWallpaper(object obj)
     {
         if (obj is not UnsplashPhoto photo) return;
-        await WallpaperUtil.SetWallpaperForSpecificMonitor(IrvuewinCore.LastWallpaperSetDisplay, photo);
-        IrvuewinCore.CurrentWallpapers[IrvuewinCore.LastWallpaperSetDisplay.Name] = photo.Id;
-        IrvuewinCore.WallpaperChanged[IrvuewinCore.LastWallpaperSetDisplay.Name] = true;
+        IrvuewinCore.CheckPointer();
+        if (await WallpaperUtil.SetWallpaperForSpecificMonitor(IrvuewinCore.CurrentPointerDisplay, photo) is not { } path) return;
+        IrvuewinCore.UpdateDisplayWallpaperStack(IrvuewinCore.CurrentPointerDisplay.Name, path);
+        IrvuewinCore.CurrentWallpapers[IrvuewinCore.CurrentPointerDisplay.Name] = photo.Id;
+        IrvuewinCore.BroadcastWallpaperChanged(IrvuewinCore.CurrentPointerDisplay.Name, photo.Id);
+
     }
 
     private async void OnDownloadPhoto(object obj)

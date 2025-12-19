@@ -6,12 +6,14 @@ using System.Windows.Input;
 using Irvuewin.Helpers;
 using Irvuewin.Helpers.Utils;
 using Irvuewin.Views;
-
+using Serilog;
 
 namespace Irvuewin.ViewModels;
 
 public class TrayViewModel : INotifyPropertyChanged
 {
+    private static readonly ILogger Logger = Log.ForContext<TrayViewModel>();
+
     // Static property should implement INotifyPropertyChanged manually
     // Even though it's an observation collection
     private ObservableCollection<ChannelViewModel> _addedChannels = [];
@@ -39,6 +41,7 @@ public class TrayViewModel : INotifyPropertyChanged
     }
 
     private ObservableCollection<WallpaperChangeInterval> _intervals;
+
     public ObservableCollection<WallpaperChangeInterval> Intervals
     {
         get => _intervals;
@@ -77,6 +80,7 @@ public class TrayViewModel : INotifyPropertyChanged
     {
         _intervals = new ObservableCollection<WallpaperChangeInterval>(GenerateIntervals());
         Localization.Instance.PropertyChanged += OnLocalizationChanged;
+        IrvuewinCore.WallpaperChangedEvent += OnWallpaperChanged;
     }
 
     private void OnLocalizationChanged(object? sender, PropertyChangedEventArgs e)
@@ -85,7 +89,7 @@ public class TrayViewModel : INotifyPropertyChanged
         {
             // Rebuild intervals to update text
             Intervals = new ObservableCollection<WallpaperChangeInterval>(GenerateIntervals());
-            
+
             OnPropertyChanged(nameof(NextWallpaperChangeTime));
             // Refresh Wallpaper Info text
             AboutWallpaper.RefreshLocalization();
@@ -106,41 +110,61 @@ public class TrayViewModel : INotifyPropertyChanged
         ];
     }
 
+    private Dictionary<string, WallpaperInfo> LocalWallpaperInfoCache { get; } = new();
+
     private static string? _lastDisplayName;
 
-    private static async void OnCheckDisplay(object param)
+    // private static readonly Dictionary<string, bool> DisplayWallpaperInfoUpdateState = new();
+
+    private static void OnCheckDisplay(object param)
     {
         IrvuewinCore.CheckPointer();
-        var sid = IrvuewinCore.LastWallpaperSetDisplay.Name;
-        
-        // Update wallpaper info
+        var sid = IrvuewinCore.CurrentPointerDisplay.Name;
+        var tray = System.Windows.Application.Current.Resources["TrayViewModel"] as TrayViewModel;
+
+        // Update wallpaper info manually when necessary
         if (_lastDisplayName is not null)
         {
-            if (IrvuewinCore.WallpaperChanged.TryGetValue(sid, out var changed) && changed)
-            {
-                if (sid != _lastDisplayName)
-                {
-                    _lastDisplayName = sid;
-                    if (Properties.Settings.Default.MultiDisplay != 1) return;
-                }
-
-                await IrvuewinCore.UpdateDisplayWallpaperInfo();
-                IrvuewinCore.WallpaperChanged[sid] = false;
-            }
-            else
-            {
-                if (sid == _lastDisplayName) return;
-                _lastDisplayName = sid;
-                if (Properties.Settings.Default.MultiDisplay == 1)
-                {
-                    await IrvuewinCore.UpdateDisplayWallpaperInfo();
-                }
-            }
+            if (sid == _lastDisplayName) return;
+            _lastDisplayName = sid;
+            // Get from in-memory cache
+            tray!.AboutWallpaper = tray.LocalWallpaperInfoCache.TryGetValue(sid, out var wip) ? wip : new WallpaperInfo();
         }
         else
         {
-            _lastDisplayName = IrvuewinCore.LastWallpaperSetDisplay.Name;
-            await IrvuewinCore.UpdateDisplayWallpaperInfo();
+            _lastDisplayName = sid;
+        }
+    }
+
+    private void OnWallpaperChanged(object? sender, IrvuewinCore.WallpaperChangedEventArgs e)
+    {
+        // Update info immediately when wallpaper changes
+        System.Windows.Application.Current.Dispatcher.InvokeAsync(async () =>
+        {
+            await UpdateWallpaperInfo(e.DisplayName);
+        });
+    }
+
+    private async Task UpdateWallpaperInfo(string displayName)
+    {
+        Logger.Debug("Update tray wallpaper info.");
+        if (!IrvuewinCore.CurrentWallpapers.TryGetValue(displayName, out var photoId)) return;
+
+        var httpService = IHttpClient.GetUnsplashHttpService();
+        if (await httpService.GetPhotoInfoById(photoId) is { } photo)
+        {
+            var wpi = new WallpaperInfo
+            {
+                Likes = photo.Likes.ToString(),
+                Downloads = photo.Downloads.ToString(),
+                Location = photo.Location.Name,
+                ProfileLink = photo.Links.Html.OriginalString,
+                Author = photo.User.Name,
+                AuthorProfilePageLink = photo.User.Links.Html.OriginalString
+            };
+            AboutWallpaper = wpi;
+            // Cache wallpaper info.
+            LocalWallpaperInfoCache[displayName] = wpi;
         }
     }
 
@@ -192,6 +216,7 @@ public class TrayViewModel : INotifyPropertyChanged
 public sealed class WallpaperInfo : INotifyPropertyChanged
 {
     private string _likesValue = "";
+
     public string Likes
     {
         get => string.Format(Localization.Instance["Wallpaper_Likes"], _likesValue);
@@ -203,6 +228,7 @@ public sealed class WallpaperInfo : INotifyPropertyChanged
     }
 
     private string _downloadsValue = "";
+
     public string Downloads
     {
         get => string.Format(Localization.Instance["Wallpaper_Downloads"], _downloadsValue);
@@ -219,6 +245,7 @@ public sealed class WallpaperInfo : INotifyPropertyChanged
     public string Profile => Localization.Instance["Wallpaper_Details"];
 
     private string _profileLink = "";
+
     public string ProfileLink
     {
         get => _profileLink;
@@ -230,6 +257,7 @@ public sealed class WallpaperInfo : INotifyPropertyChanged
     }
 
     private string _authorValue = "";
+
     public string Author
     {
         get => string.Format(Localization.Instance["Wallpaper_PhotoBy"], _authorValue);
@@ -242,6 +270,7 @@ public sealed class WallpaperInfo : INotifyPropertyChanged
 
     // https://unsplash.com/@parentrap/collections
     private string _authorProfilePageLink = "";
+
     public string AuthorProfilePageLink
     {
         get => _authorProfilePageLink;
@@ -253,6 +282,7 @@ public sealed class WallpaperInfo : INotifyPropertyChanged
     }
 
     private string _location = "";
+
     public string Location
     {
         get => _location;

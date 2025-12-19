@@ -19,10 +19,6 @@ using Serilog;
 ///</summary>
 public static class IrvuewinCore
 {
-    // Wallpaper history(file path) stack
-    [Obsolete("Will delete in future, replace with WallpaperStack", true)]
-    private static readonly Stack<string> WallpaperHistory = new(10);
-
     private static readonly ILogger Logger = Log.ForContext(typeof(IrvuewinCore));
 
     private static int _sequenceModify;
@@ -35,14 +31,9 @@ public static class IrvuewinCore
     private static Dictionary<string, int> CachedWallpaperSequence { get; } = new();
 
     /// <summary>
-    /// Last wallpaper set up Display
-    /// </summary>
-    public static Display LastWallpaperSetDisplay { get; private set; }
-
-    /// <summary>
     /// Display mouse pointer is on
     /// </summary>
-    public static Display CurrentPointerDisplay { get; set; }
+    public static Display CurrentPointerDisplay { get; private set; }
 
     /// <summary>
     /// Wallpaper record for each display. <br/>
@@ -55,10 +46,18 @@ public static class IrvuewinCore
     /// </summary>
     public static Dictionary<string, string> CurrentWallpapers { get; } = new();
 
-    /// <summary>
-    /// Flag of wallpaper changed for each display, key is screen name.
-    /// </summary>
-    public static Dictionary<string, bool> WallpaperChanged { get; } = new();
+    public class WallpaperChangedEventArgs(string displayName, string photoId) : EventArgs
+    {
+        public string DisplayName { get; } = displayName;
+        public string PhotoId { get; } = photoId;
+    }
+
+    public static event EventHandler<WallpaperChangedEventArgs>? WallpaperChangedEvent;
+
+    public static void BroadcastWallpaperChanged(string displayName, string photoId)
+    {
+        WallpaperChangedEvent?.Invoke(null, new WallpaperChangedEventArgs(displayName, photoId));
+    }
 
 
     /// ################################## Methods #################################### ///
@@ -235,8 +234,7 @@ public static class IrvuewinCore
     /// <returns>
     /// <para>False if failed. </para>
     /// </returns>
-    private static async Task<bool> SetUpWallPaper(
-        UnsplashChannel channel,
+    private static async Task SetUpWallPaper(UnsplashChannel channel,
         int sequence = 0,
         bool random = false,
         bool multiSetUp = false,
@@ -271,7 +269,7 @@ public static class IrvuewinCore
         if (photos == null || photos.Count == 0)
         {
             Logger.Error("Get photo(s) from channel error.");
-            return false;
+            return;
         }
 
         // Already get wallpaper(s)
@@ -281,7 +279,7 @@ public static class IrvuewinCore
             switch (setUpRes)
             {
                 case null:
-                    return false;
+                    return;
                 case { IsUnified: true }:
                 {
                     // single wallpaper
@@ -290,7 +288,7 @@ public static class IrvuewinCore
                     {
                         UpdateDisplayWallpaperStack(screen.DeviceName, setUpRes.UnifiedWallpaperPath!);
                         CurrentWallpapers[screen.DeviceName] = photos[0].Id;
-                        WallpaperChanged[screen.DeviceName] = true;
+                        WallpaperChangedEvent?.Invoke(null, new WallpaperChangedEventArgs(screen.DeviceName, photos[0].Id));
                     }
 
                     break;
@@ -303,7 +301,7 @@ public static class IrvuewinCore
                     {
                         UpdateDisplayWallpaperStack(item.kvp.Key, item.kvp.Value);
                         CurrentWallpapers[item.kvp.Key] = photos[item.idx].Id;
-                        WallpaperChanged[item.kvp.Key] = true;
+                        WallpaperChangedEvent?.Invoke(null, new WallpaperChangedEventArgs(item.kvp.Key, photos[item.idx].Id));
                         // Logger.Information(@"Set wallpaper for {Key}: {Value}", item.kvp.Key, item.kvp.Value);
                     }
 
@@ -314,16 +312,15 @@ public static class IrvuewinCore
         else
         {
             // Setup single display's wallpaper
-            if (await WallpaperUtil.SetWallpaperForSpecificMonitor(LastWallpaperSetDisplay, photos[0]) is not
-                { } path) return false;
+            if (await WallpaperUtil.SetWallpaperForSpecificMonitor(CurrentPointerDisplay, photos[0]) is not
+                { } path)
+                return;
             // Push photo file into wallpaper history stack
             UpdateDisplayWallpaperStack(CurrentPointerDisplay.Name, path);
             CurrentWallpapers[CurrentPointerDisplay.Name] = photos[0].Id;
-            WallpaperChanged[CurrentPointerDisplay.Name] = true;
+            WallpaperChangedEvent?.Invoke(null, new WallpaperChangedEventArgs(CurrentPointerDisplay.Name, photos[0].Id));
             // await DisplayWallpaperInfo();
         }
-
-        return true;
     }
 
     /// <summary>
@@ -331,7 +328,7 @@ public static class IrvuewinCore
     /// </summary>
     /// <param name="key">display name</param>
     /// <param name="value">wallpaper path</param>
-    private static void UpdateDisplayWallpaperStack(string key, string value)
+    public static void UpdateDisplayWallpaperStack(string key, string value)
     {
         if (WallpaperStack.TryGetValue(key, out var stack))
         {
@@ -433,30 +430,11 @@ public static class IrvuewinCore
     /// <summary>
     /// Update wallpaper info on tray menu
     /// </summary>
-    public static async Task UpdateDisplayWallpaperInfo()
+    [Obsolete("Logic moved to TrayViewModel via WallpaperChangedEvent", false)]
+    public static Task UpdateDisplayWallpaperInfo()
     {
-        Logger.Information(@"wallpaper info update");
-        if (!CurrentWallpapers.TryGetValue(LastWallpaperSetDisplay.Name, out var photoId)) return;
-
-        // update all screen?
-        /*foreach (var kvp in CurrentWallpaper)
-        {
-
-        }*/
-
-        // Photos cached by collectionId do not contain downloads info 
-        var httpService = IHttpClient.GetUnsplashHttpService();
-        if (await httpService.GetPhotoInfoById(photoId) is { } photo)
-        {
-            var trayViewModel = Application.Current.Resources["TrayViewModel"] as TrayViewModel;
-
-            trayViewModel!.AboutWallpaper.Likes = photo.Likes.ToString();
-            trayViewModel.AboutWallpaper.Downloads = photo.Downloads.ToString();
-            trayViewModel.AboutWallpaper.Location = photo.Location.Name;
-            trayViewModel.AboutWallpaper.ProfileLink = photo.Links.Html.OriginalString;
-            trayViewModel.AboutWallpaper.Author = photo.User.Name;
-            trayViewModel.AboutWallpaper.AuthorProfilePageLink = photo.User.Links.Html.OriginalString;
-        }
+        // Logic moved to TrayViewModel
+        return Task.CompletedTask;
     }
 
     /// <summary>
@@ -476,7 +454,7 @@ public static class IrvuewinCore
             await WallpaperUtil.SetWallpaperForSpecificMonitor(CurrentPointerDisplay, null, path);
             var pid = Path.GetFileNameWithoutExtension(path);
             CurrentWallpapers[CurrentPointerDisplay.Name] = pid;
-            WallpaperChanged[CurrentPointerDisplay.Name] = true;
+            WallpaperChangedEvent?.Invoke(null, new WallpaperChangedEventArgs(CurrentPointerDisplay.Name, pid));
             // await DisplayWallpaperInfo();
         }
         catch (Exception e)
@@ -493,7 +471,7 @@ public static class IrvuewinCore
     /// <returns>true if success</returns>
     public static bool DownloadCurrentWallpaper(string dest)
     {
-        var stack = WallpaperStack[LastWallpaperSetDisplay.Name];
+        var stack = WallpaperStack[CurrentPointerDisplay.Name];
 
         if (stack.Count == 0) return false;
         var path = stack.Peek();
@@ -571,6 +549,7 @@ public static class IrvuewinCore
         catch (Exception ex)
         {
             // ignored
+            Logger.Error("Scheduling setting wallpaper error: {0}", ex.Message);
         }
     }
 }
