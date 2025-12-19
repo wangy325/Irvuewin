@@ -110,13 +110,13 @@ public class TrayViewModel : INotifyPropertyChanged
 
     private static async void OnCheckDisplay(object param)
     {
-        TrayMenuHelper.CheckPointer();
-        var sid = TrayMenuHelper.CurrentScreen.Name;
+        IrvuewinCore.CheckPointer();
+        var sid = IrvuewinCore.LastWallpaperSetDisplay.Name;
         
         // Update wallpaper info
         if (_lastDisplayName is not null)
         {
-            if (TrayMenuHelper.WallpaperChanged.TryGetValue(sid, out var changed) && changed)
+            if (IrvuewinCore.WallpaperChanged.TryGetValue(sid, out var changed) && changed)
             {
                 if (sid != _lastDisplayName)
                 {
@@ -124,8 +124,8 @@ public class TrayViewModel : INotifyPropertyChanged
                     if (Properties.Settings.Default.MultiDisplay != 1) return;
                 }
 
-                await TrayMenuHelper.DisplayWallpaperInfo();
-                TrayMenuHelper.WallpaperChanged[sid] = false;
+                await IrvuewinCore.UpdateDisplayWallpaperInfo();
+                IrvuewinCore.WallpaperChanged[sid] = false;
             }
             else
             {
@@ -133,14 +133,14 @@ public class TrayViewModel : INotifyPropertyChanged
                 _lastDisplayName = sid;
                 if (Properties.Settings.Default.MultiDisplay == 1)
                 {
-                    await TrayMenuHelper.DisplayWallpaperInfo();
+                    await IrvuewinCore.UpdateDisplayWallpaperInfo();
                 }
             }
         }
         else
         {
-            _lastDisplayName = TrayMenuHelper.CurrentScreen.Name;
-            await TrayMenuHelper.DisplayWallpaperInfo();
+            _lastDisplayName = IrvuewinCore.LastWallpaperSetDisplay.Name;
+            await IrvuewinCore.UpdateDisplayWallpaperInfo();
         }
     }
 
@@ -170,14 +170,14 @@ public class TrayViewModel : INotifyPropertyChanged
     private static void OnLoadCachedSequence(object obj)
     {
         // Load Cached resources
-        Task.Run(TrayMenuHelper.LoadCachedSequence);
+        Task.Run(IrvuewinCore.LoadCachedSequence);
         Properties.Settings.Default.Save();
     }
 
     private static void OnSaveCachedSequence(object obj)
     {
         // Save Cache
-        TrayMenuHelper.SaveCachedSequence();
+        IrvuewinCore.SaveCachedSequence();
         Properties.Settings.Default.Save();
     }
 

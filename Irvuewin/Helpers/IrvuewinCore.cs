@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using System.IO;
+﻿using System.IO;
 using System.Timers;
 using System.Windows.Forms;
 using Irvuewin.Helpers.Utils;
@@ -10,6 +9,7 @@ using Application = System.Windows.Application;
 using Timer = System.Timers.Timer;
 
 namespace Irvuewin.Helpers;
+
 using Serilog;
 
 ///<summary>
@@ -17,38 +17,64 @@ using Serilog;
 ///Date: 2025-06-06 10:04:10
 ///Desc: Core biz
 ///</summary>
-public static class TrayMenuHelper
+public static class IrvuewinCore
 {
     // Wallpaper history(file path) stack
     [Obsolete("Will delete in future, replace with WallpaperStack", true)]
     private static readonly Stack<string> WallpaperHistory = new(10);
 
-    private static readonly ILogger Logger = Log.ForContext(typeof(TrayMenuHelper));
+    private static readonly ILogger Logger = Log.ForContext(typeof(IrvuewinCore));
 
     private static int _sequenceModify;
 
-    // Wallpaper sequence for each channel (key is channelId)
-    // Used to locate wallpaper in sequence mode
-    private static readonly Dictionary<string, int> CachedWallpaperSequence = new();
+    /// <summary>
+    /// Wallpaper sequence for each channel (key is channelId).<br/>
+    /// Used to locate wallpaper in sequence mode.<br/>
+    /// This data will be persisted.
+    /// </summary>
+    private static Dictionary<string, int> CachedWallpaperSequence { get; } = new();
 
-    // screen name, screen wallpaper stack
-    private static readonly Dictionary<string, Stack<string>> WallpaperStack = new();
+    /// <summary>
+    /// Last wallpaper set up Display
+    /// </summary>
+    public static Display LastWallpaperSetDisplay { get; private set; }
 
-    public static Display CurrentScreen;
+    /// <summary>
+    /// Display mouse pointer is on
+    /// </summary>
+    public static Display CurrentPointerDisplay { get; set; }
 
-    // Current wallpaper of each screen (key is screen id, value is photoId)
-    public static readonly Dictionary<string, string> CurrentWallpaper = new();
+    /// <summary>
+    /// Wallpaper record for each display. <br/>
+    /// Key is display/screen name, Value is a wallpaper stack with capacity 10.
+    /// </summary>
+    private static Dictionary<string, Stack<string>> WallpaperStack { get; } = new();
 
-    // Flag of wallpaper changed for each screen, key is screen id
-    public static readonly Dictionary<string, bool> WallpaperChanged = new();
+    /// <summary>
+    /// Current wallpaper of each display (key is screen name, value is photoId).
+    /// </summary>
+    public static Dictionary<string, string> CurrentWallpapers { get; } = new();
 
-    // Reset sequence when channel refreshed
+    /// <summary>
+    /// Flag of wallpaper changed for each display, key is screen name.
+    /// </summary>
+    public static Dictionary<string, bool> WallpaperChanged { get; } = new();
+
+
+    /// ################################## Methods #################################### ///
+    /// <summary>
+    /// Reset sequence when channel refreshed.
+    /// </summary>
+    /// <param name="channelId"></param>
     public static void ResetChannelSequence(string channelId)
     {
         CachedWallpaperSequence[channelId] = 1;
     }
 
-    // Once new channel added, add its sequence to cache
+    /// <summary>
+    /// Once new channel(s) is added, add its sequence to cache.
+    /// </summary>
+    /// <param name="channels"/>
     public static void AddNewChannelSequence(List<ChannelViewModel> channels)
     {
         var trayViewModel = Application.Current.Resources["TrayViewModel"] as TrayViewModel;
@@ -61,27 +87,27 @@ public static class TrayMenuHelper
         _sequenceModify++;
     }
 
+    /// <summary>
+    /// Delete cached channel sequence by channel ID.
+    /// </summary>
+    /// <param name="key">Channel ID</param>
     public static void DelChannelSequence(string key)
     {
         var trayViewModel = Application.Current.Resources["TrayViewModel"] as TrayViewModel;
         CachedWallpaperSequence.Remove(key);
         _sequenceModify++;
         var filteredList = trayViewModel!.AddedChannels.Where(channel => channel.Id != key).ToList();
-
         trayViewModel.AddedChannels = [..filteredList];
-        /*foreach (var channel in filteredList)
-        {
-            trayViewModel.Channels.Add(channel);
-        }*/
     }
 
+    /// <summary>
+    /// Load/Init All channels' cached sequences.
+    /// </summary>
     public static async Task LoadCachedSequence()
     {
-        // TODO NOT PERFECT
         if (CachedWallpaperSequence.Count > 0) return;
         var sequence = await UnsplashCache.LoadChannelSequence();
         if (sequence is not null && sequence.Count != 0)
-            // Load from disk cache
         {
             foreach (var pair in sequence)
             {
@@ -89,38 +115,43 @@ public static class TrayMenuHelper
             }
         }
         else
-            // Load from cached channels
         {
-            // TODO null check
             var channels = Properties.Settings.Default.UserUnsplashChannels.Split(",");
             foreach (var id in channels)
             {
+                // Init Sequence
                 CachedWallpaperSequence[id] = 1;
             }
         }
 
-        // Log.Debug($@">>> Load Cached wallpaper sequence: {CachedWallpaperSequence.Count}");
+        Logger.Debug(@"Load {0} channels' cached sequence.", CachedWallpaperSequence.Count);
     }
 
+    /// <summary>
+    /// Persisting all channels' cached sequence.
+    /// </summary>
     public static async void SaveCachedSequence()
     {
         if (_sequenceModify <= 0) return;
         await UnsplashCache.CacheChannelSequence(CachedWallpaperSequence);
-        // Console.WriteLine($@">>> Save Cached wallpaper sequence: {CachedWallpaperSequence}");
         // reset
         _sequenceModify = 0;
-    }
-
-    // 检查指针在哪个屏幕
-    public static void CheckPointer()
-    {
-        CurrentScreen = DisplayInfoHelper.CheckCursorPosition();
+        Logger.Debug(@"Save {0} cached wallpaper sequence.", CachedWallpaperSequence);
     }
 
     /// <summary>
-    /// Change current display's wallpaper from tray command
+    /// Check chich display current mouse pointer is on. 
     /// </summary>
-    /// <param name="multiSetUp">false by default. For resuing.</param>
+    public static void CheckPointer()
+    {
+        CurrentPointerDisplay = DisplayInfoHelper.CheckCursorPosition();
+    }
+
+    /// <summary>
+    /// Change current display's wallpaper from tray command.
+    /// </summary>
+    /// <param name="multiSetUp">False by default.
+    /// True means method will set up wallpaper for multi displays.</param>
     public static async Task ChangeCurrentWallpaper(bool multiSetUp = false)
     {
         var cvm = await ChannelsViewModel.GetInstanceAsync();
@@ -133,15 +164,14 @@ public static class TrayMenuHelper
         }
         else
         {
-            // 多显示器的栈缓存还不一样呢
-            // does not matter, multi displays share same sequence
-            // so they can display different wallpapers without duplication
+            // Multi displays share same sequence
+            // So they can display different wallpapers without duplication
             var sequence = CachedWallpaperSequence[channel.Id];
             var loadedPhotos = cvm.LoadedPhotoCount[channel.Id];
             // Do nothing when collections can not load photo(s) through api
             if (loadedPhotos == 0) return;
             await SetUpWallPaper(channel, sequence, multiSetUp: multiSetUp);
-            Logger.Information(@"> loadedPhotos: {LoadedPhotos}", loadedPhotos);
+            // Logger.Information(@"> loadedPhotos: {0}", loadedPhotos);
             if (++sequence > loadedPhotos)
             {
                 sequence %= loadedPhotos;
@@ -152,15 +182,59 @@ public static class TrayMenuHelper
         }
     }
 
+    /// <summary>
+    /// Setup all displays wallpaper from tray command.
+    /// </summary>
+    public static async Task ChangeAllWallpaper()
+    {
+        var sameOrNot = Properties.Settings.Default.MultiDisplay;
+
+        if (sameOrNot == 0)
+        {
+            await ChangeCurrentWallpaper(true);
+        }
+        else
+        {
+            var cvm = await ChannelsViewModel.GetInstanceAsync();
+            var channel = cvm.Channels.First(c => c.IsChecked);
+            if (Properties.Settings.Default.RandomWallpaper)
+            {
+                // 2+ random wallpapers
+                await SetUpWallPaper(channel, random: true, multiSetUp: true, sameOrNot: 1);
+            }
+            else
+            {
+                // 2+ sequence wallpapers
+                var sequence = CachedWallpaperSequence[channel.Id];
+                var loadedPhotos = cvm.LoadedPhotoCount[channel.Id];
+                // Do nothing when collections can not load photo(s) through api
+                if (loadedPhotos == 0) return;
+                await SetUpWallPaper(channel, sequence, multiSetUp: true, sameOrNot: 1);
+                // Logger.Information(@"> loadedPhotos: {LoadedPhotos}", loadedPhotos);
+                var mc = Screen.AllScreens.Length;
+                sequence += mc;
+                if (sequence > loadedPhotos)
+                {
+                    sequence %= loadedPhotos;
+                }
+
+                _sequenceModify++;
+                CachedWallpaperSequence[channel.Id] = sequence;
+            }
+        }
+    }
 
     /// <summary>
     /// Set up wallpaper.
     /// </summary>
-    /// <param name="channel">wallpaper channel</param>
-    /// <param name="sequence">necessary if sequence wallpaper mode</param>
-    /// <param name="random">necessary if random wallpaper mode</param>
-    /// <param name="multiSetUp">necessary if set up multi-displays wallpaper, default false</param>
-    /// <param name="sameOrNot">if multiDisplay share same wallpaper: 0 yes, 1 no</param>
+    /// <param name="channel">Checked channel</param>
+    /// <param name="sequence">Necessary if sequence wallpaper mode</param>
+    /// <param name="random">Necessary if random wallpaper mode</param>
+    /// <param name="multiSetUp">Necessary if set up multi-displays wallpaper, default false</param>
+    /// <param name="sameOrNot">If multiDisplays share same wallpaper: 0 yes, 1 no</param>
+    /// <returns>
+    /// <para>False if failed. </para>
+    /// </returns>
     private static async Task<bool> SetUpWallPaper(
         UnsplashChannel channel,
         int sequence = 0,
@@ -168,23 +242,23 @@ public static class TrayMenuHelper
         bool multiSetUp = false,
         byte sameOrNot = 0)
     {
-        var mc = Screen.AllScreens.Length;
-        var pc = 1;
-        if (sameOrNot == 1 && mc > 1)
+        var displayCount = Screen.AllScreens.Length;
+        var wallpaperCount = 1;
+        if (sameOrNot == 1 && displayCount > 1)
         {
             // 2+
-            pc = mc;
+            wallpaperCount = displayCount;
         }
 
         List<UnsplashPhoto>? photos = [];
         var httpService = IHttpClient.GetUnsplashHttpService();
         if (random)
         {
-            photos = await httpService.GetRandomPhotoInChannel(channel.Id, pc);
+            photos = await httpService.GetRandomPhotoInChannel(channel.Id, wallpaperCount);
         }
         else
         {
-            for (var i = sequence; i < pc + sequence; i++)
+            for (var i = sequence; i < displayCount + sequence; i++)
             {
                 var p = await GetSequenceWallpaper(channel, i);
                 if (p != null)
@@ -196,10 +270,10 @@ public static class TrayMenuHelper
 
         if (photos == null || photos.Count == 0)
         {
-            Logger.Debug($@"Get photo from channel error.");
+            Logger.Error("Get photo(s) from channel error.");
             return false;
         }
-        
+
         // Already get wallpaper(s)
         if (multiSetUp)
         {
@@ -214,18 +288,8 @@ public static class TrayMenuHelper
                     // update all display(s) history stack
                     foreach (var screen in Screen.AllScreens)
                     {
-                        if (WallpaperStack.TryGetValue(screen.DeviceName, out var stack))
-                        {
-                            stack.Push(setUpRes.UnifiedWallpaperPath!);
-                        }
-                        else
-                        {
-                            var initStack = new Stack<string>(capacity: 10);
-                            initStack.Push(setUpRes.UnifiedWallpaperPath!);
-                            WallpaperStack[screen.DeviceName] = initStack;
-                        }
-
-                        CurrentWallpaper[screen.DeviceName] = photos[0].Id;
+                        UpdateDisplayWallpaperStack(screen.DeviceName, setUpRes.UnifiedWallpaperPath!);
+                        CurrentWallpapers[screen.DeviceName] = photos[0].Id;
                         WallpaperChanged[screen.DeviceName] = true;
                     }
 
@@ -237,20 +301,10 @@ public static class TrayMenuHelper
                     var res = setUpRes.PerDisplayWallpapers!;
                     foreach (var item in res.Select((kvp, idx) => new { kvp, idx }))
                     {
-                        if (WallpaperStack.TryGetValue(item.kvp.Key, out var stack))
-                        {
-                            stack.Push(item.kvp.Value);
-                        }
-                        else
-                        {
-                            var initStack = new Stack<string>(capacity: 10);
-                            initStack.Push(item.kvp.Value);
-                            WallpaperStack[item.kvp.Key] = initStack;
-                        }
-
-                        CurrentWallpaper[item.kvp.Key] = photos[item.idx].Id;
+                        UpdateDisplayWallpaperStack(item.kvp.Key, item.kvp.Value);
+                        CurrentWallpapers[item.kvp.Key] = photos[item.idx].Id;
                         WallpaperChanged[item.kvp.Key] = true;
-                        Logger.Information(@"Set wallpaper for {Key}: {Value}", item.kvp.Key, item.kvp.Value);
+                        // Logger.Information(@"Set wallpaper for {Key}: {Value}", item.kvp.Key, item.kvp.Value);
                     }
 
                     break;
@@ -260,22 +314,12 @@ public static class TrayMenuHelper
         else
         {
             // Setup single display's wallpaper
-            if (await WallpaperUtil.SetWallpaperForSpecificMonitor(CurrentScreen, photos[0]) is not
+            if (await WallpaperUtil.SetWallpaperForSpecificMonitor(LastWallpaperSetDisplay, photos[0]) is not
                 { } path) return false;
             // Push photo file into wallpaper history stack
-            if (WallpaperStack.TryGetValue(CurrentScreen.Name, out var s))
-            {
-                s.Push(path);
-            }
-            else
-            {
-                var initStack = new Stack<string>(capacity: 10);
-                initStack.Push(path);
-                WallpaperStack[CurrentScreen.Name] = initStack;
-            }
-
-            CurrentWallpaper[CurrentScreen.Name] = photos[0].Id;
-            WallpaperChanged[CurrentScreen.Name] = true;
+            UpdateDisplayWallpaperStack(CurrentPointerDisplay.Name, path);
+            CurrentWallpapers[CurrentPointerDisplay.Name] = photos[0].Id;
+            WallpaperChanged[CurrentPointerDisplay.Name] = true;
             // await DisplayWallpaperInfo();
         }
 
@@ -283,7 +327,26 @@ public static class TrayMenuHelper
     }
 
     /// <summary>
-    /// Get wallpaper from channel
+    /// Update displays' wallpaper cache stack. 
+    /// </summary>
+    /// <param name="key">display name</param>
+    /// <param name="value">wallpaper path</param>
+    private static void UpdateDisplayWallpaperStack(string key, string value)
+    {
+        if (WallpaperStack.TryGetValue(key, out var stack))
+        {
+            stack.Push(value);
+        }
+        else
+        {
+            var initStack = new Stack<string>(capacity: 10);
+            initStack.Push(value);
+            WallpaperStack[key] = initStack;
+        }
+    }
+
+    /// <summary>
+    /// Get wallpaper from channel sequence
     /// </summary>
     /// <param name="channel">unsplash channel</param>
     /// <param name="sequence">current wallpaper sequence</param>
@@ -300,12 +363,13 @@ public static class TrayMenuHelper
         };
         // wallpaper file cache path
         if (await UnsplashCache.LoadPhotosShardAsync(photosCachePageIndex) is not { } res) return null;
-        if (!res.Any()) return null;
+        if (res.Count == 0) return null;
         // 0) 一定是从缓存record中获取图片信息
         // 1) 数据完整性问题
         // 2) 数据过滤后，index可能越界的问题 -- 动态计算总图片数
         // 理论上每页都会存在PageSize个条目，除了最后一页
-        Logger.Information(@"> sequence {Sequence}. shard: {ShardIndex}, position: {ShardPositionIndex}", sequence, shardIndex, shardPositionIndex);
+        Logger.Information(@"> sequence {Sequence}. shard: {ShardIndex}, position: {ShardPositionIndex}", sequence,
+            shardIndex, shardPositionIndex);
         if (shardPositionIndex == res.Count - 1)
         {
             await PreloadChannelNextPage(channel, shardIndex, channelsViewModel);
@@ -367,56 +431,12 @@ public static class TrayMenuHelper
 
 
     /// <summary>
-    /// Setup all displays wallpaper from tray command.
+    /// Update wallpaper info on tray menu
     /// </summary>
-    public static async Task ChangeAllWallpaper()
-    {
-        var cvm = await ChannelsViewModel.GetInstanceAsync();
-        var channel = cvm.Channels.First(c => c.IsChecked);
-        var randomWallpaper = Properties.Settings.Default.RandomWallpaper;
-        var sameOrNot = Properties.Settings.Default.MultiDisplay;
-
-        if (sameOrNot == 0)
-        {
-            await ChangeCurrentWallpaper(true);
-        }
-        else
-        {
-            if (randomWallpaper)
-            {
-                // 2+ random wallpapers
-                await SetUpWallPaper(channel, random: true, multiSetUp: true, sameOrNot: 1);
-            }
-            else
-            {
-                // 2+ sequence wallpapers
-                var sequence = CachedWallpaperSequence[channel.Id];
-                var loadedPhotos = cvm.LoadedPhotoCount[channel.Id];
-                // Do nothing when collections can not load photo(s) through api
-                if (loadedPhotos == 0) return;
-                await SetUpWallPaper(channel, sequence, multiSetUp: true, sameOrNot: 1);
-                Logger.Information(@"> loadedPhotos: {LoadedPhotos}", loadedPhotos);
-                var mc = Screen.AllScreens.Length;
-                sequence += mc;
-                if (sequence > loadedPhotos)
-                {
-                    sequence %= loadedPhotos;
-                }
-
-                _sequenceModify++;
-                CachedWallpaperSequence[channel.Id] = sequence;
-            }
-        }
-    }
-
-
-    /// <summary>
-    /// Display wallpaper info on tray menu
-    /// </summary>
-    public static async Task DisplayWallpaperInfo()
+    public static async Task UpdateDisplayWallpaperInfo()
     {
         Logger.Information(@"wallpaper info update");
-        if (!CurrentWallpaper.TryGetValue(CurrentScreen.Name, out var photoId)) return;
+        if (!CurrentWallpapers.TryGetValue(LastWallpaperSetDisplay.Name, out var photoId)) return;
 
         // update all screen?
         /*foreach (var kvp in CurrentWallpaper)
@@ -439,32 +459,53 @@ public static class TrayMenuHelper
         }
     }
 
+    /// <summary>
+    /// Switch back to last wallpaper.
+    /// </summary>
     public static async void PreviousWallpaper()
     {
-        // Do nothing when stack is empty or stack has only 1 wallpaper
-        // This happens when app starts up
-        var stack = WallpaperStack[CurrentScreen.Name];
+        try
+        {
+            // Do nothing when stack is empty or stack has only 1 wallpaper
+            // This happens when app starts up
+            var stack = WallpaperStack[CurrentPointerDisplay.Name];
 
-        if (stack.Count <= 1) return;
-        stack.Pop();
-        var path = stack.Peek();
-        await WallpaperUtil.SetWallpaperForSpecificMonitor(CurrentScreen, null, path);
-        var pid = Path.GetFileNameWithoutExtension(path);
-        CurrentWallpaper[CurrentScreen.Name] = pid;
-        WallpaperChanged[CurrentScreen.Name] = true;
-        // await DisplayWallpaperInfo();
+            if (stack.Count <= 1) return;
+            stack.Pop();
+            var path = stack.Peek();
+            await WallpaperUtil.SetWallpaperForSpecificMonitor(CurrentPointerDisplay, null, path);
+            var pid = Path.GetFileNameWithoutExtension(path);
+            CurrentWallpapers[CurrentPointerDisplay.Name] = pid;
+            WallpaperChanged[CurrentPointerDisplay.Name] = true;
+            // await DisplayWallpaperInfo();
+        }
+        catch (Exception e)
+        {
+            // throw;
+            Logger.Error("Setting wallpaper error: {0}", e.Message);
+        }
     }
 
+    /// <summary>
+    /// Download current wallpaper to specify folder.
+    /// </summary>
+    /// <param name="dest">dest folder to save wallpaper</param>
+    /// <returns>true if success</returns>
     public static bool DownloadCurrentWallpaper(string dest)
     {
-        var stack = WallpaperStack[CurrentScreen.Name];
+        var stack = WallpaperStack[LastWallpaperSetDisplay.Name];
 
         if (stack.Count == 0) return false;
         var path = stack.Peek();
         FileUtils.CopyFileToDir(path, dest);
         return true;
     }
-
+    
+    /// ##################### Wallpaper change Timer ###################### ///
+    
+    /// <summary>
+    /// Wallpaper auto change scheduler.
+    /// </summary>
     private static Timer? _wallpaperTimer;
 
     public static void InitWallpaperChangeScheduler()

@@ -74,7 +74,7 @@ namespace Irvuewin
             Logger.Information("RandomWallpaper: {RandomWallpaper}", randomWallpaper);
             if (!randomWallpaper)
             {
-                await TrayMenuHelper.LoadCachedSequence();
+                await IrvuewinCore.LoadCachedSequence();
             }
 
             // Async Change wallpaper when app start
@@ -82,7 +82,7 @@ namespace Irvuewin
             // _ = TrayMenuHelper.ChangeAllWallpaper().ConfigureAwait(false);
 
             // Init wallpaper change schedule Timer
-            TrayMenuHelper.InitWallpaperChangeScheduler();
+            IrvuewinCore.InitWallpaperChangeScheduler();
 
             if (FindResource("NotifyIcon") is TaskbarIcon taskbarIcon)
             {
@@ -149,17 +149,17 @@ namespace Irvuewin
 
         private async void ChangeCurrentWallpaper_Click(object sender, RoutedEventArgs args)
         {
-            await TrayMenuHelper.ChangeCurrentWallpaper();
+            await IrvuewinCore.ChangeCurrentWallpaper();
         }
 
         private void ChangeAllWallpaper_Click(object sender, RoutedEventArgs e)
         {
-            TrayMenuHelper.ChangeAllWallpaper();
+            IrvuewinCore.ChangeAllWallpaper();
         }
 
         private void LoadPreviousWallpaper_Click(object sender, RoutedEventArgs e)
         {
-            TrayMenuHelper.PreviousWallpaper();
+            IrvuewinCore.PreviousWallpaper();
         }
 
         private void DownloadCurrentWallpaper_Click(object sender, RoutedEventArgs e)
@@ -170,7 +170,7 @@ namespace Irvuewin
                 dest = IAppConst.DefaultWallpaperDownloadDir;
             }
 
-            if (!TrayMenuHelper.DownloadCurrentWallpaper(dest)) return;
+            if (!IrvuewinCore.DownloadCurrentWallpaper(dest)) return;
             var openFolder = Irvuewin.Properties.Settings.Default.OpenSavedWallpaper;
             if (openFolder)
             {
@@ -212,7 +212,7 @@ namespace Irvuewin
             Irvuewin.Properties.Settings.Default.WallpaperChangeInterval = result;
             Irvuewin.Properties.Settings.Default.Save();
             // update Timer
-            TrayMenuHelper.UpdateWallpaperChangeScheduler();
+            IrvuewinCore.UpdateWallpaperChangeScheduler();
         }
 
         //------------------------------------ Settings --------------------------------//
@@ -230,7 +230,7 @@ namespace Irvuewin
             Logger.Debug("RandomWallpaper: {RandomWallpaper}", randomWallpaper);
             if (!randomWallpaper)
             {
-                TrayMenuHelper.SaveCachedSequence();
+                IrvuewinCore.SaveCachedSequence();
             }
 
             _taskbarIcon?.Dispose();

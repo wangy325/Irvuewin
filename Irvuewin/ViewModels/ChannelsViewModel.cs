@@ -350,7 +350,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
         }
 
         // reset
-        TrayMenuHelper.ResetChannelSequence(channelId);
+        IrvuewinCore.ResetChannelSequence(channelId);
         _shardIndex[channelId] = 1;
         AllPhotosLoaded = false;
         // reset photos count
@@ -393,7 +393,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
             _shardIndex.Add(channel.Id, 1);
         }
 
-        TrayMenuHelper.AddNewChannelSequence(channelViewModels);
+        IrvuewinCore.AddNewChannelSequence(channelViewModels);
     }
 
     public void DeleteSelectedChannel(string channelId)
@@ -411,7 +411,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
 
         // Refresh shard index and wallpaper sequence
         _shardIndex.Remove(channelId);
-        TrayMenuHelper.DelChannelSequence(channelId);
+        IrvuewinCore.DelChannelSequence(channelId);
         // Clear cached memory/disk channel photos
         UnsplashCache.UnCacheChannelPhotos(channelId);
 
@@ -426,9 +426,9 @@ public class ChannelsViewModel : INotifyPropertyChanged
     private async void OnSetAsWallpaper(object obj)
     {
         if (obj is not UnsplashPhoto photo) return;
-        await WallpaperUtil.SetWallpaperForSpecificMonitor(TrayMenuHelper.CurrentScreen, photo);
-        TrayMenuHelper.CurrentWallpaper[TrayMenuHelper.CurrentScreen.Name] = photo.Id;
-        TrayMenuHelper.WallpaperChanged[TrayMenuHelper.CurrentScreen.Name] = true;
+        await WallpaperUtil.SetWallpaperForSpecificMonitor(IrvuewinCore.LastWallpaperSetDisplay, photo);
+        IrvuewinCore.CurrentWallpapers[IrvuewinCore.LastWallpaperSetDisplay.Name] = photo.Id;
+        IrvuewinCore.WallpaperChanged[IrvuewinCore.LastWallpaperSetDisplay.Name] = true;
     }
 
     private async void OnDownloadPhoto(object obj)
