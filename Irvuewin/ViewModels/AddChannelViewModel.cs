@@ -10,7 +10,7 @@ using Serilog;
 
 public class AddChannelViewModel : INotifyPropertyChanged
 {
-    private static readonly ILogger Logger = Log.ForContext(typeof(AddChannelViewModel));
+    private static readonly ILogger Logger = Log.ForContext<AddChannelViewModel>();
     public event PropertyChangedEventHandler? PropertyChanged;
 
     private readonly ChannelsViewModel _channelsViewModel;
@@ -67,7 +67,7 @@ public class AddChannelViewModel : INotifyPropertyChanged
         _channelsViewModel = ChannelsViewModel.GetInstance();
         PreChannelsUpdated = new RelayCommand<object>(OnPreChannelsUpdated);
         OpenUnsplashCommand = new RelayCommand<object>(OnUnsplashOpenButtonClick);
-        Logger.Information(@">>>>>>>>>>>> AddChannelViewModel inited..");
+        Logger.Information(@"AddChannelViewModel initialized..");
     }
 
     private void OnUnsplashOpenButtonClick(object obj)
@@ -87,7 +87,7 @@ public class AddChannelViewModel : INotifyPropertyChanged
     }
 
 
-    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+    private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
@@ -151,7 +151,7 @@ public class AddChannelViewModel : INotifyPropertyChanged
     {
         var newer =
             PreChannels.Where(c => SelectedChannels.All(sc => sc.Id != c.Id)).ToList();
-        SelectedChannels = [..Enumerable.Concat(SelectedChannels, newer).ToList()];
+        SelectedChannels = [..SelectedChannels.Concat(newer).ToList()];
     }
 
     // Search channels by keywords
@@ -165,7 +165,7 @@ public class AddChannelViewModel : INotifyPropertyChanged
             Orientation = null
         };
         if (await httpService.SearchChannels(keywords, query) is not { } res) return [..PreChannels];
-        if (res.Results is { } results && results.Any(r => true))
+        if (res.Results is { } results && results.Any(_ => true))
         {
             var newChannels =
                 results.Where(c => PreChannels.All(r => r.Id != c.Id)).ToList();

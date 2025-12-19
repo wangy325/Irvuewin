@@ -1,17 +1,15 @@
 using System.Drawing;
 using System.IO;
-using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Brush = System.Windows.Media.Brush;
-using Color = System.Windows.Media.Color;
-using Pen = System.Windows.Media.Pen;
-// Using alias to avoid conflict with System.Drawing
-using WpfSize = System.Windows.Size;
-using WpfPoint = System.Windows.Point;
+
 
 namespace Irvuewin.Helpers
 {
+    /// <summary>
+    /// System vector icon helper
+    /// </summary>
     public static class IconHelper
     {
         public static ImageSource GenerateImageSource(Geometry geometry, Brush brush, double size = 32)

@@ -22,7 +22,7 @@ namespace Irvuewin
     /// 
     public partial class App
     {
-        private static readonly ILogger Logger = Log.ForContext(typeof(App));
+        private static readonly ILogger Logger = Log.ForContext<App>();
         private TaskbarIcon? _taskbarIcon;
         private bool _isExit;
 

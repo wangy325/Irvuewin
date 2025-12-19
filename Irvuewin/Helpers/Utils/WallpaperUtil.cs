@@ -130,7 +130,7 @@ namespace Irvuewin.Helpers.Utils
                 var monitorId = GetMonitorIdFromDisplay(display);
                 if (monitorId == null) throw new NullReferenceException("MonitorId can not be null.");
                 DesktopWallpaper.SetWallpaper(monitorId, path);
-                Logger.Information(@"MonitorName: {0}, monitorId: {1}", display.Name, monitorId);
+                Logger.Information(@"Set wallpaper for {0}", display.Name);
                 return path;
             }
             catch (Exception ex)

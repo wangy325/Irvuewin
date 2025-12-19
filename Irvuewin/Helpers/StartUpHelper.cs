@@ -3,6 +3,9 @@ using Microsoft.Win32;
 
 namespace Irvuewin.Helpers;
 
+/// <summary>
+/// Start at login settings class
+/// </summary>
 public static class StartUpHelper
 {
     private const string RunKey = @"Software\Microsoft\Windows\CurrentVersion\Run";

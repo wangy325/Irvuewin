@@ -103,7 +103,12 @@ namespace Irvuewin.Helpers
             return await GetAsync<UnsplashChannel>(url);
         }
 
-        // Get a single page of photos in a collection
+        /// <summary>
+        /// Get a single page of photos in a collection
+        /// </summary>
+        /// <param name="channelId"></param>
+        /// <param name="query"></param>
+        /// <returns></returns>
         public async Task<List<UnsplashPhoto>?> GetPhotosOfChannel(string channelId, UnsplashQueryParams? query)
         {
             var url = $"{Collections}/{channelId}/{Photos}";

@@ -1,8 +1,5 @@
 using Microsoft.Win32;
-using System;
-using System.Linq;
 using System.Windows;
-using System.Windows.Threading;
 
 namespace Irvuewin.Helpers
 {
@@ -16,7 +13,7 @@ namespace Irvuewin.Helpers
     public static class ThemeManager
     {
         public static ThemeType CurrentTheme { get; private set; } = ThemeType.Light;
-        private static bool _isListening = false;
+        private static bool _isListening;
 
         public static void SetTheme(ThemeType theme)
         {
@@ -60,34 +57,30 @@ namespace Irvuewin.Helpers
         {
             try
             {
-                using (var key = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize"))
+                using var key =
+                    Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize");
+                var val = key?.GetValue("AppsUseLightTheme");
+                if (val is 0)
                 {
-                    if (key != null)
-                    {
-                        var val = key.GetValue("AppsUseLightTheme");
-                        if (val is int i && i == 0)
-                        {
-                            return ThemeType.Dark;
-                        }
-                    }
+                    return ThemeType.Dark;
                 }
             }
-            catch { }
+            catch
+            {
+                // ignore
+            }
             return ThemeType.Light;
         }
 
         private static void ApplyTheme(ThemeType theme)
         {
-            string themeUri = null;
-            switch (theme)
+            var themeUri = theme switch
             {
-                case ThemeType.Light: // Fallback for System returning Light
-                    themeUri = "/Themes/Colors.xaml";
-                    break;
-                case ThemeType.Dark:
-                    themeUri = "/Themes/Colors.Dark.xaml";
-                    break;
-            }
+                ThemeType.Light => // Fallback for System returning Light
+                    "/Themes/Colors.xaml",
+                ThemeType.Dark => "/Themes/Colors.Dark.xaml",
+                _ => null
+            };
 
             if (string.IsNullOrEmpty(themeUri)) return;
 
@@ -106,7 +99,7 @@ namespace Irvuewin.Helpers
                 mergedDicts.Add(new ResourceDictionary() { Source = new Uri(themeUri, UriKind.Relative) });
 
                 // Apply Title Bar Theme
-                bool isDark = (theme == ThemeType.Dark || (theme == ThemeType.System && GetSystemTheme() == ThemeType.Dark));
+                var isDark = (theme == ThemeType.Dark || (theme == ThemeType.System && GetSystemTheme() == ThemeType.Dark));
                 WindowThemeHelper.RefreshAllWindows(isDark);
                 if (Application.Current is App app)
                 {

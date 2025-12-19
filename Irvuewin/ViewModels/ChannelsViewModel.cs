@@ -166,7 +166,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
 
         // Load 1st page of checked channel's photos 
         await LoadPhotos(CheckedChannel, DefaultQuery);
-        Logger.Information(@"=========> ChannelsViewModel initialized.");
+        Logger.Information(@"ChannelsViewModel initialized.");
     }
 
 

@@ -11,7 +11,7 @@ namespace Irvuewin.Views;
 
 public partial class Channels
 {
-    private static readonly ILogger Logger = Log.ForContext(typeof(Channels));
+    private static readonly ILogger Logger = Log.ForContext<Channels>();
     private bool _isInitialized;
 
     public Channels()
@@ -26,7 +26,6 @@ public partial class Channels
 
     private void ChannelsWindow_Loaded(object sender, RoutedEventArgs e)
     {
-        Logger.Information($@"Window_Loaded: ------------------ ");
         // var viewModel = DataContext as ChannelsViewModel;
         var checkedChannel = Properties.Settings.Default.UserCheckedChannel;
         Logger.Information(@"Window_Loaded: Checked channel Index: {CheckedChannel}", checkedChannel);
