@@ -1,7 +1,6 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-using Irvuewin.Helpers;
 using Irvuewin.Models.Unsplash;
 using Irvuewin.ViewModels;
 using WpfToolkit.Controls;
@@ -72,13 +71,19 @@ public partial class Channels
 
     private void RefreshButton_OnClick(object sender, RoutedEventArgs e)
     {
+        if (!_isInitialized) return;
+        if (ChannelsListBox.SelectedItem is not UnsplashChannel channel) return;
         if (DataContext is ChannelsViewModel viewModel)
         {
-            _ = viewModel.RefreshPhotos(viewModel.CheckedChannel).ConfigureAwait(false);
+            _ = viewModel.RefreshPhotos(channel.Id).ConfigureAwait(false);
         }
     }
 
-    // Scrolling event
+    /// <summary>
+    /// Channel photos preview control scrolling event
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
     private void VirtualizingItemsControl_ScrollChanged(object sender, ScrollChangedEventArgs e)
     {
         if (sender is not VirtualizingItemsControl itemsControl) return;
@@ -89,7 +94,8 @@ public partial class Channels
         // Load more photos
         if (DataContext is ChannelsViewModel viewModel && viewModel.LoadMorePhotos.CanExecute(null))
         {
-            viewModel.LoadMorePhotos.Execute(null);
+            // Use selected channel
+            viewModel.LoadMorePhotos.Execute(ChannelsListBox.SelectedItem);
         }
     }
 

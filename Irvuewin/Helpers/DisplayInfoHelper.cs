@@ -4,10 +4,9 @@ using System.Windows.Forms;
 
 namespace Irvuewin.Helpers
 {
-    using Serilog;
     public static class DisplayInfoHelper
     {
-        private static readonly ILogger Logger = Log.ForContext(typeof(DisplayInfoHelper));
+        // private static readonly ILogger Logger = Log.ForContext(typeof(DisplayInfoHelper));
         [StructLayout(LayoutKind.Sequential)]
         private struct DEVMODE
         {
@@ -53,11 +52,11 @@ namespace Irvuewin.Helpers
 
         private const int EnumCurrentSettings = -1;
 
-        private static List<Display> _displays = [];
+        private static readonly List<Display> Displays = [];
 
         public static List<Display> GetDisplayInfo()
         {
-            _displays.Clear();
+            Displays.Clear();
             var screens = Screen.AllScreens;
             foreach (var screen in screens)
             {
@@ -67,7 +66,7 @@ namespace Irvuewin.Helpers
                 if (!EnumDisplaySettings(screen.DeviceName, EnumCurrentSettings, ref dm)) continue;
 
                 // var index = _displays.FindIndex(d => d.Name == screen.DeviceName);
-                _displays.Add(new Display
+                Displays.Add(new Display
                 {
                     Name = screen.DeviceName,
                     Width = dm.dmPelsWidth,
@@ -85,11 +84,11 @@ namespace Irvuewin.Helpers
 
             // _displays.ForEach(d => d.DsrEnabled = IsDsrEnabled(d));
 
-            return _displays;
+            return Displays;
         }
 
 
-        private static bool IsDsrEnabled(Display display)
+        /*private static bool IsDsrEnabled(Display display)
         {
             // 计算分辨率比例（DSR通常使用1.25x, 1.5x, 2.0x等比例）
             var widthRatio = (double)display.Width / display.LogicWidth;
@@ -98,7 +97,7 @@ namespace Irvuewin.Helpers
             // 检查比例是否接近DSR常用比例（允许一定误差）
             var isDsrEnabled = IsCloseToDsrRatio(widthRatio) && IsCloseToDsrRatio(heightRatio);
 
-            Logger.Debug($@"DSR检测: {display.Name}, 物理分辨率: {display.Width}x{display.Height}, " +
+            Logger.Debug(@"DSR检测: {display.Name}, 物理分辨率: {display.Width}x{display.Height}, " +
                               $"逻辑分辨率: {display.LogicWidth}x{display.LogicHeight}, " +
                               $"比例: {widthRatio:F2}x{heightRatio:F2}, " +
                               $"结果: {(isDsrEnabled ? "已启用" : "未启用")}");
@@ -120,12 +119,13 @@ namespace Irvuewin.Helpers
 
             return false;
         }
+        */
 
 
         public static Display CheckCursorPosition()
         {
             var cursorPosition = Cursor.Position;
-            Logger.Debug(@"Cursor position: {CursorPositionX}, {CursorPositionY}", cursorPosition.X, cursorPosition.Y);
+            // Logger.Debug(@"Cursor position: {CursorPositionX}, {CursorPositionY}", cursorPosition.X, cursorPosition.Y);
 
             var displays = DisplayInfoHelper.GetDisplayInfo();
             var res = displays[0];
@@ -134,7 +134,7 @@ namespace Irvuewin.Helpers
                      where displayBounds.Contains(cursorPosition)
                      select d)
             {
-                Logger.Debug(@"Display info: {DName}, {DWidth}x{DHeight}", d.Name, d.Width, d.Height);
+                // Logger.Debug(@"Display info: {DName}, {DWidth}x{DHeight}", d.Name, d.Width, d.Height);
                 res = d;
                 break;
             }

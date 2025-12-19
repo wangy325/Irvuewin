@@ -12,12 +12,13 @@ using Exception = System.Exception;
 
 
 namespace Irvuewin.ViewModels;
+
 using Serilog;
 
 // Singleton
 public class ChannelsViewModel : INotifyPropertyChanged
 {
-    private static readonly ILogger Logger = Log.ForContext(typeof(ChannelsViewModel));
+    private static readonly ILogger Logger = Log.ForContext<ChannelsViewModel>();
     public event PropertyChangedEventHandler? PropertyChanged;
 
     private string SavedChannels { get; set; } = Properties.Settings.Default.UserUnsplashChannels;
@@ -69,7 +70,9 @@ public class ChannelsViewModel : INotifyPropertyChanged
         }
     }
 
-    // Wallpaper shard index for each channel
+    /// <summary>
+    /// Wallpaper shard index (page index) for each channel
+    /// </summary>
     private readonly Dictionary<string, int> _shardIndex = new();
 
 
@@ -78,7 +81,10 @@ public class ChannelsViewModel : INotifyPropertyChanged
 
     private bool _allPhotosLoaded;
 
-    public bool AllPhotosLoaded
+    /// <summary>
+    /// Flag for whether channel's all photos been loaded
+    /// </summary>
+    private bool AllPhotosLoaded
     {
         get => _allPhotosLoaded;
         set
@@ -95,14 +101,14 @@ public class ChannelsViewModel : INotifyPropertyChanged
     public ICommand ChannelSelected2 { get; }
     public ICommand ChannelChecked2 { get; }
     public ICommand LoadMorePhotos { get; }
-    
+
     public ICommand SetAsWallpaperCommand { get; set; }
     public ICommand DownloadPhotoCommand { get; set; }
     public ICommand ViewPhotoCommand { get; set; }
     public ICommand ViewAuthorCommand { get; set; }
     public ICommand HidePhotoCommand { get; set; }
     public ICommand HideAuthorCommand { get; set; }
-    
+
 
     private static readonly Lazy<Task<ChannelsViewModel>> Instance = new(Init);
 
@@ -125,7 +131,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
         LoadMorePhotos = new RelayCommand<object>(OnLoadMorePhotos);
         ChannelSelected2 = new RelayCommand<ChannelViewModel>(OnChannelSelected);
         ChannelChecked2 = new RelayCommand<ChannelViewModel>(OnChannelChecked);
-        
+
         SetAsWallpaperCommand = new RelayCommand<object>(OnSetAsWallpaper);
         DownloadPhotoCommand = new RelayCommand<object>(OnDownloadPhoto);
         ViewPhotoCommand = new RelayCommand<object>(OnViewPhoto);
@@ -157,8 +163,8 @@ public class ChannelsViewModel : INotifyPropertyChanged
             _shardIndex[channel.Id] = 1;
             LoadedPhotoCount[channel.Id] = await UnsplashCache.LoadPhotoCountAsync(channel.Id);
         }
-        
-        // Load 1st page of channel's photos 
+
+        // Load 1st page of checked channel's photos 
         await LoadPhotos(CheckedChannel, DefaultQuery);
         Logger.Information(@"=========> ChannelsViewModel initialized.");
     }
@@ -186,6 +192,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
                 if (await httpService.GetChannelById(id) is { } channel)
                     Channels.Add(MapperProvider.Mapper.Map<ChannelViewModel>(channel));
             }
+
             Logger.Information(@"Loaded {ChannelsCount} channels from web.", Channels.Count);
             // cache channels
             // await CacheChannels();
@@ -222,7 +229,6 @@ public class ChannelsViewModel : INotifyPropertyChanged
         if (photos.Count != 0) await CachePhotos(cacheIndex, photos);
         LoadedPhotoCount[channelId] = Photos.Count;
         return true;
-
     }
 
     private void RenewChannelPhotos(List<UnsplashPhoto> photos, bool append)
@@ -281,7 +287,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
         try
         {
             if (param is not ChannelViewModel item) return;
-            
+
             // Update selected status
             item.IsChecked = true;
             // Ignore continuous click
@@ -306,19 +312,20 @@ public class ChannelsViewModel : INotifyPropertyChanged
 
     private async void OnLoadMorePhotos(object obj)
     {
+        if (obj is not UnsplashChannel channel) return;
         if (IsBusy) return;
         if (AllPhotosLoaded) return;
         IsBusy = true;
-        _shardIndex[CheckedChannel]++;
+        _shardIndex[channel.Id]++;
         try
         {
             UnsplashQueryParams query = new()
             {
-                Page = _shardIndex[CheckedChannel],
+                Page = _shardIndex[channel.Id],
                 PerPage = IAppConst.PageSize,
                 Orientation = Properties.Settings.Default.WallpaperOrientation
             };
-            AllPhotosLoaded = !await LoadPhotos(CheckedChannel, query, true);
+            AllPhotosLoaded = !await LoadPhotos(channel.Id, query, true);
             IsBusy = false;
         }
         catch (Exception e)
@@ -328,6 +335,10 @@ public class ChannelsViewModel : INotifyPropertyChanged
         }
     }
 
+    /// <summary>
+    /// Refreash channel photos cache.
+    /// </summary>
+    /// <param name="channelId"></param>
     public async Task RefreshPhotos(string channelId)
     {
         var httpService = IHttpClient.GetUnsplashHttpService();
@@ -424,11 +435,11 @@ public class ChannelsViewModel : INotifyPropertyChanged
     {
         if (obj is not UnsplashPhoto photo) return;
         IrvuewinCore.CheckPointer();
-        if (await WallpaperUtil.SetWallpaperForSpecificMonitor(IrvuewinCore.CurrentPointerDisplay, photo) is not { } path) return;
+        if (await WallpaperUtil.SetWallpaperForSpecificMonitor(IrvuewinCore.CurrentPointerDisplay, photo) is not
+            { } path) return;
         IrvuewinCore.UpdateDisplayWallpaperStack(IrvuewinCore.CurrentPointerDisplay.Name, path);
         IrvuewinCore.CurrentWallpapers[IrvuewinCore.CurrentPointerDisplay.Name] = photo.Id;
         IrvuewinCore.BroadcastWallpaperChanged(IrvuewinCore.CurrentPointerDisplay.Name, photo.Id);
-
     }
 
     private async void OnDownloadPhoto(object obj)
@@ -439,6 +450,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
         {
             dest = IAppConst.DefaultWallpaperDownloadDir;
         }
+
         // This will pre-download wallpaper
         var path = await WallpaperUtil.GetWallpaperFullPath(photo, null);
         FileUtils.CopyFileToDir(path, dest);
