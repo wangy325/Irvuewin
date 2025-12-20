@@ -2,15 +2,17 @@
 
 namespace Irvuewin.Helpers.Utils;
 
+using static IAppConst;
+
 public static class FileUtils
 {
-    public static readonly string AppDataFolder = Path.Combine(
+    private static readonly string AppDataFolder = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-        System.Reflection.Assembly.GetExecutingAssembly().GetName().Name ?? "Irvuewin"
+        System.Reflection.Assembly.GetExecutingAssembly().GetName().Name ?? AppName
     );
 
     public static readonly string CachedWallpaperFolder = Path.Combine(AppDataFolder, "splash");
-    public static readonly string CachedPhotoBaseFolder = Path.Combine(AppDataFolder, "photo");
+    public static readonly string CachedPhotoBaseFolder = Path.Combine(AppDataFolder, "channel");
 
     static FileUtils()
     {
@@ -25,14 +27,14 @@ public static class FileUtils
     /// <returns>window position file</returns>
     public static string WindowPositionPath(string key)
     {
-        var fileName = $"{key}.position.xml";
+        var fileName = $"{key}.{CachedWindowsPositionFileSuffix}";
         return Path.Combine(AppDataFolder, fileName);
     }
 
     // key -> cached file name
     public static string CachePath(string folder, string key)
     {
-        var fileName = $"{key}.cached.json";
+        var fileName = $"{key}.{CachedFileNameSuffix}";
         return Path.Combine(folder, fileName);
     }
 
