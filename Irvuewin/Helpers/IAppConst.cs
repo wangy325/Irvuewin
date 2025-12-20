@@ -17,7 +17,7 @@ public interface IAppConst
     const string CachedFileNameSuffix = "json";
     const string CachedChannelNamePrefix = "channels";
     const string CachedPhotosNamePrefix = "photos_";
-    const string CachedChannelSequenceNamePrefix =  "sequence";
+    const string CachedChannelSeqPrefix =  "sequence";
     
     
     

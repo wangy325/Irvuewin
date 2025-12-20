@@ -2,9 +2,9 @@
 using System.Timers;
 using System.Windows.Forms;
 using Irvuewin.Helpers.Utils;
-using Irvuewin.Models;
 using Irvuewin.Models.Unsplash;
 using Irvuewin.ViewModels;
+using static Irvuewin.Helpers.IAppConst;
 using Application = System.Windows.Application;
 using Timer = System.Timers.Timer;
 
@@ -22,13 +22,6 @@ public static class IrvuewinCore
     private static readonly ILogger Logger = Log.ForContext(typeof(IrvuewinCore));
 
     private static int _sequenceModify;
-
-    /// <summary>
-    /// Wallpaper sequence for each channel (key is channelId).<br/>
-    /// Used to locate wallpaper in sequence mode.<br/>
-    /// This data will be persisted.
-    /// </summary>
-    private static Dictionary<string, int> CachedWallpaperSequence { get; } = new();
 
     /// <summary>
     /// Display mouse pointer is on
@@ -67,7 +60,7 @@ public static class IrvuewinCore
     /// <param name="channelId"></param>
     public static void ResetChannelSequence(string channelId)
     {
-        CachedWallpaperSequence[channelId] = 1;
+        CacheManager.Set(CachedChannelSeqPrefix, channelId, 1);
     }
 
     /// <summary>
@@ -79,7 +72,7 @@ public static class IrvuewinCore
         var trayViewModel = Application.Current.Resources["TrayViewModel"] as TrayViewModel;
         foreach (var channel in channels)
         {
-            CachedWallpaperSequence[channel.Id] = 1;
+            CacheManager.Set(CachedChannelSeqPrefix, channel.Id, 1);
             trayViewModel!.AddedChannels.Add(channel);
         }
 
@@ -93,7 +86,7 @@ public static class IrvuewinCore
     public static void DelChannelSequence(string key)
     {
         var trayViewModel = Application.Current.Resources["TrayViewModel"] as TrayViewModel;
-        CachedWallpaperSequence.Remove(key);
+        CacheManager.Set(CachedChannelSeqPrefix, key, 1, TimeSpan.Zero);
         _sequenceModify++;
         var filteredList = trayViewModel!.AddedChannels.Where(channel => channel.Id != key).ToList();
         trayViewModel.AddedChannels = [..filteredList];
@@ -104,38 +97,46 @@ public static class IrvuewinCore
     /// </summary>
     public static async Task LoadCachedSequence()
     {
-        if (CachedWallpaperSequence.Count > 0) return;
-        var sequence = await UnsplashCache.LoadChannelSequence();
+        var sequence = await FileCacheManager.LoadChannelSequence();
         if (sequence is not null && sequence.Count != 0)
         {
-            foreach (var pair in sequence)
-            {
-                CachedWallpaperSequence[pair.Key] = pair.Value;
-            }
+            var range
+                = sequence.Select(kvp => ((CachedChannelSeqPrefix, kvp.Key), kvp.Value));
+            CacheManager.SetRange(range);
         }
         else
         {
             var channels = Properties.Settings.Default.UserUnsplashChannels.Split(",");
-            foreach (var id in channels)
-            {
-                // Init Sequence
-                CachedWallpaperSequence[id] = 1;
-            }
+            var range
+                = channels.Select(c => ((CachedChannelSeqPrefix, c), 1));
+            // Init in-memory channel sequence cacheZ
+            CacheManager.SetRange(range);
         }
 
-        Logger.Debug(@"Load {0} channels' cached sequence.", CachedWallpaperSequence.Count);
+        Logger.Debug(@"Init channels' cached sequence.");
     }
 
     /// <summary>
     /// Persisting all channels' cached sequence.
     /// </summary>
-    public static async void SaveCachedSequence()
+    public static void SaveCachedSequence()
     {
         if (_sequenceModify <= 0) return;
-        await UnsplashCache.CacheChannelSequence(CachedWallpaperSequence);
+
+        var dic = new Dictionary<string, int>();
+        var channels = Properties.Settings.Default.UserUnsplashChannels.Split(",");
+        foreach (var cid in channels)
+        {
+            if (CacheManager.TryGet(CachedChannelSeqPrefix, cid, out int seq))
+            {
+                dic[cid] = seq;
+            }
+        }
+
+        _ = Task.Run(() => FileCacheManager.CacheChannelSequence(dic));
         // reset
         _sequenceModify = 0;
-        Logger.Debug(@"Save {0} cached wallpaper sequence.", CachedWallpaperSequence);
+        Logger.Debug(@"Save cached wallpaper sequence.");
     }
 
     /// <summary>
@@ -165,7 +166,7 @@ public static class IrvuewinCore
         {
             // Multi displays share same sequence
             // So they can display different wallpapers without duplication
-            var sequence = CachedWallpaperSequence[channel.Id];
+            var sequence = CacheManager.TryGet(CachedChannelSeqPrefix, channel.Id, out int s) ? s : 1;
             var loadedPhotos = cvm.LoadedPhotoCount[channel.Id];
             // Do nothing when collections can not load photo(s) through api
             if (loadedPhotos == 0) return;
@@ -177,7 +178,7 @@ public static class IrvuewinCore
             }
 
             _sequenceModify++;
-            CachedWallpaperSequence[channel.Id] = sequence;
+            CacheManager.Set(CachedChannelSeqPrefix, channel.Id, sequence);
         }
     }
 
@@ -204,7 +205,7 @@ public static class IrvuewinCore
             else
             {
                 // 2+ sequence wallpapers
-                var sequence = CachedWallpaperSequence[channel.Id];
+                var sequence = CacheManager.TryGet(CachedChannelSeqPrefix, channel.Id, out int s) ? s : 1;
                 var loadedPhotos = cvm.LoadedPhotoCount[channel.Id];
                 // Do nothing when collections can not load photo(s) through api
                 if (loadedPhotos == 0) return;
@@ -218,7 +219,7 @@ public static class IrvuewinCore
                 }
 
                 _sequenceModify++;
-                CachedWallpaperSequence[channel.Id] = sequence;
+                CacheManager.Set(CachedChannelSeqPrefix, channel.Id, sequence);
             }
         }
     }
@@ -288,7 +289,8 @@ public static class IrvuewinCore
                     {
                         UpdateDisplayWallpaperStack(screen.DeviceName, setUpRes.UnifiedWallpaperPath!);
                         CurrentWallpapers[screen.DeviceName] = photos[0].Id;
-                        WallpaperChangedEvent?.Invoke(null, new WallpaperChangedEventArgs(screen.DeviceName, photos[0].Id));
+                        WallpaperChangedEvent?.Invoke(null,
+                            new WallpaperChangedEventArgs(screen.DeviceName, photos[0].Id));
                     }
 
                     break;
@@ -301,7 +303,8 @@ public static class IrvuewinCore
                     {
                         UpdateDisplayWallpaperStack(item.kvp.Key, item.kvp.Value);
                         CurrentWallpapers[item.kvp.Key] = photos[item.idx].Id;
-                        WallpaperChangedEvent?.Invoke(null, new WallpaperChangedEventArgs(item.kvp.Key, photos[item.idx].Id));
+                        WallpaperChangedEvent?.Invoke(null,
+                            new WallpaperChangedEventArgs(item.kvp.Key, photos[item.idx].Id));
                         // Logger.Information(@"Set wallpaper for {Key}: {Value}", item.kvp.Key, item.kvp.Value);
                     }
 
@@ -318,7 +321,8 @@ public static class IrvuewinCore
             // Push photo file into wallpaper history stack
             UpdateDisplayWallpaperStack(CurrentPointerDisplay.Name, path);
             CurrentWallpapers[CurrentPointerDisplay.Name] = photos[0].Id;
-            WallpaperChangedEvent?.Invoke(null, new WallpaperChangedEventArgs(CurrentPointerDisplay.Name, photos[0].Id));
+            WallpaperChangedEvent?.Invoke(null,
+                new WallpaperChangedEventArgs(CurrentPointerDisplay.Name, photos[0].Id));
             // await DisplayWallpaperInfo();
         }
     }
@@ -359,7 +363,7 @@ public static class IrvuewinCore
             PageIndex = shardIndex
         };
         // wallpaper file cache path
-        if (await UnsplashCache.LoadPhotosShardAsync(photosCachePageIndex) is not { } res) return null;
+        if (await FileCacheManager.LoadPhotosShardAsync(photosCachePageIndex) is not { } res) return null;
         if (res.Count == 0) return null;
         // 0) 一定是从缓存record中获取图片信息
         // 1) 数据完整性问题
@@ -388,19 +392,19 @@ public static class IrvuewinCore
             ChannelId = channel.Id,
             PageIndex = shardIndex + 1
         };
-        if (await UnsplashCache.LoadPhotosShardAsync(nextPage) is null)
+        if (await FileCacheManager.LoadPhotosShardAsync(nextPage) is null)
         {
             var query = new UnsplashQueryParams()
             {
                 Page = nextPage.PageIndex,
-                PerPage = IAppConst.PageSize,
+                PerPage = PageSize,
                 Orientation = Properties.Settings.Default.WallpaperOrientation
             };
             if (await IHttpClient.GetUnsplashHttpService().GetPhotosOfChannel(channel.Id, query) is { } photos
                 && photos.Count != 0)
             {
                 // Cache new photos
-                await UnsplashCache.CachePhotosAsync(nextPage, photos);
+                await FileCacheManager.CachePhotosAsync(nextPage, photos);
                 // Ugly
                 channelsViewModel.LoadedPhotoCount[channel.Id] += photos.Count;
             }
@@ -412,15 +416,15 @@ public static class IrvuewinCore
         // page index, position index of page content
         int shardIndex, shardPositionIndex;
         // Index starts from 1
-        if (sequence % IAppConst.PageSize == 0)
+        if (sequence % PageSize == 0)
         {
-            shardIndex = sequence / IAppConst.PageSize;
-            shardPositionIndex = IAppConst.PageSize - 1;
+            shardIndex = sequence / PageSize;
+            shardPositionIndex = PageSize - 1;
         }
         else
         {
-            shardIndex = sequence / IAppConst.PageSize + 1;
-            shardPositionIndex = sequence % IAppConst.PageSize - 1;
+            shardIndex = sequence / PageSize + 1;
+            shardPositionIndex = sequence % PageSize - 1;
         }
 
         return (shardIndex, shardPositionIndex);
@@ -478,9 +482,8 @@ public static class IrvuewinCore
         FileUtils.CopyFileToDir(path, dest);
         return true;
     }
-    
+
     /// ##################### Wallpaper change Timer ###################### ///
-    
     /// <summary>
     /// Wallpaper auto change scheduler.
     /// </summary>

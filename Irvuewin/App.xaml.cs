@@ -226,9 +226,7 @@ namespace Irvuewin
         {
             _isExit = true;
             // 退出时若未启用随机壁纸则保存缓存（sequence may be modified）
-            var randomWallpaper = Irvuewin.Properties.Settings.Default.RandomWallpaper;
-            Logger.Debug("RandomWallpaper: {RandomWallpaper}", randomWallpaper);
-            if (!randomWallpaper)
+            if (!Irvuewin.Properties.Settings.Default.RandomWallpaper)
             {
                 IrvuewinCore.SaveCachedSequence();
             }

@@ -3,10 +3,10 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using Irvuewin.Helpers;
-using Irvuewin.Models;
 using Irvuewin.Models.Unsplash;
 using Irvuewin.Helpers.Utils;
 using System.Diagnostics;
+using Irvuewin.Helpers.AOP;
 using Irvuewin.Views;
 using Exception = System.Exception;
 
@@ -19,9 +19,11 @@ using Serilog;
 public class ChannelsViewModel : INotifyPropertyChanged
 {
     private static readonly ILogger Logger = Log.ForContext<ChannelsViewModel>();
+    
     public event PropertyChangedEventHandler? PropertyChanged;
 
     private string SavedChannels { get; set; } = Properties.Settings.Default.UserUnsplashChannels;
+
     private ObservableCollection<UnsplashPhoto> _photos = [];
 
     public ObservableCollection<UnsplashPhoto> Photos
@@ -39,7 +41,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
     public ObservableCollection<ChannelViewModel> Channels
     {
         get => _channels;
-        set
+        private set
         {
             _channels = value;
             OnPropertyChanged();
@@ -161,7 +163,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
         foreach (var channel in Channels)
         {
             _shardIndex[channel.Id] = 1;
-            LoadedPhotoCount[channel.Id] = await UnsplashCache.LoadPhotoCountAsync(channel.Id);
+            LoadedPhotoCount[channel.Id] = await FileCacheManager.LoadPhotoCountAsync(channel.Id);
         }
 
         // Load 1st page of checked channel's photos 
@@ -174,7 +176,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
     {
         var channelIds = SavedChannels.Split(',');
         // Load from disk cache
-        if (await UnsplashCache.LoadChannelsAsync() is { } cachedChannels
+        if (await FileCacheManager.LoadChannelsAsync() is { } cachedChannels
             && cachedChannels.Any()
             && cachedChannels.Count == channelIds.Length)
         {
@@ -206,7 +208,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
             ChannelId = channelId,
             PageIndex = query.Page
         };
-        if (await UnsplashCache.LoadPhotosShardAsync(cacheIndex) is { } cachedPhotos
+        if (await FileCacheManager.LoadPhotosShardAsync(cacheIndex) is { } cachedPhotos
             && cachedPhotos.Count != 0)
             // load from cache
         {
@@ -231,6 +233,8 @@ public class ChannelsViewModel : INotifyPropertyChanged
         return true;
     }
 
+    [FilterByBlockList]
+    [FilterBySize(MinWidth = 1920, MinHeight = 1080)]
     private void RenewChannelPhotos(List<UnsplashPhoto> photos, bool append)
     {
         if (append)
@@ -265,7 +269,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
                 _shardIndex[key] = 1;
             }
 
-            LoadedPhotoCount[item.Id] = await UnsplashCache.LoadPhotoCountAsync(item.Id);
+            LoadedPhotoCount[item.Id] = await FileCacheManager.LoadPhotoCountAsync(item.Id);
 
             // Load photos
             DefaultQuery.Orientation = Properties.Settings.Default.WallpaperOrientation;
@@ -368,17 +372,17 @@ public class ChannelsViewModel : INotifyPropertyChanged
 
     public async Task CacheChannels()
     {
-        await UnsplashCache.CacheChannelsAsync([..Channels]);
+        await FileCacheManager.CacheChannelsAsync([..Channels]);
     }
 
     public async Task CachePhotos(PhotosCachePageIndex cachePageIndex, List<UnsplashPhoto> photos)
     {
-        await UnsplashCache.CachePhotosAsync(cachePageIndex, photos);
+        await FileCacheManager.CachePhotosAsync(cachePageIndex, photos);
     }
 
     public void UnCachePhotos(string channelId)
     {
-        UnsplashCache.UnCacheChannelPhotos(channelId);
+        FileCacheManager.UnCacheChannelPhotos(channelId);
     }
 
     public void AddChannel(List<UnsplashChannel> selectedChannels)
@@ -421,7 +425,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
         _shardIndex.Remove(channelId);
         IrvuewinCore.DelChannelSequence(channelId);
         // Clear cached memory/disk channel photos
-        UnsplashCache.UnCacheChannelPhotos(channelId);
+        FileCacheManager.UnCacheChannelPhotos(channelId);
 
         if (channelId != CheckedChannel) return;
         {

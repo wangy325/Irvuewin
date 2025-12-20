@@ -15,7 +15,9 @@
     
 
   <ItemGroup>
+    <PackageReference Include="AspectInjector" Version="2.9.0" />
     <PackageReference Include="AutoMapper" Version="14.0.0" />
+    <PackageReference Include="FastCache.Cached" Version="1.8.2" />
     <PackageReference Include="H.NotifyIcon.Wpf" Version="2.4.1" />
     <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.135" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />

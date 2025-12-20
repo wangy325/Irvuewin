@@ -1,22 +1,129 @@
-﻿using System.IO;
-using Irvuewin.Helpers;
-using Irvuewin.Helpers.Utils;
+using FastCache;
+using FastCache.Collections;
+using System.IO;
 using Irvuewin.Models.Unsplash;
+using Irvuewin.Helpers.Utils;
 using Newtonsoft.Json;
 using Serilog;
+using static Irvuewin.Helpers.IAppConst;
 
-namespace Irvuewin.Models
+
+namespace Irvuewin.Helpers
 {
-    using static IAppConst;
+    public static class CacheManager
+    {
+        /// <summary>
+        /// Saves a value to the cache with an optional expiration.
+        /// </summary>
+        /// <typeparam name="T">The type of the value to cache.</typeparam>
+        /// <param name="key">The cache key.</param>
+        /// <param name="value">The value to cache.</param>
+        /// <param name="expiration">The expiration time. Defaults to 60 minutes if not specified.</param>
+        /// <returns>The value cached</returns>
+        public static T Set<T>(string key, T value, TimeSpan? expiration = null)
+        {
+            var expiry = expiration ?? TimeSpan.FromMinutes(60);
+            return Cached<T>.Save(key, value, expiry);
+        }
+
+        /// <summary>
+        /// Saves a value to the cache with an optional expiration by using 2 Keys.
+        /// </summary>
+        /// <param name="key1">cache key 1</param>
+        /// <param name="key2">cache key 2</param>
+        /// <param name="value">cache value</param>
+        /// <param name="expiration">The expiration time. Defaults to 60 minutes if not specified.</param>
+        /// <returns>The value cached</returns>
+        public static T Set<T>(string key1, string key2, T value, TimeSpan? expiration = null)
+        {
+            var expiry = expiration ?? TimeSpan.FromMinutes(60);
+            return Cached<T>.Save(key1, key2, value, expiry);
+        }
+
+        /// <summary>
+        /// Save a range of k-v in one operation.
+        /// </summary>
+        /// <param name="range">k-v pair list</param>
+        /// <param name="expiration">The expiration time. Defaults to 60 minutes if not specified.</param>
+        /// <typeparam name="TS">Key type</typeparam>
+        /// <typeparam name="T"></typeparam>
+        public static void SetRange<TS, T>(IEnumerable<(TS, T)> range, TimeSpan? expiration = null) where TS : notnull
+        {
+            var expiry = expiration ?? TimeSpan.FromMinutes(60);
+            CachedRange<T>.Save(range, expiry);
+        }
+
+        /// <summary>
+        /// Retrieves a value from the cache.
+        /// </summary>
+        /// <typeparam name="T">The type of the value to retrieve.</typeparam>
+        /// <param name="key">The cache key.</param>
+        /// <returns>The cached value, or default(T) if not found.</returns>
+        public static T? Get<T>(string key)
+        {
+            return Cached<T>.TryGet(key, out var cachedValue) ? cachedValue.Value : default;
+        }
+
+        public static T? Get<T>(string key1, string key2)
+        {
+            return Cached<T>.TryGet(key1, key2, out var cachedValue) ? cachedValue.Value : default;
+        }
+
+
+        /// <summary>
+        /// Tries to retrieve a value from the cache.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <returns>True if method get value of given key</returns>
+        public static bool TryGet<T>(string key, out T? value)
+        {
+            if (Cached<T>.TryGet(key, out var cached))
+            {
+                value = cached.Value;
+                return true;
+            }
+
+            value = default;
+            return false;
+        }
+
+        public static bool TryGet<T>(string key1, string key2, out T? value)
+        {
+            if (Cached<T>.TryGet(key1, key2, out var cached))
+            {
+                value = cached.Value;
+                return true;
+            }
+
+            value = default;
+            return false;
+        }
+
+        /// <summary>
+        /// Remove cache <br/>
+        /// Can only remove item with multiple keys...
+        /// </summary>
+        /// <param name="key1">key1</param>
+        /// <param name="key2">key2</param>
+        /// <typeparam name="T">value type</typeparam>
+        public static void Remove<T>(string key1, string key2)
+        {
+            var list = new List<(string, string)> { (key1, key2) };
+            CachedRange<T>.Remove(list);
+        }
+    }
+
 
     /// <summary>
     /// File cache helper class for manipulating channel(s) and it's photos.
     /// <br/>
     /// This file cache could be treated as original source data.
     /// </summary>
-    public static class UnsplashCache
+    public static class FileCacheManager
     {
-        private static readonly ILogger Logger = Log.ForContext(typeof(UnsplashCache));
+        private static readonly ILogger Logger = Log.ForContext(typeof(FileCacheManager));
 
 
         /// <summary>
@@ -28,7 +135,8 @@ namespace Irvuewin.Models
         {
             try
             {
-                await File.WriteAllTextAsync(FileUtils.CachePath(FileUtils.CachedPhotoBaseFolder, CachedChannelNamePrefix),
+                await File.WriteAllTextAsync(
+                    FileUtils.CachePath(FileUtils.CachedPhotoBaseFolder, CachedChannelNamePrefix),
                     JsonConvert.SerializeObject(channels, JsonHelper.Settings));
             }
             catch (Exception e)
@@ -158,7 +266,7 @@ namespace Irvuewin.Models
         /// <returns></returns>
         public static async Task CacheChannelSequence(Dictionary<string, int> cachedWallpaperSequence)
         {
-            var filePath = FileUtils.CachePath(FileUtils.CachedPhotoBaseFolder, CachedChannelSequenceNamePrefix);
+            var filePath = FileUtils.CachePath(FileUtils.CachedPhotoBaseFolder, CachedChannelSeqPrefix);
             try
             {
                 await File.WriteAllTextAsync(filePath,
@@ -174,10 +282,10 @@ namespace Irvuewin.Models
         /// <summary>
         /// Load all channels wallpaper sequence.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Channel sequence dictionary, or null if exception occurs</returns>
         public static async Task<Dictionary<string, int>?> LoadChannelSequence()
         {
-            var filePath = FileUtils.CachePath(FileUtils.CachedPhotoBaseFolder, CachedChannelSequenceNamePrefix);
+            var filePath = FileUtils.CachePath(FileUtils.CachedPhotoBaseFolder, CachedChannelSeqPrefix);
             try
             {
                 if (!File.Exists(filePath)) return null;
@@ -185,7 +293,6 @@ namespace Irvuewin.Models
                 var cachedSequence = JsonConvert.DeserializeObject<Dictionary<string, int>>(
                     sequence,
                     JsonHelper.Settings) ?? new Dictionary<string, int>();
-                // Console.WriteLine($@"Loaded {cachedSequence.Count} sequence from cache");
                 return cachedSequence;
             }
             catch (Exception e)
@@ -193,6 +300,7 @@ namespace Irvuewin.Models
                 Logger.Error(e, "LoadChannelSequence error");
                 throw;
             }
+            // Console.WriteLine($@"Loaded {cachedSequence.Count} sequence from cache");
         }
     }
 
