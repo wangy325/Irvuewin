@@ -126,7 +126,8 @@ public class TrayViewModel : INotifyPropertyChanged
             if (sid == _lastDisplayName) return;
             _lastDisplayName = sid;
             // Get from in-memory cache
-            tray!.AboutWallpaper = tray.LocalWallpaperInfoCache.TryGetValue(sid, out var wip) ? wip : new WallpaperInfo();
+            tray!.AboutWallpaper =
+                tray.LocalWallpaperInfoCache.TryGetValue(sid, out var wip) ? wip : new WallpaperInfo();
         }
         else
         {
@@ -146,10 +147,10 @@ public class TrayViewModel : INotifyPropertyChanged
     private async Task UpdateWallpaperInfo(string displayName)
     {
         Logger.Debug("Update tray wallpaper info.");
-        if (!CacheManager.TryGet(displayName, out string? photoId)) return;
+        if (!CacheManager.TryGet(displayName, out string? photoId) || photoId is null) return;
 
         var httpService = IHttpClient.GetUnsplashHttpService();
-        if (await httpService.GetPhotoInfoById(photoId!) is { } photo)
+        if (await httpService.GetPhotoInfoById(photoId) is { } photo)
         {
             var wpi = new WallpaperInfo
             {

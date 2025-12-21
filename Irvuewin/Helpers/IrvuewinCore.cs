@@ -43,12 +43,6 @@ public static class IrvuewinCore
     /// </summary>
     public static Display CurrentPointerDisplay { get; private set; }
 
-    /// <summary>
-    /// Wallpaper record for each display. <br/>
-    /// Key is display/screen name, Value is a wallpaper stack with capacity 10.
-    /// </summary>
-    private static Dictionary<string, Stack<string>> WallpaperStack { get; } = new();
-
     public class WallpaperChangedEventArgs(string displayName, string photoId) : EventArgs
     {
         public string DisplayName { get; } = displayName;
@@ -343,7 +337,7 @@ public static class IrvuewinCore
     /// <param name="value">wallpaper path</param>
     public static void UpdateDisplayWallpaperStack(string key, string value)
     {
-        if (WallpaperStack.TryGetValue(key, out var stack))
+        if (CacheManager.TryGet(CachedWallpaperStack, key, out Stack<string>? stack) && stack is not null)
         {
             stack.Push(value);
         }
@@ -351,7 +345,7 @@ public static class IrvuewinCore
         {
             var initStack = new Stack<string>(capacity: 10);
             initStack.Push(value);
-            WallpaperStack[key] = initStack;
+            CacheManager.Set(CachedWallpaperStack, key, initStack);
         }
     }
 
@@ -459,7 +453,9 @@ public static class IrvuewinCore
         {
             // Do nothing when stack is empty or stack has only 1 wallpaper
             // This happens when app starts up
-            var stack = WallpaperStack[CurrentPointerDisplay.Name];
+            if (!CacheManager.TryGet<Stack<string>>(CachedWallpaperStack, CurrentPointerDisplay.Name, out var stack) ||
+                stack is null)
+                return;
 
             if (stack.Count <= 1) return;
             stack.Pop();
@@ -484,8 +480,9 @@ public static class IrvuewinCore
     /// <returns>true if success</returns>
     public static bool DownloadCurrentWallpaper(string dest)
     {
-        var stack = WallpaperStack[CurrentPointerDisplay.Name];
-
+        // var stack = WallpaperStack[CurrentPointerDisplay.Name];
+        if (!CacheManager.TryGet<Stack<string>>(CachedWallpaperStack, CurrentPointerDisplay.Name, out var stack) ||
+            stack is null) return false;
         if (stack.Count == 0) return false;
         var path = stack.Peek();
         FileUtils.CopyFileToDir(path, dest);
