@@ -10,19 +10,28 @@ using static Irvuewin.Helpers.IAppConst;
 
 namespace Irvuewin.Helpers
 {
+    /// <summary>
+    /// In-memory cache helper
+    /// </summary>
     public static class CacheManager
     {
+        /// <summary>
+        /// Default Timespan: 7 days
+        /// </summary>
+        private static readonly TimeSpan Expiration =  TimeSpan.FromDays(7); 
+            
+            
         /// <summary>
         /// Saves a value to the cache with an optional expiration.
         /// </summary>
         /// <typeparam name="T">The type of the value to cache.</typeparam>
         /// <param name="key">The cache key.</param>
         /// <param name="value">The value to cache.</param>
-        /// <param name="expiration">The expiration time. Defaults to 60 minutes if not specified.</param>
+        /// <param name="expiration">The expiration time. Defaults to 1 day if not specified.</param>
         /// <returns>The value cached</returns>
         public static T Set<T>(string key, T value, TimeSpan? expiration = null)
         {
-            var expiry = expiration ?? TimeSpan.FromMinutes(60);
+            var expiry = expiration ?? Expiration;
             return Cached<T>.Save(key, value, expiry);
         }
 
@@ -32,11 +41,11 @@ namespace Irvuewin.Helpers
         /// <param name="key1">cache key 1</param>
         /// <param name="key2">cache key 2</param>
         /// <param name="value">cache value</param>
-        /// <param name="expiration">The expiration time. Defaults to 60 minutes if not specified.</param>
+        /// <param name="expiration">The expiration time.</param>
         /// <returns>The value cached</returns>
         public static T Set<T>(string key1, string key2, T value, TimeSpan? expiration = null)
         {
-            var expiry = expiration ?? TimeSpan.FromMinutes(60);
+            var expiry = expiration ?? Expiration;
             return Cached<T>.Save(key1, key2, value, expiry);
         }
 
@@ -44,12 +53,12 @@ namespace Irvuewin.Helpers
         /// Save a range of k-v in one operation.
         /// </summary>
         /// <param name="range">k-v pair list</param>
-        /// <param name="expiration">The expiration time. Defaults to 60 minutes if not specified.</param>
+        /// <param name="expiration">The expiration time.</param>
         /// <typeparam name="TS">Key type</typeparam>
         /// <typeparam name="T"></typeparam>
         public static void SetRange<TS, T>(IEnumerable<(TS, T)> range, TimeSpan? expiration = null) where TS : notnull
         {
-            var expiry = expiration ?? TimeSpan.FromMinutes(60);
+            var expiry = expiration ?? Expiration;
             CachedRange<T>.Save(range, expiry);
         }
 

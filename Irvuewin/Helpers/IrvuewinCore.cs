@@ -13,10 +13,25 @@ namespace Irvuewin.Helpers;
 using Serilog;
 
 ///<summary>
-///Author: wangy325
-///Date: 2025-06-06 10:04:10
-///Desc: Core biz
+///Core biz<br/>
 ///</summary>
+/// <remarks>
+/// In-memory Cached Fields:
+/// <para>
+/// 1. Channel wallpaper sequence
+/// <code>
+/// CacheManager.set(key1="sequence", key2=channelId, value=seq)
+/// // batch set, datatype is tuple(tuple(key1, key2), val)
+/// CacheManager.SetRange(range)
+/// </code>
+/// </para>
+/// <para>2. Displays wallpaper history stack
+/// <code>CacheManager.set(key1="wallpaper_stack", key2=displayName, val=stack)</code>
+/// </para>
+/// <para>3. Current wallpaper for each display
+/// <code>CacheManager.set(key=displayName, value=photoId)</code>
+/// </para>
+/// </remarks>
 public static class IrvuewinCore
 {
     private static readonly ILogger Logger = Log.ForContext(typeof(IrvuewinCore));
@@ -34,11 +49,6 @@ public static class IrvuewinCore
     /// </summary>
     private static Dictionary<string, Stack<string>> WallpaperStack { get; } = new();
 
-    /// <summary>
-    /// Current wallpaper of each display (key is screen name, value is photoId).
-    /// </summary>
-    public static Dictionary<string, string> CurrentWallpapers { get; } = new();
-
     public class WallpaperChangedEventArgs(string displayName, string photoId) : EventArgs
     {
         public string DisplayName { get; } = displayName;
@@ -53,7 +63,6 @@ public static class IrvuewinCore
     }
 
 
-    /// ################################## Methods #################################### ///
     /// <summary>
     /// Reset sequence when channel refreshed.
     /// </summary>
@@ -288,7 +297,7 @@ public static class IrvuewinCore
                     foreach (var screen in Screen.AllScreens)
                     {
                         UpdateDisplayWallpaperStack(screen.DeviceName, setUpRes.UnifiedWallpaperPath!);
-                        CurrentWallpapers[screen.DeviceName] = photos[0].Id;
+                        CacheManager.Set(screen.DeviceName, photos[0].Id);
                         WallpaperChangedEvent?.Invoke(null,
                             new WallpaperChangedEventArgs(screen.DeviceName, photos[0].Id));
                     }
@@ -302,7 +311,7 @@ public static class IrvuewinCore
                     foreach (var item in res.Select((kvp, idx) => new { kvp, idx }))
                     {
                         UpdateDisplayWallpaperStack(item.kvp.Key, item.kvp.Value);
-                        CurrentWallpapers[item.kvp.Key] = photos[item.idx].Id;
+                        CacheManager.Set(item.kvp.Key, photos[item.idx].Id);
                         WallpaperChangedEvent?.Invoke(null,
                             new WallpaperChangedEventArgs(item.kvp.Key, photos[item.idx].Id));
                         // Logger.Information(@"Set wallpaper for {Key}: {Value}", item.kvp.Key, item.kvp.Value);
@@ -320,7 +329,7 @@ public static class IrvuewinCore
                 return;
             // Push photo file into wallpaper history stack
             UpdateDisplayWallpaperStack(CurrentPointerDisplay.Name, path);
-            CurrentWallpapers[CurrentPointerDisplay.Name] = photos[0].Id;
+            CacheManager.Set(CurrentPointerDisplay.Name, photos[0].Id);
             WallpaperChangedEvent?.Invoke(null,
                 new WallpaperChangedEventArgs(CurrentPointerDisplay.Name, photos[0].Id));
             // await DisplayWallpaperInfo();
@@ -457,7 +466,7 @@ public static class IrvuewinCore
             var path = stack.Peek();
             await WallpaperUtil.SetWallpaperForSpecificMonitor(CurrentPointerDisplay, null, path);
             var pid = Path.GetFileNameWithoutExtension(path);
-            CurrentWallpapers[CurrentPointerDisplay.Name] = pid;
+            CacheManager.Set(CurrentPointerDisplay.Name, pid);
             WallpaperChangedEvent?.Invoke(null, new WallpaperChangedEventArgs(CurrentPointerDisplay.Name, pid));
             // await DisplayWallpaperInfo();
         }

@@ -18,6 +18,7 @@ public interface IAppConst
     const string CachedChannelNamePrefix = "channels";
     const string CachedPhotosNamePrefix = "photos_";
     const string CachedChannelSeqPrefix =  "sequence";
+    const string CachedWallpaperStack =  "wallpaper_stack";
     
     
     

@@ -33,7 +33,7 @@ public class TrayViewModel : INotifyPropertyChanged
     public WallpaperInfo AboutWallpaper
     {
         get => _aboutWallpaper;
-        set
+        private set
         {
             _aboutWallpaper = value;
             OnPropertyChanged();
@@ -45,7 +45,7 @@ public class TrayViewModel : INotifyPropertyChanged
     public ObservableCollection<WallpaperChangeInterval> Intervals
     {
         get => _intervals;
-        set
+        private set
         {
             _intervals = value;
             OnPropertyChanged();
@@ -85,15 +85,13 @@ public class TrayViewModel : INotifyPropertyChanged
 
     private void OnLocalizationChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName == Binding.IndexerName || string.IsNullOrEmpty(e.PropertyName))
-        {
-            // Rebuild intervals to update text
-            Intervals = new ObservableCollection<WallpaperChangeInterval>(GenerateIntervals());
+        if (e.PropertyName != Binding.IndexerName && !string.IsNullOrEmpty(e.PropertyName)) return;
+        // Rebuild intervals to update text
+        Intervals = new ObservableCollection<WallpaperChangeInterval>(GenerateIntervals());
 
-            OnPropertyChanged(nameof(NextWallpaperChangeTime));
-            // Refresh Wallpaper Info text
-            AboutWallpaper.RefreshLocalization();
-        }
+        OnPropertyChanged(nameof(NextWallpaperChangeTime));
+        // Refresh Wallpaper Info text
+        AboutWallpaper.RefreshLocalization();
     }
 
     private static List<WallpaperChangeInterval> GenerateIntervals()
@@ -148,10 +146,10 @@ public class TrayViewModel : INotifyPropertyChanged
     private async Task UpdateWallpaperInfo(string displayName)
     {
         Logger.Debug("Update tray wallpaper info.");
-        if (!IrvuewinCore.CurrentWallpapers.TryGetValue(displayName, out var photoId)) return;
+        if (!CacheManager.TryGet(displayName, out string? photoId)) return;
 
         var httpService = IHttpClient.GetUnsplashHttpService();
-        if (await httpService.GetPhotoInfoById(photoId) is { } photo)
+        if (await httpService.GetPhotoInfoById(photoId!) is { } photo)
         {
             var wpi = new WallpaperInfo
             {
@@ -311,7 +309,7 @@ public sealed class WallpaperInfo : INotifyPropertyChanged
 
 public class WallpaperChangeInterval
 {
-    public ushort TagInt { get; set; }
+    private ushort TagInt { get; set; }
     public string Tag { get; set; }
     public string Header { get; set; }
 

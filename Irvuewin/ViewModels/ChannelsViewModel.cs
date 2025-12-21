@@ -442,7 +442,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
         if (await WallpaperUtil.SetWallpaperForSpecificMonitor(IrvuewinCore.CurrentPointerDisplay, photo) is not
             { } path) return;
         IrvuewinCore.UpdateDisplayWallpaperStack(IrvuewinCore.CurrentPointerDisplay.Name, path);
-        IrvuewinCore.CurrentWallpapers[IrvuewinCore.CurrentPointerDisplay.Name] = photo.Id;
+        CacheManager.Set(IrvuewinCore.CurrentPointerDisplay.Name, photo.Id);
         IrvuewinCore.BroadcastWallpaperChanged(IrvuewinCore.CurrentPointerDisplay.Name, photo.Id);
     }
 
