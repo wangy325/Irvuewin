@@ -89,7 +89,7 @@ public static class IrvuewinCore
     public static void DelChannelSequence(string key)
     {
         var trayViewModel = Application.Current.Resources["TrayViewModel"] as TrayViewModel;
-        CacheManager.Set(CachedChannelSeqPrefix, key, 1, TimeSpan.Zero);
+        CacheManager.Remove<int>(CachedChannelSeqPrefix, key);
         _sequenceModify++;
         var filteredList = trayViewModel!.AddedChannels.Where(channel => channel.Id != key).ToList();
         trayViewModel.AddedChannels = [..filteredList];
@@ -357,7 +357,18 @@ public static class IrvuewinCore
             PerPage = PageSize,
             Orientation = Properties.Settings.Default.WallpaperOrientation
         };
-        if (!await cvm.LoadPhotos(channelId, query, true))
+
+        bool load;
+        if (cvm.SelectedChannel!.Id == cvm.CheckedChannelId)
+        {
+            load = await cvm.LoadPhotos(channelId, query);
+        }
+        else
+        {
+            load = await cvm.LoadPhotosShardFromWeb(channelId, query);
+        }
+
+        if (!load)
         {
             // 1. All photos loaded 
             // 2. Other exceptions, like network error etc.

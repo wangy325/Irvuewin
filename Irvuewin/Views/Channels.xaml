@@ -113,6 +113,7 @@
             <!-- SelectedIndex="{Binding Path =DataContext.(vm:ChannelsViewModel.SelectedIndex), RelativeSource={RelativeSource AncestorType=helpers:LocationAwareWindow}}" -->
             <ListBox Grid.Row="0" x:Name="ChannelsListBox"
                      ItemsSource="{Binding Path =DataContext.(vm:ChannelsViewModel.Channels), RelativeSource={RelativeSource AncestorType=helpers:LocationAwareWindow}}"
+                     SelectedItem="{Binding Path =DataContext.(vm:ChannelsViewModel.SelectedChannel), RelativeSource={RelativeSource AncestorType=helpers:LocationAwareWindow}}"
                      Style="{StaticResource ListBoxStyle}"
                      ItemTemplate="{StaticResource ChannelsItemTemplate}"
                      ItemContainerStyle="{StaticResource ChannelsBoxItemStyle}">

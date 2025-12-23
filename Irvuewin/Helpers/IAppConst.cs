@@ -5,7 +5,7 @@ namespace Irvuewin.Helpers;
 
 public interface IAppConst
 {
-    const int PageSize = 12;
+    const int PageSize = 3;
 
     static readonly string DefaultWallpaperDownloadDir = GetFolderPath(MyPictures);
 

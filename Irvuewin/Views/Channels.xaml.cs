@@ -90,6 +90,7 @@ public partial class Channels
         var scrollViewer = FindVisualChild<ScrollViewer>(itemsControl);
         // Judge if scroll to bottom
         if (scrollViewer == null) return;
+        if (scrollViewer.ScrollableHeight <= 0) return;
         if (!(scrollViewer.VerticalOffset >= scrollViewer.ScrollableHeight - 10)) return;
         // Load more photos
         if (DataContext is ChannelsViewModel viewModel && viewModel.LoadMorePhotos.CanExecute(null))
