@@ -111,9 +111,7 @@ public class TrayViewModel : INotifyPropertyChanged
     private Dictionary<string, WallpaperInfo> LocalWallpaperInfoCache { get; } = new();
 
     private static string? _lastDisplayName;
-
-    // private static readonly Dictionary<string, bool> DisplayWallpaperInfoUpdateState = new();
-
+    
     private static void OnCheckDisplay(object param)
     {
         IrvuewinCore.CheckPointer();

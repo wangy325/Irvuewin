@@ -42,5 +42,9 @@ public class CacheManagerTests
         CacheManager.Remove<string>(key1, key2);
         var v = CacheManager.Get<string>(key1, key2);
         Assert.IsNull(v);
+        
+        // test exists
+        Assert.IsFalse(CacheManager.Exists<string>(key1));
+        Assert.IsTrue(CacheManager.Exists<int>("sequence", "id3"));
     }
 }

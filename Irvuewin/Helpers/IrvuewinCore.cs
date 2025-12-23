@@ -157,31 +157,19 @@ public static class IrvuewinCore
     /// True means method will set up wallpaper for multi displays.</param>
     public static async Task ChangeCurrentWallpaper(bool multiSetUp = false)
     {
-        var cvm = await ChannelsViewModel.GetInstanceAsync();
-        var channel = cvm.Channels.First(c => c.IsChecked);
+        var cid = Properties.Settings.Default.UserCheckedChannel;
         var randomWallpaper = Properties.Settings.Default.RandomWallpaper;
 
         if (randomWallpaper)
         {
-            await SetUpWallPaper(channel, random: true, multiSetUp: multiSetUp);
+            await SetUpWallPaper(cid, random: true, multiSetUp: multiSetUp);
         }
         else
         {
             // Multi displays share same sequence
             // So they can display different wallpapers without duplication
-            var sequence = CacheManager.TryGet(CachedChannelSeqPrefix, channel.Id, out int s) ? s : 1;
-            var loadedPhotos = cvm.LoadedPhotoCount[channel.Id];
-            // Do nothing when collections can not load photo(s) through api
-            if (loadedPhotos == 0) return;
-            await SetUpWallPaper(channel, sequence, multiSetUp: multiSetUp);
-            // Logger.Information(@"> loadedPhotos: {0}", loadedPhotos);
-            if (++sequence > loadedPhotos)
-            {
-                sequence %= loadedPhotos;
-            }
-
-            _sequenceModify++;
-            CacheManager.Set(CachedChannelSeqPrefix, channel.Id, sequence);
+            var sequence = CacheManager.TryGet(CachedChannelSeqPrefix, cid, out int s) ? s : 1;
+            await SetUpWallPaper(cid, sequence, multiSetUp: multiSetUp);
         }
     }
 
@@ -198,31 +186,17 @@ public static class IrvuewinCore
         }
         else
         {
-            var cvm = await ChannelsViewModel.GetInstanceAsync();
-            var channel = cvm.Channels.First(c => c.IsChecked);
+            var cid = Properties.Settings.Default.UserCheckedChannel;
             if (Properties.Settings.Default.RandomWallpaper)
             {
                 // 2+ random wallpapers
-                await SetUpWallPaper(channel, random: true, multiSetUp: true, sameOrNot: 1);
+                await SetUpWallPaper(cid, random: true, multiSetUp: true, sameOrNot: 1);
             }
             else
             {
                 // 2+ sequence wallpapers
-                var sequence = CacheManager.TryGet(CachedChannelSeqPrefix, channel.Id, out int s) ? s : 1;
-                var loadedPhotos = cvm.LoadedPhotoCount[channel.Id];
-                // Do nothing when collections can not load photo(s) through api
-                if (loadedPhotos == 0) return;
-                await SetUpWallPaper(channel, sequence, multiSetUp: true, sameOrNot: 1);
-                // Logger.Information(@"> loadedPhotos: {LoadedPhotos}", loadedPhotos);
-                var mc = Screen.AllScreens.Length;
-                sequence += mc;
-                if (sequence > loadedPhotos)
-                {
-                    sequence %= loadedPhotos;
-                }
-
-                _sequenceModify++;
-                CacheManager.Set(CachedChannelSeqPrefix, channel.Id, sequence);
+                var sequence = CacheManager.TryGet(CachedChannelSeqPrefix, cid, out int s) ? s : 1;
+                await SetUpWallPaper(cid, sequence, multiSetUp: true, sameOrNot: 1);
             }
         }
     }
@@ -230,7 +204,7 @@ public static class IrvuewinCore
     /// <summary>
     /// Set up wallpaper.
     /// </summary>
-    /// <param name="channel">Checked channel</param>
+    /// <param name="channelId">Checked channel id</param>
     /// <param name="sequence">Necessary if sequence wallpaper mode</param>
     /// <param name="random">Necessary if random wallpaper mode</param>
     /// <param name="multiSetUp">Necessary if set up multi-displays wallpaper, default false</param>
@@ -238,7 +212,7 @@ public static class IrvuewinCore
     /// <returns>
     /// <para>False if failed. </para>
     /// </returns>
-    private static async Task SetUpWallPaper(UnsplashChannel channel,
+    private static async Task SetUpWallPaper(string channelId,
         int sequence = 0,
         bool random = false,
         bool multiSetUp = false,
@@ -253,20 +227,19 @@ public static class IrvuewinCore
         }
 
         List<UnsplashPhoto>? photos = [];
+        var newSeq = 0;
         var httpService = IHttpClient.GetUnsplashHttpService();
         if (random)
         {
-            photos = await httpService.GetRandomPhotoInChannel(channel.Id, wallpaperCount);
+            photos = await httpService.GetRandomPhotoInChannel(channelId, wallpaperCount);
         }
         else
         {
-            for (var i = sequence; i < displayCount + sequence; i++)
+            for (var i = sequence; i < wallpaperCount + sequence; i++)
             {
-                var p = await GetSequenceWallpaper(channel, i);
-                if (p != null)
-                {
-                    photos.Add(p);
-                }
+                var (s, p) = await GetSequenceWallpaper(channelId, i);
+                if (p != null) photos.Add(p);
+                newSeq = s;
             }
         }
 
@@ -318,8 +291,8 @@ public static class IrvuewinCore
         else
         {
             // Setup single display's wallpaper
-            if (await WallpaperUtil.SetWallpaperForSpecificMonitor(CurrentPointerDisplay, photos[0]) is not
-                { } path)
+            if (await WallpaperUtil.SetWallpaperForSpecificMonitor(CurrentPointerDisplay, photos[0])
+                is not { } path)
                 return;
             // Push photo file into wallpaper history stack
             UpdateDisplayWallpaperStack(CurrentPointerDisplay.Name, path);
@@ -327,6 +300,13 @@ public static class IrvuewinCore
             WallpaperChangedEvent?.Invoke(null,
                 new WallpaperChangedEventArgs(CurrentPointerDisplay.Name, photos[0].Id));
             // await DisplayWallpaperInfo();
+        }
+
+        // Update seq if necessary
+        if (newSeq > 0)
+        {
+            _sequenceModify++;
+            CacheManager.Set(CachedChannelSeqPrefix, channelId, newSeq);
         }
     }
 
@@ -350,70 +330,53 @@ public static class IrvuewinCore
     }
 
     /// <summary>
-    /// Get wallpaper from channel sequence
+    /// Get wallpaper from channel by sequence.<br/>
+    /// Activated when user de-select random wallpaper.
     /// </summary>
-    /// <param name="channel">unsplash channel</param>
+    /// <param name="channelId">unsplash channelId</param>
     /// <param name="sequence">current wallpaper sequence</param>
-    /// <returns>wallpaper, nullable </returns>
-    private static async Task<UnsplashPhoto?> GetSequenceWallpaper(UnsplashChannel channel, int sequence)
+    /// <returns>sequence and wallpaper tuple</returns>
+    private static async Task<(int, UnsplashPhoto?)> GetSequenceWallpaper(string channelId, int sequence)
     {
-        Logger.Information(@"Get wallpaper sequence: {Sequence}", sequence);
-        var (shardIndex, shardPositionIndex) = CalShardIndex(sequence);
-        var channelsViewModel = await ChannelsViewModel.GetInstanceAsync();
-        PhotosCachePageIndex photosCachePageIndex = new()
+        Logger.Information(@"wallpaper seq {0} from channel {1}", sequence, channelId);
+
+        if (!CacheManager.TryGet<List<UnsplashPhoto>>
+                (CachedWallpapers, channelId, out var photos)
+            || photos is null) return (sequence, null);
+        // sequence should not bigger than photos size
+        if (sequence < photos.Count) return (sequence + 1, photos[sequence - 1]);
+        // One extreme condition: all photos already loaded, and sequence
+        // is equal to photos count.
+        // On this condition, we need to reset sequence.
+        var cvm = await ChannelsViewModel.GetInstanceAsync();
+        // preload next shard
+        CacheManager.TryGet<int>(CachedWallpaperShard, channelId, out var shard);
+        var query = new UnsplashQueryParams()
         {
-            ChannelId = channel.Id,
-            PageIndex = shardIndex
+            Page = ++shard,
+            PerPage = PageSize,
+            Orientation = Properties.Settings.Default.WallpaperOrientation
         };
-        // wallpaper file cache path
-        if (await FileCacheManager.LoadPhotosShardAsync(photosCachePageIndex) is not { } res) return null;
-        if (res.Count == 0) return null;
-        // 0) 一定是从缓存record中获取图片信息
-        // 1) 数据完整性问题
-        // 2) 数据过滤后，index可能越界的问题 -- 动态计算总图片数
-        // 理论上每页都会存在PageSize个条目，除了最后一页
-        Logger.Information(@"> sequence {Sequence}. shard: {ShardIndex}, position: {ShardPositionIndex}", sequence,
-            shardIndex, shardPositionIndex);
-        if (shardPositionIndex == res.Count - 1)
+        if (!await cvm.LoadPhotos(channelId, query, true))
         {
-            await PreloadChannelNextPage(channel, shardIndex, channelsViewModel);
+            // 1. All photos loaded 
+            // 2. Other exceptions, like network error etc.
+            return (1, photos[sequence - 1]);
         }
 
-        return res[shardPositionIndex];
+        CacheManager.Set(CachedWallpaperShard, channelId, shard);
+        return (sequence + 1, photos[sequence - 1]);
     }
 
-    private static async Task PreloadChannelNextPage(
-        UnsplashChannel channel,
-        int shardIndex,
-        ChannelsViewModel channelsViewModel)
-    {
-        // Next page
-        // Preload photos
-        // Refresh loaded photos count
-        var nextPage = new PhotosCachePageIndex
-        {
-            ChannelId = channel.Id,
-            PageIndex = shardIndex + 1
-        };
-        if (await FileCacheManager.LoadPhotosShardAsync(nextPage) is null)
-        {
-            var query = new UnsplashQueryParams()
-            {
-                Page = nextPage.PageIndex,
-                PerPage = PageSize,
-                Orientation = Properties.Settings.Default.WallpaperOrientation
-            };
-            if (await IHttpClient.GetUnsplashHttpService().GetPhotosOfChannel(channel.Id, query) is { } photos
-                && photos.Count != 0)
-            {
-                // Cache new photos
-                await FileCacheManager.CachePhotosAsync(nextPage, photos);
-                // Ugly
-                channelsViewModel.LoadedPhotoCount[channel.Id] += photos.Count;
-            }
-        }
-    }
-
+    /// <summary>
+    /// Calculating pageNum and pageIndex from sequence of channel.
+    /// </summary>
+    /// <param name="sequence">channel wallpaper sequence</param>
+    /// <returns>tuple of (page, pageIndex)</returns>
+    /// <example>
+    /// if sequence = 17, pageSize = 10, then
+    /// shardIndex = 2, shardPositionIndex= 6
+    /// </example>
     private static (int shardIndex, int shardPositionIndex) CalShardIndex(int sequence)
     {
         // page index, position index of page content
@@ -489,7 +452,7 @@ public static class IrvuewinCore
         return true;
     }
 
-    /// ##################### Wallpaper change Timer ###################### ///
+
     /// <summary>
     /// Wallpaper auto change scheduler.
     /// </summary>

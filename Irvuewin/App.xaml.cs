@@ -31,7 +31,7 @@ namespace Irvuewin
         // Used for tray menu position
         private DpiAnchorWindow? _anchorWindow;
 
-        protected override async void OnStartup(StartupEventArgs e)
+        protected override void OnStartup(StartupEventArgs e)
         {
             // Apply Language Setting
             var language = Irvuewin.Properties.Settings.Default.Language;
@@ -62,7 +62,7 @@ namespace Irvuewin
             MapperProvider.Mapper = mapper;
 
             // Create ChannelsViewModel singleton instance
-            _channelsViewModel = await ChannelsViewModel.GetInstanceAsync();
+            _channelsViewModel = Task.Run(ChannelsViewModel.GetInstanceAsync).Result;
             Resources.Add("ChannelsViewModel", _channelsViewModel);
 
             //  Create a copy of Channels in TrayViewModel
@@ -74,7 +74,7 @@ namespace Irvuewin
             Logger.Information("RandomWallpaper: {RandomWallpaper}", randomWallpaper);
             if (!randomWallpaper)
             {
-                await IrvuewinCore.LoadCachedSequence();
+                Task.Run(IrvuewinCore.LoadCachedSequence);
             }
 
             // Async Change wallpaper when app start
@@ -131,18 +131,15 @@ namespace Irvuewin
 
         public void RefreshTrayIcon()
         {
-            var notifyIcon = FindResource("NotifyIcon") as H.NotifyIcon.TaskbarIcon;
-            if (notifyIcon == null) return;
+            if (FindResource("NotifyIcon") is not TaskbarIcon taskbarIcon) return;
 
             var geometry = FindResource("Icon_AppLogo") as Geometry;
             var brush = FindResource("PrimaryTextBrush") as Brush;
 
-            if (geometry != null && brush != null)
-            {
-                var icon = Helpers.IconHelper.GenerateIcon(geometry, brush,
-                    32); // Use 32 for better quality on High DPI
-                notifyIcon.Icon = icon;
-            }
+            if (geometry == null || brush == null) return;
+            // Use 32 for better quality on High DPI, but restrict content to 28 for visual padding
+            var icon = IconHelper.GenerateIcon(geometry, brush, 32, 28);
+            taskbarIcon.Icon = icon;
         }
 
         //----------------------------------- TrayMenu ---------------------------------//

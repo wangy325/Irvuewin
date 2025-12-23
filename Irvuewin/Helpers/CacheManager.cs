@@ -18,9 +18,9 @@ namespace Irvuewin.Helpers
         /// <summary>
         /// Default Timespan: 7 days
         /// </summary>
-        private static readonly TimeSpan Expiration =  TimeSpan.FromDays(7); 
-            
-            
+        private static readonly TimeSpan Expiration = TimeSpan.FromDays(7);
+
+
         /// <summary>
         /// Saves a value to the cache with an optional expiration.
         /// </summary>
@@ -122,6 +122,16 @@ namespace Irvuewin.Helpers
             var list = new List<(string, string)> { (key1, key2) };
             CachedRange<T>.Remove(list);
         }
+
+        public static bool Exists<T>(string key)
+        {
+            return TryGet<T>(key, out _);
+        }
+
+        public static bool Exists<T>(string key1, string key2)
+        {
+            return TryGet<T>(key1, key2, out _);
+        }
     }
 
 
@@ -182,7 +192,7 @@ namespace Irvuewin.Helpers
 
         /// <summary>
         /// Cache Photos of specify channel which are get from unsplash pagination web API to local disk file. <br/>
-        /// Full Path: AppDataFolder/AppName/photos/channelId/filename <br/>
+        /// Full Path: AppDataFolder/AppName/channel/channelId/filename <br/>
         /// Caches are saved by shard(page).
         /// </summary>
         /// <returns></returns>
@@ -207,6 +217,7 @@ namespace Irvuewin.Helpers
         /// </summary>
         /// <param name="index"><see cref="PhotosCachePageIndex"/>></param>
         /// <returns><see cref="UnsplashPhoto"/> list, or null if cache file does not exist or exception occurs</returns>
+        [Obsolete("App does not load cached photos by shard")]
         public static async Task<List<UnsplashPhoto>?> LoadPhotosShardAsync(PhotosCachePageIndex index)
         {
             var filePath = FileUtils.CachePath(
@@ -254,6 +265,43 @@ namespace Irvuewin.Helpers
                     ?.Count;
 
             return (int)((files.Length - 1) * PageSize + latestShardCount)!;
+        }
+        
+        /// <summary>
+        /// Load all cached photos of specify chanel id.
+        /// </summary>
+        /// <param name="cid">channel id</param>
+        /// <returns>List of photos, or null if no photo cached or exception occured.</returns>
+        public static async Task<List<UnsplashPhoto>?> LoadPhotosAsync(string cid)
+        {
+            var folder = Path.Combine(FileUtils.CachedPhotoBaseFolder, cid);
+            if (!Directory.Exists(folder)) return null;
+            var files = Directory.GetFiles(folder);
+            if (files.Length == 0) return null;
+            var res = new List<UnsplashPhoto>();
+            try
+            {
+                foreach (var file in files)
+                {
+                    var photoString = await File.ReadAllTextAsync(file);
+                    var photoShard = JsonConvert.DeserializeObject<List<UnsplashPhoto>>(
+                        photoString,
+                        JsonHelper.Settings) ?? [];
+                    /*var shard = photoShard.Select(v => new UnsplashPhoto
+                    {
+                        Id = v.Id,
+                        Urls = v.Urls,
+                    }).ToList();*/
+                    res.AddRange(photoShard);
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e, "LoadPhotosAsync error");
+                return null;
+            }
+
+            return res;
         }
 
         /// <summary>

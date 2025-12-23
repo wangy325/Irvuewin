@@ -7,7 +7,7 @@ namespace Irvuewin.Models.Unsplash
 {
     public partial class UnsplashPhoto
     {
-        [JsonProperty("id")] public string Id { get; set; }
+        
 
         [JsonProperty("slug")] public string Slug { get; set; }
 
@@ -21,7 +21,7 @@ namespace Irvuewin.Models.Unsplash
 
         [JsonProperty("height")] public long Height { get; set; }
 
-        [JsonProperty("urls")] public Urls Urls { get; set; }
+        
 
         [JsonProperty("links")] public Links Links { get; set; }
 
@@ -140,5 +140,11 @@ namespace Irvuewin.Models.Unsplash
     public partial class UnsplashPhoto
     {
         [JsonProperty("isFiltered")]public bool IsFiltered { get; set; }
+    }
+
+    public partial class UnsplashPhoto
+    {
+        [JsonProperty("id")] public string Id { get; set; }
+        [JsonProperty("urls")] public Urls Urls { get; set; }
     }
 }

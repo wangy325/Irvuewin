@@ -260,7 +260,6 @@
                             </StackPanel>
                         </Label.Content>
                     </Label>
-                    <!-- TODO animation -->
                     <Button Grid.Column="1"
                             x:Name="RefreshButton"
                             Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Channels_Refresh]}"

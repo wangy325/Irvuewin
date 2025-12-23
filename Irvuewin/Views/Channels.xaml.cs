@@ -1,6 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using Irvuewin.Helpers;
 using Irvuewin.Models.Unsplash;
 using Irvuewin.ViewModels;
 using WpfToolkit.Controls;
@@ -41,7 +42,7 @@ public partial class Channels
         {
             Logger.Information(@"Window_Closing: Saving channels...");
             // TODO Double check 
-            await viewModel.CacheChannels();
+            await FileCacheManager.CacheChannelsAsync([..viewModel.Channels]);
         }
 
         Logger.Information(@"Window Closed.");
@@ -50,7 +51,7 @@ public partial class Channels
     private void Channels_Detail_Click(object sender, RoutedEventArgs e)
     {
         var viewModel = DataContext as ChannelsViewModel;
-        var checkedChannel = viewModel!.Channels.First(c => c.Id == viewModel.CheckedChannel);
+        var checkedChannel = viewModel!.Channels.First(c => c.Id == viewModel.CheckedChannelId);
         Logger.Information(@"Selected Channel: {CheckedChannelTitle}", checkedChannel.Title);
         try
         {

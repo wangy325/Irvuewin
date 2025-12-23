@@ -64,7 +64,7 @@ namespace Irvuewin.Controls
             if (string.IsNullOrEmpty(FullPath)) return;
 
             // page width
-            // TODO: 首次打开窗口读数为0
+            // 首次打开窗口读数为0
             var contentWidth = ActualWidth == 0 ? 286 : ActualWidth;
             //Debug.WriteLine($"page width: {contentWidth}");
             var directories = FullPath.Split(System.IO.Path.DirectorySeparatorChar);

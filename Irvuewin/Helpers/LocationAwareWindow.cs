@@ -55,7 +55,7 @@ namespace Irvuewin.Helpers
                 if (geometry != null && brush != null)
                 {
                     // Generate ImageSource for Window Icon (not System.Drawing.Icon)
-                    this.Icon = IconHelper.GenerateImageSource(geometry, brush, 32);
+                    this.Icon = IconHelper.GenerateImageSource(geometry, brush, 24);
                 }
             }
             catch (Exception ex)
