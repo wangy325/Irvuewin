@@ -106,11 +106,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
             OnPropertyChanged();
         }
     }
-
-    /// <summary>
-    /// Wallpaper shard index (page index) for each channel
-    /// </summary>
-    // private readonly Dictionary<string, int> _shardIndex = new();
+    
     private bool _allPhotosLoaded;
 
     /// <summary>
@@ -402,6 +398,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
         catch (Exception e)
         {
             // ignore
+            Logger.Error(@"Channel select error: {0}", e.Message);
         }
     }
 
@@ -440,6 +437,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
         catch (Exception e)
         {
             // ignore
+            Logger.Error(@"Channel check error: {0}", e.Message);
         }
     }
 
@@ -557,6 +555,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
         catch (Exception e)
         {
             // ignore
+            Logger.Error(@"Manually setup wallpaper error: {0}", e.Message);
         }
     }
 
@@ -583,6 +582,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
         catch (Exception e)
         {
             // ignore
+            Logger.Error(@"Manually download wallpaper error: {0}", e.Message);
         }
     }
 

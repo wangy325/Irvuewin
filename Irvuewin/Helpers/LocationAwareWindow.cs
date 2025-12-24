@@ -18,7 +18,7 @@ namespace Irvuewin.Helpers
             WindowManager.LoadWindowPosition(this, PersistenceId);
 
             // Apply current theme to title bar
-            var isDark = ThemeManager.CurrentTheme == ThemeType.Dark;
+            // var isDark = ThemeManager.CurrentTheme == ThemeType.Dark;
             // Note: ThemeManager.CurrentTheme might be System, so we need to check actual state.
             // But ThemeManager doesn't expose strict IsDark boolean publicly easily without logic duplication.
             // Let's rely on checking if current dictionary is Dark.
@@ -58,7 +58,7 @@ namespace Irvuewin.Helpers
                     this.Icon = IconHelper.GenerateImageSource(geometry, brush, 24);
                 }
             }
-            catch (Exception ex)
+            catch
             {
                 // Log error or ignore
                 // ignore 

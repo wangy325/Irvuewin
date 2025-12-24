@@ -388,6 +388,7 @@ public static class IrvuewinCore
     /// if sequence = 17, pageSize = 10, then
     /// shardIndex = 2, shardPositionIndex= 6
     /// </example>
+    [Obsolete("No need to calculate anymore.")]
     private static (int shardIndex, int shardPositionIndex) CalShardIndex(int sequence)
     {
         // page index, position index of page content

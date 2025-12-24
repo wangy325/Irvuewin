@@ -217,7 +217,7 @@ namespace Irvuewin.Helpers
         /// </summary>
         /// <param name="index"><see cref="PhotosCachePageIndex"/>></param>
         /// <returns><see cref="UnsplashPhoto"/> list, or null if cache file does not exist or exception occurs</returns>
-        [Obsolete("App does not load cached photos by shard")]
+        [Obsolete("App does not load cached photos by shard any more")]
         public static async Task<List<UnsplashPhoto>?> LoadPhotosShardAsync(PhotosCachePageIndex index)
         {
             var filePath = FileUtils.CachePath(
