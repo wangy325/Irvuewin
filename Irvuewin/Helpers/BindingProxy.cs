@@ -26,7 +26,7 @@ namespace Irvuewin.Helpers
         /// </summary>
         public object Data
         {
-            get => (object)GetValue(DataProperty);
+            get => GetValue(DataProperty);
             set => SetValue(DataProperty, value);
         }
 

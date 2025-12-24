@@ -1,12 +1,11 @@
-using System;
 using System.Windows;
 using System.Windows.Media;
 
 namespace Irvuewin.Views
 {
-    public partial class MessageBoxWindow : Window
+    public partial class MessageBoxWindow
     {
-        public MessageBoxResult Result { get; private set; } = MessageBoxResult.Cancel;
+        private MessageBoxResult Result { get; set; } = MessageBoxResult.Cancel;
 
         private MessageBoxWindow()
         {
@@ -15,23 +14,29 @@ namespace Irvuewin.Views
 
         public static MessageBoxResult Show(string messageBoxText, string caption = "Tip", MessageBoxButton button = MessageBoxButton.OK, MessageBoxImage icon = MessageBoxImage.Information)
         {
-            var window = new MessageBoxWindow();
-            window.TitleText.Text = caption;
-            window.MessageText.Text = messageBoxText;
+            var window = new MessageBoxWindow
+            {
+                TitleText =
+                {
+                    Text = caption
+                },
+                MessageText =
+                {
+                    Text = messageBoxText
+                }
+            };
             window.InitButtons(button);
             window.InitIcon(icon);
             
             // Set Owner if possible for centering
-            Window ownerWindow = null;
+            Window? ownerWindow = null;
             if (Application.Current != null)
             {
                foreach (Window w in Application.Current.Windows)
                {
-                   if (w.IsActive && w.IsVisible)
-                   {
-                       ownerWindow = w;
-                       break;
-                   }
+                   if (!w.IsActive || !w.IsVisible) continue;
+                   ownerWindow = w;
+                   break;
                }
 
                // Fallback to MainWindow if no active window found (and MainWindow is visible)
@@ -96,8 +101,8 @@ namespace Irvuewin.Views
 
         private void InitIcon(MessageBoxImage icon)
         {
-            string pathData = "";
-            string color = "#3585FF";
+            var pathData = "";
+            var color = "#3585FF";
 
             switch (icon)
             {
@@ -125,7 +130,7 @@ namespace Irvuewin.Views
             try
             {
                 IconPath.Data = Geometry.Parse(pathData);
-                IconPath.Fill = (Brush)new BrushConverter().ConvertFromString(color);
+                IconPath.Fill = (Brush)new BrushConverter().ConvertFromString(color)!;
             }
             catch { // ignore
             }

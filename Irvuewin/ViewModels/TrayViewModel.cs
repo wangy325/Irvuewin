@@ -67,14 +67,14 @@ public class TrayViewModel : INotifyPropertyChanged
         }
     }
 
-    public ICommand LoadCachedSequenceCommand { get; } = new RelayCommand<object>(OnLoadCachedSequence);
-    public ICommand SaveCachedSequenceCommand { get; } = new RelayCommand<object>(OnSaveCachedSequence);
+    public ICommand LoadCachedSequenceCommand { get; } = new RelayCommand(OnLoadCachedSequence);
+    public ICommand SaveCachedSequenceCommand { get; } = new RelayCommand(OnSaveCachedSequence);
 
-    public ICommand OpenAddChannelWindowCommand { get; } = new RelayCommand<object>(OnAddNewChannel);
+    public ICommand OpenAddChannelWindowCommand { get; } = new RelayCommand(OnAddNewChannel);
 
-    public ICommand WallpaperInfoPageOpenCommand { get; } = new RelayCommand<object>(OnWallpaperInfoClicked);
+    public ICommand WallpaperInfoPageOpenCommand { get; } = new RelayCommand<string>(ICommonCommands.OpenUrl);
 
-    public ICommand TrayMenuOpenedCommand { get; } = new RelayCommand<object>(OnCheckDisplay);
+    public ICommand TrayMenuOpenedCommand { get; } = new RelayCommand(OnCheckDisplay);
 
     public TrayViewModel()
     {
@@ -112,7 +112,7 @@ public class TrayViewModel : INotifyPropertyChanged
 
     private static string? _lastDisplayName;
     
-    private static void OnCheckDisplay(object param)
+    private static void OnCheckDisplay(object? param)
     {
         IrvuewinCore.CheckPointer();
         var sid = IrvuewinCore.CurrentPointerDisplay.Name;
@@ -165,37 +165,22 @@ public class TrayViewModel : INotifyPropertyChanged
         }
     }
 
-    private static void OnWallpaperInfoClicked(object obj)
-    {
-        try
-        {
-            var url = obj as string;
-            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
-            {
-                FileName = url,
-                UseShellExecute = true
-            });
-        }
-        catch (Exception)
-        {
-            // Ignore
-        }
-    }
+    
 
-    private static void OnAddNewChannel(object obj)
+    private static void OnAddNewChannel(object? obj)
     {
         WindowManager.ShowWindow(nameof(Channels), () => new Channels());
         WindowManager.ShowWindow(nameof(AddChannel), () => new AddChannel(), true);
     }
 
-    private static void OnLoadCachedSequence(object obj)
+    private static void OnLoadCachedSequence(object? obj)
     {
         // Load Cached resources
         Task.Run(IrvuewinCore.LoadCachedSequence);
         Properties.Settings.Default.Save();
     }
 
-    private static void OnSaveCachedSequence(object obj)
+    private static void OnSaveCachedSequence(object? obj)
     {
         // Save Cache
         IrvuewinCore.SaveCachedSequence();

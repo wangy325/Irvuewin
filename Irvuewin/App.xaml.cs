@@ -1,6 +1,8 @@
 ﻿using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
+using System.Windows.Forms;
 using AutoMapper;
 using H.NotifyIcon;
 using Irvuewin.Helpers;
@@ -106,7 +108,7 @@ namespace Irvuewin
         private void SetupExceptionHandling()
         {
             // Catch exceptions from all threads in the AppDomain.
-            AppDomain.CurrentDomain.UnhandledException += (s, args) =>
+            AppDomain.CurrentDomain.UnhandledException += (_, args) =>
             {
                 var exception = args.ExceptionObject as Exception;
                 Logger.Fatal(exception, "AppDomain.CurrentDomain.UnhandledException");
@@ -114,7 +116,7 @@ namespace Irvuewin
             };
 
             // Catch exceptions from the main UI dispatcher thread.
-            DispatcherUnhandledException += (s, args) =>
+            DispatcherUnhandledException += (_, args) =>
             {
                 Logger.Fatal(args.Exception, "DispatcherUnhandledException");
                 // args.Handled = true; // Uncomment if we want to prevent crash, but hazardous.
@@ -122,7 +124,7 @@ namespace Irvuewin
             };
 
             // Catch exceptions from unobserved tasks.
-            TaskScheduler.UnobservedTaskException += (s, args) =>
+            TaskScheduler.UnobservedTaskException += (_, args) =>
             {
                 Logger.Error(args.Exception, "TaskScheduler.UnobservedTaskException");
                 args.SetObserved();
@@ -144,9 +146,9 @@ namespace Irvuewin
 
         //----------------------------------- TrayMenu ---------------------------------//
 
-        private async void ChangeCurrentWallpaper_Click(object sender, RoutedEventArgs args)
+        private void ChangeCurrentWallpaper_Click(object sender, RoutedEventArgs args)
         {
-            await IrvuewinCore.ChangeCurrentWallpaper();
+            IrvuewinCore.ChangeCurrentWallpaper();
         }
 
         private void ChangeAllWallpaper_Click(object sender, RoutedEventArgs e)
@@ -241,27 +243,34 @@ namespace Irvuewin
         private void TrayMouseRight_Click(object sender, RoutedEventArgs e)
         {
             // Create anchor window if needed
+            
+            try
+            {
+                // Get mouse position (Physical pixels)
+                var point = Cursor.Position;
 
+                // Use SetWindowPos to position the anchor window at the exact physical coordinates
+                var helper = new WindowInteropHelper(_anchorWindow!);
+                NativeMethods.SetWindowPos(helper.Handle, NativeMethods.HWND_TOP, point.X, point.Y, 0, 0,
+                    NativeMethods.SWP_NOSIZE | NativeMethods.SWP_NOACTIVATE | NativeMethods.SWP_SHOWWINDOW);
 
-            // Get mouse position (Physical pixels)
-            var point = System.Windows.Forms.Cursor.Position;
+                // Set foreground window to ensure menu closes on outside click
+                NativeMethods.SetForegroundWindow(helper.Handle);
 
-            // Use SetWindowPos to position the anchor window at the exact physical coordinates
-            var helper = new WindowInteropHelper(_anchorWindow!);
-            NativeMethods.SetWindowPos(helper.Handle, NativeMethods.HWND_TOP, point.X, point.Y, 0, 0,
-                NativeMethods.SWP_NOSIZE | NativeMethods.SWP_NOACTIVATE | NativeMethods.SWP_SHOWWINDOW);
+                // Get Context Menu from Resources
+                if (FindResource("TrayContextMenu") is not ContextMenu contextMenu) return;
 
-            // Set foreground window to ensure menu closes on outside click
-            NativeMethods.SetForegroundWindow(helper.Handle);
+                contextMenu.PlacementTarget = _anchorWindow;
+                contextMenu.Placement = PlacementMode.Bottom;
+                contextMenu.IsOpen = true;
 
-            // Get Context Menu from Resources
-            if (FindResource("TrayContextMenu") is not ContextMenu contextMenu) return;
-
-            contextMenu.PlacementTarget = _anchorWindow;
-            contextMenu.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom;
-            contextMenu.IsOpen = true;
-
-            contextMenu.Closed += (s, args) => _anchorWindow!.Hide();
+                contextMenu.Closed += (_, _) => _anchorWindow!.Hide();
+            }
+            catch (Exception ex)
+            {
+                // ignored
+                Logger.Error("Fatal error: {0}", ex.Message);
+            }
         }
     }
 }

@@ -36,36 +36,29 @@ public partial class Channels
 
     private async void ChannelsWindow_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
     {
-        _isInitialized = false;
-        // 更新频道数据缓存
-        if (DataContext is ChannelsViewModel viewModel)
+        try
         {
-            Logger.Information(@"Window_Closing: Saving channels...");
-            // TODO Double check 
-            await FileCacheManager.CacheChannelsAsync([..viewModel.Channels]);
-        }
+            _isInitialized = false;
+            // 更新频道数据缓存
+            if (DataContext is ChannelsViewModel viewModel)
+            {
+                // TODO Double check 
+                await FileCacheManager.CacheChannelsAsync([..viewModel.Channels]);
+            }
 
-        Logger.Information(@"Window Closed.");
+            Logger.Information(@"Window Closed.");
+        }
+        catch 
+        {
+           // ignore
+        }
     }
 
     private void Channels_Detail_Click(object sender, RoutedEventArgs e)
     {
         var viewModel = DataContext as ChannelsViewModel;
         var checkedChannel = viewModel!.Channels.First(c => c.Id == viewModel.CheckedChannelId);
-        Logger.Information(@"Selected Channel: {CheckedChannelTitle}", checkedChannel.Title);
-        try
-        {
-            // Open link with default browser
-            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
-            {
-                FileName = checkedChannel.Links.Html.OriginalString,
-                UseShellExecute = true
-            });
-        }
-        catch (Exception ex)
-        {
-            Logger.Error(@"打开链接失败: {ExMessage}", ex.Message);
-        }
+        ICommonCommands.OpenUrl(checkedChannel.Links.Html.OriginalString);
     }
 
 

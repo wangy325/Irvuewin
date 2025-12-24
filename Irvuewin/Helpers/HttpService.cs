@@ -37,7 +37,7 @@ namespace Irvuewin.Helpers
 
     public class UnsplashHttpService
     {
-        private static readonly ILogger Logger = Log.ForContext(typeof(UnsplashHttpService));
+        private static readonly ILogger Logger = Log.ForContext<UnsplashHttpService>();
         private readonly IHttpClient _client;
         private const string BaseUrl = "https://api.unsplash.com";
         private const string Photos = "photos";

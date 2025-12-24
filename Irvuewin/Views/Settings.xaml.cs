@@ -1,6 +1,5 @@
 ﻿using System.IO;
 using System.Windows;
-using H.NotifyIcon;
 using Irvuewin.Helpers;
 using Irvuewin.ViewModels;
 using Serilog;
@@ -10,7 +9,7 @@ namespace Irvuewin.Views;
 
 public partial class Settings
 {
-    private static readonly ILogger  Logger = Log.ForContext(typeof(Settings)); 
+    // private static readonly ILogger  Logger = Log.ForContext<Settings>(); 
     public Settings()
     {
         InitializeComponent();
@@ -57,41 +56,11 @@ public partial class Settings
         }
         // WallpaperSavePathTextBox.Text = selectedPath;
 
-        var settingsViewModel = this.DataContext as SettingsViewModel;
+        var settingsViewModel = DataContext as SettingsViewModel;
         settingsViewModel!.WallpaperSavedPath = selectedPath;
-
-        // PathDisplayControl.FullPath = selectedPath;
-        // 更新回显
-        /*if (PathDisplayControl.ToolTip is ToolTip { Content: TextBlock textBlock })
-            {
-                textBlock.Text = selectedPath;
-            }*/
-
+        // Save user settings
         Properties.Settings.Default.WallpaperSavedPath = selectedPath;
         Properties.Settings.Default.Save();
-    }
-
-    /// <summary>
-    /// SAVE BUTTON
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
-    private void SaveSettingsButton_Click(object sender, RoutedEventArgs e)
-    {
-        // UNDONE: Get and save page data
-
-        var _TaskBarIcon = (TaskbarIcon)FindResource("NotifyIcon");
-        // _TaskBarIcon.ShowBalloonTip("INFO", "Saved Settings", BalloonIcon.Info);
-    }
-
-    /// <summary>
-    /// CANCEL BUTTON
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
-    private void CancelSettingsButton_Click(object sender, RoutedEventArgs e)
-    {
-        this.Hide();
     }
 
     private void ClearCache_Click(object sender, RoutedEventArgs e)
@@ -105,7 +74,6 @@ public partial class Settings
         if (result == MessageBoxResult.Yes)
         {
             var cachePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Irvuewin", "splash");
-            // Logger.Debug(@"Deleting wallpaper cache {cachePath}",  cachePath);
             // Delete cache logic
             if (Directory.Exists(cachePath))
             {

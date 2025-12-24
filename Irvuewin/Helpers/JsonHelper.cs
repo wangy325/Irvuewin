@@ -25,7 +25,7 @@ namespace Irvuewin.Helpers
     {
         public override bool CanConvert(Type t) => t == typeof(AssetType) || t == typeof(AssetType?);
 
-        public override object ReadJson(JsonReader reader, Type t, object existingValue, JsonSerializer serializer)
+        public override object? ReadJson(JsonReader reader, Type t, object? existingValue, JsonSerializer serializer)
         {
             if (reader.TokenType == JsonToken.Null) return null;
             var value = serializer.Deserialize<string>(reader);

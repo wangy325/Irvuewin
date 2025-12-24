@@ -9,7 +9,6 @@
     xmlns:vm="clr-namespace:Irvuewin.ViewModels"
     xmlns:vwp="clr-namespace:WpfToolkit.Controls;assembly=VirtualizingWrapPanel"
     xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
-    xmlns:properties="clr-namespace:Irvuewin.Properties"
     mc:Ignorable="d"
     Title="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Window_Channels_Title]}"
     Height="720" Width="960" MinWidth="500"
@@ -24,15 +23,13 @@
 
     <helpers:LocationAwareWindow.Resources>
         <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-            </ResourceDictionary.MergedDictionaries>
-        <Style x:Key="ChannelContextMenuStyle" TargetType="ContextMenu"
-               BasedOn="{StaticResource ContextMenuStyle}">
-            <Setter Property="Width" Value="Auto" />
-            <Setter Property="MaxWidth" Value="180" />
-            <Setter Property="MinWidth" Value="100" />
-            <Setter Property="Height" Value="Auto" />
-        </Style>
+            <Style x:Key="ChannelContextMenuStyle" TargetType="ContextMenu"
+                   BasedOn="{StaticResource ContextMenuStyle}">
+                <Setter Property="Width" Value="Auto" />
+                <Setter Property="MaxWidth" Value="180" />
+                <Setter Property="MinWidth" Value="100" />
+                <Setter Property="Height" Value="Auto" />
+            </Style>
         </ResourceDictionary>
     </helpers:LocationAwareWindow.Resources>
 
@@ -54,7 +51,8 @@
                 <DataTemplate x:Key="ChannelsItemTemplate" DataType="{x:Type vm:ChannelViewModel}">
                     <Grid>
                         <i:Interaction.Triggers>
-                            <i:EventTrigger EventName="Selected" SourceObject="{Binding RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}">
+                            <i:EventTrigger EventName="Selected"
+                                            SourceObject="{Binding RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}">
                                 <i:InvokeCommandAction
                                     Command="{Binding ChannelSelected}"
                                     CommandParameter="{Binding}" />
@@ -89,7 +87,7 @@
                                 <ToolTip Style="{StaticResource ToolTipStyle}"
                                          Content="{Binding Title}" />
                             </TextBlock.ToolTip>
-                            
+
                         </TextBlock>
                         <RadioButton x:Name="PART_RadioButton"
                                      Grid.Column="2"
@@ -146,27 +144,39 @@
 
             <Grid.Resources>
                 <DataTemplate x:Key="VItemControlTemplate" DataType="{x:Type m:UnsplashPhoto}">
-                    <Grid Tag="{Binding DataContext, RelativeSource={RelativeSource AncestorType=helpers:LocationAwareWindow}}">
+                    <Grid>
+                        <Grid.Resources>
+                            <helpers:BindingProxy x:Key="VmProxy"
+                                                  Data="{Binding DataContext, RelativeSource={RelativeSource AncestorType=helpers:LocationAwareWindow}}" />
+                        </Grid.Resources>
                         <Grid.ContextMenu>
-                            <ContextMenu Style="{StaticResource ChannelContextMenuStyle}">
-                                <MenuItem Header="{Binding Source={x:Static helpers:Localization.Instance}, Path=[ContextMenu_SetWallpaper]}"
-                                          Command="{Binding PlacementTarget.Tag.SetAsWallpaperCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
-                                          CommandParameter="{Binding}" />
-                                <MenuItem Header="{Binding Source={x:Static helpers:Localization.Instance}, Path=[ContextMenu_Download]}"
-                                          Command="{Binding PlacementTarget.Tag.DownloadPhotoCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
-                                          CommandParameter="{Binding}" />
-                                <MenuItem Header="{Binding Source={x:Static helpers:Localization.Instance}, Path=[ContextMenu_ViewPhoto]}"
-                                          Command="{Binding PlacementTarget.Tag.ViewPhotoCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
-                                          CommandParameter="{Binding}" />
-                                <MenuItem Header="{Binding Source={x:Static helpers:Localization.Instance}, Path=[ContextMenu_ViewAuthor]}"
-                                          Command="{Binding PlacementTarget.Tag.ViewAuthorCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
-                                          CommandParameter="{Binding}" />
-                                <MenuItem Header="{Binding Source={x:Static helpers:Localization.Instance}, Path=[ContextMenu_HideWallpaper]}"
-                                          Command="{Binding PlacementTarget.Tag.HidePhotoCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
-                                          CommandParameter="{Binding}"/>
-                                <MenuItem Header="{Binding Source={x:Static helpers:Localization.Instance}, Path=[ContextMenu_HideAuthor]}"
-                                          Command="{Binding PlacementTarget.Tag.HideAuthorCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
-                                          CommandParameter="{Binding}"/>
+                            <ContextMenu Style="{StaticResource ChannelContextMenuStyle}"
+                                         d:DataContext="{d:DesignInstance vm:ChannelsViewModel}"
+                                         DataContext="{Binding Data, Source={StaticResource VmProxy}}">
+                                <MenuItem
+                                    Header="{Binding Source={x:Static helpers:Localization.Instance}, Path=[ContextMenu_SetWallpaper]}"
+                                    Command="{Binding SetAsWallpaperCommand}"
+                                    CommandParameter="{Binding Path=PlacementTarget.DataContext, RelativeSource={ RelativeSource AncestorType=ContextMenu}}"/>
+                                <MenuItem
+                                    Header="{Binding Source={x:Static helpers:Localization.Instance}, Path=[ContextMenu_Download]}"
+                                    Command="{Binding DownloadPhotoCommand}"
+                                    CommandParameter="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
+                                <MenuItem
+                                    Header="{Binding Source={x:Static helpers:Localization.Instance}, Path=[ContextMenu_ViewPhoto]}"
+                                    Command="{Binding ViewPhotoCommand}"
+                                    CommandParameter="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
+                                <MenuItem
+                                    Header="{Binding Source={x:Static helpers:Localization.Instance}, Path=[ContextMenu_ViewAuthor]}"
+                                    Command="{Binding ViewAuthorCommand}"
+                                    CommandParameter="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
+                                <MenuItem
+                                    Header="{Binding Source={x:Static helpers:Localization.Instance}, Path=[ContextMenu_HideWallpaper]}"
+                                    Command="{Binding HidePhotoCommand}"
+                                    CommandParameter="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
+                                <MenuItem
+                                    Header="{Binding Source={x:Static helpers:Localization.Instance}, Path=[ContextMenu_HideAuthor]}"
+                                    Command="{Binding HideAuthorCommand}"
+                                    CommandParameter="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
                             </ContextMenu>
                         </Grid.ContextMenu>
                         <Grid.RowDefinitions>
@@ -256,7 +266,8 @@
                                         Background="{DynamicResource WindowBackgroundBrush}"
                                         Click="Channels_Detail_Click"
                                         Style="{StaticResource ButtonStyle}">
-                                    <Path Fill="{DynamicResource PrimaryTextBrush}" Data="{StaticResource Icon_Link}" Width="10" Height="10" Stretch="Uniform" />
+                                    <Path Fill="{DynamicResource PrimaryTextBrush}" Data="{StaticResource Icon_Link}"
+                                          Width="10" Height="10" Stretch="Uniform" />
                                 </Button>
                             </StackPanel>
                         </Label.Content>
@@ -285,12 +296,14 @@
                             </Style>
                         </Border.Style>
                         <Border.ToolTip>
-                            <ToolTip Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Channels_RefreshTooltip]}"
-                                     Placement="Left"
-                                     PlacementTarget="{Binding ElementName=RefreshButton}"
-                                     Style="{StaticResource ToolTipStyle}" />
+                            <ToolTip
+                                Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Channels_RefreshTooltip]}"
+                                Placement="Left"
+                                PlacementTarget="{Binding ElementName=RefreshButton}"
+                                Style="{StaticResource ToolTipStyle}" />
                         </Border.ToolTip>
-                        <Path Fill="{DynamicResource PrimaryTextBrush}" Data="{StaticResource Icon_Question}" Stretch="Uniform" Margin="2" />
+                        <Path Fill="{DynamicResource PrimaryTextBrush}" Data="{StaticResource Icon_Question}"
+                              Stretch="Uniform" Margin="2" />
                     </Border>
 
                 </Grid>

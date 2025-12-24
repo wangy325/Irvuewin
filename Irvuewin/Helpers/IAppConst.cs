@@ -10,6 +10,7 @@ public interface IAppConst
     static readonly string DefaultWallpaperDownloadDir = GetFolderPath(MyPictures);
 
     const string AppName = "Irvuewin";
+    const string UnsplashUrl = "https://unsplash.com/collections";
     // const string WallpaperCacheFolder = "splash";
     // const string ChannelCacheFolder = "channel";
 

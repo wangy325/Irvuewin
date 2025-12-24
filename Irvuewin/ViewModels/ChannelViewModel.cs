@@ -22,23 +22,21 @@ public class ChannelViewModel : UnsplashChannel, INotifyPropertyChanged
         }
     }
 
-    public ICommand ChannelSelected { set; get; } = new RelayCommand<object>(OnChannelSelected);
-    public ICommand ChannelChecked { set; get; } = new RelayCommand<object>(OnChannelChecked);
+    public ICommand ChannelSelected { set; get; } = new RelayCommand<ChannelViewModel>(OnChannelSelected);
+    public ICommand ChannelChecked { set; get; } = new RelayCommand<ChannelViewModel>(OnChannelChecked);
 
-    private static void OnChannelSelected(object param)
+    private static void OnChannelSelected(ChannelViewModel param)
     {
-        if (param is not ChannelViewModel item) return;
         var channelsWindow = ChannelsViewModel.GetInstance();
-        channelsWindow.ChannelSelected2.Execute(item);
+        channelsWindow.ChannelSelected2.Execute(param);
     }
     
 
     // Change app status
-    private static void OnChannelChecked(object param)
+    private static void OnChannelChecked(ChannelViewModel param)
     {
-        if (param is not ChannelViewModel item) return;
         var channelsWindow = ChannelsViewModel.GetInstance();
-        channelsWindow.ChannelChecked2.Execute(item);
+        channelsWindow.ChannelChecked2.Execute(param);
     }
 
 

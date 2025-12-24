@@ -93,7 +93,7 @@
                                Foreground="{DynamicResource SecondaryTextBrush}" />
                     <Button Content="{Binding Source={x:Static helper:Localization.Instance}, Path=[Add_Channel_Unsplash_Link]}"
                             Width="150"
-                            Command="{Binding OpenUnsplashCommand}"
+                            Command="{Binding OpenUrlCommand}"
                             Style="{StaticResource BottomButtonStyle}" />
                 </StackPanel>
             </DataTemplate>
@@ -276,7 +276,7 @@
                          x:Name="PreChannelsListBox"
                          helper:ListBoxSelectedItemsBehavior.BindableSelectedItems="{Binding SelectedChannels, Mode=TwoWay}"
                          Style="{StaticResource ChannelMultipleSelectorStyle}"
-                         ItemsSource="{Binding PreChannels}"
+                         ItemsSource="{Binding SearchedChannelResult}"
                          ItemContainerStyle="{StaticResource ChannelSelectorBoxItemStyle}"
                          ItemTemplate="{StaticResource ResolvingChannelsTemplate}">
 

@@ -66,7 +66,7 @@ public partial class AddChannel
                 await viewModel.SearchChannels(url);
             }
         }
-        catch (Exception ex)
+        catch 
         {
             // ignore
         }

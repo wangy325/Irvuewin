@@ -129,7 +129,6 @@ public class ChannelsViewModel : INotifyPropertyChanged
     public ICommand ChannelSelected2 { get; }
     public ICommand ChannelChecked2 { get; }
     public ICommand LoadMorePhotos { get; }
-
     public ICommand SetAsWallpaperCommand { get; set; }
     public ICommand DownloadPhotoCommand { get; set; }
     public ICommand ViewPhotoCommand { get; set; }
@@ -155,16 +154,15 @@ public class ChannelsViewModel : INotifyPropertyChanged
             PerPage = PageSize,
             Orientation = Properties.Settings.Default.WallpaperOrientation
         };
-        LoadMorePhotos = new RelayCommand<object>(OnLoadMorePhotos);
+        LoadMorePhotos = new RelayCommand<UnsplashChannel>(OnLoadMorePhotos);
         ChannelSelected2 = new RelayCommand<ChannelViewModel>(OnChannelSelected);
         ChannelChecked2 = new RelayCommand<ChannelViewModel>(OnChannelChecked);
-
-        SetAsWallpaperCommand = new RelayCommand<object>(OnSetAsWallpaper);
-        DownloadPhotoCommand = new RelayCommand<object>(OnDownloadPhoto);
-        ViewPhotoCommand = new RelayCommand<object>(OnViewPhoto);
-        ViewAuthorCommand = new RelayCommand<object>(OnViewAuthor);
-        HidePhotoCommand = new RelayCommand<object>(OnHidePhoto);
-        HideAuthorCommand = new RelayCommand<object>(OnHideAuthor);
+        SetAsWallpaperCommand = new RelayCommand<UnsplashPhoto>(OnSetAsWallpaper);
+        DownloadPhotoCommand = new RelayCommand<UnsplashPhoto>(OnDownloadPhoto);
+        ViewPhotoCommand = new RelayCommand<UnsplashPhoto>(OnViewPhoto);
+        ViewAuthorCommand = new RelayCommand<UnsplashPhoto>(OnViewAuthor);
+        HidePhotoCommand = new RelayCommand<UnsplashPhoto>(OnHidePhoto);
+        HideAuthorCommand = new RelayCommand<UnsplashPhoto>(OnHideAuthor);
     }
 
     public static Task<ChannelsViewModel> GetInstanceAsync()
@@ -378,12 +376,11 @@ public class ChannelsViewModel : INotifyPropertyChanged
     /// But next wallpaper will still be fetched from checked channel (Radio).
     /// This will reload all photos preview from selected photo.
     /// </summary>
-    /// <param name="param"></param>
-    private async void OnChannelSelected(object param)
+    /// <param name="item">ChannelViewModel</param>
+    private async void OnChannelSelected(ChannelViewModel item)
     {
         try
         {
-            if (param is not ChannelViewModel item) return;
             SelectedChannel = item;
             if (CacheManager.Exists<List<UnsplashPhoto>>
                     (CachedWallpapers, item.Id))
@@ -406,13 +403,11 @@ public class ChannelsViewModel : INotifyPropertyChanged
     /// <summary>
     /// Once channel is checked, means next wallpaper is fetched from this channel.
     /// </summary>
-    /// <param name="param"></param>
-    private void OnChannelChecked(object param)
+    /// <param name="item">ChannelViewModel</param>
+    private void OnChannelChecked(ChannelViewModel item)
     {
         try
         {
-            if (param is not ChannelViewModel item) return;
-
             // Update selected status
             item.IsChecked = true;
             // Ignore continuous click
@@ -444,12 +439,11 @@ public class ChannelsViewModel : INotifyPropertyChanged
     /// <summary>
     /// Wallpaper view board scroll update.
     /// </summary>
-    /// <param name="obj"></param>
-    private async void OnLoadMorePhotos(object obj)
+    /// <param name="channel">UnsplashChannel</param>
+    private async void OnLoadMorePhotos(UnsplashChannel channel)
     {
         try
         {
-            if (obj is not UnsplashChannel channel) return;
             Logger.Information(@"Loading more photos of channel {0}", CheckedChannelId);
             if (IsBusy) return;
             if (AllPhotosLoaded) return;
@@ -540,11 +534,10 @@ public class ChannelsViewModel : INotifyPropertyChanged
         }
     }
 
-    private static async void OnSetAsWallpaper(object obj)
+    private static async void OnSetAsWallpaper(UnsplashPhoto photo)
     {
         try
         {
-            if (obj is not UnsplashPhoto photo) return;
             IrvuewinCore.CheckPointer();
             if (await WallpaperUtil.SetWallpaperForSpecificMonitor(IrvuewinCore.CurrentPointerDisplay, photo) is not
                 { } path) return;
@@ -559,11 +552,10 @@ public class ChannelsViewModel : INotifyPropertyChanged
         }
     }
 
-    private static async void OnDownloadPhoto(object obj)
+    private static async void OnDownloadPhoto(UnsplashPhoto photo)
     {
         try
         {
-            if (obj is not UnsplashPhoto photo) return;
             var dest = Properties.Settings.Default.WallpaperSavedPath;
             if (string.IsNullOrWhiteSpace(dest))
             {
@@ -586,40 +578,23 @@ public class ChannelsViewModel : INotifyPropertyChanged
         }
     }
 
-    private static void OnViewPhoto(object obj)
+    private static void OnViewPhoto(UnsplashPhoto photo)
     {
-        if (obj is not UnsplashPhoto photo) return;
-        OpenUrl(photo.Links.Html.ToString());
+        ICommonCommands.OpenUrl(photo.Links.Html.ToString());
     }
 
-    private static void OnViewAuthor(object obj)
+    private static void OnViewAuthor(UnsplashPhoto photo)
     {
-        if (obj is not UnsplashPhoto photo) return;
-        OpenUrl(photo.User.Links.Html.ToString());
+        ICommonCommands.OpenUrl(photo.User.Links.Html.ToString());
     }
+    
 
-    private static void OpenUrl(string url)
-    {
-        try
-        {
-            Process.Start(new ProcessStartInfo
-            {
-                FileName = url,
-                UseShellExecute = true
-            });
-        }
-        catch (Exception ex)
-        {
-            Logger.Error(ex, "Failed to open url: {Url}", url);
-        }
-    }
-
-    private static void OnHidePhoto(object obj)
+    private static void OnHidePhoto(UnsplashPhoto photo)
     {
         MessageBoxWindow.Show("?");
     }
 
-    private static void OnHideAuthor(object obj)
+    private static void OnHideAuthor(UnsplashPhoto photo)
     {
         MessageBoxWindow.Show("!");
     }

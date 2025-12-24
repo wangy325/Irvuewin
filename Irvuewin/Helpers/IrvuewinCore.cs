@@ -155,49 +155,63 @@ public static class IrvuewinCore
     /// </summary>
     /// <param name="multiSetUp">False by default.
     /// True means method will set up wallpaper for multi displays.</param>
-    public static async Task ChangeCurrentWallpaper(bool multiSetUp = false)
+    public static async void ChangeCurrentWallpaper(bool multiSetUp = false)
     {
-        var cid = Properties.Settings.Default.UserCheckedChannel;
-        var randomWallpaper = Properties.Settings.Default.RandomWallpaper;
+        try
+        {
+            var cid = Properties.Settings.Default.UserCheckedChannel;
+            var randomWallpaper = Properties.Settings.Default.RandomWallpaper;
 
-        if (randomWallpaper)
-        {
-            await SetUpWallPaper(cid, random: true, multiSetUp: multiSetUp);
+            if (randomWallpaper)
+            {
+                await SetUpWallPaper(cid, random: true, multiSetUp: multiSetUp);
+            }
+            else
+            {
+                // Multi displays share same sequence
+                // So they can display different wallpapers without duplication
+                var sequence = CacheManager.TryGet(CachedChannelSeqPrefix, cid, out int s) ? s : 1;
+                await SetUpWallPaper(cid, sequence, multiSetUp: multiSetUp);
+            }
         }
-        else
+        catch 
         {
-            // Multi displays share same sequence
-            // So they can display different wallpapers without duplication
-            var sequence = CacheManager.TryGet(CachedChannelSeqPrefix, cid, out int s) ? s : 1;
-            await SetUpWallPaper(cid, sequence, multiSetUp: multiSetUp);
+            // ignore
         }
     }
 
     /// <summary>
     /// Setup all displays wallpaper from tray command.
     /// </summary>
-    public static async Task ChangeAllWallpaper()
+    public static async void ChangeAllWallpaper()
     {
-        var sameOrNot = Properties.Settings.Default.MultiDisplay;
+        try
+        {
+            var sameOrNot = Properties.Settings.Default.MultiDisplay;
 
-        if (sameOrNot == 0)
-        {
-            await ChangeCurrentWallpaper(true);
-        }
-        else
-        {
-            var cid = Properties.Settings.Default.UserCheckedChannel;
-            if (Properties.Settings.Default.RandomWallpaper)
+            if (sameOrNot == 0)
             {
-                // 2+ random wallpapers
-                await SetUpWallPaper(cid, random: true, multiSetUp: true, sameOrNot: 1);
+                ChangeCurrentWallpaper(true);
             }
             else
             {
-                // 2+ sequence wallpapers
-                var sequence = CacheManager.TryGet(CachedChannelSeqPrefix, cid, out int s) ? s : 1;
-                await SetUpWallPaper(cid, sequence, multiSetUp: true, sameOrNot: 1);
+                var cid = Properties.Settings.Default.UserCheckedChannel;
+                if (Properties.Settings.Default.RandomWallpaper)
+                {
+                    // 2+ random wallpapers
+                    await SetUpWallPaper(cid, random: true, multiSetUp: true, sameOrNot: 1);
+                }
+                else
+                {
+                    // 2+ sequence wallpapers
+                    var sequence = CacheManager.TryGet(CachedChannelSeqPrefix, cid, out int s) ? s : 1;
+                    await SetUpWallPaper(cid, sequence, multiSetUp: true, sameOrNot: 1);
+                }
             }
+        }
+        catch
+        {
+            // ignore
         }
     }
 
@@ -521,13 +535,13 @@ public static class IrvuewinCore
         });*/
     }
 
-    private static async void OnWallpaperTimerElapsed(object? sender, ElapsedEventArgs e)
+    private static void OnWallpaperTimerElapsed(object? sender, ElapsedEventArgs e)
     {
         try
         {
             // ChangeAllWallpaper();
             // Console.WriteLine($@"{DateTimeOffset.Now:yyyy-MM-dd HH:mm:ss}: scheduled wallpaper change");
-            await ChangeAllWallpaper();
+            ChangeAllWallpaper();
             UpdateNextWallpaperChangeTriggerTime(Properties.Settings.Default.WallpaperChangeInterval);
         }
         catch (Exception ex)

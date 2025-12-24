@@ -1,20 +1,83 @@
-﻿using System.Windows.Input;
+﻿using System.Diagnostics;
+using System.Windows.Input;
+using Serilog;
 
 namespace Irvuewin.Helpers;
 
-    public class RelayCommand<T>(Action<object> execute, Predicate<object>? canExecute = null)
-        : ICommand
+public class RelayCommand(Action<object?> execute, Predicate<object?>? canExecute = null)
+    : ICommand
+{
+    private readonly Action<object?> _execute = execute ?? throw new ArgumentNullException(nameof(execute));
+
+    public event EventHandler? CanExecuteChanged
     {
-        public event EventHandler? CanExecuteChanged;
-        private readonly Action<object>? _execute = execute ?? throw new ArgumentNullException(nameof(execute));
+        add => CommandManager.RequerySuggested += value;
+        remove => CommandManager.RequerySuggested -= value;
+    }
 
-        public bool CanExecute(object? parameter)
-        {
-            return canExecute == null || canExecute(parameter);
-        }
+    public bool CanExecute(object? parameter) => canExecute == null || canExecute(parameter);
 
-        public void Execute(object? parameter)
+    public void Execute(object? parameter) => _execute(parameter);
+    
+    public void RaiseCanExecuteChanged() => CommandManager.InvalidateRequerySuggested();
+}
+
+public class RelayCommand<T>(Action<T> execute, Predicate<T?>? canExecute = null) : ICommand
+{
+    private readonly Action<T> _execute = execute ?? throw new ArgumentNullException(nameof(execute));
+
+    public event EventHandler? CanExecuteChanged
+    {
+        add => CommandManager.RequerySuggested += value;
+        remove => CommandManager.RequerySuggested -= value;
+    }
+
+    public bool CanExecute(object? parameter)
+    {
+        if (canExecute == null) return true;
+
+        return parameter switch
         {
-            _execute?.Invoke(parameter);
+            null when default(T) == null => canExecute(default),
+            T t => canExecute(t),
+            _ => false
+        };
+    }
+
+    public void Execute(object? parameter)
+    {
+        switch (parameter)
+        {
+            case null when default(T) == null:
+                 _execute(default!); 
+                 return;
+            case null:
+                throw new ArgumentNullException(nameof(parameter));
+            case T t:
+                _execute(t);
+                break;
         }
     }
+    
+    public void RaiseCanExecuteChanged() => CommandManager.InvalidateRequerySuggested();
+}
+
+public interface ICommonCommands
+{
+    private static readonly ILogger Logger = Log.ForContext<RelayCommand>();
+    public static void OpenUrl(string url)
+    {
+        try
+        {
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = url,
+                UseShellExecute = true
+            });
+        }
+        catch (Exception ex)
+        {
+            Logger.Error(ex, "Failed to open url: {Url}", url);
+        }
+    }
+}
