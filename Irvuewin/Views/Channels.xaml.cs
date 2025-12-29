@@ -57,8 +57,8 @@ public partial class Channels
     private void Channels_Detail_Click(object sender, RoutedEventArgs e)
     {
         var viewModel = DataContext as ChannelsViewModel;
-        var checkedChannel = viewModel!.Channels.First(c => c.Id == viewModel.CheckedChannelId);
-        ICommonCommands.OpenUrl(checkedChannel.Links.Html.OriginalString);
+        // var sc = viewModel!.Channels.First(c => c.Id == viewModel.SelectedChannelId);
+        ICommonCommands.OpenUrl(viewModel!.SelectedChannel.Links.Html.OriginalString);
     }
 
 

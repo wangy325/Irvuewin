@@ -174,7 +174,7 @@ public static class IrvuewinCore
                 await SetUpWallPaper(cid, sequence, multiSetUp: multiSetUp);
             }
         }
-        catch 
+        catch
         {
             // ignore
         }
@@ -356,7 +356,8 @@ public static class IrvuewinCore
 
         if (!CacheManager.TryGet<List<UnsplashPhoto>>
                 (CachedWallpapers, channelId, out var photos)
-            || photos is null) return (sequence, null);
+            || photos is null || photos.Count == 0)
+            return (sequence, null);
         // sequence should not bigger than photos size
         if (sequence < photos.Count) return (sequence + 1, photos[sequence - 1]);
         // One extreme condition: all photos already loaded, and sequence
@@ -373,7 +374,7 @@ public static class IrvuewinCore
         };
 
         bool load;
-        if (cvm.SelectedChannel!.Id == cvm.CheckedChannelId)
+        if (cvm.SelectedChannel.Id == cvm.CheckedChannelId)
         {
             load = await cvm.LoadPhotos(channelId, query);
         }
@@ -393,7 +394,7 @@ public static class IrvuewinCore
         return (sequence + 1, photos[sequence - 1]);
     }
 
-    /// <summary>
+    /*/// <summary>
     /// Calculating pageNum and pageIndex from sequence of channel.
     /// </summary>
     /// <param name="sequence">channel wallpaper sequence</param>
@@ -420,7 +421,7 @@ public static class IrvuewinCore
         }
 
         return (shardIndex, shardPositionIndex);
-    }
+    }*/
 
 
     /// <summary>
@@ -476,6 +477,24 @@ public static class IrvuewinCore
         var path = stack.Peek();
         FileUtils.CopyFileToDir(path, dest);
         return true;
+    }
+
+    /// <summary>
+    /// Once user change wallpaper orientation in settings window.<br/>
+    /// All channels cached (in memory and local disk) photos should be reloaded.
+    /// </summary>
+    /// <returns></returns>
+    public static async Task RefreshAllCachedWallpapers()
+    {
+        var cvm = await ChannelsViewModel.GetInstanceAsync();
+        await cvm.RefreshPhotos();
+    }
+
+    public static void UpdateAndSaveProperties((string, object) pair)
+    {
+        Properties.Settings.Default[pair.Item1] = pair.Item2;
+        Properties.Settings.Default.Save();
+        Logger.Information(@"val of {0}: {1}", pair.Item1, Properties.Settings.Default[pair.Item1]);
     }
 
 

@@ -109,6 +109,7 @@
             </Grid.RowDefinitions>
             <!-- SelectedItem="{Binding Path =DataContext.(vm:ChannelsViewModel.SelectedChannel), RelativeSource={RelativeSource AncestorType=helpers:LocationAwareWindow}}" -->
             <!-- SelectedIndex="{Binding Path =DataContext.(vm:ChannelsViewModel.SelectedIndex), RelativeSource={RelativeSource AncestorType=helpers:LocationAwareWindow}}" -->
+            <!-- SelectedItem="{Binding Path =DataContext.(vm:ChannelsViewModel.SelectedChannelId), RelativeSource={RelativeSource AncestorType=helpers:LocationAwareWindow}}" -->
             <ListBox Grid.Row="0" x:Name="ChannelsListBox"
                      ItemsSource="{Binding Path =DataContext.(vm:ChannelsViewModel.Channels), RelativeSource={RelativeSource AncestorType=helpers:LocationAwareWindow}}"
                      SelectedItem="{Binding Path =DataContext.(vm:ChannelsViewModel.SelectedChannel), RelativeSource={RelativeSource AncestorType=helpers:LocationAwareWindow}}"
@@ -156,7 +157,7 @@
                                 <MenuItem
                                     Header="{Binding Source={x:Static helpers:Localization.Instance}, Path=[ContextMenu_SetWallpaper]}"
                                     Command="{Binding SetAsWallpaperCommand}"
-                                    CommandParameter="{Binding Path=PlacementTarget.DataContext, RelativeSource={ RelativeSource AncestorType=ContextMenu}}"/>
+                                    CommandParameter="{Binding Path=PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
                                 <MenuItem
                                     Header="{Binding Source={x:Static helpers:Localization.Instance}, Path=[ContextMenu_Download]}"
                                     Command="{Binding DownloadPhotoCommand}"
@@ -258,7 +259,7 @@
                         <Label.Content>
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock
-                                    Text="{Binding Path =DataContext.(vm:ChannelsViewModel.CheckedChannelName), RelativeSource={RelativeSource AncestorType=helpers:LocationAwareWindow}}"
+                                    Text="{Binding Path =DataContext.(vm:ChannelsViewModel.SelectedChannel).Title, RelativeSource={RelativeSource AncestorType=helpers:LocationAwareWindow}}"
                                     Style="{StaticResource TextBlockStyle}" />
                                 <Button Width="15" Height="15" Margin="0,0,0,5"
                                         VerticalAlignment="Top"

@@ -44,12 +44,18 @@ public class SettingsViewModel : INotifyPropertyChanged
     /// ratio of system display resolution
     /// </summary>
     private float _minResolution = Properties.Settings.Default.MinResolution;
+    
+    public ICommand MultiDisplayCheckedCommand { get; }
+    public ICommand DisplayModeCheckedCommand { get; }
+    public ICommand LaunchAtLoginCommand { get; }
+    public ICommand AsyncRefreshWallpaperCommand { get; }
 
     public SettingsViewModel()
     {
         DisplayModeCheckedCommand = new RelayCommand<string>(OnDisplayModeChecked);
         MultiDisplayCheckedCommand = new RelayCommand<string>(OnMultiDisplayChecked);
         LaunchAtLoginCommand = new RelayCommand<bool>(OnLaunchAtLoginChecked);
+        AsyncRefreshWallpaperCommand = new AsyncRelayCommand(OnOrientationChanged);
     }
 
     public bool OpenSavedWallpaper
@@ -122,8 +128,12 @@ public class SettingsViewModel : INotifyPropertyChanged
             Properties.Settings.Default.WallpaperOrientation = _wallpaperOrientation;
             Properties.Settings.Default.Save();
             OnPropertyChanged();
-            var cvm = ChannelsViewModel.GetInstance();
-            Task.Run(() => cvm.RefreshPhotos(cvm.CheckedChannelId));
+            // var cvm = ChannelsViewModel.GetInstance();
+            // Task.Run(() => cvm.RefreshPhotos(cvm.CheckedChannelId));
+            if (AsyncRefreshWallpaperCommand.CanExecute(null))
+            {
+                AsyncRefreshWallpaperCommand.Execute(null);
+            }
         }
     }
 
@@ -192,10 +202,6 @@ public class SettingsViewModel : INotifyPropertyChanged
         }
     }
 
-    public ICommand MultiDisplayCheckedCommand { get; }
-    public ICommand DisplayModeCheckedCommand { get; }
-    public ICommand LaunchAtLoginCommand { get; }
-
     private void OnMultiDisplayChecked(string str)
     {
         if (byte.TryParse(str, out var res)) MultiDisplay = res;
@@ -217,6 +223,11 @@ public class SettingsViewModel : INotifyPropertyChanged
         Properties.Settings.Default.LaunchAtLogin = flag;
         Properties.Settings.Default.Save();
         StartUpHelper.SetStartup(LaunchAtLogin);
+    }
+
+    private async Task OnOrientationChanged()
+    {
+        await IrvuewinCore.RefreshAllCachedWallpapers();
     }
 
 
