@@ -4,8 +4,10 @@ using Irvuewin.Models.Unsplash;
 using Newtonsoft.Json;
 using Serilog;
 
+
 namespace Irvuewin.Helpers
 {
+    using static IAppConst;
     public interface IHttpClient
     {
         Task<HttpResponseMessage> GetAsync(string url);
@@ -34,16 +36,14 @@ namespace Irvuewin.Helpers
 
         public Task<HttpResponseMessage> GetAsync(string url) => _httpClient.GetAsync(url);
     }
+    
+    
 
     public class UnsplashHttpService
     {
         private static readonly ILogger Logger = Log.ForContext<UnsplashHttpService>();
         private readonly IHttpClient _client;
-        private const string BaseUrl = "https://api.unsplash.com";
-        private const string Photos = "photos";
-        private const string Collections = "collections";
-        private const string User = "users";
-        private const string Search = "search";
+
 
         public UnsplashHttpService(IHttpClient service)
         {
@@ -158,6 +158,12 @@ namespace Irvuewin.Helpers
         {
             var url = $"{Search}/{Collections}?query={keywords}&{query.ToQueryString()}";
             return await GetAsync<UnsplashSearchResult>(url);
+        }
+        
+        // Trigger Download
+        public async Task<string?> TriggerDownload(string url)
+        {
+            return await GetAsync<string>(url);
         }
     }
 }

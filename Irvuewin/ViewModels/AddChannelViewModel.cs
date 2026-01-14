@@ -78,7 +78,7 @@ public class AddChannelViewModel : INotifyPropertyChanged
 
     private static void OnUrlOpenButtonClick(object? obj)
     {
-        ICommonCommands.OpenUrl(IAppConst.UnsplashUrl);
+        ICommonCommands.OpenUrl($"{IAppConst.BaseUrl}/{IAppConst.Collections}");
     }
 
 
