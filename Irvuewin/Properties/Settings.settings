@@ -33,7 +33,7 @@
       <Value Profile="(Default)">True</Value>
     </Setting>
     <Setting Name="DefaultUnsplashApiKey" Type="System.String" Scope="User">
-      <Value Profile="(Default)">Client-ID gOjCXnSXiHRasWqeABszxQQCsBJgceXSjHdZYVTfZR8</Value>
+      <Value Profile="(Default)">Client-ID tEI1zqX91pPHSWi6JQhJPSJI-xBBL9Oa-bBKEcgJ0LY</Value>
     </Setting>
     <Setting Name="UserUnsplashApiKey" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
