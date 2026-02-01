@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using System.Windows.Controls;
 using System.Windows.Input;
 using Irvuewin.Helpers;
 
@@ -45,12 +44,18 @@ public class SettingsViewModel : INotifyPropertyChanged
     /// ratio of system display resolution
     /// </summary>
     private float _minResolution = Properties.Settings.Default.MinResolution;
+    
+    public ICommand MultiDisplayCheckedCommand { get; }
+    public ICommand DisplayModeCheckedCommand { get; }
+    public ICommand LaunchAtLoginCommand { get; }
+    public ICommand AsyncRefreshWallpaperCommand { get; }
 
     public SettingsViewModel()
     {
-        DisplayModeCheckedCommand = new RelayCommand<object>(OnDisplayModeChecked);
-        MultiDisplayCheckedCommand = new RelayCommand<object>(OnMultiDisplayChecked);
-        LaunchAtLoginCommand = new RelayCommand<object>(OnLaunchAtLoginChecked);
+        DisplayModeCheckedCommand = new RelayCommand<string>(OnDisplayModeChecked);
+        MultiDisplayCheckedCommand = new RelayCommand<string>(OnMultiDisplayChecked);
+        LaunchAtLoginCommand = new RelayCommand<bool>(OnLaunchAtLoginChecked);
+        AsyncRefreshWallpaperCommand = new AsyncRelayCommand(OnOrientationChanged);
     }
 
     public bool OpenSavedWallpaper
@@ -123,8 +128,12 @@ public class SettingsViewModel : INotifyPropertyChanged
             Properties.Settings.Default.WallpaperOrientation = _wallpaperOrientation;
             Properties.Settings.Default.Save();
             OnPropertyChanged();
-            var cvm = ChannelsViewModel.GetInstance();
-            Task.Run(() => cvm.RefreshPhotos(cvm.CheckedChannel));
+            // var cvm = ChannelsViewModel.GetInstance();
+            // Task.Run(() => cvm.RefreshPhotos(cvm.CheckedChannelId));
+            if (AsyncRefreshWallpaperCommand.CanExecute(null))
+            {
+                AsyncRefreshWallpaperCommand.Execute(null);
+            }
         }
     }
 
@@ -193,39 +202,36 @@ public class SettingsViewModel : INotifyPropertyChanged
         }
     }
 
-    public ICommand MultiDisplayCheckedCommand { get; }
-    public ICommand DisplayModeCheckedCommand { get; }
-
-    public ICommand LaunchAtLoginCommand { get; }
-
-    private void OnMultiDisplayChecked(object obj)
+    private void OnMultiDisplayChecked(string str)
     {
-        if (obj is not string tag) return;
-        if (byte.TryParse(tag, out var res)) MultiDisplay = res;
+        if (byte.TryParse(str, out var res)) MultiDisplay = res;
 
         Properties.Settings.Default.MultiDisplay = MultiDisplay;
         Properties.Settings.Default.Save();
     }
 
-    private void OnDisplayModeChecked(object obj)
+    private void OnDisplayModeChecked(string str)
     {
-        if (obj is not string tag) return;
-        if (byte.TryParse(tag, out var res)) WallpaperMode = res;
+        if (byte.TryParse(str, out var res)) WallpaperMode = res;
 
         Properties.Settings.Default.WallpaperMode = WallpaperMode;
         Properties.Settings.Default.Save();
     }
 
-    private void OnLaunchAtLoginChecked(object obj)
+    private void OnLaunchAtLoginChecked(bool flag)
     {
-        LaunchAtLogin = (bool)obj;
-        Properties.Settings.Default.LaunchAtLogin = LaunchAtLogin;
+        Properties.Settings.Default.LaunchAtLogin = flag;
         Properties.Settings.Default.Save();
         StartUpHelper.SetStartup(LaunchAtLogin);
     }
 
+    private async Task OnOrientationChanged()
+    {
+        await IrvuewinCore.RefreshAllCachedWallpapers();
+    }
 
-    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+
+    private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }

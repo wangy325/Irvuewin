@@ -6,12 +6,14 @@ using System.Windows.Input;
 using Irvuewin.Helpers;
 using Irvuewin.Helpers.Utils;
 using Irvuewin.Views;
-
+using Serilog;
 
 namespace Irvuewin.ViewModels;
 
 public class TrayViewModel : INotifyPropertyChanged
 {
+    private static readonly ILogger Logger = Log.ForContext<TrayViewModel>();
+
     // Static property should implement INotifyPropertyChanged manually
     // Even though it's an observation collection
     private ObservableCollection<ChannelViewModel> _addedChannels = [];
@@ -31,7 +33,7 @@ public class TrayViewModel : INotifyPropertyChanged
     public WallpaperInfo AboutWallpaper
     {
         get => _aboutWallpaper;
-        set
+        private set
         {
             _aboutWallpaper = value;
             OnPropertyChanged();
@@ -39,10 +41,11 @@ public class TrayViewModel : INotifyPropertyChanged
     }
 
     private ObservableCollection<WallpaperChangeInterval> _intervals;
+
     public ObservableCollection<WallpaperChangeInterval> Intervals
     {
         get => _intervals;
-        set
+        private set
         {
             _intervals = value;
             OnPropertyChanged();
@@ -64,32 +67,31 @@ public class TrayViewModel : INotifyPropertyChanged
         }
     }
 
-    public ICommand LoadCachedSequenceCommand { get; } = new RelayCommand<object>(OnLoadCachedSequence);
-    public ICommand SaveCachedSequenceCommand { get; } = new RelayCommand<object>(OnSaveCachedSequence);
+    public ICommand LoadCachedSequenceCommand { get; } = new RelayCommand(OnLoadCachedSequence);
+    public ICommand SaveCachedSequenceCommand { get; } = new RelayCommand(OnSaveCachedSequence);
 
-    public ICommand OpenAddChannelWindowCommand { get; } = new RelayCommand<object>(OnAddNewChannel);
+    public ICommand OpenAddChannelWindowCommand { get; } = new RelayCommand(OnAddNewChannel);
 
-    public ICommand WallpaperInfoPageOpenCommand { get; } = new RelayCommand<object>(OnWallpaperInfoClicked);
+    public ICommand WallpaperInfoPageOpenCommand { get; } = new RelayCommand<string>(ICommonCommands.OpenUrl);
 
-    public ICommand TrayMenuOpenedCommand { get; } = new RelayCommand<object>(OnCheckDisplay);
+    public ICommand TrayMenuOpenedCommand { get; } = new RelayCommand(OnCheckDisplay);
 
     public TrayViewModel()
     {
         _intervals = new ObservableCollection<WallpaperChangeInterval>(GenerateIntervals());
         Localization.Instance.PropertyChanged += OnLocalizationChanged;
+        IrvuewinCore.WallpaperChangedEvent += OnWallpaperChanged;
     }
 
     private void OnLocalizationChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName == Binding.IndexerName || string.IsNullOrEmpty(e.PropertyName))
-        {
-            // Rebuild intervals to update text
-            Intervals = new ObservableCollection<WallpaperChangeInterval>(GenerateIntervals());
-            
-            OnPropertyChanged(nameof(NextWallpaperChangeTime));
-            // Refresh Wallpaper Info text
-            AboutWallpaper.RefreshLocalization();
-        }
+        if (e.PropertyName != Binding.IndexerName && !string.IsNullOrEmpty(e.PropertyName)) return;
+        // Rebuild intervals to update text
+        Intervals = new ObservableCollection<WallpaperChangeInterval>(GenerateIntervals());
+
+        OnPropertyChanged(nameof(NextWallpaperChangeTime));
+        // Refresh Wallpaper Info text
+        AboutWallpaper.RefreshLocalization();
     }
 
     private static List<WallpaperChangeInterval> GenerateIntervals()
@@ -106,78 +108,82 @@ public class TrayViewModel : INotifyPropertyChanged
         ];
     }
 
-    private static string? _lastDisplayName;
+    private Dictionary<string, WallpaperInfo> LocalWallpaperInfoCache { get; } = new();
 
-    private static async void OnCheckDisplay(object param)
+    private static string? _lastDisplayName;
+    
+    private static void OnCheckDisplay(object? param)
     {
-        TrayMenuHelper.CheckPointer();
-        var sid = TrayMenuHelper.CurrentScreen.Name;
-        
-        // Update wallpaper info
+        IrvuewinCore.CheckPointer();
+        var sid = IrvuewinCore.CurrentPointerDisplay.Name;
+        var tray = System.Windows.Application.Current.Resources["TrayViewModel"] as TrayViewModel;
+
+        // Update wallpaper info manually when necessary
         if (_lastDisplayName is not null)
         {
-            if (TrayMenuHelper.WallpaperChanged.TryGetValue(sid, out var changed) && changed)
-            {
-                if (sid != _lastDisplayName)
-                {
-                    _lastDisplayName = sid;
-                    if (Properties.Settings.Default.MultiDisplay != 1) return;
-                }
-
-                await TrayMenuHelper.DisplayWallpaperInfo();
-                TrayMenuHelper.WallpaperChanged[sid] = false;
-            }
-            else
-            {
-                if (sid == _lastDisplayName) return;
-                _lastDisplayName = sid;
-                if (Properties.Settings.Default.MultiDisplay == 1)
-                {
-                    await TrayMenuHelper.DisplayWallpaperInfo();
-                }
-            }
+            if (sid == _lastDisplayName) return;
+            _lastDisplayName = sid;
+            // Get from in-memory cache
+            tray!.AboutWallpaper =
+                tray.LocalWallpaperInfoCache.TryGetValue(sid, out var wip) ? wip : new WallpaperInfo();
         }
         else
         {
-            _lastDisplayName = TrayMenuHelper.CurrentScreen.Name;
-            await TrayMenuHelper.DisplayWallpaperInfo();
+            _lastDisplayName = sid;
         }
     }
 
-    private static void OnWallpaperInfoClicked(object obj)
+    private void OnWallpaperChanged(object? sender, IrvuewinCore.WallpaperChangedEventArgs e)
     {
-        try
+        // Update info immediately when wallpaper changes
+        System.Windows.Application.Current.Dispatcher.InvokeAsync(async () =>
         {
-            var url = obj as string;
-            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+            await UpdateWallpaperInfo(e.DisplayName);
+        });
+    }
+
+    private async Task UpdateWallpaperInfo(string displayName)
+    {
+        Logger.Debug("Update tray wallpaper info.");
+        if (!CacheManager.TryGet(displayName, out string? photoId) || photoId is null) return;
+
+        var httpService = IHttpClient.GetUnsplashHttpService();
+        if (await httpService.GetPhotoInfoById(photoId) is { } photo)
+        {
+            var wpi = new WallpaperInfo
             {
-                FileName = url,
-                UseShellExecute = true
-            });
-        }
-        catch (Exception)
-        {
-            // Ignore
+                Likes = photo.Likes.ToString(),
+                Downloads = photo.Downloads.ToString(),
+                Location = photo.Location.Name,
+                ProfileLink = photo.Links.Html.OriginalString,
+                Author = photo.User.Name,
+                AuthorProfilePageLink = photo.User.Links.Html.OriginalString
+            };
+            AboutWallpaper = wpi;
+            // Cache wallpaper info.
+            LocalWallpaperInfoCache[displayName] = wpi;
         }
     }
 
-    private static void OnAddNewChannel(object obj)
+    
+
+    private static void OnAddNewChannel(object? obj)
     {
         WindowManager.ShowWindow(nameof(Channels), () => new Channels());
         WindowManager.ShowWindow(nameof(AddChannel), () => new AddChannel(), true);
     }
 
-    private static void OnLoadCachedSequence(object obj)
+    private static void OnLoadCachedSequence(object? obj)
     {
         // Load Cached resources
-        Task.Run(TrayMenuHelper.LoadCachedSequence);
+        Task.Run(IrvuewinCore.LoadCachedSequence);
         Properties.Settings.Default.Save();
     }
 
-    private static void OnSaveCachedSequence(object obj)
+    private static void OnSaveCachedSequence(object? obj)
     {
         // Save Cache
-        TrayMenuHelper.SaveCachedSequence();
+        IrvuewinCore.SaveCachedSequence();
         Properties.Settings.Default.Save();
     }
 
@@ -192,6 +198,7 @@ public class TrayViewModel : INotifyPropertyChanged
 public sealed class WallpaperInfo : INotifyPropertyChanged
 {
     private string _likesValue = "";
+
     public string Likes
     {
         get => string.Format(Localization.Instance["Wallpaper_Likes"], _likesValue);
@@ -203,6 +210,7 @@ public sealed class WallpaperInfo : INotifyPropertyChanged
     }
 
     private string _downloadsValue = "";
+
     public string Downloads
     {
         get => string.Format(Localization.Instance["Wallpaper_Downloads"], _downloadsValue);
@@ -219,6 +227,7 @@ public sealed class WallpaperInfo : INotifyPropertyChanged
     public string Profile => Localization.Instance["Wallpaper_Details"];
 
     private string _profileLink = "";
+
     public string ProfileLink
     {
         get => _profileLink;
@@ -230,6 +239,7 @@ public sealed class WallpaperInfo : INotifyPropertyChanged
     }
 
     private string _authorValue = "";
+
     public string Author
     {
         get => string.Format(Localization.Instance["Wallpaper_PhotoBy"], _authorValue);
@@ -242,6 +252,7 @@ public sealed class WallpaperInfo : INotifyPropertyChanged
 
     // https://unsplash.com/@parentrap/collections
     private string _authorProfilePageLink = "";
+
     public string AuthorProfilePageLink
     {
         get => _authorProfilePageLink;
@@ -253,6 +264,7 @@ public sealed class WallpaperInfo : INotifyPropertyChanged
     }
 
     private string _location = "";
+
     public string Location
     {
         get => _location;
@@ -281,7 +293,7 @@ public sealed class WallpaperInfo : INotifyPropertyChanged
 
 public class WallpaperChangeInterval
 {
-    public ushort TagInt { get; set; }
+    private ushort TagInt { get; set; }
     public string Tag { get; set; }
     public string Header { get; set; }
 

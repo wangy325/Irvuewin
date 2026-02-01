@@ -6,9 +6,9 @@ namespace Irvuewin.Helpers.Converters;
 
 public class BooleanToVisibilityConverter : IValueConverter
 {
-    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
-        var val = value is bool and true ;
+        var val = value is true ;
         return val ? Visibility.Visible : Visibility.Collapsed;
     }
 

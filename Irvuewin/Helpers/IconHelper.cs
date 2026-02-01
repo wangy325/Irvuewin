@@ -1,20 +1,18 @@
 using System.Drawing;
 using System.IO;
-using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Brush = System.Windows.Media.Brush;
-using Color = System.Windows.Media.Color;
-using Pen = System.Windows.Media.Pen;
-// Using alias to avoid conflict with System.Drawing
-using WpfSize = System.Windows.Size;
-using WpfPoint = System.Windows.Point;
+
 
 namespace Irvuewin.Helpers
 {
+    /// <summary>
+    /// System vector icon helper
+    /// </summary>
     public static class IconHelper
     {
-        public static ImageSource GenerateImageSource(Geometry geometry, Brush brush, double size = 32)
+        public static ImageSource GenerateImageSource(Geometry geometry, Brush brush, double size = 32, double? contentSize = null)
         {
             var visual = new DrawingVisual();
             using (var dc = visual.RenderOpen())
@@ -23,16 +21,29 @@ namespace Irvuewin.Helpers
             }
 
             var bounds = geometry.Bounds;
-            var scale = size / Math.Max(bounds.Width, bounds.Height);
+            // If contentSize is provided, scale to fit that size; otherwise scale to fit full 'size'
+            var targetSize = contentSize ?? size;
+            var scale = targetSize / Math.Max(bounds.Width, bounds.Height);
             
+            // Center the content
             var finalVisual = new DrawingVisual();
             using (var dc = finalVisual.RenderOpen())
             {
+                // Calculate centering offset
+                // The scaled content will occupy (bounds.Width * scale) x (bounds.Height * scale)
+                // We want to center it in (size) x (size)
+                var scaledWidth = bounds.Width * scale;
+                var scaledHeight = bounds.Height * scale;
+                var offsetX = (size - scaledWidth) / 2;
+                var offsetY = (size - scaledHeight) / 2;
+
+                dc.PushTransform(new TranslateTransform(offsetX, offsetY));
                 dc.PushTransform(new ScaleTransform(scale, scale));
                 dc.PushTransform(new TranslateTransform(-bounds.Left, -bounds.Top));
                 dc.DrawGeometry(brush, null, geometry);
                 dc.Pop(); 
                 dc.Pop(); 
+                dc.Pop();
             }
 
             var rtb = new RenderTargetBitmap(
@@ -61,7 +72,7 @@ namespace Irvuewin.Helpers
             return bitmapImage;
         }
 
-        public static Icon GenerateIcon(Geometry geometry, Brush brush, double size = 32)
+        public static Icon GenerateIcon(Geometry geometry, Brush brush, double size = 32, double? contentSize = null)
         {
             var visual = new DrawingVisual();
             using (var dc = visual.RenderOpen())
@@ -70,16 +81,24 @@ namespace Irvuewin.Helpers
             }
 
             var bounds = geometry.Bounds;
-            var scale = size / Math.Max(bounds.Width, bounds.Height);
+            var targetSize = contentSize ?? size;
+            var scale = targetSize / Math.Max(bounds.Width, bounds.Height);
             
             var finalVisual = new DrawingVisual();
             using (var dc = finalVisual.RenderOpen())
             {
+                var scaledWidth = bounds.Width * scale;
+                var scaledHeight = bounds.Height * scale;
+                var offsetX = (size - scaledWidth) / 2;
+                var offsetY = (size - scaledHeight) / 2;
+
+                dc.PushTransform(new TranslateTransform(offsetX, offsetY));
                 dc.PushTransform(new ScaleTransform(scale, scale));
                 dc.PushTransform(new TranslateTransform(-bounds.Left, -bounds.Top));
                 dc.DrawGeometry(brush, null, geometry);
                 dc.Pop(); 
                 dc.Pop(); 
+                dc.Pop();
             }
 
             var rtb = new RenderTargetBitmap(

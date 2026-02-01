@@ -27,27 +27,12 @@
 
             <!-- <converters:CountToIndexConverter x:Key="CountToIndexConverter" /> -->
 
-            <Style x:Key="ContextMenuStyle" TargetType="ContextMenu">
-                <Setter Property="Background" Value="{DynamicResource WindowBackgroundBrush}" />
-                <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
-                <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+            <Style x:Key="TrayContextMenuStyle" TargetType="ContextMenu" 
+                   BasedOn="{StaticResource ContextMenuStyle}">
                 <Setter Property="Width" Value="Auto" />
                 <Setter Property="MaxWidth" Value="300" />
                 <Setter Property="MinWidth" Value="240" />
                 <Setter Property="Height" Value="Auto" />
-                <Setter Property="BorderThickness" Value="1" />
-                <Setter Property="Template">
-                    <Setter.Value>
-                        <ControlTemplate TargetType="ContextMenu">
-                            <Border Background="{TemplateBinding Background}"
-                                    BorderBrush="{TemplateBinding BorderBrush}"
-                                    BorderThickness="{TemplateBinding BorderThickness}"
-                                    CornerRadius="5">
-                                <StackPanel IsItemsHost="True" />
-                            </Border>
-                        </ControlTemplate>
-                    </Setter.Value>
-                </Setter>
             </Style>
 
             <!-- 自定义MenuItem样式 -->
@@ -135,7 +120,7 @@
                 <Setter Property="MaxWidth" Value="240" />
             </Style>
 
-            <ContextMenu x:Key="TrayContextMenu" Style="{StaticResource ContextMenuStyle}">
+            <ContextMenu x:Key="TrayContextMenu" Style="{StaticResource TrayContextMenuStyle}">
                 <i:Interaction.Triggers>
                     <!-- 弹出菜单时检查显示器 -->
                     <i:EventTrigger EventName="Opened">
@@ -329,7 +314,7 @@
                                 <Trigger Property="ItemsControl.AlternationIndex" Value="0">
                                     <Setter Property="Margin" Value="0,10,0,0" />
                                 </Trigger>
-                                <!--TODO use AlternationIndex to set margin -->
+                                <!-- Use AlternationIndex to set margin -->
                                 <Trigger Property="ItemsControl.AlternationIndex" Value="6">
                                     <Setter Property="Margin" Value="0,0,0,10" />
                                 </Trigger>
@@ -372,7 +357,6 @@
 
             <tb:TaskbarIcon x:Key="NotifyIcon"
                             ToolTipText="Irvuewin"
-                            IconSource="/Icons/Tray.ico"
                             Visibility="Visible"
                             TrayRightMouseUp="TrayMouseRight_Click">
             </tb:TaskbarIcon>

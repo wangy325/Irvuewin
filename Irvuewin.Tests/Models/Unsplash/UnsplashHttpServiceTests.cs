@@ -10,8 +10,8 @@ namespace Irvuewin.Tests.Models.Unsplash;
 [TestClass]
 public class UnsplashHttpServiceTests
 {
-    private Mock<IHttpClient> _mockHttpClient;
-    private UnsplashHttpService _helper;
+    private Mock<IHttpClient> _mockHttpClient = null!;
+    private UnsplashHttpService _helper = null!;
 
     [TestInitialize]
     public void TestInitialize()

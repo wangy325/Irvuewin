@@ -1,6 +1,8 @@
 ﻿using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
+using System.Windows.Forms;
 using AutoMapper;
 using H.NotifyIcon;
 using Irvuewin.Helpers;
@@ -22,12 +24,16 @@ namespace Irvuewin
     /// 
     public partial class App
     {
-        private static readonly ILogger Logger = Log.ForContext(typeof(App));
+        private static readonly ILogger Logger = Log.ForContext<App>();
         private TaskbarIcon? _taskbarIcon;
         private bool _isExit;
+
         private ChannelsViewModel? _channelsViewModel;
 
-        protected override async void OnStartup(StartupEventArgs e)
+        // Used for tray menu position
+        private DpiAnchorWindow? _anchorWindow;
+
+        protected override void OnStartup(StartupEventArgs e)
         {
             // Apply Language Setting
             var language = Irvuewin.Properties.Settings.Default.Language;
@@ -40,9 +46,17 @@ namespace Irvuewin
             // Init Logger
             LogHelper.Init();
             Logger.Information("Application Starting...");
-            
+
             SetupExceptionHandling();
-            
+
+            // Init _anchorWindow
+            {
+                _anchorWindow = new DpiAnchorWindow();
+                // Ensure handle is created
+                _anchorWindow.Show();
+                _anchorWindow.Hide();
+            }
+
             // AutoMapper config
             var config = new MapperConfiguration(cfg =>
                 cfg.CreateMap<UnsplashChannel, ChannelViewModel>());
@@ -50,8 +64,7 @@ namespace Irvuewin
             MapperProvider.Mapper = mapper;
 
             // Create ChannelsViewModel singleton instance
-            // TODO 优化初始化过程
-            _channelsViewModel = await ChannelsViewModel.GetInstanceAsync();
+            _channelsViewModel = Task.Run(ChannelsViewModel.GetInstanceAsync).Result;
             Resources.Add("ChannelsViewModel", _channelsViewModel);
 
             //  Create a copy of Channels in TrayViewModel
@@ -63,7 +76,7 @@ namespace Irvuewin
             Logger.Information("RandomWallpaper: {RandomWallpaper}", randomWallpaper);
             if (!randomWallpaper)
             {
-                await TrayMenuHelper.LoadCachedSequence();
+                Task.Run(IrvuewinCore.LoadCachedSequence);
             }
 
             // Async Change wallpaper when app start
@@ -71,7 +84,7 @@ namespace Irvuewin
             // _ = TrayMenuHelper.ChangeAllWallpaper().ConfigureAwait(false);
 
             // Init wallpaper change schedule Timer
-            TrayMenuHelper.InitWallpaperChangeScheduler();
+            IrvuewinCore.InitWallpaperChangeScheduler();
 
             if (FindResource("NotifyIcon") is TaskbarIcon taskbarIcon)
             {
@@ -95,7 +108,7 @@ namespace Irvuewin
         private void SetupExceptionHandling()
         {
             // Catch exceptions from all threads in the AppDomain.
-            AppDomain.CurrentDomain.UnhandledException += (s, args) =>
+            AppDomain.CurrentDomain.UnhandledException += (_, args) =>
             {
                 var exception = args.ExceptionObject as Exception;
                 Logger.Fatal(exception, "AppDomain.CurrentDomain.UnhandledException");
@@ -103,7 +116,7 @@ namespace Irvuewin
             };
 
             // Catch exceptions from the main UI dispatcher thread.
-            DispatcherUnhandledException += (s, args) =>
+            DispatcherUnhandledException += (_, args) =>
             {
                 Logger.Fatal(args.Exception, "DispatcherUnhandledException");
                 // args.Handled = true; // Uncomment if we want to prevent crash, but hazardous.
@@ -111,7 +124,7 @@ namespace Irvuewin
             };
 
             // Catch exceptions from unobserved tasks.
-            TaskScheduler.UnobservedTaskException += (s, args) =>
+            TaskScheduler.UnobservedTaskException += (_, args) =>
             {
                 Logger.Error(args.Exception, "TaskScheduler.UnobservedTaskException");
                 args.SetObserved();
@@ -120,34 +133,32 @@ namespace Irvuewin
 
         public void RefreshTrayIcon()
         {
-            var notifyIcon = FindResource("NotifyIcon") as H.NotifyIcon.TaskbarIcon;
-            if (notifyIcon == null) return;
+            if (FindResource("NotifyIcon") is not TaskbarIcon taskbarIcon) return;
 
             var geometry = FindResource("Icon_AppLogo") as Geometry;
             var brush = FindResource("PrimaryTextBrush") as Brush;
 
-            if (geometry != null && brush != null)
-            {
-                var icon = Helpers.IconHelper.GenerateIcon(geometry, brush, 32); // Use 32 for better quality on High DPI
-                notifyIcon.Icon = icon;
-            }
+            if (geometry == null || brush == null) return;
+            // Use 32 for better quality on High DPI, but restrict content to 28 for visual padding
+            var icon = IconHelper.GenerateIcon(geometry, brush, 32, 28);
+            taskbarIcon.Icon = icon;
         }
 
         //----------------------------------- TrayMenu ---------------------------------//
 
-        private async void ChangeCurrentWallpaper_Click(object sender, RoutedEventArgs args)
+        private void ChangeCurrentWallpaper_Click(object sender, RoutedEventArgs args)
         {
-            await TrayMenuHelper.ChangeCurrentWallpaper();
+            IrvuewinCore.ChangeCurrentWallpaper();
         }
 
         private void ChangeAllWallpaper_Click(object sender, RoutedEventArgs e)
         {
-            TrayMenuHelper.ChangeAllWallpaper();
+            IrvuewinCore.ChangeAllWallpaper();
         }
 
         private void LoadPreviousWallpaper_Click(object sender, RoutedEventArgs e)
         {
-            TrayMenuHelper.PreviousWallpaper();
+            IrvuewinCore.PreviousWallpaper();
         }
 
         private void DownloadCurrentWallpaper_Click(object sender, RoutedEventArgs e)
@@ -158,7 +169,7 @@ namespace Irvuewin
                 dest = IAppConst.DefaultWallpaperDownloadDir;
             }
 
-            if (!TrayMenuHelper.DownloadCurrentWallpaper(dest)) return;
+            if (!IrvuewinCore.DownloadCurrentWallpaper(dest)) return;
             var openFolder = Irvuewin.Properties.Settings.Default.OpenSavedWallpaper;
             if (openFolder)
             {
@@ -200,7 +211,7 @@ namespace Irvuewin
             Irvuewin.Properties.Settings.Default.WallpaperChangeInterval = result;
             Irvuewin.Properties.Settings.Default.Save();
             // update Timer
-            TrayMenuHelper.UpdateWallpaperChangeScheduler();
+            IrvuewinCore.UpdateWallpaperChangeScheduler();
         }
 
         //------------------------------------ Settings --------------------------------//
@@ -214,18 +225,15 @@ namespace Irvuewin
         {
             _isExit = true;
             // 退出时若未启用随机壁纸则保存缓存（sequence may be modified）
-            var randomWallpaper = Irvuewin.Properties.Settings.Default.RandomWallpaper;
-            Logger.Debug("RandomWallpaper: {RandomWallpaper}", randomWallpaper);
-            if (!randomWallpaper)
+            if (!Irvuewin.Properties.Settings.Default.RandomWallpaper)
             {
-                TrayMenuHelper.SaveCachedSequence();
+                IrvuewinCore.SaveCachedSequence();
             }
 
             _taskbarIcon?.Dispose();
             Current.Shutdown();
         }
 
-        private Views.DpiAnchorWindow? _anchorWindow;
 
         /// <summary>
         /// 在菜单栏弹出时获取显示器的DPI信息，用于解决多显示器DPI不一致的显示问题
@@ -235,33 +243,34 @@ namespace Irvuewin
         private void TrayMouseRight_Click(object sender, RoutedEventArgs e)
         {
             // Create anchor window if needed
-            if (_anchorWindow == null)
+            
+            try
             {
-                _anchorWindow = new Views.DpiAnchorWindow();
-                // Ensure handle is created
-                _anchorWindow.Show();
-                _anchorWindow.Hide();
+                // Get mouse position (Physical pixels)
+                var point = Cursor.Position;
+
+                // Use SetWindowPos to position the anchor window at the exact physical coordinates
+                var helper = new WindowInteropHelper(_anchorWindow!);
+                NativeMethods.SetWindowPos(helper.Handle, NativeMethods.HWND_TOP, point.X, point.Y, 0, 0,
+                    NativeMethods.SWP_NOSIZE | NativeMethods.SWP_NOACTIVATE | NativeMethods.SWP_SHOWWINDOW);
+
+                // Set foreground window to ensure menu closes on outside click
+                NativeMethods.SetForegroundWindow(helper.Handle);
+
+                // Get Context Menu from Resources
+                if (FindResource("TrayContextMenu") is not ContextMenu contextMenu) return;
+
+                contextMenu.PlacementTarget = _anchorWindow;
+                contextMenu.Placement = PlacementMode.Bottom;
+                contextMenu.IsOpen = true;
+
+                contextMenu.Closed += (_, _) => _anchorWindow!.Hide();
             }
-
-            // Get mouse position (Physical pixels)
-            var point = System.Windows.Forms.Cursor.Position;
-
-            // Use SetWindowPos to position the anchor window at the exact physical coordinates
-            var helper = new WindowInteropHelper(_anchorWindow);
-            NativeMethods.SetWindowPos(helper.Handle, NativeMethods.HWND_TOP, point.X, point.Y, 0, 0, 
-                NativeMethods.SWP_NOSIZE | NativeMethods.SWP_NOACTIVATE | NativeMethods.SWP_SHOWWINDOW);
-
-            // Set foreground window to ensure menu closes on outside click
-            NativeMethods.SetForegroundWindow(helper.Handle);
-            
-            // Get Context Menu from Resources
-            if (FindResource("TrayContextMenu") is not ContextMenu contextMenu) return;
-
-            contextMenu.PlacementTarget = _anchorWindow;
-            contextMenu.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom; 
-            contextMenu.IsOpen = true;
-            
-            contextMenu.Closed += (s, args) => _anchorWindow.Hide();
+            catch (Exception ex)
+            {
+                // ignored
+                Logger.Error("Fatal error: {0}", ex.Message);
+            }
         }
     }
 }

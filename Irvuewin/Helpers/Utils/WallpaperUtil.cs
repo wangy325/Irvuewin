@@ -61,6 +61,16 @@ namespace Irvuewin.Helpers.Utils
 
         private static readonly IDesktopWallpaper DesktopWallpaper = (IDesktopWallpaper)new DesktopWallpaperClass();
 
+        /// <summary>
+        /// Setup wallpaper(s) for display(s).
+        /// </summary>
+        /// <param name="photos">Photo(s) to set up as wallpaper</param>
+        /// <param name="imagePath">Photos' local disk path, default null</param>
+        /// <returns><see cref="WallpaperSetUpResult"/>. null if exception occurs.</returns>
+        /// <remarks>
+        /// <para>If photos count = 1, then return <see cref="WallpaperSetUpResult.UnifiedWallpaperPath"/></para>
+        /// <para>Else return <see cref="WallpaperSetUpResult.PerDisplayWallpapers"/></para>
+        /// </remarks>
         public static async Task<WallpaperSetUpResult?> SetWallpaper(List<UnsplashPhoto> photos,
             string? imagePath = null)
         {
@@ -81,18 +91,16 @@ namespace Irvuewin.Helpers.Utils
 
                     return new WallpaperSetUpResult { UnifiedWallpaperPath = path };
                 }
-                else
-                {
-                    for (uint i = 0; i < monitorCount;)
-                    {
-                        path = await GetWallpaperFullPath(photos[(int)i], imagePath);
-                        DesktopWallpaper.GetMonitorDevicePathAt(i, out var monitorId);
-                        DesktopWallpaper.SetWallpaper(monitorId, path);
-                        kvp[deviceNamePrefix + ++i] = path;
-                    }
 
-                    return new WallpaperSetUpResult { PerDisplayWallpapers = kvp };
+                for (uint i = 0; i < monitorCount;)
+                {
+                    path = await GetWallpaperFullPath(photos[(int)i], imagePath);
+                    DesktopWallpaper.GetMonitorDevicePathAt(i, out var monitorId);
+                    DesktopWallpaper.SetWallpaper(monitorId, path);
+                    kvp[deviceNamePrefix + ++i] = path;
                 }
+
+                return new WallpaperSetUpResult { PerDisplayWallpapers = kvp };
             }
             catch (Exception ex)
             {
@@ -102,6 +110,14 @@ namespace Irvuewin.Helpers.Utils
         }
 
 
+        /// <summary>
+        /// Set wallpaper for specify display. 
+        /// </summary>
+        /// <param name="display"><see cref="Display"/></param>
+        /// <param name="photo"><see cref="UnsplashPhoto"/></param>
+        /// <param name="imagePath">nullable, photo full disk path</param>
+        /// <returns>null if fails, else wallpaper path.</returns>
+        /// <exception cref="NullReferenceException"></exception>
         public static async Task<string?> SetWallpaperForSpecificMonitor(Display display, UnsplashPhoto? photo,
             string? imagePath = null)
         {
@@ -112,19 +128,20 @@ namespace Irvuewin.Helpers.Utils
                 var path = await GetWallpaperFullPath(photo, imagePath);
 
                 var monitorId = GetMonitorIdFromDisplay(display);
-                if (monitorId == null) throw new ArgumentNullException($"MonitorId can not be null.");
+                if (monitorId == null) throw new NullReferenceException("MonitorId can not be null.");
                 DesktopWallpaper.SetWallpaper(monitorId, path);
-                Logger.Information(@"monitorName: {DisplayName}, monitorId: {MonitorId}", display.Name, monitorId);
+                Logger.Information(@"Set wallpaper for {0}", display.Name);
                 return path;
             }
             catch (Exception ex)
             {
-                Logger.Error(ex, @"Setting wallpaper error: {ExMessage}", ex.Message);
+                Logger.Error(ex, @"Setting wallpaper error: {0}", ex.Message);
                 return null;
             }
         }
 
         // set all displays' wallpaper by link/local disk path
+        [Obsolete("Use SetWallpaper or SetWallpaperForSpecificMonitor(Display) instead") ]
         public static async Task<string?> SetWallpaperLegacy(UnsplashPhoto? photo, string? path = null)
         {
             SetWallpaperMode();
@@ -188,12 +205,12 @@ namespace Irvuewin.Helpers.Utils
         }
 
         /// <summary>
-        /// Get wallpaper from unsplash or local disk
+        /// Get wallpaper's full disk path.
         /// </summary>
         /// <param name="photo">UnsplashPhoto</param>
         /// <param name="imagePath">wallpaper local full disk path, nullable</param>
-        /// <returns>file path if successes, or throw ex</returns>
-        private static async Task<string> GetWallpaperFullPath(UnsplashPhoto? photo, string? imagePath)
+        /// <returns>Wallpaper's file path if successes, or throw ex</returns>
+        public static async Task<string> GetWallpaperFullPath(UnsplashPhoto? photo, string? imagePath)
         {
             string path;
             if (imagePath != null)
@@ -202,7 +219,7 @@ namespace Irvuewin.Helpers.Utils
             }
             else
             {
-                if (photo == null) throw new ArgumentNullException($"Photo can't be null.");
+                ArgumentNullException.ThrowIfNull(photo);
                 // path = await GetWallpaperPath(photo);
                 const string fileExtension = ".jpg";
                 // wallpaper tmp folder
@@ -213,7 +230,6 @@ namespace Irvuewin.Helpers.Utils
                 if (File.Exists(localImagePath)) return localImagePath;
                 // Fetch from web
                 using HttpClient httpClient = new();
-                // TODO Crop photo
                 var uri = photo.Urls.Raw;
                 try
                 {
@@ -258,8 +274,15 @@ namespace Irvuewin.Helpers.Utils
 
         public class WallpaperSetUpResult
         {
+            /// <summary>
+            /// Wallpaper full disk path.
+            /// </summary>
             public string? UnifiedWallpaperPath { get; init; }
 
+            /// <summary>
+            /// <para>Key: Display name</para>
+            /// <para>Value: Wallpaper full disk path</para>
+            /// </summary>
             public Dictionary<string, string>? PerDisplayWallpapers { get; init; }
 
             public bool IsUnified => UnifiedWallpaperPath != null;

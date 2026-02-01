@@ -1,4 +1,3 @@
-using System;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Interop;
@@ -13,14 +12,14 @@ namespace Irvuewin.Helpers
         private const int DWMWA_USE_IMMERSIVE_DARK_MODE_BEFORE_20H1 = 19;
         private const int DWMWA_USE_IMMERSIVE_DARK_MODE = 20;
 
-        public static void ApplyThemeToWindow(Window window, bool isDark)
+        public static void ApplyThemeToWindow(Window? window, bool isDark)
         {
             if (window == null) return;
 
             var windowHandle = new WindowInteropHelper(window).Handle;
             if (windowHandle == IntPtr.Zero) return;
 
-            int useDarkMode = isDark ? 1 : 0;
+            var useDarkMode = isDark ? 1 : 0;
             
             // Try newer attribute first
             if (DwmSetWindowAttribute(windowHandle, DWMWA_USE_IMMERSIVE_DARK_MODE, ref useDarkMode, sizeof(int)) != 0)

@@ -3,27 +3,53 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using Irvuewin.Helpers;
-using Irvuewin.Models;
 using Irvuewin.Models.Unsplash;
+using Irvuewin.Helpers.Utils;
+using System.Diagnostics;
+using Irvuewin.Helpers.AOP;
+using Irvuewin.Views;
+using static Irvuewin.Helpers.IAppConst;
 using Exception = System.Exception;
 
 
 namespace Irvuewin.ViewModels;
+
 using Serilog;
 
-// Singleton
+/// <summary>
+/// Channels Manager window<br/>
+/// Singleton design.<br/>
+/// </summary>
+/// <remarks>
+/// In memory cached fields:
+/// <para>
+/// 1. Channel's loaded wallpaper info
+/// <code> CacheManager.set(key1=CachedWallpapers, key2=channelId, val=[List]UnsplashPhoto</code>
+/// Value item contains only key infos.<br/>
+/// </para>
+/// <para>
+/// 2. Channels's loaded chard index
+/// <code>CacheManager.set(key1=CachedWallpaperShard, key2=channelId, val=[int]index</code>
+/// This value increases when user scrolling load more photos of a channel.
+/// </para>
+/// </remarks>
 public class ChannelsViewModel : INotifyPropertyChanged
 {
-    private static readonly ILogger Logger = Log.ForContext(typeof(ChannelsViewModel));
+    private static readonly ILogger Logger = Log.ForContext<ChannelsViewModel>();
+
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    private string SavedChannels { get; set; } = Properties.Settings.Default.UserUnsplashChannels;
+    private string SavedChannelIds { get; set; } = Properties.Settings.Default.UserUnsplashChannels;
+
     private ObservableCollection<UnsplashPhoto> _photos = [];
 
+    /// <summary>
+    /// channel manage window datasource
+    /// </summary>
     public ObservableCollection<UnsplashPhoto> Photos
     {
         get => _photos;
-        set
+        private set
         {
             _photos = value;
             OnPropertyChanged();
@@ -32,24 +58,27 @@ public class ChannelsViewModel : INotifyPropertyChanged
 
     private ObservableCollection<ChannelViewModel> _channels = [];
 
+    /// <summary>
+    /// channel manage window data source
+    /// </summary>
     public ObservableCollection<ChannelViewModel> Channels
     {
         get => _channels;
-        set
+        private set
         {
             _channels = value;
             OnPropertyChanged();
         }
     }
 
-    private string _checkedChannel = Properties.Settings.Default.UserCheckedChannel;
+    private string _checkedChannelId = Properties.Settings.Default.UserCheckedChannel;
 
-    public string CheckedChannel
+    public string CheckedChannelId
     {
-        get => _checkedChannel;
-        set
+        get => _checkedChannelId;
+        private set
         {
-            _checkedChannel = value;
+            _checkedChannelId = value;
             OnPropertyChanged();
         }
     }
@@ -59,23 +88,31 @@ public class ChannelsViewModel : INotifyPropertyChanged
     public string CheckedChannelName
     {
         get => _checkedChannelName;
-        set
+        private set
         {
             _checkedChannelName = value;
             OnPropertyChanged();
         }
     }
 
-    // Wallpaper shard index for each channel
-    private readonly Dictionary<string, int> _shardIndex = new();
+    private ChannelViewModel _selectedChannel;
 
-
-    // Loaded photos for each channel (dynamic update)
-    public Dictionary<string, int> LoadedPhotoCount { get; set; } = [];
+    public ChannelViewModel SelectedChannel
+    {
+        get => _selectedChannel;
+        set
+        {
+            _selectedChannel = value;
+            OnPropertyChanged();
+        }
+    }
 
     private bool _allPhotosLoaded;
 
-    public bool AllPhotosLoaded
+    /// <summary>
+    /// Flag of whether channel's all photos have been loaded
+    /// </summary>
+    private bool AllPhotosLoaded
     {
         get => _allPhotosLoaded;
         set
@@ -89,9 +126,16 @@ public class ChannelsViewModel : INotifyPropertyChanged
     private bool IsBusy { get; set; }
     private UnsplashQueryParams DefaultQuery { get; set; }
 
-    public ICommand ChannelSelected2 { get; set; }
-    public ICommand ChannelChecked2 { get; set; }
-    public ICommand LoadMorePhotos { get; set; }
+    public ICommand ChannelSelected2 { get; }
+    public ICommand ChannelChecked2 { get; }
+    public ICommand LoadMorePhotos { get; }
+    public ICommand SetAsWallpaperCommand { get; }
+    public ICommand DownloadPhotoCommand { get; }
+    public ICommand ViewPhotoCommand { get; }
+    public ICommand ViewAuthorCommand { get; }
+    public ICommand HidePhotoCommand { get; }
+    public ICommand HideAuthorCommand { get; }
+
 
     private static readonly Lazy<Task<ChannelsViewModel>> Instance = new(Init);
 
@@ -104,16 +148,21 @@ public class ChannelsViewModel : INotifyPropertyChanged
 
     private ChannelsViewModel()
     {
-        // _selectedChannel = new ChannelViewModel(); // useless
         DefaultQuery = new UnsplashQueryParams
         {
             Page = 1,
-            PerPage = IAppConst.PageSize,
+            PerPage = PageSize,
             Orientation = Properties.Settings.Default.WallpaperOrientation
         };
-        LoadMorePhotos = new RelayCommand<object>(OnLoadMorePhotos);
+        LoadMorePhotos = new RelayCommand<UnsplashChannel>(OnLoadMorePhotos);
         ChannelSelected2 = new RelayCommand<ChannelViewModel>(OnChannelSelected);
         ChannelChecked2 = new RelayCommand<ChannelViewModel>(OnChannelChecked);
+        SetAsWallpaperCommand = new RelayCommand<UnsplashPhoto>(OnSetAsWallpaper);
+        DownloadPhotoCommand = new RelayCommand<UnsplashPhoto>(OnDownloadPhoto);
+        ViewPhotoCommand = new RelayCommand<UnsplashPhoto>(OnViewPhoto);
+        ViewAuthorCommand = new RelayCommand<UnsplashPhoto>(OnViewAuthor);
+        HidePhotoCommand = new RelayCommand<UnsplashPhoto>(OnHidePhoto);
+        HideAuthorCommand = new RelayCommand<UnsplashPhoto>(OnHideAuthor);
     }
 
     public static Task<ChannelsViewModel> GetInstanceAsync()
@@ -121,6 +170,10 @@ public class ChannelsViewModel : INotifyPropertyChanged
         return Instance.Value;
     }
 
+    /// <summary>
+    /// Get instance after initialized. Or will be blocked.
+    /// </summary>
+    /// <returns></returns>
     public static ChannelsViewModel GetInstance()
     {
         return Instance.Value.Result;
@@ -130,98 +183,194 @@ public class ChannelsViewModel : INotifyPropertyChanged
     {
         // Channels
         await LoadChannels();
-        Channels.First(c => c.Id == _checkedChannel).IsChecked = true;
-        CheckedChannelName = Channels.First(c => c.Id == _checkedChannel).Title;
-        // Init Channels photo shard index
+        Channels.First(c => c.Id == _checkedChannelId).IsChecked = true;
+        CheckedChannelName = Channels
+            .First(c => c.Id == _checkedChannelId).Title;
+        SelectedChannel = Channels
+            .First(c => c.Id == _checkedChannelId);
         foreach (var channel in Channels)
         {
-            _shardIndex[channel.Id] = 1;
-            LoadedPhotoCount[channel.Id] = await UnsplashCache.LoadPhotoCountAsync(channel.Id);
+            // Init Channels' photo shard index and photos queue
+            if (await FileCacheManager.LoadPhotosAsync(channel.Id) is not { } photos) continue;
+            CacheManager.Set(CachedWallpaperShard, channel.Id,
+                (photos.Count + PageSize - 1) / PageSize);
+            InitChannelPhotos(channel.Id, photos);
         }
-        
-        // Load 1st page of channel's photos 
-        await LoadPhotos(CheckedChannel, DefaultQuery);
-        Logger.Information(@"=========> ChannelsViewModel initialized.");
+
+        // Load 1st page of checked channel's photos 
+        // await LoadPhotos(CheckedChannelId, DefaultQuery);
+
+        // Init Photos
+        if (!await LoadPhotos(CheckedChannelId))
+            await LoadPhotos(CheckedChannelId, DefaultQuery);
+        Logger.Information(@"ChannelsViewModel initialized.");
     }
 
 
+    /// <summary>
+    /// Load Channels info from local cache or web(the first start)<br/>
+    /// <para>Loaded data save to Channel, which is window data source.</para>
+    /// </summary>
     private async Task LoadChannels()
     {
-        var channelIds = SavedChannels.Split(',');
-        // Load from disk cache
-        if (await UnsplashCache.LoadChannelsAsync() is { } cachedChannels
-            && cachedChannels.Any()
+        var channelIds = SavedChannelIds.Split(',');
+        if (await FileCacheManager.LoadChannelsAsync() is { } cachedChannels
             && cachedChannels.Count == channelIds.Length)
         {
+            // Load from disk cache
             List<ChannelViewModel> channelViewModels = [];
             channelViewModels.AddRange(
                 cachedChannels.Select(item => MapperProvider.Mapper.Map<ChannelViewModel>(item)));
             Channels = [..channelViewModels];
         }
-        // Load from web api
         else
         {
+            // Load from web api
             var httpService = IHttpClient.GetUnsplashHttpService();
             foreach (var id in channelIds)
             {
                 if (await httpService.GetChannelById(id) is { } channel)
                     Channels.Add(MapperProvider.Mapper.Map<ChannelViewModel>(channel));
             }
+
             Logger.Information(@"Loaded {ChannelsCount} channels from web.", Channels.Count);
-            // cache channels
-            // await CacheChannels();
         }
     }
 
-    private async Task<bool> LoadPhotos(string channelId, UnsplashQueryParams query, bool append = false)
+
+    /// <summary>
+    /// Init all cached photos to in-memory cache.
+    /// </summary>
+    /// <param name="cid">channel id</param>
+    /// <param name="photos">Unsplash photo list</param>
+    // TODO Filter
+    private static void InitChannelPhotos(string cid, List<UnsplashPhoto> photos)
     {
+        var cachePhotos = SimplyPhotosQueue(photos);
+        CacheManager.Set(CachedWallpapers, cid, cachePhotos);
+    }
+
+    /// <summary>
+    /// UnsplashPhoto object cached.
+    /// </summary>
+    /// <param name="photos">unsplash photo list</param>
+    /// <returns>Simplified unsplash photo list</returns>
+    private static List<UnsplashPhoto> SimplyPhotosQueue(List<UnsplashPhoto> photos)
+    {
+        var cachePhotos =
+            photos.Select(p => new UnsplashPhoto
+            {
+                Id = p.Id,
+                Urls = p.Urls,
+                Links = p.Links,
+                User = new UnsplashUser()
+                {
+                    Name = p.User.Name,
+                    ProfileImage = p.User.ProfileImage,
+                    Links = p.User.Links,
+                }
+            }).ToList();
+        return cachePhotos;
+    }
+
+    /// <summary>
+    /// Load channel photos from web API and save it to in-memory and local disk cache.
+    /// </summary>
+    /// <param name="cid">channel id</param>
+    /// <param name="query"><see cref="UnsplashQueryParams"/></param>
+    /// <returns>True if succeeded</returns>
+    public async Task<bool> LoadPhotosShardFromWeb(string cid, UnsplashQueryParams query)
+    {
+        // web -> in memory cache -> local disk cache
+        // load new photos from web API
+        var httpService = IHttpClient.GetUnsplashHttpService();
+        if (await httpService.GetPhotosOfChannel(cid, query) is not { } photos)
+        {
+            // API error
+            return false;
+        }
+
+        if (photos.Count == 0)
+        {
+            // Sometimes api gets 0 photo from channel
+            // Though channel contains photo(s)
+            // We assume that all photos are loaded
+            AllPhotosLoaded = true;
+            // return false;
+        }
+
+        ChannelPhotosHandler(cid, photos);
+
+        // Update cache immediately
         var cacheIndex = new PhotosCachePageIndex
         {
-            ChannelId = channelId,
+            ChannelId = cid,
             PageIndex = query.Page
         };
-        if (await UnsplashCache.LoadPhotosShardAsync(cacheIndex) is { } cachedPhotos
-            && cachedPhotos.Any())
-            // load from cache
-        {
-            RenewChannelPhotos(cachedPhotos, append);
-            return true;
-        }
-
-        // Load from unsplash web API
-        var httpService = IHttpClient.GetUnsplashHttpService();
-        if (await httpService.GetPhotosOfChannel(channelId, query) is { } photos)
-        {
-            // Sometimes api can not get photos of a channel
-            // Though channel contains photo(s)
-            if (!photos.Any() && append)
-            {
-                return false;
-            }
-
-            RenewChannelPhotos(photos, append);
-            // update cache
-            if (photos.Any()) await CachePhotos(cacheIndex, photos);
-            LoadedPhotoCount[channelId] = Photos.Count;
-            return true;
-        }
-
-        return false;
+        if (photos.Count != 0) await FileCacheManager.CachePhotosAsync(cacheIndex, photos);
+        return true;
     }
 
-    private void RenewChannelPhotos(List<UnsplashPhoto> photos, bool append)
+    /// <summary>
+    /// Load channel photos from cache.
+    /// </summary>
+    /// <param name="cid"></param>
+    /// <returns></returns>
+    private async Task<bool> LoadPhotos(string cid)
     {
-        if (append)
+        if (!CacheManager.Exists<List<UnsplashPhoto>>(CachedWallpapers, cid))
         {
-            foreach (var item in photos)
+            if (await FileCacheManager.LoadPhotosAsync(cid) is { } photos)
             {
-                Photos.Add(item);
+                if (photos.Count == 0) return false;
+                InitChannelPhotos(cid, photos);
             }
+            else return false;
+        }
+
+        Photos = [..CacheManager.Get<List<UnsplashPhoto>>(CachedWallpapers, cid)!];
+        return true;
+    }
+
+    /// <summary>
+    /// Load channel wallpapers.<br/>
+    /// Ultimate goal of this method is to update <see cref="Photos"/> UI control.
+    /// </summary>
+    /// <param name="channelId">channel Id</param>
+    /// <param name="query"><see cref="UnsplashQueryParams"/></param>
+    /// <returns>True if succeeded, False if no photo is loaded.</returns>
+    public async Task<bool> LoadPhotos(
+        string channelId,
+        UnsplashQueryParams query)
+    {
+        if (!await LoadPhotosShardFromWeb(channelId, query)) return false;
+        Photos = [..CacheManager.Get<List<UnsplashPhoto>>(CachedWallpapers, channelId)!];
+        return true;
+    }
+
+    /// <summary>
+    /// Handler of raw channel photos.
+    /// </summary>
+    /// <param name="channelId">channel id</param>
+    /// <param name="photos">raw photo list</param>
+    [FilterByBlockList]
+    [FilterBySize(MinWidth = 1920, MinHeight = 1080)]
+    private static void ChannelPhotosHandler(
+        string channelId,
+        List<UnsplashPhoto> photos)
+    {
+        var cachePhotos = SimplyPhotosQueue(photos);
+
+        if (!CacheManager.TryGet<List<UnsplashPhoto>?>
+                (CachedWallpapers, channelId, out var val)
+            || val is null)
+        {
+            CacheManager.Set(CachedWallpapers, channelId, cachePhotos);
         }
         else
         {
-            // Discard previous photos
-            Photos = [..photos];
+            val.AddRange(cachePhotos);
+            CacheManager.Set(CachedWallpapers, channelId, val);
         }
     }
 
@@ -230,28 +379,27 @@ public class ChannelsViewModel : INotifyPropertyChanged
     /// But next wallpaper will still be fetched from checked channel (Radio).
     /// This will reload all photos preview from selected photo.
     /// </summary>
-    /// <param name="param"></param>
-    private async void OnChannelSelected(object param)
+    /// <param name="item">ChannelViewModel</param>
+    private async void OnChannelSelected(ChannelViewModel item)
     {
         try
         {
-            if (param is not ChannelViewModel item) return;
-            // Reset photos loaded status and shard index
-            AllPhotosLoaded = false;
-            foreach (var key in _shardIndex.Keys.ToList())
+            SelectedChannel = item;
+            if (CacheManager.Exists<List<UnsplashPhoto>>
+                    (CachedWallpapers, item.Id))
             {
-                _shardIndex[key] = 1;
+                await LoadPhotos(item.Id);
             }
-
-            LoadedPhotoCount[item.Id] = await UnsplashCache.LoadPhotoCountAsync(item.Id);
-
-            // Load photos
-            DefaultQuery.Orientation = Properties.Settings.Default.WallpaperOrientation;
-            await LoadPhotos(item.Id, DefaultQuery);
+            else
+            {
+                await LoadPhotos(item.Id, DefaultQuery);
+            }
+            // IrvuewinCore.UpdateAndSaveProperties(("UserSelectedChannel", SelectedChannelId));
         }
         catch (Exception e)
         {
             // ignore
+            Logger.Error(@"Channel select error: {0}", e.Message);
         }
     }
 
@@ -259,51 +407,61 @@ public class ChannelsViewModel : INotifyPropertyChanged
     /// <summary>
     /// Once channel is checked, means next wallpaper is fetched from this channel.
     /// </summary>
-    /// <param name="param"></param>
-    private void OnChannelChecked(object param)
+    /// <param name="item">ChannelViewModel</param>
+    private void OnChannelChecked(ChannelViewModel item)
     {
         try
         {
-            if (param is not ChannelViewModel item) return;
-            
             // Update selected status
             item.IsChecked = true;
             // Ignore continuous click
-            if (CheckedChannel == item.Id) return;
-            CheckedChannel = item.Id;
+            if (CheckedChannelId == item.Id) return;
+            CheckedChannelId = item.Id;
             CheckedChannelName = item.Title;
             Channels.Where(c => c != item)
                 .ToList()
                 .ForEach(c => c.IsChecked = false);
-
+            // Once app startup at 1st time
+            // And user checked channel from tray menu
+            // Channel's photo is not cached
+            // We need to preload photos
+            if (!CacheManager.Exists<List<UnsplashPhoto>>(CachedWallpapers, item.Id))
+                Task.Run(() => LoadPhotosShardFromWeb(item.Id, DefaultQuery));
 
             // Update selected index to settings
-            Properties.Settings.Default.UserCheckedChannel = CheckedChannel;
+            Properties.Settings.Default.UserCheckedChannel = CheckedChannelId;
             Properties.Settings.Default.Save();
-            Logger.Information(@"Checked Channel saved: {S}", CheckedChannel);
+            Logger.Information(@"Checked Channel saved: {0}", CheckedChannelId);
         }
         catch (Exception e)
         {
             // ignore
+            Logger.Error(@"Channel check error: {0}", e.Message);
         }
     }
 
-    private async void OnLoadMorePhotos(object obj)
+    /// <summary>
+    /// Wallpaper view board scroll update.
+    /// </summary>
+    /// <param name="channel">UnsplashChannel</param>
+    private async void OnLoadMorePhotos(UnsplashChannel channel)
     {
-        if (IsBusy) return;
-        if (AllPhotosLoaded) return;
-        IsBusy = true;
-        _shardIndex[CheckedChannel]++;
         try
         {
+            Logger.Information(@"Loading more photos of channel {0}", channel.Id);
+            if (IsBusy) return;
+            if (AllPhotosLoaded) return;
+            IsBusy = true;
+            var shard = CacheManager.Get<int>(CachedWallpaperShard, channel.Id);
             UnsplashQueryParams query = new()
             {
-                Page = _shardIndex[CheckedChannel],
-                PerPage = IAppConst.PageSize,
+                Page = ++shard,
+                PerPage = PageSize,
                 Orientation = Properties.Settings.Default.WallpaperOrientation
             };
-            AllPhotosLoaded = !await LoadPhotos(CheckedChannel, query, true);
+            AllPhotosLoaded = !await LoadPhotos(channel.Id, query);
             IsBusy = false;
+            CacheManager.Set(CachedWallpaperShard, channel.Id, shard);
         }
         catch (Exception e)
         {
@@ -312,96 +470,160 @@ public class ChannelsViewModel : INotifyPropertyChanged
         }
     }
 
+    /// <summary>
+    /// Refresh channel photos cache.<br/>
+    /// Triggered when user change wallpaper filter rules. 
+    /// </summary>
+    /// <param name="channelId"></param>
     public async Task RefreshPhotos(string channelId)
     {
-        var httpService = IHttpClient.GetUnsplashHttpService();
-        UnCachePhotos(channelId);
+        // if (channelId is null) return;
+        CacheManager.Remove<List<UnsplashPhoto>>(CachedWallpapers, channelId);
+        FileCacheManager.UnCacheChannelPhotos(channelId);
         DefaultQuery.Orientation = Properties.Settings.Default.WallpaperOrientation;
-        if (await httpService.GetPhotosOfChannel(channelId, DefaultQuery) is { } photos
-            && photos.Count != 0)
-        {
-            Photos = [..photos];
-            // update cache
-            var cacheIndex = new PhotosCachePageIndex
-            {
-                ChannelId = channelId,
-                PageIndex = DefaultQuery.Page
-            };
-            await CachePhotos(cacheIndex, photos);
-        }
+        await LoadPhotos(channelId, DefaultQuery);
 
         // reset
-        TrayMenuHelper.ResetChannelSequence(channelId);
-        _shardIndex[channelId] = 1;
+        IrvuewinCore.ResetChannelSequence(channelId);
+        CacheManager.Set(CachedWallpaperShard, channelId, 1);
         AllPhotosLoaded = false;
-        // reset photos count
-        LoadedPhotoCount[channelId] = Photos.Count;
         Logger.Information(@"Refreshed photos for channel {ChannelId}", channelId);
     }
 
-    public async Task CacheChannels()
+    public async Task RefreshPhotos()
     {
-        await UnsplashCache.CacheChannelsAsync([..Channels]);
-    }
+        foreach (var channel in Channels)
+        {
+            CacheManager.Remove<List<UnsplashPhoto>>(CachedWallpapers, channel.Id);
+            FileCacheManager.UnCacheChannelPhotos(channel.Id);
+            DefaultQuery.Orientation = Properties.Settings.Default.WallpaperOrientation;
 
-    public async Task CachePhotos(PhotosCachePageIndex cachePageIndex, List<UnsplashPhoto> photos)
-    {
-        await UnsplashCache.CachePhotosAsync(cachePageIndex, photos);
-    }
+            await LoadPhotosShardFromWeb(channel.Id, DefaultQuery);
 
-    public void UnCachePhotos(string channelId)
-    {
-        UnsplashCache.UnCacheChannelPhotos(channelId);
+            // reset
+            IrvuewinCore.ResetChannelSequence(channel.Id);
+            CacheManager.Set(CachedWallpaperShard, channel.Id, 1);
+            AllPhotosLoaded = false;
+
+            if (channel.Id != SelectedChannel.Id) continue;
+            // Set photos
+            // Some channels may not contain photos in specify orientation
+            var nps = CacheManager.Get<List<UnsplashPhoto>>(CachedWallpapers, SelectedChannel.Id) ?? [];
+            Photos = [..nps];
+        }
     }
 
     public void AddChannel(List<UnsplashChannel> selectedChannels)
     {
         var newChannels = string.Join(",", selectedChannels.Select(channel => channel.Id));
-        SavedChannels = SavedChannels + "," + newChannels;
+        SavedChannelIds = SavedChannelIds + "," + newChannels;
         // System settings
-        Properties.Settings.Default.UserUnsplashChannels = SavedChannels;
+        Properties.Settings.Default.UserUnsplashChannels = SavedChannelIds;
         Properties.Settings.Default.Save();
 
         // Map to ChannelViewModel list
         var cvm = selectedChannels.Select(channel => MapperProvider.Mapper.Map<ChannelViewModel>(channel));
         var channelViewModels = cvm.ToList();
         Channels = [..Channels.Concat(channelViewModels).ToList()];
-        Logger.Information(@">>>>>>New Channels: {Join}", string.Join(",", Channels.Select(channel => channel.Id)));
+        Logger.Information(@"New Channels: {Join}", string.Join(",", Channels.Select(channel => channel.Id)));
 
         // Update shard index and wallpaper sequence
         foreach (var channel in selectedChannels)
         {
-            _shardIndex.Add(channel.Id, 1);
+            CacheManager.Set(CachedWallpaperShard, channel.Id, 1);
+            Task.Run(() => LoadPhotosShardFromWeb(channel.Id, DefaultQuery));
         }
 
-        TrayMenuHelper.AddNewChannelSequence(channelViewModels);
+        IrvuewinCore.AddNewChannelSequence(channelViewModels);
     }
 
     public void DeleteSelectedChannel(string channelId)
     {
-        SavedChannels = string.Join(",", SavedChannels.Split(",").Where(item => item != channelId));
+        SavedChannelIds = string.Join(",", SavedChannelIds.Split(",").Where(item => item != channelId));
 
-        Properties.Settings.Default.UserUnsplashChannels = SavedChannels;
+        Properties.Settings.Default.UserUnsplashChannels = SavedChannelIds;
         Properties.Settings.Default.Save();
 
         var item = Channels.FirstOrDefault(c => c.Id == channelId);
         if (item != null) Channels.Remove(item);
 
-        // SelectedChannel = Channels[0];
-        // SelectedIndex = (sbyte)Channels.IndexOf(SelectedChannel);
-
         // Refresh shard index and wallpaper sequence
-        _shardIndex.Remove(channelId);
-        TrayMenuHelper.DelChannelSequence(channelId);
+        CacheManager.Remove<List<UnsplashPhoto>>(CachedWallpaperShard, channelId);
+        IrvuewinCore.DelChannelSequence(channelId);
         // Clear cached memory/disk channel photos
-        UnsplashCache.UnCacheChannelPhotos(channelId);
+        FileCacheManager.UnCacheChannelPhotos(channelId);
 
-        if (channelId != CheckedChannel) return;
+        if (channelId != CheckedChannelId) return;
         {
-            // reset to default
-            CheckedChannel = Channels[0].Id;
-            Channels.First(c => c.Id == CheckedChannel).IsChecked = true;
+            // reset checked channel to default
+            CheckedChannelId = Channels[0].Id;
+            Channels.First(c => c.Id == CheckedChannelId).IsChecked = true;
         }
+    }
+
+    private static async void OnSetAsWallpaper(UnsplashPhoto photo)
+    {
+        try
+        {
+            IrvuewinCore.CheckPointer();
+            if (await WallpaperUtil.SetWallpaperForSpecificMonitor(IrvuewinCore.CurrentPointerDisplay, photo) is not
+                { } path) return;
+            IrvuewinCore.UpdateDisplayWallpaperStack(IrvuewinCore.CurrentPointerDisplay.Name, path);
+            CacheManager.Set(IrvuewinCore.CurrentPointerDisplay.Name, photo.Id);
+            IrvuewinCore.BroadcastWallpaperChanged(IrvuewinCore.CurrentPointerDisplay.Name, photo.Id);
+        }
+        catch (Exception e)
+        {
+            // ignore
+            Logger.Error(@"Manually setup wallpaper error: {0}", e.Message);
+        }
+    }
+
+    private static async void OnDownloadPhoto(UnsplashPhoto photo)
+    {
+        try
+        {
+            var dest = Properties.Settings.Default.WallpaperSavedPath;
+            if (string.IsNullOrWhiteSpace(dest))
+            {
+                dest = DefaultWallpaperDownloadDir;
+            }
+
+            // This will pre-download wallpaper
+            var path = await WallpaperUtil.GetWallpaperFullPath(photo, null);
+            FileUtils.CopyFileToDir(path, dest);
+            var openFolder = Properties.Settings.Default.OpenSavedWallpaper;
+            if (openFolder)
+            {
+                Process.Start("explorer.exe", dest);
+            }
+        }
+        catch (Exception e)
+        {
+            // ignore
+            Logger.Error(@"Manually download wallpaper error: {0}", e.Message);
+        }
+    }
+
+    private static void OnViewPhoto(UnsplashPhoto photo)
+    {
+        ICommonCommands.OpenUrl(photo.Links.Html.ToString());
+    }
+
+    private static void OnViewAuthor(UnsplashPhoto photo)
+    {
+        ICommonCommands.OpenUrl(photo.User.Links.Html.ToString());
+    }
+
+
+    private static void OnHidePhoto(UnsplashPhoto photo)
+    {
+        MessageBoxWindow.Show("?");
+    }
+
+    private static void OnHideAuthor(UnsplashPhoto photo)
+    {
+        MessageBoxWindow.Show("!");
     }
 
     private void OnPropertyChanged([CallerMemberName] string? propertyName = null)

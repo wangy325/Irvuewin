@@ -1,12 +1,13 @@
-﻿using System.Diagnostics;
-using System.Net.Http;
+﻿using System.Net.Http;
 using System.Net.Http.Headers;
 using Irvuewin.Models.Unsplash;
 using Newtonsoft.Json;
 using Serilog;
 
+
 namespace Irvuewin.Helpers
 {
+    using static IAppConst;
     public interface IHttpClient
     {
         Task<HttpResponseMessage> GetAsync(string url);
@@ -35,16 +36,14 @@ namespace Irvuewin.Helpers
 
         public Task<HttpResponseMessage> GetAsync(string url) => _httpClient.GetAsync(url);
     }
+    
+    
 
     public class UnsplashHttpService
     {
-        private static readonly ILogger Logger = Log.ForContext(typeof(UnsplashHttpService));
+        private static readonly ILogger Logger = Log.ForContext<UnsplashHttpService>();
         private readonly IHttpClient _client;
-        private const string BaseUrl = "https://api.unsplash.com";
-        private const string Photos = "photos";
-        private const string Collections = "collections";
-        private const string User = "users";
-        private const string Search = "search";
+
 
         public UnsplashHttpService(IHttpClient service)
         {
@@ -103,7 +102,12 @@ namespace Irvuewin.Helpers
             return await GetAsync<UnsplashChannel>(url);
         }
 
-        // Get a single page of photos in a collection
+        /// <summary>
+        /// Get a single page of photos in a collection
+        /// </summary>
+        /// <param name="channelId"></param>
+        /// <param name="query"></param>
+        /// <returns></returns>
         public async Task<List<UnsplashPhoto>?> GetPhotosOfChannel(string channelId, UnsplashQueryParams? query)
         {
             var url = $"{Collections}/{channelId}/{Photos}";
@@ -114,7 +118,12 @@ namespace Irvuewin.Helpers
             return await GetAsync<List<UnsplashPhoto>>(url);
         }
 
-        // Get a Random photo in a specific collection
+        /// <summary>
+        /// Get Random photo(s) from specific collection.
+        /// </summary>
+        /// <param name="channelId">Channel Id</param>
+        /// <param name="count">Wallpaper count</param>
+        /// <returns></returns>
         public async Task<List<UnsplashPhoto>?> GetRandomPhotoInChannel(string channelId, int count = 1)
         {
             var ori = Properties.Settings.Default.WallpaperOrientation;
@@ -149,6 +158,12 @@ namespace Irvuewin.Helpers
         {
             var url = $"{Search}/{Collections}?query={keywords}&{query.ToQueryString()}";
             return await GetAsync<UnsplashSearchResult>(url);
+        }
+        
+        // Trigger Download
+        public async Task<string?> TriggerDownload(string url)
+        {
+            return await GetAsync<string>(url);
         }
     }
 }

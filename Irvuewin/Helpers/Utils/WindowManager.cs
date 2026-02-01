@@ -19,7 +19,7 @@ namespace Irvuewin.Helpers.Utils
             }
 
             var newWindow = windowFactory();
-            newWindow.Closed += (s, e) => Windows.Remove(key);
+            newWindow.Closed += (_, _) => Windows.Remove(key);
 
             Windows[key] = new WeakReference<Window>(newWindow);
             if (!dialog) newWindow.Show();
@@ -29,7 +29,7 @@ namespace Irvuewin.Helpers.Utils
 
         public static void SaveWindowPosition<T>(T window, string key) where T : Window
         {
-            if (window == null) return;
+            // if (window == null) return;
             var position = new WindowPosition
             {
                 Left = window.Left,
@@ -44,7 +44,7 @@ namespace Irvuewin.Helpers.Utils
 
         public static void LoadWindowPosition<T>(T window, string key) where T : Window
         {
-            if (window == null) return;
+            // if (window == null) return;
             var config = FileUtils.WindowPositionPath(key);
             if (!File.Exists(config)) return;
             // XmlSerializer 只能处理public类
@@ -80,9 +80,9 @@ namespace Irvuewin.Helpers.Utils
 
     public class WindowPosition
     {
-        public double Left { get; set; }
-        public double Top { get; set; }
-        public double Width { get; set; }
-        public double Height { get; set; }
+        public double Left { get; init; }
+        public double Top { get; init; }
+        public double Width { get; init; }
+        public double Height { get; init; }
     }
 }

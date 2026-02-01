@@ -5,11 +5,45 @@ namespace Irvuewin.Helpers;
 
 public interface IAppConst
 {
-    const int PageSize = 12;
-    
+    const int PageSize = 3;
+
     static readonly string DefaultWallpaperDownloadDir = GetFolderPath(MyPictures);
 
+    const string AppName = "Irvuewin";
+
+    // const string WallpaperCacheFolder = "splash";
+    // const string ChannelCacheFolder = "channel";
+
+    const string CachedWindowsPositionFileSuffix = "xml";
+    const string CachedFileNameSuffix = "json";
+
+    // cached channel file name prefix
+    const string CachedChannelNamePrefix = "channels";
+
+    // cached channel's photo file name prefix
     const string CachedPhotosNamePrefix = "photos_";
-    const string CachedPhotosNameSuffix = "cached.json";
-    
+
+    // key for channel's wallpaper queue sequence / local sequence file name prefix
+    const string CachedChannelSeqPrefix = "sequence";
+
+    // key for display's wallpaper history stack
+    const string CachedWallpaperStack = "wallpaper_stack";
+
+    // key for channel's wallpaper loaded
+    const string CachedWallpapers = "channel_wallpaper_count";
+
+    const string CachedWallpaperShard = "channel_wallpaper_shard";
+
+
+    // Errors:
+    const string InMemoryCacheError = "InMemoryCacheError";
+    const string FileCacheError = "FileCacheError";
+
+    // Urls
+    const string BaseUrl = "https://api.unsplash.com";
+    const string Photos = "photos";
+    const string Collections = "collections";
+    const string User = "users";
+    const string Search = "search";
+    const string Attribute = "?utm_source=your_app_name&utm_medium=referral";
 }

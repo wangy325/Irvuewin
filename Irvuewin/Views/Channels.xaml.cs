@@ -12,7 +12,7 @@ namespace Irvuewin.Views;
 
 public partial class Channels
 {
-    private static readonly ILogger Logger = Log.ForContext(typeof(Channels));
+    private static readonly ILogger Logger = Log.ForContext<Channels>();
     private bool _isInitialized;
 
     public Channels()
@@ -27,7 +27,6 @@ public partial class Channels
 
     private void ChannelsWindow_Loaded(object sender, RoutedEventArgs e)
     {
-        Logger.Information($@"Window_Loaded: ------------------ ");
         // var viewModel = DataContext as ChannelsViewModel;
         var checkedChannel = Properties.Settings.Default.UserCheckedChannel;
         Logger.Information(@"Window_Loaded: Checked channel Index: {CheckedChannel}", checkedChannel);
@@ -37,59 +36,60 @@ public partial class Channels
 
     private async void ChannelsWindow_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
     {
-        _isInitialized = false;
-        // 更新频道数据缓存
-        if (DataContext is ChannelsViewModel viewModel)
+        try
         {
-            Logger.Information(@"Window_Closing: Saving channels...");
-            // TODO Double check 
-            await viewModel.CacheChannels();
-        }
+            _isInitialized = false;
+            // 更新频道数据缓存
+            if (DataContext is ChannelsViewModel viewModel)
+            {
+                // TODO Double check 
+                await FileCacheManager.CacheChannelsAsync([..viewModel.Channels]);
+            }
 
-        Logger.Information(@"Window Closed.");
+            Logger.Information(@"Window Closed.");
+        }
+        catch 
+        {
+           // ignore
+        }
     }
 
     private void Channels_Detail_Click(object sender, RoutedEventArgs e)
     {
         var viewModel = DataContext as ChannelsViewModel;
-        var checkedChannel = viewModel!.Channels.First(c => c.Id == viewModel.CheckedChannel);
-        Logger.Information(@"Selected Channel: {CheckedChannelTitle}", checkedChannel.Title);
-        try
-        {
-            // Open link with default browser
-            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
-            {
-                FileName = checkedChannel.Links.Html.OriginalString,
-                UseShellExecute = true
-            });
-        }
-        catch (Exception ex)
-        {
-            Logger.Error(@"打开链接失败: {ExMessage}", ex.Message);
-        }
+        // var sc = viewModel!.Channels.First(c => c.Id == viewModel.SelectedChannelId);
+        ICommonCommands.OpenUrl(viewModel!.SelectedChannel.Links.Html.OriginalString);
     }
 
 
     private void RefreshButton_OnClick(object sender, RoutedEventArgs e)
     {
+        if (!_isInitialized) return;
+        if (ChannelsListBox.SelectedItem is not UnsplashChannel channel) return;
         if (DataContext is ChannelsViewModel viewModel)
         {
-            _ = viewModel.RefreshPhotos(viewModel.CheckedChannel).ConfigureAwait(false);
+            _ = viewModel.RefreshPhotos(channel.Id).ConfigureAwait(false);
         }
     }
 
-    // Scrolling event
+    /// <summary>
+    /// Channel photos preview control scrolling event
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
     private void VirtualizingItemsControl_ScrollChanged(object sender, ScrollChangedEventArgs e)
     {
         if (sender is not VirtualizingItemsControl itemsControl) return;
         var scrollViewer = FindVisualChild<ScrollViewer>(itemsControl);
         // Judge if scroll to bottom
         if (scrollViewer == null) return;
+        if (scrollViewer.ScrollableHeight <= 0) return;
         if (!(scrollViewer.VerticalOffset >= scrollViewer.ScrollableHeight - 10)) return;
         // Load more photos
         if (DataContext is ChannelsViewModel viewModel && viewModel.LoadMorePhotos.CanExecute(null))
         {
-            viewModel.LoadMorePhotos.Execute(null);
+            // Use selected channel
+            viewModel.LoadMorePhotos.Execute(ChannelsListBox.SelectedItem);
         }
     }
 

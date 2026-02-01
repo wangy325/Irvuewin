@@ -7,8 +7,7 @@ namespace Irvuewin.Helpers
 {
     public class Localization : INotifyPropertyChanged
     {
-        private static readonly Localization _instance = new();
-        public static Localization Instance => _instance;
+        public static Localization Instance { get; } = new();
 
         private readonly ResourceManager _resourceManager = Properties.Resources.ResourceManager;
 

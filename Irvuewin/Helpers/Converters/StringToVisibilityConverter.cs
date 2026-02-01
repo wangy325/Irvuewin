@@ -6,7 +6,7 @@ namespace Irvuewin.Helpers.Converters;
 
 public class StringToVisibilityConverter : IValueConverter
 {
-    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         switch (value)
         {
