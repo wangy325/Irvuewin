@@ -23,18 +23,19 @@ namespace Irvuewin.Helpers
     public class UnsplashHttpClientWrapper : IHttpClient
     {
         private readonly HttpClient _httpClient = new();
-        private readonly string _apiKey = Properties.Settings.Default.DefaultUnsplashApiKey;
 
         public UnsplashHttpClientWrapper()
         {
             _httpClient.DefaultRequestHeaders.Accept.Add(
                 new MediaTypeWithQualityHeaderValue("application/json"));
-            _httpClient.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Authorization", _apiKey);
             _httpClient.DefaultRequestHeaders.Add("Accept-Version", "v1");
+            // 注意：因为代理服务器会注入 Authorization 头，此处彻底移除了该逻辑！
         }
 
-        public Task<HttpResponseMessage> GetAsync(string url) => _httpClient.GetAsync(url);
+        public Task<HttpResponseMessage> GetAsync(string url)
+        {
+            return _httpClient.GetAsync(url);
+        }
     }
     
     

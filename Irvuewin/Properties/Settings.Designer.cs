@@ -144,30 +144,6 @@ namespace Irvuewin.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Client-ID tEI1zqX91pPHSWi6JQhJPSJI-xBBL9Oa-bBKEcgJ0LY")]
-        public string DefaultUnsplashApiKey {
-            get {
-                return ((string)(this["DefaultUnsplashApiKey"]));
-            }
-            set {
-                this["DefaultUnsplashApiKey"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string UserUnsplashApiKey {
-            get {
-                return ((string)(this["UserUnsplashApiKey"]));
-            }
-            set {
-                this["UserUnsplashApiKey"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("317099,7282015,5279,8498187")]
         public string UserUnsplashChannels {
             get {

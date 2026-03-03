@@ -40,7 +40,7 @@ public interface IAppConst
     const string FileCacheError = "FileCacheError";
 
     // Urls
-    const string BaseUrl = "https://api.unsplash.com";
+    const string BaseUrl = "https://unsplash-proxy.wangy325.workers.dev";
     const string Photos = "photos";
     const string Collections = "collections";
     const string User = "users";
