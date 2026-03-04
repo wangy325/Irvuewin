@@ -71,6 +71,9 @@ public class ChannelsViewModel : INotifyPropertyChanged
         }
     }
 
+    /// <summary>
+    /// Checked channel which new wallpaper is fetched from
+    /// </summary>
     private string _checkedChannelId = Properties.Settings.Default.UserCheckedChannel;
 
     public string CheckedChannelId
@@ -95,6 +98,9 @@ public class ChannelsViewModel : INotifyPropertyChanged
         }
     }
 
+    /// <summary>
+    /// Channel is selected to show wallpaper preview.
+    /// </summary>
     private ChannelViewModel _selectedChannel;
 
     public ChannelViewModel SelectedChannel
@@ -553,11 +559,16 @@ public class ChannelsViewModel : INotifyPropertyChanged
         // Clear cached memory/disk channel photos
         FileCacheManager.UnCacheChannelPhotos(channelId);
 
-        if (channelId != CheckedChannelId) return;
+        if (channelId != CheckedChannelId)
+        {
+            SelectedChannel = Channels.First(c => c.Id == CheckedChannelId);
+        }
+        else 
         {
             // reset checked channel to default
             CheckedChannelId = Channels[0].Id;
             Channels.First(c => c.Id == CheckedChannelId).IsChecked = true;
+            SelectedChannel = Channels.First(c => c.Id == CheckedChannelId);
         }
     }
 
