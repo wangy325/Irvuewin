@@ -14,6 +14,7 @@ using System.Windows.Media;
 using Irvuewin.Helpers.Logging;
 using Irvuewin.Views;
 using Serilog;
+using Application = System.Windows.Application;
 using Localization = Irvuewin.Helpers.Localization;
 
 namespace Irvuewin
@@ -32,9 +33,17 @@ namespace Irvuewin
 
         // Used for tray menu position
         private DpiAnchorWindow? _anchorWindow;
+        private ContextMenu? _trayContextMenu;
 
         protected override void OnStartup(StartupEventArgs e)
         {
+            if (Irvuewin.Properties.Settings.Default.UpgradeRequired)
+            {
+                Irvuewin.Properties.Settings.Default.Upgrade();
+                Irvuewin.Properties.Settings.Default.UpgradeRequired = false;
+                Irvuewin.Properties.Settings.Default.Save();
+            }
+
             // Apply Language Setting
             var language = Irvuewin.Properties.Settings.Default.Language;
             Localization.Instance.SetCulture(language);
@@ -91,6 +100,15 @@ namespace Irvuewin
                 _taskbarIcon = taskbarIcon;
                 _taskbarIcon.ForceCreate();
             }
+
+            // Preload ContextMenu asynchronously to avoid lag on first right-click
+            Application.Current.Dispatcher.InvokeAsync(() =>
+            {
+                if (FindResource("TrayContextMenu") is not ContextMenu contextMenu) return;
+                _trayContextMenu = contextMenu;
+                _trayContextMenu.ApplyTemplate();
+                _trayContextMenu.Closed += (_, _) => _anchorWindow?.Hide();
+            }, System.Windows.Threading.DispatcherPriority.Background);
 
             base.OnStartup(e);
         }
@@ -258,13 +276,20 @@ namespace Irvuewin
                 NativeMethods.SetForegroundWindow(helper.Handle);
 
                 // Get Context Menu from Resources
-                if (FindResource("TrayContextMenu") is not ContextMenu contextMenu) return;
+                if (_trayContextMenu == null)
+                {
+                    _trayContextMenu = FindResource("TrayContextMenu") as ContextMenu;
+                    if (_trayContextMenu != null)
+                    {
+                        _trayContextMenu.Closed += (_, _) => _anchorWindow?.Hide();
+                    }
+                }
 
-                contextMenu.PlacementTarget = _anchorWindow;
-                contextMenu.Placement = PlacementMode.Bottom;
-                contextMenu.IsOpen = true;
+                if (_trayContextMenu == null) return;
 
-                contextMenu.Closed += (_, _) => _anchorWindow!.Hide();
+                _trayContextMenu.PlacementTarget = _anchorWindow;
+                _trayContextMenu.Placement = PlacementMode.Bottom;
+                _trayContextMenu.IsOpen = true;
             }
             catch (Exception ex)
             {

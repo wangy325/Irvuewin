@@ -65,7 +65,7 @@
                         </Grid.ColumnDefinitions>
 
                         <Image Grid.Column="0"
-                               Source="{Binding CoverPhoto.Urls.Small}">
+                               Source="{Binding CoverPhoto.Urls.Small, IsAsync=True}">
                             <Image.Style>
                                 <Style TargetType="Image">
                                     <Setter Property="Stretch" Value="UniformToFill" />
@@ -187,7 +187,7 @@
                         <Image Grid.Row="0"
                                Margin="10, 10, 20, 0"
                                Width="200"
-                               Source="{Binding Urls.Small}">
+                               Source="{Binding Urls.Small, IsAsync=True}">
                             <Image.Style>
                                 <Style TargetType="Image">
                                     <Setter Property="Stretch" Value="UniformToFill" />
@@ -202,7 +202,7 @@
                         <StackPanel Grid.Row="1" Orientation="Horizontal"
                                     VerticalAlignment="Center">
                             <Image Width="24" Height="24" Margin="20,0,5,0"
-                                   Source="{Binding User.ProfileImage.Small}">
+                                   Source="{Binding User.ProfileImage.Small, IsAsync=True}">
                                 <Image.Clip>
                                     <EllipseGeometry Center="12,12" RadiusX="12" RadiusY="12" />
                                 </Image.Clip>
