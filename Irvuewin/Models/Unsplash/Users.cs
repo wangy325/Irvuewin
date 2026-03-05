@@ -1,4 +1,5 @@
-﻿using Irvuewin.Helpers;
+﻿#pragma warning disable CS8618
+using Irvuewin.Helpers;
 using Newtonsoft.Json;
 
 namespace Irvuewin.Models.Unsplash

@@ -400,7 +400,6 @@ public class ChannelsViewModel : INotifyPropertyChanged
             {
                 await LoadPhotos(item.Id, DefaultQuery);
             }
-            // IrvuewinCore.UpdateAndSaveProperties(("UserSelectedChannel", SelectedChannelId));
         }
         catch (Exception e)
         {
