@@ -147,5 +147,8 @@ namespace Irvuewin.Models.Unsplash
     {
         [JsonProperty("id")] public string Id { get; set; }
         [JsonProperty("urls")] public Urls Urls { get; set; }
+        
+        // Used exclusively by LiteDB for querying photos by channel.
+        [JsonIgnore] public List<string> ChannelIds { get; set; } = [];
     }
 }

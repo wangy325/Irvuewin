@@ -196,20 +196,19 @@ namespace Irvuewin.Helpers
         /// Caches are saved by shard(page).
         /// </summary>
         /// <returns></returns>
-        public static async Task CachePhotosAsync(PhotosCachePageIndex index, List<UnsplashPhoto> photos)
+        public static Task CachePhotosAsync(PhotosCachePageIndex index, List<UnsplashPhoto> photos)
         {
-            try
+            return Task.Run(() => 
             {
-                var dir = FileUtils.CreateDir(FileUtils.CachedPhotoBaseFolder, index.ChannelId);
-                var filePath = FileUtils.CachePath(dir, $"{CachedPhotosNamePrefix}{index.PageIndex}");
-                await File.WriteAllTextAsync(filePath,
-                    JsonConvert.SerializeObject(photos, JsonHelper.Settings));
-            }
-            catch (Exception e)
-            {
-                Logger.Error(e, "CachePhotosAsync error");
-            }
-            // Console.WriteLine($@"Saved {photos.Count} photos to cache");
+                try
+                {
+                    DatabaseManager.UpsertPhotos(index.ChannelId, photos);
+                }
+                catch (Exception e)
+                {
+                    Logger.Error(e, "CachePhotosAsync error");
+                }
+            });
         }
 
         /// <summary>
@@ -245,26 +244,20 @@ namespace Irvuewin.Helpers
         /// </summary>
         /// <param name="channelId">channelID</param>
         /// <returns>Cached photo count.</returns>
-        [Obsolete("This result is not accurate once filter is on.")]
-        public static async Task<int> LoadPhotoCountAsync(string channelId)
+        public static Task<int> LoadPhotoCountAsync(string channelId)
         {
-            var folder = Path.Combine(FileUtils.CachedPhotoBaseFolder, channelId);
-            if (!Directory.Exists(folder)) return 0;
-            var files = Directory.GetFiles(folder);
-            if (files.Length == 0) return 0;
-            var maxShard = files
-                .Select(file => Convert.ToInt32(Path.GetFileNameWithoutExtension(file).Split('_')[1].Split('.')[0]))
-                .Prepend(0)
-                .Max();
-
-            var latestShard = Path.Combine(folder,
-                $"{CachedPhotosNamePrefix}{maxShard}.{CachedFileNameSuffix}");
-            var json = await File.ReadAllTextAsync(latestShard);
-            var latestShardCount =
-                JsonConvert.DeserializeObject<List<UnsplashPhoto>>(json, JsonHelper.Settings)
-                    ?.Count;
-
-            return (int)((files.Length - 1) * PageSize + latestShardCount)!;
+            return Task.Run(() =>
+            {
+                try
+                {
+                    return DatabaseManager.GetPhotos(channelId).Count;
+                }
+                catch (Exception e)
+                {
+                    Logger.Error(e, "LoadPhotoCountAsync error");
+                    return 0;
+                }
+            });
         }
         
         /// <summary>
@@ -272,36 +265,21 @@ namespace Irvuewin.Helpers
         /// </summary>
         /// <param name="cid">channel id</param>
         /// <returns>List of photos, or null if no photo cached or exception occured.</returns>
-        public static async Task<List<UnsplashPhoto>?> LoadPhotosAsync(string cid)
+        public static Task<List<UnsplashPhoto>?> LoadPhotosAsync(string cid)
         {
-            var folder = Path.Combine(FileUtils.CachedPhotoBaseFolder, cid);
-            if (!Directory.Exists(folder)) return null;
-            var files = Directory.GetFiles(folder);
-            if (files.Length == 0) return null;
-            var res = new List<UnsplashPhoto>();
-            try
+            return Task.Run<List<UnsplashPhoto>?>(() => 
             {
-                foreach (var file in files)
+                try
                 {
-                    var photoString = await File.ReadAllTextAsync(file);
-                    var photoShard = JsonConvert.DeserializeObject<List<UnsplashPhoto>>(
-                        photoString,
-                        JsonHelper.Settings) ?? [];
-                    /*var shard = photoShard.Select(v => new UnsplashPhoto
-                    {
-                        Id = v.Id,
-                        Urls = v.Urls,
-                    }).ToList();*/
-                    res.AddRange(photoShard);
+                    var photos = DatabaseManager.GetPhotos(cid);
+                    return photos.Count > 0 ? photos : null;
                 }
-            }
-            catch (Exception e)
-            {
-                Logger.Error(e, "LoadPhotosAsync error");
-                return null;
-            }
-
-            return res;
+                catch (Exception e)
+                {
+                    Logger.Error(e, "LoadPhotosAsync error");
+                    return null;
+                }
+            });
         }
 
         /// <summary>
@@ -310,9 +288,15 @@ namespace Irvuewin.Helpers
         /// <param name="channelId"></param>
         public static void UnCacheChannelPhotos(string channelId)
         {
-            // Remove disk caches
+            // Remove legacy disk caches if any exist
             var dir = Path.Combine(FileUtils.CachedPhotoBaseFolder, channelId);
-            FileUtils.DeleteFolder(dir);
+            if (Directory.Exists(dir))
+            {
+                FileUtils.DeleteFolder(dir);
+            }
+            
+            // Remove from LiteDB
+            DatabaseManager.RemoveChannelPhotos(channelId);
         }
 
 
