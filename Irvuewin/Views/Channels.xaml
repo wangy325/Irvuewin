@@ -7,6 +7,7 @@
     xmlns:helpers="clr-namespace:Irvuewin.Helpers"
     xmlns:m="clr-namespace:Irvuewin.Models.Unsplash"
     xmlns:vm="clr-namespace:Irvuewin.ViewModels"
+    xmlns:converters="clr-namespace:Irvuewin.Helpers.Converters"
     xmlns:vwp="clr-namespace:WpfToolkit.Controls;assembly=VirtualizingWrapPanel"
     xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
     mc:Ignorable="d"
@@ -23,6 +24,7 @@
 
     <helpers:LocationAwareWindow.Resources>
         <ResourceDictionary>
+            <converters:ImageUrlToBitmapConverter x:Key="ImageUrlToBitmapConverter" />
             <Style x:Key="ChannelContextMenuStyle" TargetType="ContextMenu"
                    BasedOn="{StaticResource ContextMenuStyle}">
                 <Setter Property="Width" Value="Auto" />
@@ -65,7 +67,7 @@
                         </Grid.ColumnDefinitions>
 
                         <Image Grid.Column="0"
-                               Source="{Binding CoverPhoto.Urls.Small, IsAsync=True}">
+                               Source="{Binding CoverPhoto.Urls.Small, Converter={StaticResource ImageUrlToBitmapConverter}, ConverterParameter=60}">
                             <Image.Style>
                                 <Style TargetType="Image">
                                     <Setter Property="Stretch" Value="UniformToFill" />
@@ -184,10 +186,11 @@
                             <RowDefinition Height="150" />
                             <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
+                        <!--image preview size: 200x140-->
                         <Image Grid.Row="0"
                                Margin="10, 10, 20, 0"
                                Width="200"
-                               Source="{Binding Urls.Small, IsAsync=True}">
+                               Source="{Binding Urls.Small, Converter={StaticResource ImageUrlToBitmapConverter}, ConverterParameter=200}">
                             <Image.Style>
                                 <Style TargetType="Image">
                                     <Setter Property="Stretch" Value="UniformToFill" />
@@ -202,7 +205,7 @@
                         <StackPanel Grid.Row="1" Orientation="Horizontal"
                                     VerticalAlignment="Center">
                             <Image Width="24" Height="24" Margin="20,0,5,0"
-                                   Source="{Binding User.ProfileImage.Small, IsAsync=True}">
+                                   Source="{Binding User.ProfileImage.Small, Converter={StaticResource ImageUrlToBitmapConverter}, ConverterParameter=24}">
                                 <Image.Clip>
                                     <EllipseGeometry Center="12,12" RadiusX="12" RadiusY="12" />
                                 </Image.Clip>

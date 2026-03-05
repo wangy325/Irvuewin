@@ -12,9 +12,9 @@ An [Irvue](https://apps.apple.com/us/app/irvue/id1039633667?mt=12) like windows 
 
 ## Features
 
-- [ ] 来自[Unsplash](https://unsplash.com)社区高质量图片
-- [ ] 定时切换壁纸
-- [ ] 多显示器支持
-- [ ] 图片过滤
-- [ ] 自定义图片频道
-- [ ] 随时查看图片和作者信息
+- 来自[Unsplash](https://unsplash.com)社区高质量图片
+- 定时切换壁纸
+- 显示器支持
+- 图片过滤
+- 自定义图片频道
+- 随时查看图片和作者信息
