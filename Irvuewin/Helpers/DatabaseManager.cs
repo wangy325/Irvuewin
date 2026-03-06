@@ -3,6 +3,7 @@ using Irvuewin.Models.Unsplash;
 using LiteDB;
 using Serilog;
 using System.IO;
+using static Irvuewin.Helpers.IAppConst;
 
 namespace Irvuewin.Helpers
 {
@@ -13,22 +14,42 @@ namespace Irvuewin.Helpers
 
         static DatabaseManager()
         {
-            var folder = FileUtils.CachedPhotoBaseFolder;
+            var folder = FileUtils.CachedResourceFolder;
             if (!Directory.Exists(folder))
             {
                 Directory.CreateDirectory(folder);
             }
-            DbPath = Path.Combine(folder, "irvue.db");
+
+            DbPath = Path.Combine(folder, $"{AppName.ToLower()}.db");
             InitializeDatabase();
         }
 
         private static void InitializeDatabase()
         {
+            using var db = new LiteDatabase(DbPath);
+            InitChannelDataBase(db);
+            InitPhotoDataBase(db);
+        }
+
+        private static void InitChannelDataBase(LiteDatabase db)
+        {
             try
             {
-                using var db = new LiteDatabase(DbPath);
-                var photos = db.GetCollection<UnsplashPhoto>("photos");
-                
+                var channels = db.GetCollection<UnsplashChannel>(DbChannelCollection);
+                channels.EnsureIndex(x => x.Id, true);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex, "Failed to initialize channel LiteDB");
+            }
+        }
+
+        private static void InitPhotoDataBase(LiteDatabase db)
+        {
+            try
+            {
+                var photos = db.GetCollection<UnsplashPhoto>(DbPhotoCollection);
+
                 // Create indexes for fast filtering in the future
                 photos.EnsureIndex(x => x.Id, true);
                 photos.EnsureIndex(x => x.Width);
@@ -37,7 +58,81 @@ namespace Irvuewin.Helpers
             }
             catch (Exception ex)
             {
-                Logger.Error(ex, "Failed to initialize LiteDB");
+                Logger.Error(ex, "Failed to initialize photos LiteDB");
+            }
+        }
+
+        public static void UpsertChannel(UnsplashChannel channel)
+        {
+            try
+            {
+                using var db = new LiteDatabase(DbPath);
+                var channels = db.GetCollection<UnsplashChannel>(DbChannelCollection);
+                channels.Upsert(channel);
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e, "Failed to upsert channel");
+            }
+        }
+
+        public static void UpsertChannel(IEnumerable<UnsplashChannel> channels)
+        {
+            try
+            {
+                using var db = new LiteDatabase(DbPath);
+                var cc = db.GetCollection<UnsplashChannel>(DbChannelCollection);
+                cc.Upsert(channels);
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e, "Failed to upsert channels");
+            }
+        }
+
+        public static UnsplashChannel? GetChannelById(string channelId)
+        {
+            try
+            {
+                using var db = new LiteDatabase(DbPath);
+                var channels = db.GetCollection<UnsplashChannel>(DbChannelCollection);
+                return channels.FindById(channelId);
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e, "Failed to get channel");
+            }
+
+            return null;
+        }
+
+        public static List<UnsplashChannel>? GetAllChannels()
+        {
+            try
+            {
+                using var db = new LiteDatabase(DbPath);
+                var channels = db.GetCollection<UnsplashChannel>(DbChannelCollection);
+                return channels.FindAll().ToList();
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e, "Failed to get channels");
+            }
+
+            return null;
+        }
+
+        public static void RemoveChannel(string channelId)
+        {
+            try
+            {
+                using var db = new LiteDatabase(DbPath);
+                var channels = db.GetCollection<UnsplashChannel>(DbChannelCollection);
+                channels.Delete(channelId);
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e, "Failed to remove channel");
             }
         }
 
@@ -46,22 +141,23 @@ namespace Irvuewin.Helpers
             try
             {
                 using var db = new LiteDatabase(DbPath);
-                var photos = db.GetCollection<UnsplashPhoto>("photos");
+                var oldPhotos = db.GetCollection<UnsplashPhoto>(DbPhotoCollection);
 
-                foreach (var photo in newPhotos)
+                var unsplashPhotos = newPhotos.ToList();
+                foreach (var photo in unsplashPhotos)
                 {
                     // Existing check to append ChannelId without destructive overwrite
-                    var existing = photos.FindById(photo.Id);
+                    var existing = oldPhotos.FindById(photo.Id);
                     if (existing != null)
                     {
-                        if (existing.ChannelIds != null)
+                        if (existing.ChannelIds.Count > 0)
                         {
                             photo.ChannelIds = existing.ChannelIds;
                         }
                     }
                     else
                     {
-                        photo.ChannelIds = new List<string>();
+                        photo.ChannelIds = [];
                     }
 
                     if (!photo.ChannelIds.Contains(channelId))
@@ -70,7 +166,7 @@ namespace Irvuewin.Helpers
                     }
                 }
 
-                photos.Upsert(newPhotos);
+                oldPhotos.Upsert(unsplashPhotos);
             }
             catch (Exception ex)
             {
@@ -83,15 +179,15 @@ namespace Irvuewin.Helpers
             try
             {
                 using var db = new LiteDatabase(DbPath);
-                var photos = db.GetCollection<UnsplashPhoto>("photos");
-                
+                var photos = db.GetCollection<UnsplashPhoto>(DbPhotoCollection);
+
                 // LiteDB index optimized array matching
                 return photos.Find(x => x.ChannelIds.Contains(channelId)).ToList();
             }
             catch (Exception ex)
             {
                 Logger.Error(ex, "Failed to load photos from LiteDB");
-                return new List<UnsplashPhoto>();
+                return [];
             }
         }
 
@@ -100,7 +196,7 @@ namespace Irvuewin.Helpers
             try
             {
                 using var db = new LiteDatabase(DbPath);
-                var photos = db.GetCollection<UnsplashPhoto>("photos");
+                var photos = db.GetCollection<UnsplashPhoto>(DbPhotoCollection);
 
                 var relatedPhotos = photos.Find(x => x.ChannelIds.Contains(channelId)).ToList();
                 foreach (var photo in relatedPhotos)

@@ -11,13 +11,13 @@ public static class FileUtils
         System.Reflection.Assembly.GetExecutingAssembly().GetName().Name ?? AppName
     );
 
-    public static readonly string CachedWallpaperFolder = Path.Combine(AppDataFolder, "splash");
-    public static readonly string CachedPhotoBaseFolder = Path.Combine(AppDataFolder, "channel");
+    public static readonly string CachedWallpaperFolder = Path.Combine(AppDataFolder, WallpaperCacheFolder);
+    public static readonly string CachedResourceFolder = Path.Combine(AppDataFolder, ChannelCacheFolder);
 
     static FileUtils()
     {
         Directory.CreateDirectory(CachedWallpaperFolder);
-        Directory.CreateDirectory(CachedPhotoBaseFolder);
+        Directory.CreateDirectory(CachedResourceFolder);
     }
 
     /// <summary>
@@ -27,14 +27,14 @@ public static class FileUtils
     /// <returns>window position file</returns>
     public static string WindowPositionPath(string key)
     {
-        var fileName = $"{key}.{CachedWindowsPositionFileSuffix}";
+        var fileName = $"{key}.{CachedConfigFileFormat}";
         return Path.Combine(AppDataFolder, fileName);
     }
 
     // key -> cached file name
     public static string CachePath(string folder, string key)
     {
-        var fileName = $"{key}.{CachedFileNameSuffix}";
+        var fileName = $"{key}.{CachedResourceFileFormat}";
         return Path.Combine(folder, fileName);
     }
 

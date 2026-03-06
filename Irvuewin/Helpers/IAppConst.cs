@@ -11,12 +11,14 @@ public interface IAppConst
 
     const string AppName = "Irvuewin";
 
-    // const string WallpaperCacheFolder = "splash";
-    // const string ChannelCacheFolder = "channel";
+    const string WallpaperCacheFolder = "splash";
+    const string ChannelCacheFolder = "channel";
 
-    const string CachedWindowsPositionFileSuffix = "xml";
-    const string CachedFileNameSuffix = "json";
+    const string CachedConfigFileFormat = "xml";
+    const string CachedResourceFileFormat = "json";
 
+    
+    // db instead start
     // cached channel file name prefix
     const string CachedChannelNamePrefix = "channels";
 
@@ -33,6 +35,7 @@ public interface IAppConst
     const string CachedWallpapers = "channel_wallpaper_count";
 
     const string CachedWallpaperShard = "channel_wallpaper_shard";
+    // db-instead end
 
 
     // Errors:
@@ -46,4 +49,10 @@ public interface IAppConst
     const string User = "users";
     const string Search = "search";
     const string Attribute = "?utm_source=your_app_name&utm_medium=referral";
+    
+    // LiteDB
+    const string DbPhotoCollection = "photos";
+    const string DbChannelCollection = "collections";
+    const string DbJobsCollection = "jobs";
+    const string DbFiltersCollection = "filters";
 }

@@ -34,7 +34,7 @@ public partial class Channels
     }
 
 
-    private async void ChannelsWindow_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
+    private void ChannelsWindow_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
     {
         try
         {
@@ -43,7 +43,7 @@ public partial class Channels
             if (DataContext is ChannelsViewModel viewModel)
             {
                 // TODO Double check 
-                await FileCacheManager.CacheChannelsAsync([..viewModel.Channels]);
+                FileCacheManager.CacheChannels([..viewModel.Channels]);
             }
 
             Logger.Information(@"Window Closed.");

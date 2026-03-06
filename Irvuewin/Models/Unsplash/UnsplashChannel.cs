@@ -1,4 +1,5 @@
 ﻿// YApi QuickType插件生成，具体参考文档:https://plugins.jetbrains.com/plugin/18847-yapi-quicktype/documentation
+
 #pragma warning disable CS8618
 
 using Irvuewin.Helpers;
@@ -32,7 +33,7 @@ namespace Irvuewin.Models.Unsplash
 
         // Nullable
         [JsonProperty("cover_photo")] public UnsplashPhoto CoverPhoto { get; set; }
-        
+
         // Nullable
         [JsonProperty("preview_photos")] public List<PreviewPhoto> PreviewPhotos { get; set; }
 
@@ -71,6 +72,8 @@ namespace Irvuewin.Models.Unsplash
     {
         public static UnsplashChannel? FromJson(string json) =>
             JsonConvert.DeserializeObject<UnsplashChannel>(json, JsonHelper.Settings);
+
+        [JsonIgnore] public int Sequence { get; set; } = 1;
     }
 
     public static class SerializeUnsplashCollection
@@ -78,5 +81,4 @@ namespace Irvuewin.Models.Unsplash
         public static string ToJson(this UnsplashChannel self) =>
             JsonConvert.SerializeObject(self, (JsonSerializerSettings?)JsonHelper.Settings);
     }
-    
 }

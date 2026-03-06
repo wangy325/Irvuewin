@@ -220,7 +220,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
     private async Task LoadChannels()
     {
         var channelIds = SavedChannelIds.Split(',');
-        if (await FileCacheManager.LoadChannelsAsync() is { } cachedChannels
+        if (FileCacheManager.LoadChannels() is { } cachedChannels
             && cachedChannels.Count == channelIds.Length)
         {
             // Load from disk cache
@@ -306,14 +306,8 @@ public class ChannelsViewModel : INotifyPropertyChanged
         }
 
         ChannelPhotosHandler(cid, photos);
-
-        // Update cache immediately
-        var cacheIndex = new PhotosCachePageIndex
-        {
-            ChannelId = cid,
-            PageIndex = query.Page
-        };
-        if (photos.Count != 0) await FileCacheManager.CachePhotosAsync(cacheIndex, photos);
+        
+        if (photos.Count != 0) await FileCacheManager.CachePhotosAsync(cid, photos);
         return true;
     }
 

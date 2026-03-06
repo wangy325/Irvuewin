@@ -146,63 +146,37 @@ namespace Irvuewin.Helpers
 
 
         /// <summary>
-        /// Save channel info to local disk cache.<br/>
-        /// <para>Saved file path: AppDataFolder/AppName/channel/channels.json</para>
+        /// Save channel info to LiteDB.<br/>
+        /// <para>Saved path: AppDataFolder/AppName/channel/</para>
         /// </summary>
         /// <param name="channels">List of <see cref="UnsplashChannel"/>channels</param>
-        public static async Task CacheChannelsAsync(List<UnsplashChannel> channels)
+        public static void CacheChannels(List<UnsplashChannel> channels)
         {
-            try
-            {
-                await File.WriteAllTextAsync(
-                    FileUtils.CachePath(FileUtils.CachedPhotoBaseFolder, CachedChannelNamePrefix),
-                    JsonConvert.SerializeObject(channels, JsonHelper.Settings));
-            }
-            catch (Exception e)
-            {
-                Logger.Error(e, "CacheChannelsAsync error");
-            }
+            DatabaseManager.UpsertChannel(channels);
         }
 
         /// <summary>
-        /// Load channels from cache.<br/>
+        /// Load channels from LiteDB.<br/>
         /// May return empty list or null
         /// </summary>
         /// <returns>Cached channels or null if exception occured</returns>
-        public static async Task<List<UnsplashChannel>?> LoadChannelsAsync()
+        public static List<UnsplashChannel>? LoadChannels()
         {
-            try
-            {
-                var filePath = FileUtils.CachePath(FileUtils.CachedPhotoBaseFolder, CachedChannelNamePrefix);
-                if (!File.Exists(filePath)) return null;
-                var channelString = await File.ReadAllTextAsync(filePath);
-
-                var channels = JsonConvert.DeserializeObject<List<UnsplashChannel>>(
-                    channelString,
-                    JsonHelper.Settings) ?? [];
-                return channels;
-            }
-            catch (Exception e)
-            {
-                Logger.Error(e, "LoadChannelsAsync error");
-                return null;
-            }
+            return DatabaseManager.GetAllChannels();
         }
 
 
         /// <summary>
-        /// Cache Photos of specify channel which are get from unsplash pagination web API to local disk file. <br/>
-        /// Full Path: AppDataFolder/AppName/channel/channelId/filename <br/>
-        /// Caches are saved by shard(page).
+        /// Cache Photos of specify channel which are gotten from unsplash pagination web API to LiteDB. <br/>
         /// </summary>
         /// <returns></returns>
-        public static Task CachePhotosAsync(PhotosCachePageIndex index, List<UnsplashPhoto> photos)
+        public static Task CachePhotosAsync(string channelId, List<UnsplashPhoto> photos)
         {
-            return Task.Run(() => 
+            return Task.Run(() =>
             {
                 try
                 {
-                    DatabaseManager.UpsertPhotos(index.ChannelId, photos);
+                    DatabaseManager.UpsertPhotos(channelId, photos);
                 }
                 catch (Exception e)
                 {
@@ -220,7 +194,7 @@ namespace Irvuewin.Helpers
         public static async Task<List<UnsplashPhoto>?> LoadPhotosShardAsync(PhotosCachePageIndex index)
         {
             var filePath = FileUtils.CachePath(
-                Path.Combine(FileUtils.CachedPhotoBaseFolder, index.ChannelId),
+                Path.Combine(FileUtils.CachedResourceFolder, index.ChannelId),
                 $"{CachedPhotosNamePrefix}{index.PageIndex}");
             if (!File.Exists(filePath)) return null;
             try
@@ -259,7 +233,7 @@ namespace Irvuewin.Helpers
                 }
             });
         }
-        
+
         /// <summary>
         /// Load all cached photos of specify chanel id.
         /// </summary>
@@ -267,7 +241,7 @@ namespace Irvuewin.Helpers
         /// <returns>List of photos, or null if no photo cached or exception occured.</returns>
         public static Task<List<UnsplashPhoto>?> LoadPhotosAsync(string cid)
         {
-            return Task.Run<List<UnsplashPhoto>?>(() => 
+            return Task.Run(() =>
             {
                 try
                 {
@@ -288,13 +262,9 @@ namespace Irvuewin.Helpers
         /// <param name="channelId"></param>
         public static void UnCacheChannelPhotos(string channelId)
         {
-            // Remove legacy disk caches if any exist
-            var dir = Path.Combine(FileUtils.CachedPhotoBaseFolder, channelId);
-            if (Directory.Exists(dir))
-            {
-                FileUtils.DeleteFolder(dir);
-            }
-            
+            // Remove channel data from LiteDB
+            DatabaseManager.RemoveChannel(channelId);
+
             // Remove from LiteDB
             DatabaseManager.RemoveChannelPhotos(channelId);
         }
@@ -305,9 +275,10 @@ namespace Irvuewin.Helpers
         /// </summary>
         /// <param name="cachedWallpaperSequence"></param>
         /// <returns></returns>
+        [Obsolete("Deprecated")]
         public static async Task CacheChannelSequence(Dictionary<string, int> cachedWallpaperSequence)
         {
-            var filePath = FileUtils.CachePath(FileUtils.CachedPhotoBaseFolder, CachedChannelSeqPrefix);
+            var filePath = FileUtils.CachePath(FileUtils.CachedResourceFolder, CachedChannelSeqPrefix);
             try
             {
                 await File.WriteAllTextAsync(filePath,
@@ -324,9 +295,10 @@ namespace Irvuewin.Helpers
         /// Load all channels wallpaper sequence.
         /// </summary>
         /// <returns>Channel sequence dictionary, or null if exception occurs</returns>
+        [Obsolete("Deprecated")]
         public static async Task<Dictionary<string, int>?> LoadChannelSequence()
         {
-            var filePath = FileUtils.CachePath(FileUtils.CachedPhotoBaseFolder, CachedChannelSeqPrefix);
+            var filePath = FileUtils.CachePath(FileUtils.CachedResourceFolder, CachedChannelSeqPrefix);
             try
             {
                 if (!File.Exists(filePath)) return null;
@@ -346,6 +318,7 @@ namespace Irvuewin.Helpers
     }
 
 
+    [Obsolete("Deprecated.")]
     public class PhotosCachePageIndex
     {
         public required string ChannelId { get; init; }

@@ -1,4 +1,5 @@
 ﻿// YApi QuickType插件生成，具体参考文档:https://plugins.jetbrains.com/plugin/18847-yapi-quicktype/documentation
+
 #pragma warning disable CS8618
 
 using Irvuewin.Helpers;
@@ -8,8 +9,6 @@ namespace Irvuewin.Models.Unsplash
 {
     public partial class UnsplashPhoto
     {
-        
-
         [JsonProperty("slug")] public string Slug { get; set; }
 
         [JsonProperty("color")] public string Color { get; set; }
@@ -22,7 +21,6 @@ namespace Irvuewin.Models.Unsplash
 
         [JsonProperty("height")] public long Height { get; set; }
 
-        
 
         [JsonProperty("links")] public Links Links { get; set; }
 
@@ -35,7 +33,7 @@ namespace Irvuewin.Models.Unsplash
         [JsonProperty("likes")] public long Likes { get; set; }
 
         [JsonProperty("liked_by_user")] public bool LikedByUser { get; set; }
-        
+
         [JsonProperty("tags")] public List<Tag> Tags { get; set; }
 
         [JsonProperty("created_at")] public DateTimeOffset CreatedAt { get; set; }
@@ -123,11 +121,18 @@ namespace Irvuewin.Models.Unsplash
     {
         Photo
     };
-    
 
 
     public partial class UnsplashPhoto
     {
+        [JsonProperty("id")] public string Id { get; set; }
+        [JsonProperty("urls")] public Urls Urls { get; set; }
+
+        [JsonProperty("isFiltered")] public bool IsFiltered { get; set; }
+
+        // Used exclusively by LiteDB for querying photos by channel.
+        [JsonIgnore] public List<string> ChannelIds { get; set; } = [];
+
         public static UnsplashPhoto? FromJson(string json) =>
             JsonConvert.DeserializeObject<UnsplashPhoto>(json, JsonHelper.Settings);
     }
@@ -136,19 +141,5 @@ namespace Irvuewin.Models.Unsplash
     {
         public static string ToJson(this UnsplashPhoto self) =>
             JsonConvert.SerializeObject(self, JsonHelper.Settings);
-    }
-
-    public partial class UnsplashPhoto
-    {
-        [JsonProperty("isFiltered")]public bool IsFiltered { get; set; }
-    }
-
-    public partial class UnsplashPhoto
-    {
-        [JsonProperty("id")] public string Id { get; set; }
-        [JsonProperty("urls")] public Urls Urls { get; set; }
-        
-        // Used exclusively by LiteDB for querying photos by channel.
-        [JsonIgnore] public List<string> ChannelIds { get; set; } = [];
     }
 }
