@@ -50,7 +50,7 @@ namespace Irvuewin.Models.Unsplash
     }
 
 
-    public partial class PreviewPhoto
+    public class PreviewPhoto
     {
         [JsonProperty("urls")] public Urls Urls { get; set; }
 
@@ -74,11 +74,13 @@ namespace Irvuewin.Models.Unsplash
             JsonConvert.DeserializeObject<UnsplashChannel>(json, JsonHelper.Settings);
 
         [JsonIgnore] public int Sequence { get; set; } = 1;
+        [JsonIgnore] public int Shard { get; set; } = 1;
+        [JsonIgnore] public bool AllPhotosLoaded { get; set; } = false;
     }
 
     public static class SerializeUnsplashCollection
     {
         public static string ToJson(this UnsplashChannel self) =>
-            JsonConvert.SerializeObject(self, (JsonSerializerSettings?)JsonHelper.Settings);
+            JsonConvert.SerializeObject(self, JsonHelper.Settings);
     }
 }

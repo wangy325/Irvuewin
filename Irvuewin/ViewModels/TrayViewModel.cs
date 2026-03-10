@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 using System.Windows.Data;
 using System.Windows.Input;
 using Irvuewin.Helpers;
+using Irvuewin.Helpers.DB;
 using Irvuewin.Helpers.Utils;
 using Irvuewin.Views;
 using Serilog;
@@ -145,7 +146,7 @@ public class TrayViewModel : INotifyPropertyChanged
     private async Task UpdateWallpaperInfo(string displayName)
     {
         Logger.Debug("Update tray wallpaper info.");
-        if (!CacheManager.TryGet(displayName, out string? photoId) || photoId is null) return;
+        if (!FastCacheManager.TryGet(displayName, out string? photoId) || photoId is null) return;
 
         var httpService = IHttpClient.GetUnsplashHttpService();
         if (await httpService.GetPhotoInfoById(photoId) is { } photo)
@@ -176,14 +177,14 @@ public class TrayViewModel : INotifyPropertyChanged
     private static void OnLoadCachedSequence(object? obj)
     {
         // Load Cached resources
-        Task.Run(IrvuewinCore.LoadCachedSequence);
+        // Task.Run(IrvuewinCore.LoadCachedSequence);
         Properties.Settings.Default.Save();
     }
 
     private static void OnSaveCachedSequence(object? obj)
     {
         // Save Cache
-        IrvuewinCore.SaveCachedSequence();
+        // IrvuewinCore.SaveCachedSequence();
         Properties.Settings.Default.Save();
     }
 

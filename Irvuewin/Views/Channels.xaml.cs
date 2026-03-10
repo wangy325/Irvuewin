@@ -43,7 +43,7 @@ public partial class Channels
             if (DataContext is ChannelsViewModel viewModel)
             {
                 // TODO Double check 
-                FileCacheManager.CacheChannels([..viewModel.Channels]);
+                // FileCacheManager.CacheChannels([..viewModel.Channels]);
             }
 
             Logger.Information(@"Window Closed.");
@@ -58,7 +58,7 @@ public partial class Channels
     {
         var viewModel = DataContext as ChannelsViewModel;
         // var sc = viewModel!.Channels.First(c => c.Id == viewModel.SelectedChannelId);
-        ICommonCommands.OpenUrl(viewModel!.SelectedChannel.Links.Html.OriginalString);
+        ICommonCommands.OpenUrl(viewModel!.SelectedChannel!.Links.Html.OriginalString);
     }
 
 
@@ -68,7 +68,7 @@ public partial class Channels
         if (ChannelsListBox.SelectedItem is not UnsplashChannel channel) return;
         if (DataContext is ChannelsViewModel viewModel)
         {
-            _ = viewModel.RefreshPhotos(channel.Id).ConfigureAwait(false);
+            _ = viewModel.RefreshPhotos(channel).ConfigureAwait(false);
         }
     }
 

@@ -5,7 +5,7 @@ using Serilog;
 using System.IO;
 using static Irvuewin.Helpers.IAppConst;
 
-namespace Irvuewin.Helpers
+namespace Irvuewin.Helpers.DB
 {
     public static class DatabaseManager
     {
@@ -55,6 +55,7 @@ namespace Irvuewin.Helpers
                 photos.EnsureIndex(x => x.Width);
                 photos.EnsureIndex(x => x.Height);
                 photos.EnsureIndex(x => x.User.Name);
+                photos.EnsureIndex("ChannelIds" ,"$.ChannelIds[*]");
             }
             catch (Exception ex)
             {
@@ -142,10 +143,14 @@ namespace Irvuewin.Helpers
             {
                 using var db = new LiteDatabase(DbPath);
                 var oldPhotos = db.GetCollection<UnsplashPhoto>(DbPhotoCollection);
-
+                
                 var unsplashPhotos = newPhotos.ToList();
+                
+                var currentTick = DateTimeOffset.UtcNow.Ticks;
+                var offset = 0;
                 foreach (var photo in unsplashPhotos)
                 {
+                    photo.LocalSortIndex = currentTick + offset++;
                     // Existing check to append ChannelId without destructive overwrite
                     var existing = oldPhotos.FindById(photo.Id);
                     if (existing != null)
@@ -188,6 +193,44 @@ namespace Irvuewin.Helpers
             {
                 Logger.Error(ex, "Failed to load photos from LiteDB");
                 return [];
+            }
+        }
+
+        public static List<UnsplashPhoto> GetPhotos(string channelId, int page, int pageSize)
+        {
+            try
+            {
+                using var db = new LiteDatabase(DbPath);
+                var photos = db.GetCollection<UnsplashPhoto>(DbPhotoCollection);
+
+                var skipCount = (page - 1) * pageSize;
+                // 注意：因为分页依赖于排序，通常我们需要定义一个明确的排序规则（比如按添加到数据库的时间降序）
+                return photos.Query()
+                    .Where(x=> x.ChannelIds.Contains(channelId))
+                    .OrderBy(x=>x.LocalSortIndex)
+                    .Skip(skipCount)
+                    .Limit(pageSize)
+                    .ToList();
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex, "Failed to load paginated photos from LiteDB");
+                return [];
+            }
+        }
+
+        public static int CountPhotos(string channelId)
+        {
+            try
+            {
+                using var db = new LiteDatabase(DbPath);
+                var photos = db.GetCollection<UnsplashPhoto>(DbPhotoCollection);
+                return photos.Count(x => x.ChannelIds.Contains(channelId));
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex, "Failed to count photos from LiteDB");
+                return 0;
             }
         }
 

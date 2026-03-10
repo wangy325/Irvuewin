@@ -5,7 +5,7 @@ namespace Irvuewin.Helpers;
 
 public interface IAppConst
 {
-    const int PageSize = 3;
+    const int PageSize = 12;
 
     static readonly string DefaultWallpaperDownloadDir = GetFolderPath(MyPictures);
 
@@ -16,25 +16,22 @@ public interface IAppConst
 
     const string CachedConfigFileFormat = "xml";
     const string CachedResourceFileFormat = "json";
-
     
-    // db instead start
-    // cached channel file name prefix
-    const string CachedChannelNamePrefix = "channels";
 
-    // cached channel's photo file name prefix
-    const string CachedPhotosNamePrefix = "photos_";
 
+    /// <summary>
+    ///  In-memory cache keys
+    /// </summary>
     // key for channel's wallpaper queue sequence / local sequence file name prefix
-    const string CachedChannelSeqPrefix = "sequence";
+    // const string CachedChannelSeqPrefix = "sequence";
 
     // key for display's wallpaper history stack
     const string CachedWallpaperStack = "wallpaper_stack";
 
     // key for channel's wallpaper loaded
-    const string CachedWallpapers = "channel_wallpaper_count";
+    // const string CachedWallpapers = "channel_wallpaper_count";
 
-    const string CachedWallpaperShard = "channel_wallpaper_shard";
+    // const string CachedWallpaperShard = "channel_wallpaper_shard";
     // db-instead end
 
 
@@ -43,13 +40,13 @@ public interface IAppConst
     const string FileCacheError = "FileCacheError";
 
     // Urls
-    const string BaseUrl = "https://unsplash-proxy.wangy325.workers.dev";
+    const string BaseApiUrl = "https://unsplash-api-proxy.wangy325.workers.dev";
     const string Photos = "photos";
     const string Collections = "collections";
     const string User = "users";
     const string Search = "search";
     const string Attribute = "?utm_source=your_app_name&utm_medium=referral";
-    
+
     // LiteDB
     const string DbPhotoCollection = "photos";
     const string DbChannelCollection = "collections";

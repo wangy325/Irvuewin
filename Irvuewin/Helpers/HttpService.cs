@@ -54,7 +54,7 @@ namespace Irvuewin.Helpers
 
         public async Task<T?> GetAsync<T>(string endpoint, string? query = null)
         {
-            var url = $"{BaseUrl}/{endpoint}";
+            var url = $"{BaseApiUrl}/{endpoint}";
             if (!string.IsNullOrEmpty(query))
             {
                 url += $"?{query}";

@@ -132,6 +132,7 @@ namespace Irvuewin.Models.Unsplash
 
         // Used exclusively by LiteDB for querying photos by channel.
         [JsonIgnore] public List<string> ChannelIds { get; set; } = [];
+        [JsonIgnore] public long LocalSortIndex { get; set; }
 
         public static UnsplashPhoto? FromJson(string json) =>
             JsonConvert.DeserializeObject<UnsplashPhoto>(json, JsonHelper.Settings);

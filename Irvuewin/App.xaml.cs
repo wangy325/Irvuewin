@@ -83,10 +83,10 @@ namespace Irvuewin
             // Load wallpaper sequence cache
             var randomWallpaper = Irvuewin.Properties.Settings.Default.RandomWallpaper;
             Logger.Information("RandomWallpaper: {RandomWallpaper}", randomWallpaper);
-            if (!randomWallpaper)
-            {
-                Task.Run(IrvuewinCore.LoadCachedSequence);
-            }
+            // if (!randomWallpaper)
+            // {
+            //     Task.Run(IrvuewinCore.LoadCachedSequence);
+            // }
 
             // Async Change wallpaper when app start
             // TrayMenuHelper.CheckPointer();
@@ -243,10 +243,10 @@ namespace Irvuewin
         {
             _isExit = true;
             // 退出时若未启用随机壁纸则保存缓存（sequence may be modified）
-            if (!Irvuewin.Properties.Settings.Default.RandomWallpaper)
-            {
-                IrvuewinCore.SaveCachedSequence();
-            }
+            // if (!Irvuewin.Properties.Settings.Default.RandomWallpaper)
+            // {
+            //     IrvuewinCore.SaveCachedSequence();
+            // }
 
             _taskbarIcon?.Dispose();
             Current.Shutdown();

@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Timers;
 using System.Windows.Forms;
+using Irvuewin.Helpers.DB;
 using Irvuewin.Helpers.Utils;
 using Irvuewin.Models.Unsplash;
 using Irvuewin.ViewModels;
@@ -17,14 +18,6 @@ using Serilog;
 ///</summary>
 /// <remarks>
 /// In-memory Cached Fields:
-/// <para>
-/// 1. Channel wallpaper sequence
-/// <code>
-/// CacheManager.set(key1="sequence", key2=channelId, value=seq)
-/// // batch set, datatype is tuple(tuple(key1, key2), val)
-/// CacheManager.SetRange(range)
-/// </code>
-/// </para>
 /// <para>2. Displays wallpaper history stack
 /// <code>CacheManager.set(key1="wallpaper_stack", key2=displayName, val=stack)</code>
 /// </para>
@@ -56,26 +49,15 @@ public static class IrvuewinCore
         WallpaperChangedEvent?.Invoke(null, new WallpaperChangedEventArgs(displayName, photoId));
     }
 
-
     /// <summary>
-    /// Reset sequence when channel refreshed.
-    /// </summary>
-    /// <param name="channelId"></param>
-    public static void ResetChannelSequence(string channelId)
-    {
-        CacheManager.Set(CachedChannelSeqPrefix, channelId, 1);
-    }
-
-    /// <summary>
-    /// Once new channel(s) is added, add its sequence to cache.
+    /// Once new channel(s) is added, add to tray menu panel.
     /// </summary>
     /// <param name="channels"/>
-    public static void AddNewChannelSequence(List<ChannelViewModel> channels)
+    public static void AddNewChannel(List<ChannelViewModel> channels)
     {
         var trayViewModel = Application.Current.Resources["TrayViewModel"] as TrayViewModel;
         foreach (var channel in channels)
         {
-            CacheManager.Set(CachedChannelSeqPrefix, channel.Id, 1);
             trayViewModel!.AddedChannels.Add(channel);
         }
 
@@ -86,16 +68,15 @@ public static class IrvuewinCore
     /// Delete cached channel sequence by channel ID.
     /// </summary>
     /// <param name="key">Channel ID</param>
-    public static void DelChannelSequence(string key)
+    public static void DelChannel(string key)
     {
         var trayViewModel = Application.Current.Resources["TrayViewModel"] as TrayViewModel;
-        CacheManager.Remove<int>(CachedChannelSeqPrefix, key);
         _sequenceModify++;
         var filteredList = trayViewModel!.AddedChannels.Where(channel => channel.Id != key).ToList();
         trayViewModel.AddedChannels = [..filteredList];
     }
 
-    /// <summary>
+    /*/// <summary>
     /// Load/Init All channels' cached sequences.
     /// </summary>
     public static async Task LoadCachedSequence()
@@ -105,7 +86,7 @@ public static class IrvuewinCore
         {
             var range
                 = sequence.Select(kvp => ((CachedChannelSeqPrefix, kvp.Key), kvp.Value));
-            CacheManager.SetRange(range);
+            FastCacheManager.SetRange(range);
         }
         else
         {
@@ -113,13 +94,13 @@ public static class IrvuewinCore
             var range
                 = channels.Select(c => ((CachedChannelSeqPrefix, c), 1));
             // Init in-memory channel sequence cacheZ
-            CacheManager.SetRange(range);
+            FastCacheManager.SetRange(range);
         }
 
         Logger.Debug(@"Init channels' cached sequence.");
-    }
+    }*/
 
-    /// <summary>
+    /*/// <summary>
     /// Persisting all channels' cached sequence.
     /// </summary>
     public static void SaveCachedSequence()
@@ -130,7 +111,7 @@ public static class IrvuewinCore
         var channels = Properties.Settings.Default.UserUnsplashChannels.Split(",");
         foreach (var cid in channels)
         {
-            if (CacheManager.TryGet(CachedChannelSeqPrefix, cid, out int seq))
+            if (FastCacheManager.TryGet(CachedChannelSeqPrefix, cid, out int seq))
             {
                 dic[cid] = seq;
             }
@@ -140,7 +121,7 @@ public static class IrvuewinCore
         // reset
         _sequenceModify = 0;
         Logger.Debug(@"Save cached wallpaper sequence.");
-    }
+    }*/
 
     /// <summary>
     /// Check chich display current mouse pointer is on. 
@@ -170,8 +151,8 @@ public static class IrvuewinCore
             {
                 // Multi displays share same sequence
                 // So they can display different wallpapers without duplication
-                var sequence = CacheManager.TryGet(CachedChannelSeqPrefix, cid, out int s) ? s : 1;
-                await SetUpWallPaper(cid, sequence, multiSetUp: multiSetUp);
+                var channel = DataBaseService.GetChannel(cid)!;
+                await SetUpWallPaper(cid, channel.Sequence, multiSetUp: multiSetUp);
             }
         }
         catch
@@ -204,8 +185,8 @@ public static class IrvuewinCore
                 else
                 {
                     // 2+ sequence wallpapers
-                    var sequence = CacheManager.TryGet(CachedChannelSeqPrefix, cid, out int s) ? s : 1;
-                    await SetUpWallPaper(cid, sequence, multiSetUp: true, sameOrNot: 1);
+                    var channel = DataBaseService.GetChannel(cid)!;
+                    await SetUpWallPaper(cid, channel.Sequence, multiSetUp: true, sameOrNot: 1);
                 }
             }
         }
@@ -226,7 +207,8 @@ public static class IrvuewinCore
     /// <returns>
     /// <para>False if failed. </para>
     /// </returns>
-    private static async Task SetUpWallPaper(string channelId,
+    private static async Task SetUpWallPaper(
+        string channelId,
         int sequence = 0,
         bool random = false,
         bool multiSetUp = false,
@@ -278,7 +260,7 @@ public static class IrvuewinCore
                     foreach (var screen in Screen.AllScreens)
                     {
                         UpdateDisplayWallpaperStack(screen.DeviceName, setUpRes.UnifiedWallpaperPath!);
-                        CacheManager.Set(screen.DeviceName, photos[0].Id);
+                        FastCacheManager.Set(screen.DeviceName, photos[0].Id);
                         WallpaperChangedEvent?.Invoke(null,
                             new WallpaperChangedEventArgs(screen.DeviceName, photos[0].Id));
                     }
@@ -292,7 +274,7 @@ public static class IrvuewinCore
                     foreach (var item in res.Select((kvp, idx) => new { kvp, idx }))
                     {
                         UpdateDisplayWallpaperStack(item.kvp.Key, item.kvp.Value);
-                        CacheManager.Set(item.kvp.Key, photos[item.idx].Id);
+                        FastCacheManager.Set(item.kvp.Key, photos[item.idx].Id);
                         WallpaperChangedEvent?.Invoke(null,
                             new WallpaperChangedEventArgs(item.kvp.Key, photos[item.idx].Id));
                         // Logger.Information(@"Set wallpaper for {Key}: {Value}", item.kvp.Key, item.kvp.Value);
@@ -310,7 +292,7 @@ public static class IrvuewinCore
                 return;
             // Push photo file into wallpaper history stack
             UpdateDisplayWallpaperStack(CurrentPointerDisplay.Name, path);
-            CacheManager.Set(CurrentPointerDisplay.Name, photos[0].Id);
+            FastCacheManager.Set(CurrentPointerDisplay.Name, photos[0].Id);
             WallpaperChangedEvent?.Invoke(null,
                 new WallpaperChangedEventArgs(CurrentPointerDisplay.Name, photos[0].Id));
             // await DisplayWallpaperInfo();
@@ -320,7 +302,9 @@ public static class IrvuewinCore
         if (newSeq > 0)
         {
             _sequenceModify++;
-            CacheManager.Set(CachedChannelSeqPrefix, channelId, newSeq);
+            var channel = DataBaseService.GetChannel(channelId)!;
+            channel.Sequence = newSeq;
+            await DataBaseService.UpdateChannel(channel);
         }
     }
 
@@ -331,7 +315,7 @@ public static class IrvuewinCore
     /// <param name="value">wallpaper path</param>
     public static void UpdateDisplayWallpaperStack(string key, string value)
     {
-        if (CacheManager.TryGet(CachedWallpaperStack, key, out Stack<string>? stack) && stack is not null)
+        if (FastCacheManager.TryGet(CachedWallpaperStack, key, out Stack<string>? stack) && stack is not null)
         {
             stack.Push(value);
         }
@@ -339,7 +323,7 @@ public static class IrvuewinCore
         {
             var initStack = new Stack<string>(capacity: 10);
             initStack.Push(value);
-            CacheManager.Set(CachedWallpaperStack, key, initStack);
+            FastCacheManager.Set(CachedWallpaperStack, key, initStack);
         }
     }
 
@@ -354,44 +338,40 @@ public static class IrvuewinCore
     {
         Logger.Information(@"wallpaper seq {0} from channel {1}", sequence, channelId);
 
-        if (!CacheManager.TryGet<List<UnsplashPhoto>>
-                (CachedWallpapers, channelId, out var photos)
-            || photos is null || photos.Count == 0)
-            return (sequence, null);
+        var channel = DataBaseService.GetChannel(channelId)!;
+        var totalLoaded = await DataBaseService.LoadPhotoCount(channelId);
         // sequence should not bigger than photos size
-        if (sequence < photos.Count) return (sequence + 1, photos[sequence - 1]);
-        // One extreme condition: all photos already loaded, and sequence
-        // is equal to photos count.
-        // On this condition, we need to reset sequence.
-        var cvm = await ChannelsViewModel.GetInstanceAsync();
-        // preload next shard
-        CacheManager.TryGet<int>(CachedWallpaperShard, channelId, out var shard);
-        var query = new UnsplashQueryParams()
+        var mod = sequence % PageSize;
+        var shard = mod ==0 ? sequence / PageSize : sequence / PageSize + 1;
+        var index = mod == 0 ? PageSize : mod;
+        var qp = new UnsplashQueryParams()
         {
-            Page = ++shard,
+            Page = shard,
             PerPage = PageSize,
             Orientation = Properties.Settings.Default.WallpaperOrientation
         };
-
-        bool load;
-        if (cvm.SelectedChannel.Id == cvm.CheckedChannelId)
+        var plist = await DataBaseService.LoadPhotosShardAsync(channelId, qp);
+        if (sequence <= totalLoaded) return (sequence + 1, plist[index - 1]);
+        // One extreme condition: all photos already loaded, and sequence
+        // is equal to photos count.
+        // On this condition, we need to reset sequence.
+        if (channel.AllPhotosLoaded)
         {
-            load = await cvm.LoadPhotos(channelId, query);
+            sequence = 1;
+            index = 1;
         }
         else
         {
-            load = await cvm.LoadPhotosShardFromWeb(channelId, query);
+            // preload next shard
+            var cvm = await ChannelsViewModel.GetInstanceAsync();
+            qp.Page = ++shard;
+            await cvm.LoadPhotosShardFromWeb(channelId, qp);
+
+            plist = await DataBaseService.LoadPhotosShardAsync(channelId, qp);
         }
 
-        if (!load)
-        {
-            // 1. All photos loaded 
-            // 2. Other exceptions, like network error etc.
-            return (1, photos[sequence - 1]);
-        }
 
-        CacheManager.Set(CachedWallpaperShard, channelId, shard);
-        return (sequence + 1, photos[sequence - 1]);
+        return  (sequence + 1, plist[index - 1]);
     }
 
     /*/// <summary>
@@ -424,7 +404,7 @@ public static class IrvuewinCore
     }*/
 
 
-    /// <summary>
+    /*/// <summary>
     /// Update wallpaper info on tray menu
     /// </summary>
     [Obsolete("Logic moved to TrayViewModel via WallpaperChangedEvent", false)]
@@ -432,7 +412,7 @@ public static class IrvuewinCore
     {
         // Logic moved to TrayViewModel
         return Task.CompletedTask;
-    }
+    }*/
 
     /// <summary>
     /// Switch back to last wallpaper.
@@ -443,7 +423,8 @@ public static class IrvuewinCore
         {
             // Do nothing when stack is empty or stack has only 1 wallpaper
             // This happens when app starts up
-            if (!CacheManager.TryGet<Stack<string>>(CachedWallpaperStack, CurrentPointerDisplay.Name, out var stack) ||
+            if (!FastCacheManager.TryGet<Stack<string>>(CachedWallpaperStack, CurrentPointerDisplay.Name,
+                    out var stack) ||
                 stack is null)
                 return;
 
@@ -452,7 +433,7 @@ public static class IrvuewinCore
             var path = stack.Peek();
             await WallpaperUtil.SetWallpaperForSpecificMonitor(CurrentPointerDisplay, null, path);
             var pid = Path.GetFileNameWithoutExtension(path);
-            CacheManager.Set(CurrentPointerDisplay.Name, pid);
+            FastCacheManager.Set(CurrentPointerDisplay.Name, pid);
             WallpaperChangedEvent?.Invoke(null, new WallpaperChangedEventArgs(CurrentPointerDisplay.Name, pid));
             // await DisplayWallpaperInfo();
         }
@@ -471,7 +452,7 @@ public static class IrvuewinCore
     public static bool DownloadCurrentWallpaper(string dest)
     {
         // var stack = WallpaperStack[CurrentPointerDisplay.Name];
-        if (!CacheManager.TryGet<Stack<string>>(CachedWallpaperStack, CurrentPointerDisplay.Name, out var stack) ||
+        if (!FastCacheManager.TryGet<Stack<string>>(CachedWallpaperStack, CurrentPointerDisplay.Name, out var stack) ||
             stack is null) return false;
         if (stack.Count == 0) return false;
         var path = stack.Peek();
