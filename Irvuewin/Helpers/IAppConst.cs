@@ -34,6 +34,8 @@ public interface IAppConst
 
     // Urls
     const string BaseApiUrl = "https://unsplash-api-proxy.wangy325.workers.dev";
+    const string OriginImageUrl = "https://images.unsplash.com";
+    const string ImageProxyUrl = "https://unsplash-image-proxy.wangy325.workers.dev";
     const string Photos = "photos";
     const string Collections = "collections";
     const string User = "users";

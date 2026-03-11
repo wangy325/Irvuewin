@@ -230,10 +230,13 @@ namespace Irvuewin.Helpers.Utils
                 if (File.Exists(localImagePath)) return localImagePath;
                 // Fetch from web
                 using HttpClient httpClient = new();
-                var uri = photo.Urls.Raw;
+                var uriString = photo.Urls.Raw?.ToString();
+                // Use cloudflare proxy to avoid 443 errors
+                uriString = uriString?.Replace(IAppConst.OriginImageUrl, IAppConst.ImageProxyUrl);
+
                 try
                 {
-                    await using var imageStream = await httpClient.GetStreamAsync(uri);
+                    await using var imageStream = await httpClient.GetStreamAsync(uriString);
                     await using var fileStream = File.Create(localImagePath);
                     await imageStream.CopyToAsync(fileStream);
                     path = localImagePath;

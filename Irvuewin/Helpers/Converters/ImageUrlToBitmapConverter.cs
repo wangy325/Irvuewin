@@ -12,6 +12,9 @@ namespace Irvuewin.Helpers.Converters
             if (value is Uri uri) url = uri.ToString();
 
             if (string.IsNullOrWhiteSpace(url)) return null;
+            
+            // Use cloudflare proxy to avoid 443 errors
+            url = url.Replace(IAppConst.OriginImageUrl, IAppConst.ImageProxyUrl);
             var decodeWidth = 0;
             if (parameter != null)
             {

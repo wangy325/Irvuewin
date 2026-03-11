@@ -429,6 +429,9 @@ public class ChannelsViewModel : INotifyPropertyChanged
         Logger.Information(@"Refreshed photos for channel {ChannelId}", channel.Id);
     }
 
+    /// <summary>
+    /// Invoked by user change system settings.
+    /// </summary>
     public async Task RefreshPhotos()
     {
         foreach (var channel in Channels)
@@ -442,6 +445,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
             channel.Sequence = 1;
             channel.AllPhotosLoaded = false;
             await DataBaseService.UpdateChannel(channel);
+            FastCacheManager.Set(CachedWallpaperPreviewShard, channel.Id, 1);
 
             if (channel.Id != SelectedChannel!.Id) continue;
             // Set photos
