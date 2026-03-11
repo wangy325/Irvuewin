@@ -3,6 +3,7 @@ using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using Irvuewin.Helpers;
 using Irvuewin.Models.Unsplash;
+using LiteDB;
 
 namespace Irvuewin.ViewModels;
 
@@ -11,6 +12,7 @@ public class ChannelViewModel : UnsplashChannel, INotifyPropertyChanged
     private bool _isChecked;
 
     // 'Checked' means that app will update wallpaper from this channel.
+    [BsonIgnore]
     public bool IsChecked
     {
         get => _isChecked;
@@ -22,10 +24,13 @@ public class ChannelViewModel : UnsplashChannel, INotifyPropertyChanged
         }
     }
 
+    [BsonIgnore]
     public ICommand ChannelSelected { set; get; } = new RelayCommand<ChannelViewModel>(OnChannelSelected);
+    
+    [BsonIgnore]
     public ICommand ChannelChecked { set; get; } = new RelayCommand<ChannelViewModel>(OnChannelChecked);
 
-    private static void OnChannelSelected(ChannelViewModel param)
+    private static void OnChannelSelected(ChannelViewModel? param)
     {
         var channelsWindow = ChannelsViewModel.GetInstance();
         channelsWindow.ChannelSelected2.Execute(param);
@@ -33,7 +38,7 @@ public class ChannelViewModel : UnsplashChannel, INotifyPropertyChanged
     
 
     // Change app status
-    private static void OnChannelChecked(ChannelViewModel param)
+    private static void OnChannelChecked(ChannelViewModel? param)
     {
         var channelsWindow = ChannelsViewModel.GetInstance();
         channelsWindow.ChannelChecked2.Execute(param);

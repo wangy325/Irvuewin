@@ -83,10 +83,6 @@ namespace Irvuewin
             // Load wallpaper sequence cache
             var randomWallpaper = Irvuewin.Properties.Settings.Default.RandomWallpaper;
             Logger.Information("RandomWallpaper: {RandomWallpaper}", randomWallpaper);
-            // if (!randomWallpaper)
-            // {
-            //     Task.Run(IrvuewinCore.LoadCachedSequence);
-            // }
 
             // Async Change wallpaper when app start
             // TrayMenuHelper.CheckPointer();

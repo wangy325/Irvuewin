@@ -28,9 +28,7 @@ using Serilog;
 public static class IrvuewinCore
 {
     private static readonly ILogger Logger = Log.ForContext(typeof(IrvuewinCore));
-
-    private static int _sequenceModify;
-
+    
     /// <summary>
     /// Display mouse pointer is on
     /// </summary>
@@ -60,8 +58,6 @@ public static class IrvuewinCore
         {
             trayViewModel!.AddedChannels.Add(channel);
         }
-
-        _sequenceModify++;
     }
 
     /// <summary>
@@ -71,57 +67,10 @@ public static class IrvuewinCore
     public static void DelChannel(string key)
     {
         var trayViewModel = Application.Current.Resources["TrayViewModel"] as TrayViewModel;
-        _sequenceModify++;
         var filteredList = trayViewModel!.AddedChannels.Where(channel => channel.Id != key).ToList();
         trayViewModel.AddedChannels = [..filteredList];
     }
-
-    /*/// <summary>
-    /// Load/Init All channels' cached sequences.
-    /// </summary>
-    public static async Task LoadCachedSequence()
-    {
-        var sequence = await FileCacheManager.LoadChannelSequence();
-        if (sequence is not null && sequence.Count != 0)
-        {
-            var range
-                = sequence.Select(kvp => ((CachedChannelSeqPrefix, kvp.Key), kvp.Value));
-            FastCacheManager.SetRange(range);
-        }
-        else
-        {
-            var channels = Properties.Settings.Default.UserUnsplashChannels.Split(",");
-            var range
-                = channels.Select(c => ((CachedChannelSeqPrefix, c), 1));
-            // Init in-memory channel sequence cacheZ
-            FastCacheManager.SetRange(range);
-        }
-
-        Logger.Debug(@"Init channels' cached sequence.");
-    }*/
-
-    /*/// <summary>
-    /// Persisting all channels' cached sequence.
-    /// </summary>
-    public static void SaveCachedSequence()
-    {
-        if (_sequenceModify <= 0) return;
-
-        var dic = new Dictionary<string, int>();
-        var channels = Properties.Settings.Default.UserUnsplashChannels.Split(",");
-        foreach (var cid in channels)
-        {
-            if (FastCacheManager.TryGet(CachedChannelSeqPrefix, cid, out int seq))
-            {
-                dic[cid] = seq;
-            }
-        }
-
-        _ = Task.Run(() => FileCacheManager.CacheChannelSequence(dic));
-        // reset
-        _sequenceModify = 0;
-        Logger.Debug(@"Save cached wallpaper sequence.");
-    }*/
+    
 
     /// <summary>
     /// Check chich display current mouse pointer is on. 
@@ -301,7 +250,6 @@ public static class IrvuewinCore
         // Update seq if necessary
         if (newSeq > 0)
         {
-            _sequenceModify++;
             var channel = DataBaseService.GetChannel(channelId)!;
             channel.Sequence = newSeq;
             await DataBaseService.UpdateChannel(channel);

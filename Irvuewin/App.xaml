@@ -329,7 +329,8 @@
                           IsChecked="{Binding Source={x:Static local:Properties.Settings.Default},
                                   Path=RandomWallpaper, Mode=TwoWay}">
                     <!--MVVM模式 事件触发器绑定命令-->
-                    <i:Interaction.Triggers>
+                    <!--由于不再使用FastCache存储sequence 故不用在切换壁纸模式时加载/持久化sequence-->
+                    <!--<i:Interaction.Triggers>
                         <i:EventTrigger EventName="Checked">
                             <i:InvokeCommandAction
                                 Command="{Binding Source={StaticResource TrayViewModel}, Path=SaveCachedSequenceCommand}" />
@@ -338,7 +339,7 @@
                             <i:InvokeCommandAction
                                 Command="{Binding Source={StaticResource TrayViewModel}, Path=LoadCachedSequenceCommand}" />
                         </i:EventTrigger>
-                    </i:Interaction.Triggers>
+                    </i:Interaction.Triggers>-->
                 </MenuItem>
 
                 <Separator Style="{StaticResource SeparatorStyle}" />

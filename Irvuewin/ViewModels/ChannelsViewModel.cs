@@ -162,12 +162,13 @@ public class ChannelsViewModel : INotifyPropertyChanged
         // Channels
         await LoadChannels();
         Channels.First(c => c.Id == _checkedChannelId).IsChecked = true;
+        // selected = checked on startup
         CheckedChannelName = Channels
             .First(c => c.Id == _checkedChannelId).Title;
         SelectedChannel = Channels
             .First(c => c.Id == _checkedChannelId);
 
-        // Init Photos
+        // Init checked channel Photos
         await LoadPhotos(CheckedChannelId, DefaultQuery);
         Logger.Information(@"ChannelsViewModel initialized.");
     }
@@ -198,6 +199,8 @@ public class ChannelsViewModel : INotifyPropertyChanged
                 if (await httpService.GetChannelById(id) is not { } channel) continue;
                 await DataBaseService.UpdateChannel(channel);
                 Channels.Add(MapperProvider.Mapper.Map<ChannelViewModel>(channel));
+                // Init channel's photo preview shard index to FastCache
+                FastCacheManager.Set(CachedWallpaperPreviewShard, id, 1);
             }
 
             Logger.Information(@"Loaded {ChannelsCount} channels from web.", Channels.Count);
@@ -308,10 +311,13 @@ public class ChannelsViewModel : INotifyPropertyChanged
     /// This will reload all photos preview from selected photo.
     /// </summary>
     /// <param name="item">ChannelViewModel</param>
-    private async void OnChannelSelected(ChannelViewModel item)
+    private async void OnChannelSelected(ChannelViewModel? item)
     {
+        if (item == null) return;
         try
         {
+            // reset previewShard
+            FastCacheManager.Set(CachedWallpaperPreviewShard, SelectedChannel!.Id, 1);
             SelectedChannel = item;
             Photos.Clear();
             await LoadPhotos(item.Id, DefaultQuery);
@@ -327,8 +333,9 @@ public class ChannelsViewModel : INotifyPropertyChanged
     /// Once channel is checked, means next wallpaper is fetched from this channel.
     /// </summary>
     /// <param name="item">ChannelViewModel</param>
-    private void OnChannelChecked(ChannelViewModel item)
+    private void OnChannelChecked(ChannelViewModel? item)
     {
+        if (item == null) return;
         try
         {
             // Update selected status
@@ -368,29 +375,28 @@ public class ChannelsViewModel : INotifyPropertyChanged
         {
             if (IsBusy) return;
             IsBusy = true;
-            UnsplashQueryParams query = new()
-            {
-                PerPage = PageSize,
-                Orientation = Properties.Settings.Default.WallpaperOrientation
-            };
+            if (!FastCacheManager.TryGet(CachedWallpaperPreviewShard, channel.Id, out int previewShard)) return;
+
 
             if (channel.AllPhotosLoaded)
             {
                 // all photos loaded to LiteDB
-                if (Photos.Count == await DataBaseService.LoadPhotoCount(channel.Id)) return;
-                var mod = Photos.Count % PageSize;
-                var acShard = Photos.Count / PageSize + 1;
-                query.Page = acShard;
+                // Expert to access more photos, that's not possible
+                if (previewShard * PageSize > await DataBaseService.LoadPhotoCount(channel.Id)) return;
             }
-            else
+
+            UnsplashQueryParams query = new()
             {
-                query.Page = ++channel.Shard;
-            }
+                Page = ++previewShard,
+                PerPage = PageSize,
+                Orientation = Properties.Settings.Default.WallpaperOrientation
+            };
 
             Logger.Information(@"Loading more photos of channel {0},  shard {1}", channel.Id, query.Page);
             if (await LoadPhotos(channel.Id, query, true))
             {
-                // TODO: No more photos
+                // Update previewShard
+                FastCacheManager.Set(CachedWallpaperPreviewShard, channel.Id, previewShard);
             }
 
             IsBusy = false;

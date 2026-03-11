@@ -22,17 +22,10 @@ public interface IAppConst
     /// <summary>
     ///  In-memory cache keys
     /// </summary>
-    // key for channel's wallpaper queue sequence / local sequence file name prefix
-    // const string CachedChannelSeqPrefix = "sequence";
-
     // key for display's wallpaper history stack
     const string CachedWallpaperStack = "wallpaper_stack";
-
-    // key for channel's wallpaper loaded
-    // const string CachedWallpapers = "channel_wallpaper_count";
-
-    // const string CachedWallpaperShard = "channel_wallpaper_shard";
-    // db-instead end
+    // key for channels wallpaper preview gallery
+    const string CachedWallpaperPreviewShard = "wallpaper_preview_shard";
 
 
     // Errors:

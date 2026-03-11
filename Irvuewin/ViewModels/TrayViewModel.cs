@@ -68,8 +68,8 @@ public class TrayViewModel : INotifyPropertyChanged
         }
     }
 
-    public ICommand LoadCachedSequenceCommand { get; } = new RelayCommand(OnLoadCachedSequence);
-    public ICommand SaveCachedSequenceCommand { get; } = new RelayCommand(OnSaveCachedSequence);
+    // public ICommand LoadCachedSequenceCommand { get; } = new RelayCommand(OnLoadCachedSequence);
+    // public ICommand SaveCachedSequenceCommand { get; } = new RelayCommand(OnSaveCachedSequence);
 
     public ICommand OpenAddChannelWindowCommand { get; } = new RelayCommand(OnAddNewChannel);
 
@@ -174,7 +174,7 @@ public class TrayViewModel : INotifyPropertyChanged
         WindowManager.ShowWindow(nameof(AddChannel), () => new AddChannel(), true);
     }
 
-    private static void OnLoadCachedSequence(object? obj)
+    /*private static void OnLoadCachedSequence(object? obj)
     {
         // Load Cached resources
         // Task.Run(IrvuewinCore.LoadCachedSequence);
@@ -186,7 +186,7 @@ public class TrayViewModel : INotifyPropertyChanged
         // Save Cache
         // IrvuewinCore.SaveCachedSequence();
         Properties.Settings.Default.Save();
-    }
+    }*/
 
     public event PropertyChangedEventHandler? PropertyChanged;
 

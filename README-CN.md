@@ -8,7 +8,7 @@ An [Irvue](https://apps.apple.com/us/app/irvue/id1039633667?mt=12) like windows 
 - [ ] 按照分辨率过滤壁纸
 - [ ] 优化photo show case 当photo为空时的显示
 - [x] 优化应用启动速度
-- [ ] Refactor: Use SQLite
+- [x] Refactor: Use LiteDB
 
 ## Features
 

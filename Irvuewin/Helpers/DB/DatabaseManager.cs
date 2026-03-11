@@ -20,7 +20,8 @@ namespace Irvuewin.Helpers.DB
                 Directory.CreateDirectory(folder);
             }
 
-            DbPath = Path.Combine(folder, $"{AppName.ToLower()}.db");
+            var dbFile = Path.Combine(folder, $"{AppName.ToLower()}.db");
+            DbPath = $"Filename={dbFile};Connection=shared";
             InitializeDatabase();
         }
 
