@@ -40,11 +40,14 @@ public interface IAppConst
     const string Collections = "collections";
     const string User = "users";
     const string Search = "search";
-    const string Attribute = "?utm_source=your_app_name&utm_medium=referral";
+    const string Attribute = "?utm_source=MagicPaper&utm_medium=referral";
 
     // LiteDB
     const string DbPhotoCollection = "photos";
     const string DbChannelCollection = "collections";
     const string DbJobsCollection = "jobs";
-    const string DbFiltersCollection = "filters";
+    const string DbFiltersCollection = "filter";
+    
+    // body keywords
+    static readonly string[] PhotoFilterWords = ["woman", "women", "man", "men", "people", "boy", "girl", "baby"];
 }

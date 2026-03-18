@@ -201,5 +201,17 @@ namespace Irvuewin.Properties {
                 this["UpgradeRequired"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string UserFilterList {
+            get {
+                return ((string)(this["UserFilterList"]));
+            }
+            set {
+                this["UserFilterList"] = value;
+            }
+        }
     }
 }

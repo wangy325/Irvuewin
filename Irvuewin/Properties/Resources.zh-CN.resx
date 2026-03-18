@@ -373,4 +373,10 @@
   <data name="ContextMenu_HideAuthor" xml:space="preserve">
     <value>隐藏作者</value>
   </data>
+  <data name="Settings_HiddenAuthors" xml:space="preserve">
+    <value>已隐藏作者:</value>
+  </data>
+  <data name="Settings_UnhideAuthorTooltip" xml:space="preserve">
+    <value>取消隐藏</value>
+  </data>
 </root>

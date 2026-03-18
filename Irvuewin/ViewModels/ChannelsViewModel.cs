@@ -226,7 +226,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
             return false;
         }
 
-        // Update channel shard and load flag if necessary
+        // Update channel's shard and load flag if necessary
         if (photos.Count == 0)
         {
             // Sometimes api gets 0 photo from channel
@@ -564,12 +564,32 @@ public class ChannelsViewModel : INotifyPropertyChanged
 
     private static void OnHidePhoto(UnsplashPhoto photo)
     {
-        MessageBoxWindow.Show("?");
+        photo.IsFiltered = true;
+        DataBaseService.UpdatePhoto(photo);
     }
 
-    private static void OnHideAuthor(UnsplashPhoto photo)
+    private static async void OnHideAuthor(UnsplashPhoto photo)
     {
-        MessageBoxWindow.Show("!");
+        try
+        {
+            var username = photo.User.Username;
+            if (string.IsNullOrWhiteSpace(username)) return;
+
+            var currentList = Properties.Settings.Default.UserFilterList ?? "";
+            var users = currentList.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList();
+
+            if (users.Contains(username)) return;
+            users.Add(username);
+            Properties.Settings.Default.UserFilterList = string.Join(",", users);
+            Properties.Settings.Default.Save();
+            Logger.Information(@"Added author {0} to filter list.", username);
+
+            await (await GetInstanceAsync()).RefreshPhotos();
+        }
+        catch (Exception e)
+        {
+            Logger.Error(@"Hide author error: {0}", e.Message);
+        }
     }
 
     private void OnPropertyChanged([CallerMemberName] string? propertyName = null)

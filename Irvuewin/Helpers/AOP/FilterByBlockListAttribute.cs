@@ -1,5 +1,9 @@
 using AspectInjector.Broker;
+using Irvuewin.Helpers.DB;
 using Irvuewin.Models.Unsplash;
+using Serilog;
+using Serilog.Core;
+using static Irvuewin.Helpers.IAppConst;
 
 namespace Irvuewin.Helpers.AOP;
 
@@ -12,17 +16,19 @@ public class FilterByBlockListAttribute : Attribute
 [Aspect(Scope.Global)]
 public class BlockListAspect
 {
+    private static readonly ILogger Logger = Log.ForContext<BlockListAspect>();
+
     [Advice(Kind.Before)]
     public void CheckBlockList([Argument(Source.Arguments)] object[] args)
     {
-        if (args != null && args.Length > 0 && args[0] is List<UnsplashPhoto> photos)
-        {
-            // Placeholder: In a real implementation, you would inject a service or read settings
-            // var blockedIds = Properties.Settings.Default.BlockedIds; 
-            // photos.RemoveAll(p => blockedIds.Contains(p.Id));
-            
-            // For now, we will just log or leave it empty as the user hasn't provided the exact blocklist source yet.
-            // But the infrastructure is here.
-        }
+        var photos = args.OfType<List<UnsplashPhoto>>().FirstOrDefault();
+        if (photos == null || photos.Count == 0) return;
+        var blockedUsers =
+            Properties.Settings.Default.UserFilterList.Split(',', StringSplitOptions.RemoveEmptyEntries);
+        if (blockedUsers.Length == 0) return;
+        foreach (var photo in photos.Where(photo => blockedUsers.Contains(photo.User.Username)))
+            photo.IsFiltered = true;
+
+        Logger.Information("Blocklist filter...");
     }
 }

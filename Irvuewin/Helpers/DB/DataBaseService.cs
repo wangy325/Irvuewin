@@ -5,7 +5,7 @@ namespace Irvuewin.Helpers.DB;
 
 public class DataBaseService
 {
-    private static readonly ILogger Logger = Log.ForContext(typeof(DataBaseService));
+    private static readonly ILogger Logger = Log.ForContext<DataBaseService>();
 
 
     /// <summary>
@@ -91,7 +91,7 @@ public class DataBaseService
     }
 
     /// <summary>
-    ///  Load all cached photos count of specified channel by channelID.
+    ///  Load all cached photos count of specified channel by channelID. Including filtered photos.
     /// </summary>
     /// <param name="channelId">channelID</param>
     /// <returns>Cached photo count.</returns>
@@ -120,6 +120,11 @@ public class DataBaseService
                 return null;
             }
         });
+    }
+
+    public static Task UpdatePhoto(UnsplashPhoto photo)
+    {
+        return Task.Run(() => DatabaseManager.UpsertPhoto(photo));
     }
 
     /// <summary>

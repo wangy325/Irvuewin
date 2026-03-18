@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -372,5 +372,11 @@
   </data>
   <data name="ContextMenu_HideAuthor" xml:space="preserve">
     <value>Hide Author</value>
+  </data>
+  <data name="Settings_HiddenAuthors" xml:space="preserve">
+    <value>Hidden Authors:</value>
+  </data>
+  <data name="Settings_UnhideAuthorTooltip" xml:space="preserve">
+    <value>Unhide</value>
   </data>
 </root>

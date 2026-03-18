@@ -3,6 +3,7 @@ using Irvuewin.Models.Unsplash;
 using LiteDB;
 using Serilog;
 using System.IO;
+using Irvuewin.Helpers.AOP;
 using static Irvuewin.Helpers.IAppConst;
 
 namespace Irvuewin.Helpers.DB
@@ -138,6 +139,23 @@ namespace Irvuewin.Helpers.DB
             }
         }
 
+        public static void UpsertPhoto(UnsplashPhoto photo)
+        {
+            try
+            {
+                using var db =  new LiteDatabase(DbPath);
+                var  photos = db.GetCollection<UnsplashPhoto>(DbPhotoCollection);
+                photos.Upsert(photo);
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e, "Update photo error.");
+            }
+        }
+
+        [FilterByBlockList]
+        [SmartFilter]
+        [FilterBySize]
         public static void UpsertPhotos(string channelId, IEnumerable<UnsplashPhoto> newPhotos)
         {
             try
@@ -208,6 +226,7 @@ namespace Irvuewin.Helpers.DB
                 // 注意：因为分页依赖于排序，通常我们需要定义一个明确的排序规则（比如按添加到数据库的时间降序）
                 return photos.Query()
                     .Where(x=> x.ChannelIds.Contains(channelId))
+                    .Where(x => x.IsFiltered == false )
                     .OrderBy(x=>x.LocalSortIndex)
                     .Skip(skipCount)
                     .Limit(pageSize)

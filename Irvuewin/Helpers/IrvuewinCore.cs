@@ -322,46 +322,6 @@ public static class IrvuewinCore
         return  (sequence + 1, plist[index - 1]);
     }
 
-    /*/// <summary>
-    /// Calculating pageNum and pageIndex from sequence of channel.
-    /// </summary>
-    /// <param name="sequence">channel wallpaper sequence</param>
-    /// <returns>tuple of (page, pageIndex)</returns>
-    /// <example>
-    /// if sequence = 17, pageSize = 10, then
-    /// shardIndex = 2, shardPositionIndex= 6
-    /// </example>
-    [Obsolete("No need to calculate anymore.")]
-    private static (int shardIndex, int shardPositionIndex) CalShardIndex(int sequence)
-    {
-        // page index, position index of page content
-        int shardIndex, shardPositionIndex;
-        // Index starts from 1
-        if (sequence % PageSize == 0)
-        {
-            shardIndex = sequence / PageSize;
-            shardPositionIndex = PageSize - 1;
-        }
-        else
-        {
-            shardIndex = sequence / PageSize + 1;
-            shardPositionIndex = sequence % PageSize - 1;
-        }
-
-        return (shardIndex, shardPositionIndex);
-    }*/
-
-
-    /*/// <summary>
-    /// Update wallpaper info on tray menu
-    /// </summary>
-    [Obsolete("Logic moved to TrayViewModel via WallpaperChangedEvent", false)]
-    public static Task UpdateDisplayWallpaperInfo()
-    {
-        // Logic moved to TrayViewModel
-        return Task.CompletedTask;
-    }*/
-
     /// <summary>
     /// Switch back to last wallpaper.
     /// </summary>
@@ -487,8 +447,7 @@ public static class IrvuewinCore
     {
         try
         {
-            // ChangeAllWallpaper();
-            // Console.WriteLine($@"{DateTimeOffset.Now:yyyy-MM-dd HH:mm:ss}: scheduled wallpaper change");
+            Logger.Information(@"{DateTimeOffset:yyyy-MM-dd HH:mm:ss}: scheduled wallpaper change", DateTimeOffset.Now);
             ChangeAllWallpaper();
             UpdateNextWallpaperChangeTriggerTime(Properties.Settings.Default.WallpaperChangeInterval);
         }

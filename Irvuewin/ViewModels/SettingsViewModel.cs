@@ -1,7 +1,9 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using Irvuewin.Helpers;
+using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace Irvuewin.ViewModels;
 
@@ -45,10 +47,24 @@ public class SettingsViewModel : INotifyPropertyChanged
     /// </summary>
     private float _minResolution = Properties.Settings.Default.MinResolution;
     
+    private ObservableCollection<string> _filteredUsers = [];
+
+    public ObservableCollection<string> FilteredUsers
+    {
+        get => _filteredUsers;
+        set
+        {
+            if (_filteredUsers == value) return;
+            _filteredUsers = value;
+            OnPropertyChanged();
+        }
+    }
+
     public ICommand MultiDisplayCheckedCommand { get; }
     public ICommand DisplayModeCheckedCommand { get; }
     public ICommand LaunchAtLoginCommand { get; }
     public ICommand AsyncRefreshWallpaperCommand { get; }
+    public ICommand RemoveFilteredUserCommand { get; }
 
     public SettingsViewModel()
     {
@@ -56,6 +72,8 @@ public class SettingsViewModel : INotifyPropertyChanged
         MultiDisplayCheckedCommand = new RelayCommand<string>(OnMultiDisplayChecked);
         LaunchAtLoginCommand = new RelayCommand<bool>(OnLaunchAtLoginChecked);
         AsyncRefreshWallpaperCommand = new AsyncRelayCommand(OnOrientationChanged);
+        RemoveFilteredUserCommand = new RelayCommand<string>(OnRemoveFilteredUser);
+        LoadFilteredUsers();
     }
 
     public bool OpenSavedWallpaper
@@ -230,6 +248,22 @@ public class SettingsViewModel : INotifyPropertyChanged
         await IrvuewinCore.RefreshAllCachedWallpapers();
     }
 
+    private void LoadFilteredUsers()
+    {
+        var currentList = Properties.Settings.Default.UserFilterList ?? "";
+        var users = currentList.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList();
+        FilteredUsers = new ObservableCollection<string>(users);
+    }
+
+    private async void OnRemoveFilteredUser(string username)
+    {
+        if (!FilteredUsers.Contains(username)) return;
+        FilteredUsers.Remove(username);
+        Properties.Settings.Default.UserFilterList = string.Join(",", FilteredUsers);
+        Properties.Settings.Default.Save();
+
+        await ChannelsViewModel.GetInstance().RefreshPhotos();
+    }
 
     private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
     {
