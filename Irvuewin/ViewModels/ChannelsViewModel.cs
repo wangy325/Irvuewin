@@ -7,7 +7,7 @@ using Irvuewin.Models.Unsplash;
 using Irvuewin.Helpers.Utils;
 using System.Diagnostics;
 using Irvuewin.Helpers.DB;
-using Irvuewin.Views;
+using Irvuewin.Helpers.Events;
 using static Irvuewin.Helpers.IAppConst;
 using Exception = System.Exception;
 
@@ -141,6 +141,8 @@ public class ChannelsViewModel : INotifyPropertyChanged
         ViewAuthorCommand = new RelayCommand<UnsplashPhoto>(OnViewAuthor);
         HidePhotoCommand = new RelayCommand<UnsplashPhoto>(OnHidePhoto);
         HideAuthorCommand = new RelayCommand<UnsplashPhoto>(OnHideAuthor);
+        // binding EventBus
+        EventBus.WallpapersReplenished += OnWallpaperReplenished;
     }
 
     public static Task<ChannelsViewModel> GetInstanceAsync()
@@ -169,7 +171,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
             .First(c => c.Id == _checkedChannelId);
 
         // Init checked channel Photos
-        await LoadPhotos(CheckedChannelId, DefaultQuery);
+        LoadPhotos(CheckedChannelId, DefaultQuery);
         Logger.Information(@"ChannelsViewModel initialized.");
     }
 
@@ -207,7 +209,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
         }
     }
 
-    /// <summary>
+    /*/// <summary>
     /// Load channel photos from web API and save it to LiteDB.
     /// </summary>
     /// <param name="cid">channel id</param>
@@ -244,7 +246,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
         await DataBaseService.UpdateChannel(channel);
 
         return true;
-    }
+    }*/
 
     /// <summary>
     /// Load channel wallpapers.<br/>
@@ -254,17 +256,17 @@ public class ChannelsViewModel : INotifyPropertyChanged
     /// <param name="query"><see cref="UnsplashQueryParams"/></param>
     /// <param name="append">append items to Photos list or not. default no</param>
     /// <returns>True if succeeded, False if no photo is loaded.</returns>
-    public async Task<bool> LoadPhotos(string channelId, UnsplashQueryParams query, bool append = false)
+    public bool LoadPhotos(string channelId, UnsplashQueryParams query, bool append = false)
     {
-        var leastCount = query.Page * query.PerPage;
-        if (await DataBaseService.LoadPhotoCount(channelId) < leastCount)
+        if (DataBaseService.LoadPhotosByShard(channelId, query)
+            is not { Count: > 0 } photos)
         {
-            // load from web and save to LiteDB
-            if (!await LoadPhotosShardFromWeb(channelId, query)) return false;
+            // invoke fetch wallpaper
+            EventBus.PublishPoolLow(channelId);
+            return false;
         }
 
-        if (await DataBaseService.LoadPhotosShardAsync(channelId, query)
-            is not { Count: > 0 } photos) return false;
+
         if (append)
         {
             var tmpl = Photos.ToList();
@@ -274,6 +276,11 @@ public class ChannelsViewModel : INotifyPropertyChanged
         else
         {
             Photos = [..photos];
+        }
+
+        if (photos.Count < PageSize)
+        {
+            EventBus.PublishPoolLow(channelId);
         }
 
         return true;
@@ -311,7 +318,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
     /// This will reload all photos preview from selected photo.
     /// </summary>
     /// <param name="item">ChannelViewModel</param>
-    private async void OnChannelSelected(ChannelViewModel? item)
+    private void OnChannelSelected(ChannelViewModel? item)
     {
         if (item == null) return;
         try
@@ -320,7 +327,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
             FastCacheManager.Set(CachedWallpaperPreviewShard, SelectedChannel!.Id, 1);
             SelectedChannel = item;
             Photos.Clear();
-            await LoadPhotos(item.Id, DefaultQuery);
+            LoadPhotos(item.Id, DefaultQuery);
         }
         catch (Exception e)
         {
@@ -351,7 +358,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
             // And user checked channel from tray menu
             // Channel's photo is not cached
             // We need to preload photos
-            Task.Run(() => LoadPhotosShardFromWeb(item.Id, DefaultQuery));
+            // Task.Run(() => LoadPhotosShardFromWeb(item.Id, DefaultQuery));
 
             // Update selected index to settings
             Properties.Settings.Default.UserCheckedChannel = CheckedChannelId;
@@ -382,7 +389,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
             {
                 // all photos loaded to LiteDB
                 // Expert to access more photos, that's not possible
-                if (previewShard * PageSize > await DataBaseService.LoadPhotoCount(channel.Id)) return;
+                if (previewShard * PageSize > DataBaseService.LoadedPhotoCount(channel.Id)) return;
             }
 
             UnsplashQueryParams query = new()
@@ -393,7 +400,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
             };
 
             Logger.Information(@"Loading more photos of channel {0},  shard {1}", channel.Id, query.Page);
-            if (await LoadPhotos(channel.Id, query, true))
+            if (LoadPhotos(channel.Id, query, true))
             {
                 // Update previewShard
                 FastCacheManager.Set(CachedWallpaperPreviewShard, channel.Id, previewShard);
@@ -425,7 +432,8 @@ public class ChannelsViewModel : INotifyPropertyChanged
             PerPage = shard * PageSize,
             Orientation = Properties.Settings.Default.WallpaperOrientation
         };
-        await LoadPhotosShardFromWeb(channel.Id, query);
+        // TODO 重做reload逻辑
+        // await LoadPhotosShardFromWeb(channel.Id, query);
         Logger.Information(@"Refreshed photos for channel {ChannelId}", channel.Id);
     }
 
@@ -436,10 +444,10 @@ public class ChannelsViewModel : INotifyPropertyChanged
     {
         foreach (var channel in Channels)
         {
-            await DataBaseService.RemoveChannelPhotos(channel.Id);
+            DataBaseService.RemoveChannelPhotos(channel.Id);
             DefaultQuery.Orientation = Properties.Settings.Default.WallpaperOrientation;
-
-            await LoadPhotosShardFromWeb(channel.Id, DefaultQuery);
+            // TODO: redo
+            // await LoadPhotosShardFromWeb(channel.Id, DefaultQuery);
 
             // reset channel sequence
             channel.Sequence = 1;
@@ -450,7 +458,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
             if (channel.Id != SelectedChannel!.Id) continue;
             // Set photos
             // Some channels may not contain photos in specify orientation
-            var nps = await DataBaseService.LoadPhotosShardAsync(channel.Id, DefaultQuery);
+            var nps = DataBaseService.LoadPhotosByShard(channel.Id, DefaultQuery);
             Photos = [..nps];
         }
     }
@@ -473,7 +481,8 @@ public class ChannelsViewModel : INotifyPropertyChanged
         // Update shard index and wallpaper sequence
         foreach (var channel in selectedChannels)
         {
-            Task.Run(() => LoadPhotosShardFromWeb(channel.Id, DefaultQuery));
+            // Task.Run(() => LoadPhotosShardFromWeb(channel.Id, DefaultQuery));
+            EventBus.PublishPoolLow(channel.Id);
         }
 
         IrvuewinCore.AddNewChannel(channelViewModels);
@@ -516,7 +525,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
                 { } path) return;
             IrvuewinCore.UpdateDisplayWallpaperStack(IrvuewinCore.CurrentPointerDisplay.Name, path);
             FastCacheManager.Set(IrvuewinCore.CurrentPointerDisplay.Name, photo.Id);
-            IrvuewinCore.BroadcastWallpaperChanged(IrvuewinCore.CurrentPointerDisplay.Name, photo.Id);
+            EventBus.PublishWallpaperChanged(IrvuewinCore.CurrentPointerDisplay.Name, photo.Id);
         }
         catch (Exception e)
         {
@@ -564,7 +573,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
 
     private static void OnHidePhoto(UnsplashPhoto photo)
     {
-        photo.IsFiltered = true;
+        photo.IsHidden = true;
         DataBaseService.UpdatePhoto(photo);
     }
 
@@ -595,5 +604,19 @@ public class ChannelsViewModel : INotifyPropertyChanged
     private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+
+    private void OnWallpaperReplenished()
+    {
+        // 必须切回主线程，否则操作 UI 绑定的集合会报跨线程操作异常
+        System.Windows.Application.Current.Dispatcher.Invoke(() =>
+        {
+            // 如果用户还在看某个频道，利用现成的翻页逻辑，继续硬着头皮往下翻一页
+            if (SelectedChannel != null)
+            {
+                // TODO 合理？
+                OnLoadMorePhotos(SelectedChannel);
+            }
+        });
     }
 }

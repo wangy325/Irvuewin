@@ -5,6 +5,7 @@ using System.Windows.Data;
 using System.Windows.Input;
 using Irvuewin.Helpers;
 using Irvuewin.Helpers.DB;
+using Irvuewin.Helpers.Events;
 using Irvuewin.Helpers.Utils;
 using Irvuewin.Views;
 using Serilog;
@@ -81,7 +82,7 @@ public class TrayViewModel : INotifyPropertyChanged
     {
         _intervals = new ObservableCollection<WallpaperChangeInterval>(GenerateIntervals());
         Localization.Instance.PropertyChanged += OnLocalizationChanged;
-        IrvuewinCore.WallpaperChangedEvent += OnWallpaperChanged;
+        EventBus.WallpaperChangedEvent += OnWallpaperChanged;
     }
 
     private void OnLocalizationChanged(object? sender, PropertyChangedEventArgs e)
@@ -134,7 +135,7 @@ public class TrayViewModel : INotifyPropertyChanged
         }
     }
 
-    private void OnWallpaperChanged(object? sender, IrvuewinCore.WallpaperChangedEventArgs e)
+    private void OnWallpaperChanged(object? sender, EventBus.WallpaperChangedEventArgs e)
     {
         // Update info immediately when wallpaper changes
         System.Windows.Application.Current.Dispatcher.InvokeAsync(async () =>

@@ -42,7 +42,7 @@ public class SizeFilterAspect
         // 2. 优雅的LINQ修改方式：
         photos.Where(p => p.Width < width || p.Height < height)
             .ToList()
-            .ForEach(p => p.IsFiltered = true);
+            .ForEach(p => p.IsTooSmall = true);
         Logger.Information("Size filter...");
     }
 }

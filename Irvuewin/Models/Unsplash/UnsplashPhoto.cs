@@ -128,7 +128,13 @@ namespace Irvuewin.Models.Unsplash
         [JsonProperty("id")] public string Id { get; set; }
         [JsonProperty("urls")] public Urls Urls { get; set; }
 
-        [JsonProperty("isFiltered")] public bool IsFiltered { get; set; }
+        // Many ways to prohibit a photo
+        [JsonIgnore] public bool IsBlocked { get; set; }
+        [JsonIgnore] public bool IsTooSmall { get; set; }
+        [JsonIgnore] public bool IsPortrait { get; set; }
+        [JsonIgnore] public bool IsHidden { get; set; }
+        
+        [JsonIgnore] public bool IsFiltered => IsBlocked || IsTooSmall || IsPortrait || IsHidden;
 
         // Used exclusively by LiteDB for querying photos by channel.
         [JsonIgnore] public List<string> ChannelIds { get; set; } = [];

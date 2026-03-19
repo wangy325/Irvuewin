@@ -50,4 +50,7 @@ public interface IAppConst
     
     // body keywords
     static readonly string[] PhotoFilterWords = ["woman", "women", "man", "men", "people", "boy", "girl", "baby"];
+    
+    // watermark 
+    const int PhotoPoolWaterMark = 20;
 }

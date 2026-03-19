@@ -45,7 +45,7 @@ namespace Irvuewin.Models.Unsplash
         [JsonProperty("instagram_username")] public string InstagramUsername { get; set; }
     }
 
-    public partial class UserLinks
+    public class UserLinks
     {
         [JsonProperty("portfolio")] public Uri Portfolio { get; set; }
 
@@ -58,7 +58,7 @@ namespace Irvuewin.Models.Unsplash
         [JsonProperty("likes")] public Uri Likes { get; set; }
     }
 
-    public partial class ProfileImage
+    public class ProfileImage
     {
         [JsonProperty("small")] public Uri Small { get; set; }
 
@@ -66,17 +66,18 @@ namespace Irvuewin.Models.Unsplash
 
         [JsonProperty("medium")] public Uri Medium { get; set; }
     }
-    
+
     public partial class UnsplashUser
     {
         public static UnsplashUser? FromJson(string json) =>
             JsonConvert.DeserializeObject<UnsplashUser>(json, JsonHelper.Settings);
+
+        // [JsonIgnore] public bool Blocked { get; set; }
     }
-    
+
     public static class SerializeUnsplashUser
     {
         public static string ToJson(this UnsplashUser self) =>
             JsonConvert.SerializeObject(self, JsonHelper.Settings);
-        
     }
 }

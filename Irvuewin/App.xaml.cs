@@ -75,6 +75,9 @@ namespace Irvuewin
             // Create ChannelsViewModel singleton instance
             _channelsViewModel = Task.Run(ChannelsViewModel.GetInstanceAsync).Result;
             Resources.Add("ChannelsViewModel", _channelsViewModel);
+            
+            // Init Wallpaper pool
+            WallpaperPoolManager.Initialize(IHttpClient.GetUnsplashHttpService());
 
             //  Create a copy of Channels in TrayViewModel
             var trayViewModel = Current.Resources["TrayViewModel"] as TrayViewModel;

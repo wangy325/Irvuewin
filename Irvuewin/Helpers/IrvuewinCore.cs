@@ -2,6 +2,7 @@
 using System.Timers;
 using System.Windows.Forms;
 using Irvuewin.Helpers.DB;
+using Irvuewin.Helpers.Events;
 using Irvuewin.Helpers.Utils;
 using Irvuewin.Models.Unsplash;
 using Irvuewin.ViewModels;
@@ -28,24 +29,12 @@ using Serilog;
 public static class IrvuewinCore
 {
     private static readonly ILogger Logger = Log.ForContext(typeof(IrvuewinCore));
-    
+
     /// <summary>
     /// Display mouse pointer is on
     /// </summary>
     public static Display CurrentPointerDisplay { get; private set; }
 
-    public class WallpaperChangedEventArgs(string displayName, string photoId) : EventArgs
-    {
-        public string DisplayName { get; } = displayName;
-        public string PhotoId { get; } = photoId;
-    }
-
-    public static event EventHandler<WallpaperChangedEventArgs>? WallpaperChangedEvent;
-
-    public static void BroadcastWallpaperChanged(string displayName, string photoId)
-    {
-        WallpaperChangedEvent?.Invoke(null, new WallpaperChangedEventArgs(displayName, photoId));
-    }
 
     /// <summary>
     /// Once new channel(s) is added, add to tray menu panel.
@@ -70,7 +59,7 @@ public static class IrvuewinCore
         var filteredList = trayViewModel!.AddedChannels.Where(channel => channel.Id != key).ToList();
         trayViewModel.AddedChannels = [..filteredList];
     }
-    
+
 
     /// <summary>
     /// Check chich display current mouse pointer is on. 
@@ -182,7 +171,7 @@ public static class IrvuewinCore
         {
             for (var i = sequence; i < wallpaperCount + sequence; i++)
             {
-                var (s, p) = await GetSequenceWallpaper(channelId, i);
+                var (s, p) =  GetSequenceWallpaper(channelId, i);
                 if (p != null) photos.Add(p);
                 newSeq = s;
             }
@@ -210,8 +199,7 @@ public static class IrvuewinCore
                     {
                         UpdateDisplayWallpaperStack(screen.DeviceName, setUpRes.UnifiedWallpaperPath!);
                         FastCacheManager.Set(screen.DeviceName, photos[0].Id);
-                        WallpaperChangedEvent?.Invoke(null,
-                            new WallpaperChangedEventArgs(screen.DeviceName, photos[0].Id));
+                        EventBus.PublishWallpaperChanged(screen.DeviceName, photos[0].Id);
                     }
 
                     break;
@@ -224,8 +212,7 @@ public static class IrvuewinCore
                     {
                         UpdateDisplayWallpaperStack(item.kvp.Key, item.kvp.Value);
                         FastCacheManager.Set(item.kvp.Key, photos[item.idx].Id);
-                        WallpaperChangedEvent?.Invoke(null,
-                            new WallpaperChangedEventArgs(item.kvp.Key, photos[item.idx].Id));
+                        EventBus.PublishWallpaperChanged(item.kvp.Key, photos[item.idx].Id);
                         // Logger.Information(@"Set wallpaper for {Key}: {Value}", item.kvp.Key, item.kvp.Value);
                     }
 
@@ -242,8 +229,7 @@ public static class IrvuewinCore
             // Push photo file into wallpaper history stack
             UpdateDisplayWallpaperStack(CurrentPointerDisplay.Name, path);
             FastCacheManager.Set(CurrentPointerDisplay.Name, photos[0].Id);
-            WallpaperChangedEvent?.Invoke(null,
-                new WallpaperChangedEventArgs(CurrentPointerDisplay.Name, photos[0].Id));
+            EventBus.PublishWallpaperChanged(CurrentPointerDisplay.Name, photos[0].Id);
             // await DisplayWallpaperInfo();
         }
 
@@ -282,14 +268,14 @@ public static class IrvuewinCore
     /// <param name="channelId">unsplash channelId</param>
     /// <param name="sequence">current wallpaper sequence</param>
     /// <returns>sequence and wallpaper tuple</returns>
-    private static async Task<(int, UnsplashPhoto?)> GetSequenceWallpaper(string channelId, int sequence)
+    private static (int, UnsplashPhoto?) GetSequenceWallpaper(string channelId, int sequence)
     {
         Logger.Information(@"wallpaper seq {0} from channel {1}", sequence, channelId);
 
         var channel = DataBaseService.GetChannel(channelId)!;
-        var totalLoaded = await DataBaseService.LoadPhotoCount(channelId);
+        var totalLoaded = DataBaseService.LoadedPhotosCountExcluded(channelId);
         // sequence should not bigger than photos size
-        var mod = sequence % PageSize;
+        /*var mod = sequence % PageSize;
         var shard = mod ==0 ? sequence / PageSize : sequence / PageSize + 1;
         var index = mod == 0 ? PageSize : mod;
         var qp = new UnsplashQueryParams()
@@ -297,29 +283,30 @@ public static class IrvuewinCore
             Page = shard,
             PerPage = PageSize,
             Orientation = Properties.Settings.Default.WallpaperOrientation
-        };
-        var plist = await DataBaseService.LoadPhotosShardAsync(channelId, qp);
-        if (sequence <= totalLoaded) return (sequence + 1, plist[index - 1]);
+        };*/
+        // var plist =  DataBaseService.LoadPhotosByShard(channelId, qp);
+        if (sequence <= totalLoaded)
+        {
+            var photo = DataBaseService.GetPhotoBySequence(channelId, sequence)!;
+            return (sequence + 1, photo);
+        }
+
         // One extreme condition: all photos already loaded, and sequence
         // is equal to photos count.
         // On this condition, we need to reset sequence.
         if (channel.AllPhotosLoaded)
         {
             sequence = 1;
-            index = 1;
+            // index = 1;
         }
         else
         {
-            // preload next shard
-            var cvm = await ChannelsViewModel.GetInstanceAsync();
-            qp.Page = ++shard;
-            await cvm.LoadPhotosShardFromWeb(channelId, qp);
-
-            plist = await DataBaseService.LoadPhotosShardAsync(channelId, qp);
+            // preload 
+            EventBus.PublishPoolLow(channelId);
         }
 
-
-        return  (sequence + 1, plist[index - 1]);
+        var p = DataBaseService.GetPhotoBySequence(channelId, sequence);
+        return (sequence + 1, p);
     }
 
     /// <summary>
@@ -342,7 +329,7 @@ public static class IrvuewinCore
             await WallpaperUtil.SetWallpaperForSpecificMonitor(CurrentPointerDisplay, null, path);
             var pid = Path.GetFileNameWithoutExtension(path);
             FastCacheManager.Set(CurrentPointerDisplay.Name, pid);
-            WallpaperChangedEvent?.Invoke(null, new WallpaperChangedEventArgs(CurrentPointerDisplay.Name, pid));
+            EventBus.PublishWallpaperChanged(CurrentPointerDisplay.Name, pid);
             // await DisplayWallpaperInfo();
         }
         catch (Exception e)

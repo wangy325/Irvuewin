@@ -27,7 +27,7 @@ public class BlockListAspect
             Properties.Settings.Default.UserFilterList.Split(',', StringSplitOptions.RemoveEmptyEntries);
         if (blockedUsers.Length == 0) return;
         foreach (var photo in photos.Where(photo => blockedUsers.Contains(photo.User.Username)))
-            photo.IsFiltered = true;
+            photo.IsBlocked = true;
 
         Logger.Information("Blocklist filter...");
     }

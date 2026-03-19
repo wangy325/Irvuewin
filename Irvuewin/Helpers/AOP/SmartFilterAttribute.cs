@@ -27,7 +27,7 @@ public class SmartFilterAspect
                      PhotoFilterWords.Any(k =>
                          photo.Slug.Contains(k, StringComparison.CurrentCultureIgnoreCase))))
         {
-            photo.IsFiltered = true;
+            photo.IsPortrait = true;
         }
 
         Logger.Information("Smart filter...");

@@ -8,7 +8,7 @@ using static Irvuewin.Helpers.IAppConst;
 
 namespace Irvuewin.Helpers.DB
 {
-    public static class DatabaseManager
+    internal static class DatabaseManager
     {
         private static readonly ILogger Logger = Log.ForContext(typeof(DatabaseManager));
         private static readonly string DbPath;
@@ -57,7 +57,7 @@ namespace Irvuewin.Helpers.DB
                 photos.EnsureIndex(x => x.Width);
                 photos.EnsureIndex(x => x.Height);
                 photos.EnsureIndex(x => x.User.Name);
-                photos.EnsureIndex("ChannelIds" ,"$.ChannelIds[*]");
+                photos.EnsureIndex("ChannelIds", "$.ChannelIds[*]");
             }
             catch (Exception ex)
             {
@@ -143,8 +143,8 @@ namespace Irvuewin.Helpers.DB
         {
             try
             {
-                using var db =  new LiteDatabase(DbPath);
-                var  photos = db.GetCollection<UnsplashPhoto>(DbPhotoCollection);
+                using var db = new LiteDatabase(DbPath);
+                var photos = db.GetCollection<UnsplashPhoto>(DbPhotoCollection);
                 photos.Upsert(photo);
             }
             catch (Exception e)
@@ -162,9 +162,9 @@ namespace Irvuewin.Helpers.DB
             {
                 using var db = new LiteDatabase(DbPath);
                 var oldPhotos = db.GetCollection<UnsplashPhoto>(DbPhotoCollection);
-                
+
                 var unsplashPhotos = newPhotos.ToList();
-                
+
                 var currentTick = DateTimeOffset.UtcNow.Ticks;
                 var offset = 0;
                 foreach (var photo in unsplashPhotos)
@@ -225,9 +225,8 @@ namespace Irvuewin.Helpers.DB
                 var skipCount = (page - 1) * pageSize;
                 // 注意：因为分页依赖于排序，通常我们需要定义一个明确的排序规则（比如按添加到数据库的时间降序）
                 return photos.Query()
-                    .Where(x=> x.ChannelIds.Contains(channelId))
-                    .Where(x => x.IsFiltered == false )
-                    .OrderBy(x=>x.LocalSortIndex)
+                    .Where(x => x.IsFiltered == false && x.ChannelIds.Contains(channelId))
+                    .OrderBy(x => x.LocalSortIndex)
                     .Skip(skipCount)
                     .Limit(pageSize)
                     .ToList();
@@ -239,13 +238,45 @@ namespace Irvuewin.Helpers.DB
             }
         }
 
-        public static int CountPhotos(string channelId)
+        public static UnsplashPhoto? GetPhoto(string channelId, int skip)
         {
             try
             {
                 using var db = new LiteDatabase(DbPath);
                 var photos = db.GetCollection<UnsplashPhoto>(DbPhotoCollection);
-                return photos.Count(x => x.ChannelIds.Contains(channelId));
+
+                return photos.Query()
+                    .Where(x => x.IsFiltered == false && x.ChannelIds.Contains(channelId))
+                    .OrderBy(x => x.LocalSortIndex)
+                    .Skip(skip)
+                    .Limit(1)
+                    .Single();
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex, "Failed to load specify photo from LiteDB");
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// count photos of specify channel
+        /// </summary>
+        /// <param name="channelId"></param>
+        /// <param name="exclude">exclude filtered photos</param>
+        /// <returns></returns>
+        public static int CountPhotos(string channelId, bool exclude = false)
+        {
+            try
+            {
+                using var db = new LiteDatabase(DbPath);
+                var photos = db.GetCollection<UnsplashPhoto>(DbPhotoCollection);
+                // return photos.Count(x => x.ChannelIds.Contains(channelId));
+                var query = photos.Query();
+                query = exclude
+                    ? query.Where(x => x.IsFiltered == false && x.ChannelIds.Contains(channelId))
+                    : query.Where(x => x.ChannelIds.Contains(channelId));
+                return query.Count();
             }
             catch (Exception ex)
             {

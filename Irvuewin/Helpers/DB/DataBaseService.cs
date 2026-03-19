@@ -74,20 +74,30 @@ public class DataBaseService
     /// <param name="cid">channelId</param>
     /// <param name="index"><see cref="UnsplashQueryParams"/>>share pagination fields</param>
     /// <returns><see cref="UnsplashPhoto"/> list, or null if cache file does not exist or exception occurs</returns>
-    public static Task<List<UnsplashPhoto>> LoadPhotosShardAsync(string cid, UnsplashQueryParams index)
+    public static List<UnsplashPhoto> LoadPhotosByShard(string cid, UnsplashQueryParams index)
     {
-        return Task.Run(() =>
+        try
         {
-            try
-            {
-                return DatabaseManager.GetPhotos(cid, index.Page, index.PerPage);
-            }
-            catch (Exception e)
-            {
-                Logger.Error(e, "LoadPhotosShardAsync error");
-                return [];
-            }
-        });
+            return DatabaseManager.GetPhotos(cid, index.Page, index.PerPage);
+        }
+        catch (Exception e)
+        {
+            Logger.Error(e, "LoadPhotosShardAsync error");
+            return [];
+        }
+    }
+
+    public static UnsplashPhoto? GetPhotoBySequence(string cid, int sequence)
+    {
+        try
+        {
+            return DatabaseManager.GetPhoto(cid, sequence);
+        }
+        catch (Exception e)
+        {
+            Logger.Error(e, "GetPhotoBySequence error");
+            return null;
+        }
     }
 
     /// <summary>
@@ -95,9 +105,14 @@ public class DataBaseService
     /// </summary>
     /// <param name="channelId">channelID</param>
     /// <returns>Cached photo count.</returns>
-    public static Task<int> LoadPhotoCount(string channelId)
+    public static int LoadedPhotoCount(string channelId)
     {
-        return Task.Run(() => DatabaseManager.CountPhotos(channelId));
+        return DatabaseManager.CountPhotos(channelId);
+    }
+
+    public static int LoadedPhotosCountExcluded(string channelId)
+    {
+        return DatabaseManager.CountPhotos(channelId, true);
     }
 
     /// <summary>
@@ -122,9 +137,9 @@ public class DataBaseService
         });
     }
 
-    public static Task UpdatePhoto(UnsplashPhoto photo)
+    public static void UpdatePhoto(UnsplashPhoto photo)
     {
-        return Task.Run(() => DatabaseManager.UpsertPhoto(photo));
+        Task.Run(() => DatabaseManager.UpsertPhoto(photo));
     }
 
     /// <summary>
@@ -140,8 +155,8 @@ public class DataBaseService
         });
     }
 
-    public static Task RemoveChannelPhotos(string channelId)
+    public static void RemoveChannelPhotos(string channelId)
     {
-        return Task.Run(() => DatabaseManager.RemoveChannelPhotos(channelId));
+        Task.Run(() => DatabaseManager.RemoveChannelPhotos(channelId));
     }
 }
