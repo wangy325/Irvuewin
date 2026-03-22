@@ -15,14 +15,14 @@ public class WallpaperPoolManager
     private bool _isFetching;
 
     private static WallpaperPoolManager? _instance;
-    private static readonly Lock _lock = new();
+    private static readonly Lock Lock = new();
 
-    // public static WallpaperPoolManager Instance => _instance ?? throw new InvalidOperationException("WallpaperPoolManager is not initialized. Call Initialize() first.");
+    public static WallpaperPoolManager Instance => _instance ?? throw new InvalidOperationException("WallpaperPoolManager is not initialized. Call Initialize() first.");
 
     public static void Initialize(UnsplashHttpService apiService)
     {
         if (_instance != null) return;
-        lock (_lock)
+        lock (Lock)
         {
             _instance ??= new WallpaperPoolManager(apiService);
         }
@@ -40,7 +40,20 @@ public class WallpaperPoolManager
 
     private async void FetchMoreWallpapersIfNeeded(string channelId)
     {
-        if (_isFetching) return;
+        await FetchMoreWallpapersInternalAsync(channelId);
+    }
+
+    /// <summary>
+    /// Explicitly fetch wallpapers and await the operation status.
+    /// </summary>
+    public Task<bool> FetchWallpapersAsync(string channelId)
+    {
+        return FetchMoreWallpapersInternalAsync(channelId);
+    }
+
+    private async Task<bool> FetchMoreWallpapersInternalAsync(string channelId)
+    {
+        if (_isFetching) return false;
         _isFetching = true;
         try
         {
@@ -54,7 +67,7 @@ public class WallpaperPoolManager
             };
 
             // 这里作为拉取unsplash壁纸的唯一入口
-            if (await _apiService.GetPhotosOfChannel(channelId: channelId, query) is not { } photos) return;
+            if (await _apiService.GetPhotosOfChannel(channelId: channelId, query) is not { } photos) return false;
             // break;
 
 
@@ -76,10 +89,12 @@ public class WallpaperPoolManager
             // update channel after all
             await DataBaseService.UpdateChannel(channel);
             EventBus.PublishWallpapersReplenished();
+            return true;
         }
         catch (Exception ex)
         {
             Logger.Error(ex, "Fetch wallpapers failed.");
+            return false;
         }
         finally
         {
@@ -90,7 +105,7 @@ public class WallpaperPoolManager
     // 水位线检测
     // 什么时候会触发？触发几次？
     // 好像只要启动时触发一次就行
-    private void CheckWatermarkAsync()
+    private async void CheckWatermarkAsync()
     {
         var channels = DataBaseService.LoadChannels();
         if (channels is not { Count: > 0 }) return;
@@ -98,8 +113,13 @@ public class WallpaperPoolManager
         {
             while (DataBaseService.LoadedPhotosCountExcluded(channel.Id) < PhotoPoolWaterMark)
             {
-                FetchMoreWallpapersIfNeeded(channel.Id);
+                var currentChannel = DataBaseService.GetChannel(channel.Id);
+                if (currentChannel == null || currentChannel.AllPhotosLoaded) break;
+
+                var success = await FetchMoreWallpapersInternalAsync(channel.Id);
+                if (!success) break;
             }
         }
+        Logger.Information("Water marker Check.");
     }
 }

@@ -1,4 +1,4 @@
-﻿using Irvuewin.Models.Unsplash;
+using Irvuewin.Models.Unsplash;
 using Serilog;
 
 namespace Irvuewin.Helpers.DB;
@@ -82,7 +82,20 @@ public class DataBaseService
         }
         catch (Exception e)
         {
-            Logger.Error(e, "LoadPhotosShardAsync error");
+            Logger.Error(e, "LoadPhotosByShard error");
+            return [];
+        }
+    }
+
+    public static List<UnsplashPhoto> LoadPhotosByOffset(string cid, int skip, int take)
+    {
+        try
+        {
+            return DatabaseManager.GetPhotosByOffset(cid, skip, take);
+        }
+        catch (Exception e)
+        {
+            Logger.Error(e, "LoadPhotosByOffset error");
             return [];
         }
     }
@@ -155,8 +168,8 @@ public class DataBaseService
         });
     }
 
-    public static void RemoveChannelPhotos(string channelId)
-    {
-        Task.Run(() => DatabaseManager.RemoveChannelPhotos(channelId));
-    }
+    // public static void RemoveChannelPhotos(string channelId)
+    // {
+    //     Task.Run(() => DatabaseManager.RemoveChannelPhotos(channelId));
+    // }
 }

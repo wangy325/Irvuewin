@@ -43,6 +43,6 @@ public class SizeFilterAspect
         photos.Where(p => p.Width < width || p.Height < height)
             .ToList()
             .ForEach(p => p.IsTooSmall = true);
-        Logger.Information("Size filter...");
+        // Logger.Information("Size filter...");
     }
 }

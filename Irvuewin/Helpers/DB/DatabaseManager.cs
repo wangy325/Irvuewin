@@ -217,23 +217,26 @@ namespace Irvuewin.Helpers.DB
 
         public static List<UnsplashPhoto> GetPhotos(string channelId, int page, int pageSize)
         {
+            return GetPhotosByOffset(channelId, (page - 1) * pageSize, pageSize);
+        }
+
+        public static List<UnsplashPhoto> GetPhotosByOffset(string channelId, int skipCount, int takeCount)
+        {
             try
             {
                 using var db = new LiteDatabase(DbPath);
                 var photos = db.GetCollection<UnsplashPhoto>(DbPhotoCollection);
 
-                var skipCount = (page - 1) * pageSize;
-                // 注意：因为分页依赖于排序，通常我们需要定义一个明确的排序规则（比如按添加到数据库的时间降序）
                 return photos.Query()
                     .Where(x => x.IsFiltered == false && x.ChannelIds.Contains(channelId))
                     .OrderBy(x => x.LocalSortIndex)
                     .Skip(skipCount)
-                    .Limit(pageSize)
+                    .Limit(takeCount)
                     .ToList();
             }
             catch (Exception ex)
             {
-                Logger.Error(ex, "Failed to load paginated photos from LiteDB");
+                Logger.Error(ex, "Failed to load offset photos from LiteDB");
                 return [];
             }
         }

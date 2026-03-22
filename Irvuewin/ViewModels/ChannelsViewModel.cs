@@ -171,7 +171,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
             .First(c => c.Id == _checkedChannelId);
 
         // Init checked channel Photos
-        LoadPhotos(CheckedChannelId, DefaultQuery);
+        PreviewPhotos(CheckedChannelId, DefaultQuery);
         Logger.Information(@"ChannelsViewModel initialized.");
     }
 
@@ -249,16 +249,19 @@ public class ChannelsViewModel : INotifyPropertyChanged
     }*/
 
     /// <summary>
-    /// Load channel wallpapers.<br/>
+    /// Load channel wallpapers to wallpaper gallery.<br/>
     /// Ultimate goal of this method is to update <see cref="Photos"/> UI control.
     /// </summary>
     /// <param name="channelId">channel Id</param>
     /// <param name="query"><see cref="UnsplashQueryParams"/></param>
     /// <param name="append">append items to Photos list or not. default no</param>
     /// <returns>True if succeeded, False if no photo is loaded.</returns>
-    public bool LoadPhotos(string channelId, UnsplashQueryParams query, bool append = false)
+    private bool PreviewPhotos(string channelId, UnsplashQueryParams query, bool append = false)
     {
-        if (DataBaseService.LoadPhotosByShard(channelId, query)
+        var skip = append ? Photos.Count : 0;
+        var take = query.PerPage;
+
+        if (DataBaseService.LoadPhotosByOffset(channelId, skip, take)
             is not { Count: > 0 } photos)
         {
             // invoke fetch wallpaper
@@ -278,7 +281,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
             Photos = [..photos];
         }
 
-        if (photos.Count < PageSize)
+        if (photos.Count < PageSize / 2)
         {
             EventBus.PublishPoolLow(channelId);
         }
@@ -327,7 +330,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
             FastCacheManager.Set(CachedWallpaperPreviewShard, SelectedChannel!.Id, 1);
             SelectedChannel = item;
             Photos.Clear();
-            LoadPhotos(item.Id, DefaultQuery);
+            PreviewPhotos(item.Id, DefaultQuery);
         }
         catch (Exception e)
         {
@@ -376,20 +379,28 @@ public class ChannelsViewModel : INotifyPropertyChanged
     /// Wallpaper view board scroll update.
     /// </summary>
     /// <param name="channel">UnsplashChannel</param>
-    private async void OnLoadMorePhotos(UnsplashChannel channel)
+    private void OnLoadMorePhotos(UnsplashChannel channel)
     {
         try
         {
             if (IsBusy) return;
             IsBusy = true;
-            if (!FastCacheManager.TryGet(CachedWallpaperPreviewShard, channel.Id, out int previewShard)) return;
+            if (!FastCacheManager.TryGet(CachedWallpaperPreviewShard, channel.Id, out int previewShard)) 
+            {
+                IsBusy = false;
+                return;
+            }
 
 
             if (channel.AllPhotosLoaded)
             {
                 // all photos loaded to LiteDB
                 // Expert to access more photos, that's not possible
-                if (previewShard * PageSize > DataBaseService.LoadedPhotoCount(channel.Id)) return;
+                if (Photos.Count >= DataBaseService.LoadedPhotoCount(channel.Id))
+                {
+                    IsBusy = false;
+                    return;
+                }
             }
 
             UnsplashQueryParams query = new()
@@ -399,8 +410,8 @@ public class ChannelsViewModel : INotifyPropertyChanged
                 Orientation = Properties.Settings.Default.WallpaperOrientation
             };
 
-            Logger.Information(@"Loading more photos of channel {0},  shard {1}", channel.Id, query.Page);
-            if (LoadPhotos(channel.Id, query, true))
+            Logger.Information(@"Loading more photos of channel {0},  UI virtual shard {1}", channel.Id, query.Page);
+            if (PreviewPhotos(channel.Id, query, true))
             {
                 // Update previewShard
                 FastCacheManager.Set(CachedWallpaperPreviewShard, channel.Id, previewShard);
@@ -412,6 +423,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
         {
             // ignore
             Logger.Error(e, "Load more photos error");
+            IsBusy = false;
         }
     }
 
@@ -432,8 +444,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
             PerPage = shard * PageSize,
             Orientation = Properties.Settings.Default.WallpaperOrientation
         };
-        // TODO 重做reload逻辑
-        // await LoadPhotosShardFromWeb(channel.Id, query);
+        await IHttpClient.GetUnsplashHttpService().GetPhotosOfChannel(channel.Id, query);
         Logger.Information(@"Refreshed photos for channel {ChannelId}", channel.Id);
     }
 
@@ -444,10 +455,9 @@ public class ChannelsViewModel : INotifyPropertyChanged
     {
         foreach (var channel in Channels)
         {
-            DataBaseService.RemoveChannelPhotos(channel.Id);
+            // DataBaseService.RemoveChannelPhotos(channel.Id);
             DefaultQuery.Orientation = Properties.Settings.Default.WallpaperOrientation;
-            // TODO: redo
-            // await LoadPhotosShardFromWeb(channel.Id, DefaultQuery);
+            EventBus.PublishPoolLow(channel.Id);
 
             // reset channel sequence
             channel.Sequence = 1;
@@ -458,8 +468,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
             if (channel.Id != SelectedChannel!.Id) continue;
             // Set photos
             // Some channels may not contain photos in specify orientation
-            var nps = DataBaseService.LoadPhotosByShard(channel.Id, DefaultQuery);
-            Photos = [..nps];
+            PreviewPhotos(channel.Id, DefaultQuery);
         }
     }
 

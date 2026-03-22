@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using System.Timers;
 using System.Windows.Forms;
 using Irvuewin.Helpers.DB;
@@ -171,7 +171,7 @@ public static class IrvuewinCore
         {
             for (var i = sequence; i < wallpaperCount + sequence; i++)
             {
-                var (s, p) =  GetSequenceWallpaper(channelId, i);
+                var (s, p) = await GetSequenceWallpaper(channelId, i);
                 if (p != null) photos.Add(p);
                 newSeq = s;
             }
@@ -268,23 +268,13 @@ public static class IrvuewinCore
     /// <param name="channelId">unsplash channelId</param>
     /// <param name="sequence">current wallpaper sequence</param>
     /// <returns>sequence and wallpaper tuple</returns>
-    private static (int, UnsplashPhoto?) GetSequenceWallpaper(string channelId, int sequence)
+    private static async Task<(int, UnsplashPhoto?)> GetSequenceWallpaper(string channelId, int sequence)
     {
         Logger.Information(@"wallpaper seq {0} from channel {1}", sequence, channelId);
 
         var channel = DataBaseService.GetChannel(channelId)!;
         var totalLoaded = DataBaseService.LoadedPhotosCountExcluded(channelId);
-        // sequence should not bigger than photos size
-        /*var mod = sequence % PageSize;
-        var shard = mod ==0 ? sequence / PageSize : sequence / PageSize + 1;
-        var index = mod == 0 ? PageSize : mod;
-        var qp = new UnsplashQueryParams()
-        {
-            Page = shard,
-            PerPage = PageSize,
-            Orientation = Properties.Settings.Default.WallpaperOrientation
-        };*/
-        // var plist =  DataBaseService.LoadPhotosByShard(channelId, qp);
+        
         if (sequence <= totalLoaded)
         {
             var photo = DataBaseService.GetPhotoBySequence(channelId, sequence)!;
@@ -292,21 +282,39 @@ public static class IrvuewinCore
         }
 
         // One extreme condition: all photos already loaded, and sequence
-        // is equal to photos count.
-        // On this condition, we need to reset sequence.
+        // is equal to (or exceeds) photos count.
+        // On this condition, we need to reset sequence completely to maintain the loop without getting stuck.
         if (channel.AllPhotosLoaded)
         {
             sequence = 1;
-            // index = 1;
+            var loopedPhoto = DataBaseService.GetPhotoBySequence(channelId, sequence);
+            return (sequence + 1, loopedPhoto);
         }
         else
         {
-            // preload 
-            EventBus.PublishPoolLow(channelId);
-        }
+            // Instead of firing an asynchronous UI event that returns early, we explicitly ask the manager
+            // to fetch another page from Unsplash and block until it completes.
+            var success = await WallpaperPoolManager.Instance.FetchWallpapersAsync(channelId);
 
-        var p = DataBaseService.GetPhotoBySequence(channelId, sequence);
-        return (sequence + 1, p);
+            if (success)
+            {
+                // Re-evaluate if we now have enough valid photos to satisfy the sequence.
+                totalLoaded = DataBaseService.LoadedPhotosCountExcluded(channelId);
+                if (sequence <= totalLoaded)
+                {
+                    var fetchedPhoto = DataBaseService.GetPhotoBySequence(channelId, sequence);
+                    return (sequence + 1, fetchedPhoto);
+                }
+            }
+
+            // 1) The network request failed or is already fetching.
+            // 2) Or the API returned photos but the filters rejected ALL of them
+            // In either case, we fall back to sequence 1 temporarily so the auto-change scheduler successfully changes the wallpaper
+            // instead of aborting and leaving the user with a frozen sequence.
+            sequence = 1;
+            var fallbackPhoto = DataBaseService.GetPhotoBySequence(channelId, sequence);
+            return (sequence + 1, fallbackPhoto);
+        }
     }
 
     /// <summary>

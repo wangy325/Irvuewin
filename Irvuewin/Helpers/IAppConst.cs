@@ -49,7 +49,7 @@ public interface IAppConst
     const string DbFiltersCollection = "filter";
     
     // body keywords
-    static readonly string[] PhotoFilterWords = ["woman", "women", "man", "men", "people", "boy", "girl", "baby"];
+    static readonly string[] PhotoFilterWords = ["woman", "women", "man", "men", "people", "boy", "girl", "baby", "person"];
     
     // watermark 
     const int PhotoPoolWaterMark = 20;

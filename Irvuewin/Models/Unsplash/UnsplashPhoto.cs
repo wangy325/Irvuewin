@@ -49,7 +49,7 @@ namespace Irvuewin.Models.Unsplash
         [JsonProperty("exif")] public Exif Exif { get; set; }
     }
 
-    public partial class Urls
+    public class Urls
     {
         [JsonProperty("small")] public Uri Small { get; set; }
 
@@ -64,7 +64,7 @@ namespace Irvuewin.Models.Unsplash
         [JsonProperty("full")] public Uri Full { get; set; }
     }
 
-    public partial class Exif
+    public class Exif
     {
         [JsonProperty("exposure_time")] public string ExposureTime { get; set; }
 
@@ -92,7 +92,7 @@ namespace Irvuewin.Models.Unsplash
         [JsonProperty("html")] public Uri Html { get; set; }
     }
 
-    public partial class Location
+    public class Location
     {
         [JsonProperty("country")] public string Country { get; set; }
 
@@ -103,14 +103,14 @@ namespace Irvuewin.Models.Unsplash
         [JsonProperty("position")] public Position Position { get; set; }
     }
 
-    public partial class Position
+    public class Position
     {
         [JsonProperty("latitude")] public double Latitude { get; set; }
 
         [JsonProperty("longitude")] public double Longitude { get; set; }
     }
 
-    public partial class Tag
+    public class Tag
     {
         [JsonProperty("type")] public string Type { get; set; }
 
@@ -133,7 +133,7 @@ namespace Irvuewin.Models.Unsplash
         [JsonIgnore] public bool IsTooSmall { get; set; }
         [JsonIgnore] public bool IsPortrait { get; set; }
         [JsonIgnore] public bool IsHidden { get; set; }
-        
+        [JsonIgnore] public bool IsVertical => Width < Height;
         [JsonIgnore] public bool IsFiltered => IsBlocked || IsTooSmall || IsPortrait || IsHidden;
 
         // Used exclusively by LiteDB for querying photos by channel.

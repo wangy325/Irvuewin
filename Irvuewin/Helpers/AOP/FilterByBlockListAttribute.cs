@@ -29,6 +29,6 @@ public class BlockListAspect
         foreach (var photo in photos.Where(photo => blockedUsers.Contains(photo.User.Username)))
             photo.IsBlocked = true;
 
-        Logger.Information("Blocklist filter...");
+        // Logger.Information("Blocklist filter...");
     }
 }

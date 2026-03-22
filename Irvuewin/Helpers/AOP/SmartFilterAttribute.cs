@@ -30,6 +30,6 @@ public class SmartFilterAspect
             photo.IsPortrait = true;
         }
 
-        Logger.Information("Smart filter...");
+        // Logger.Information("Smart filter...");
     }
 }
