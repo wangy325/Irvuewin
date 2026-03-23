@@ -8,7 +8,7 @@ public class UnsplashQueryParams
 
     public int PerPage { get; init; } = 10;
 
-    // 0-all 1-landscape 2-portrait 3-squarish
+    // 0-landscape 1-portrait 2-both
     public byte? Orientation { get; set; } = Properties.Settings.Default.WallpaperOrientation;
 
     public string ToQueryString()

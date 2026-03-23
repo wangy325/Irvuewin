@@ -113,7 +113,8 @@ public class WallpaperPoolManager
         foreach (var channel in channels)
         {
             var maxAttempts = 5; 
-            while (DataBaseService.LoadedPhotosCountExcluded(channel.Id) < PhotoPoolWaterMark && maxAttempts > 0)
+            var orient = Properties.Settings.Default.WallpaperOrientation;
+            while (DataBaseService.LoadedPhotosCountExcluded(channel.Id, orient) < PhotoPoolWaterMark && maxAttempts > 0)
             {
                 var currentChannel = DataBaseService.GetChannel(channel.Id);
                 if (currentChannel == null || currentChannel.AllPhotosLoaded) break;

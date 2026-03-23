@@ -102,7 +102,12 @@ public class ChannelsViewModel : INotifyPropertyChanged
 
     // private int ShardIndex { get; set; } = 1;
     private bool IsBusy { get; set; }
-    private UnsplashQueryParams DefaultQuery { get; set; }
+    private UnsplashQueryParams DefaultQuery => new()
+    {
+        Page = 1,
+        PerPage = PageSize,
+        Orientation = Properties.Settings.Default.WallpaperOrientation
+    };
 
     public ICommand ChannelSelected2 { get; }
     public ICommand ChannelChecked2 { get; }
@@ -126,12 +131,6 @@ public class ChannelsViewModel : INotifyPropertyChanged
 
     private ChannelsViewModel()
     {
-        DefaultQuery = new UnsplashQueryParams
-        {
-            Page = 1,
-            PerPage = PageSize,
-            Orientation = Properties.Settings.Default.WallpaperOrientation
-        };
         LoadMorePhotos = new RelayCommand<UnsplashChannel>(OnLoadMorePhotos);
         ChannelSelected2 = new RelayCommand<ChannelViewModel>(OnChannelSelected);
         ChannelChecked2 = new RelayCommand<ChannelViewModel>(OnChannelChecked);
@@ -143,6 +142,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
         HideAuthorCommand = new RelayCommand<UnsplashPhoto>(OnHideAuthor);
         // binding EventBus
         EventBus.WallpapersReplenished += OnWallpaperReplenished;
+        EventBus.ChannelSyncCompleted += OnChannelSyncCompleted;
     }
 
     public static Task<ChannelsViewModel> GetInstanceAsync()
@@ -269,7 +269,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
         var dbChannel = DataBaseService.GetChannel(channelId);
         var isAllLoaded = dbChannel?.AllPhotosLoaded ?? false;
 
-        if (DataBaseService.LoadPhotosByOffset(channelId, skip, take)
+        if (DataBaseService.LoadPhotosByOffset(channelId, skip, take, query.Orientation)
             is not { Count: > 0 } photos)
         {
             // 如果本地数据没读到，且网络端还没到底，再去请求拉取壁纸
@@ -413,7 +413,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
             {
                 // all photos loaded to LiteDB
                 // Expert to access more photos, that's not possible
-                if (Photos.Count >= DataBaseService.LoadedPhotoCount(channel.Id))
+                if (Photos.Count >= DataBaseService.LoadedPhotoCount(channel.Id, Properties.Settings.Default.WallpaperOrientation))
                 {
                     IsBusy = false;
                     return;
@@ -449,20 +449,12 @@ public class ChannelsViewModel : INotifyPropertyChanged
     /// Triggered when user change wallpaper filter rules. 
     /// </summary>
     /// <param name="channel"></param>
-    public async Task RefreshPhotos(UnsplashChannel channel)
+    public Task RefreshPhotos(UnsplashChannel channel)
     {
-        // 劣势: 如果sequence已经很大的情况下,
-        // 如果不重置sequence，刷新所有图片的话,
-        // 性能会下降
-        var shard = channel.Shard;
-        UnsplashQueryParams query = new()
-        {
-            Page = 1,
-            PerPage = shard * PageSize,
-            Orientation = Properties.Settings.Default.WallpaperOrientation
-        };
-        await IHttpClient.GetUnsplashHttpService().GetPhotosOfChannel(channel.Id, query);
-        Logger.Information(@"Refreshed photos for channel {ChannelId}", channel.Id);
+        IsBusy = true;
+        EventBus.PublishForceSync(channel.Id);
+        Logger.Information(@"Dispatched force sync for channel {ChannelId}", channel.Id);
+        return Task.CompletedTask;
     }
 
     /// <summary>
@@ -473,7 +465,6 @@ public class ChannelsViewModel : INotifyPropertyChanged
         foreach (var channel in Channels)
         {
             // DataBaseService.RemoveChannelPhotos(channel.Id);
-            DefaultQuery.Orientation = Properties.Settings.Default.WallpaperOrientation;
             EventBus.PublishPoolLow(channel.Id);
 
             // reset channel sequence
@@ -654,6 +645,19 @@ public class ChannelsViewModel : INotifyPropertyChanged
             {
                 // TODO 合理？
                 OnLoadMorePhotos(SelectedChannel);
+            }
+        });
+    }
+
+    private void OnChannelSyncCompleted(string channelId)
+    {
+        System.Windows.Application.Current.Dispatcher.Invoke(() =>
+        {
+            if (SelectedChannel != null && SelectedChannel.Id == channelId)
+            {
+                IsBusy = false;
+                Photos.Clear();
+                PreviewPhotos(channelId, DefaultQuery);
             }
         });
     }

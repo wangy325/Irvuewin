@@ -253,20 +253,36 @@ namespace Irvuewin.Helpers.DB
             }
         }
 
-        public static List<UnsplashPhoto> GetPhotos(string channelId, int page, int pageSize)
+        public static List<UnsplashPhoto> GetPhotos(string channelId, int page, int pageSize, byte? orientation = null)
         {
-            return GetPhotosByOffset(channelId, (page - 1) * pageSize, pageSize);
+            return GetPhotosByOffset(channelId, (page - 1) * pageSize, pageSize, orientation);
         }
 
-        public static List<UnsplashPhoto> GetPhotosByOffset(string channelId, int skipCount, int takeCount)
+        public static List<UnsplashPhoto> GetPhotosByOffset(string channelId, int skipCount, int takeCount, byte? orientation = null)
         {
             try
             {
                 using var db = new LiteDatabase(DbPath);
                 var photos = db.GetCollection<UnsplashPhoto>(DbPhotoCollection);
 
-                return photos.Query()
-                    .Where(x => x.IsFiltered == false && x.ChannelIds.Contains(channelId))
+                var query = photos.Query()
+                    .Where(x => x.IsFiltered == false && x.ChannelIds.Contains(channelId));
+
+                if (orientation.HasValue)
+                {
+                    query = orientation.Value switch
+                    {
+                        // landscape
+                        0 => query.Where(x => x.Width > x.Height),
+                        // portrait
+                        1 => query.Where(x => x.Height > x.Width),
+                        // squarish
+                        // 2 => query.Where(x => x.Width == x.Height),
+                        _ => query
+                    };
+                }
+
+                return query
                     .OrderBy(x => x.LocalSortIndex)
                     .Skip(skipCount)
                     .Limit(takeCount)
@@ -306,7 +322,7 @@ namespace Irvuewin.Helpers.DB
         /// <param name="channelId"></param>
         /// <param name="exclude">exclude filtered photos</param>
         /// <returns></returns>
-        public static int CountPhotos(string channelId, bool exclude = false)
+        public static int CountPhotos(string channelId, bool exclude = false, byte? orientation = null)
         {
             try
             {
@@ -317,6 +333,23 @@ namespace Irvuewin.Helpers.DB
                 query = exclude
                     ? query.Where(x => x.IsFiltered == false && x.ChannelIds.Contains(channelId))
                     : query.Where(x => x.ChannelIds.Contains(channelId));
+
+                if (orientation.HasValue)
+                {
+                    if (orientation.Value == 1) // landscape
+                    {
+                        query = query.Where(x => x.Width > x.Height);
+                    }
+                    else if (orientation.Value == 2) // portrait
+                    {
+                        query = query.Where(x => x.Height > x.Width);
+                    }
+                    else if (orientation.Value == 3) // squarish
+                    {
+                        query = query.Where(x => x.Width == x.Height);
+                    }
+                }
+
                 return query.Count();
             }
             catch (Exception ex)

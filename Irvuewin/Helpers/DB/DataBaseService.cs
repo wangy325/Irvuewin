@@ -78,7 +78,7 @@ public class DataBaseService
     {
         try
         {
-            return DatabaseManager.GetPhotos(cid, index.Page, index.PerPage);
+            return DatabaseManager.GetPhotos(cid, index.Page, index.PerPage, index.Orientation);
         }
         catch (Exception e)
         {
@@ -87,11 +87,11 @@ public class DataBaseService
         }
     }
 
-    public static List<UnsplashPhoto> LoadPhotosByOffset(string cid, int skip, int take)
+    public static List<UnsplashPhoto> LoadPhotosByOffset(string cid, int skip, int take, byte? orientation = null)
     {
         try
         {
-            return DatabaseManager.GetPhotosByOffset(cid, skip, take);
+            return DatabaseManager.GetPhotosByOffset(cid, skip, take, orientation);
         }
         catch (Exception e)
         {
@@ -118,14 +118,14 @@ public class DataBaseService
     /// </summary>
     /// <param name="channelId">channelID</param>
     /// <returns>Cached photo count.</returns>
-    public static int LoadedPhotoCount(string channelId)
+    public static int LoadedPhotoCount(string channelId, byte? orientation = null)
     {
-        return DatabaseManager.CountPhotos(channelId);
+        return DatabaseManager.CountPhotos(channelId, false, orientation);
     }
 
-    public static int LoadedPhotosCountExcluded(string channelId)
+    public static int LoadedPhotosCountExcluded(string channelId, byte? orientation = null)
     {
-        return DatabaseManager.CountPhotos(channelId, true);
+        return DatabaseManager.CountPhotos(channelId, true, orientation);
     }
 
     /// <summary>

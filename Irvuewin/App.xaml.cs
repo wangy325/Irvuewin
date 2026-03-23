@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -76,8 +76,9 @@ namespace Irvuewin
             _channelsViewModel = Task.Run(ChannelsViewModel.GetInstanceAsync).Result;
             Resources.Add("ChannelsViewModel", _channelsViewModel);
             
-            // Init Wallpaper pool
+            // Init Wallpaper pool and Sync Worker
             WallpaperPoolManager.Initialize(IHttpClient.GetUnsplashHttpService());
+            UnsplashSyncWorker.Initialize(IHttpClient.GetUnsplashHttpService());
 
             //  Create a copy of Channels in TrayViewModel
             var trayViewModel = Current.Resources["TrayViewModel"] as TrayViewModel;

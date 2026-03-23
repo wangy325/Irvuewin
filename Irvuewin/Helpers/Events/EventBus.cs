@@ -1,4 +1,4 @@
-﻿using Serilog;
+using Serilog;
 
 namespace Irvuewin.Helpers.Events;
 
@@ -35,5 +35,21 @@ public static class EventBus
     {
         Logger.Information("Publishing wallpapers replenished event");
         WallpapersReplenished?.Invoke();
+    }
+
+    // Sync Worker events
+    public static event Action<string>? ForceSyncRequested; // Request background worker to sync channel
+    public static event Action<string>? ChannelSyncCompleted; // Background worker finished syncing channel
+
+    public static void PublishForceSync(string channelId)
+    {
+        Logger.Information("Publishing force sync event for channel {channelId}", channelId);
+        ForceSyncRequested?.Invoke(channelId);
+    }
+
+    public static void PublishChannelSyncCompleted(string channelId)
+    {
+        Logger.Information("Publishing channel sync completed event for channel {channelId}", channelId);
+        ChannelSyncCompleted?.Invoke(channelId);
     }
 }
