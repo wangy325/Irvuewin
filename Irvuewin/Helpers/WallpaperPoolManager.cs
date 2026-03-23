@@ -61,7 +61,7 @@ public class WallpaperPoolManager
 
             var query = new UnsplashQueryParams()
             {
-                Page = ++channel.Shard,
+                Page = channel.Shard,
                 PerPage = PageSize,
                 Orientation = Properties.Settings.Default.WallpaperOrientation
             };
@@ -83,6 +83,7 @@ public class WallpaperPoolManager
             }
             else
             {
+                channel.Shard++; // 只有真正获取到了数据才递增分片翻页
                 await DataBaseService.CachePhotos(channelId, photos);
             }
 
@@ -111,13 +112,16 @@ public class WallpaperPoolManager
         if (channels is not { Count: > 0 }) return;
         foreach (var channel in channels)
         {
-            while (DataBaseService.LoadedPhotosCountExcluded(channel.Id) < PhotoPoolWaterMark)
+            var maxAttempts = 5; 
+            while (DataBaseService.LoadedPhotosCountExcluded(channel.Id) < PhotoPoolWaterMark && maxAttempts > 0)
             {
                 var currentChannel = DataBaseService.GetChannel(channel.Id);
                 if (currentChannel == null || currentChannel.AllPhotosLoaded) break;
 
                 var success = await FetchMoreWallpapersInternalAsync(channel.Id);
                 if (!success) break;
+
+                maxAttempts--;
             }
         }
         Logger.Information("Water marker Check.");

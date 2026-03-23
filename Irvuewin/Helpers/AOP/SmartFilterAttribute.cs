@@ -1,4 +1,4 @@
-﻿using AspectInjector.Broker;
+using AspectInjector.Broker;
 using Irvuewin.Models.Unsplash;
 using Serilog;
 using static Irvuewin.Helpers.IAppConst;
@@ -23,11 +23,15 @@ public class SmartFilterAspect
         if (photos == null || photos.Count == 0) return;
         var smartFilter = Properties.Settings.Default.SmartFilter;
         if (smartFilter == 0) return;
-        foreach (var photo in photos.Where(photo =>
-                     PhotoFilterWords.Any(k =>
-                         photo.Slug.Contains(k, StringComparison.CurrentCultureIgnoreCase))))
+        foreach (var photo in photos)
         {
-            photo.IsPortrait = true;
+            if (string.IsNullOrWhiteSpace(photo.Slug)) continue;
+
+            var slugWords = photo.Slug.Split('-');
+            if (PhotoFilterWords.Any(k => slugWords.Contains(k, StringComparer.OrdinalIgnoreCase)))
+            {
+                photo.IsPortrait = true;
+            }
         }
 
         // Logger.Information("Smart filter...");

@@ -4,6 +4,7 @@ using System.Windows.Input;
 using Irvuewin.Helpers;
 using System.Collections.ObjectModel;
 using System.Linq;
+using Irvuewin.Helpers.DB;
 
 namespace Irvuewin.ViewModels;
 
@@ -74,6 +75,15 @@ public class SettingsViewModel : INotifyPropertyChanged
         AsyncRefreshWallpaperCommand = new AsyncRelayCommand(OnOrientationChanged);
         RemoveFilteredUserCommand = new RelayCommand<string>(OnRemoveFilteredUser);
         LoadFilteredUsers();
+
+        Properties.Settings.Default.PropertyChanged += (s, e) =>
+        {
+            if (e.PropertyName == nameof(Properties.Settings.Default.UserFilterList))
+            {
+                // Ensure UI updates on the main thread if needed
+                System.Windows.Application.Current.Dispatcher.Invoke(LoadFilteredUsers);
+            }
+        };
     }
 
     public bool OpenSavedWallpaper
@@ -262,6 +272,7 @@ public class SettingsViewModel : INotifyPropertyChanged
         Properties.Settings.Default.UserFilterList = string.Join(",", FilteredUsers);
         Properties.Settings.Default.Save();
 
+        await Task.Run(() => DataBaseService.UnblockAuthor(username));
         await ChannelsViewModel.GetInstance().RefreshPhotos();
     }
 

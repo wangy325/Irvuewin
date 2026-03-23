@@ -191,6 +191,10 @@ public class ChannelsViewModel : INotifyPropertyChanged
             channelViewModels.AddRange(
                 cachedChannels.Select(item => MapperProvider.Mapper.Map<ChannelViewModel>(item)));
             Channels = [..channelViewModels];
+            foreach (var channel in Channels)
+            {
+                FastCacheManager.Set(CachedWallpaperPreviewShard, channel.Id, 1);
+            }
         }
         else
         {
@@ -261,11 +265,18 @@ public class ChannelsViewModel : INotifyPropertyChanged
         var skip = append ? Photos.Count : 0;
         var take = query.PerPage;
 
+        // 获取频道最新状态，判断网络端是否已经全部拉取完毕
+        var dbChannel = DataBaseService.GetChannel(channelId);
+        var isAllLoaded = dbChannel?.AllPhotosLoaded ?? false;
+
         if (DataBaseService.LoadPhotosByOffset(channelId, skip, take)
             is not { Count: > 0 } photos)
         {
-            // invoke fetch wallpaper
-            EventBus.PublishPoolLow(channelId);
+            // 如果本地数据没读到，且网络端还没到底，再去请求拉取壁纸
+            if (!isAllLoaded)
+            {
+                EventBus.PublishPoolLow(channelId);
+            }
             return false;
         }
 
@@ -281,7 +292,8 @@ public class ChannelsViewModel : INotifyPropertyChanged
             Photos = [..photos];
         }
 
-        if (photos.Count < PageSize / 2)
+        // 如果本次加载的数量偏少，试图去预加载，但前提是网络端还有剩余数据
+        if (photos.Count < PageSize / 2 && !isAllLoaded)
         {
             EventBus.PublishPoolLow(channelId);
         }
@@ -327,7 +339,12 @@ public class ChannelsViewModel : INotifyPropertyChanged
         try
         {
             // reset previewShard
-            FastCacheManager.Set(CachedWallpaperPreviewShard, SelectedChannel!.Id, 1);
+            if (SelectedChannel != null)
+            {
+                FastCacheManager.Set(CachedWallpaperPreviewShard, SelectedChannel.Id, 1);
+            }
+
+            FastCacheManager.Set(CachedWallpaperPreviewShard, item.Id, 1);
             SelectedChannel = item;
             Photos.Clear();
             PreviewPhotos(item.Id, DefaultQuery);
@@ -391,8 +408,8 @@ public class ChannelsViewModel : INotifyPropertyChanged
                 return;
             }
 
-
-            if (channel.AllPhotosLoaded)
+            var dbChannel = DataBaseService.GetChannel(channel.Id);
+            if (dbChannel != null && dbChannel.AllPhotosLoaded)
             {
                 // all photos loaded to LiteDB
                 // Expert to access more photos, that's not possible
@@ -405,7 +422,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
 
             UnsplashQueryParams query = new()
             {
-                Page = ++previewShard,
+                Page = previewShard++,
                 PerPage = PageSize,
                 Orientation = Properties.Settings.Default.WallpaperOrientation
             };
@@ -461,6 +478,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
 
             // reset channel sequence
             channel.Sequence = 1;
+            channel.Shard = 1; // 重置壁纸池的分片页码为首页
             channel.AllPhotosLoaded = false;
             await DataBaseService.UpdateChannel(channel);
             FastCacheManager.Set(CachedWallpaperPreviewShard, channel.Id, 1);
@@ -580,13 +598,14 @@ public class ChannelsViewModel : INotifyPropertyChanged
     }
 
 
-    private static void OnHidePhoto(UnsplashPhoto photo)
+    private void OnHidePhoto(UnsplashPhoto photo)
     {
         photo.IsHidden = true;
         DataBaseService.UpdatePhoto(photo);
+        Photos.Remove(photo);
     }
 
-    private static async void OnHideAuthor(UnsplashPhoto photo)
+    private async void OnHideAuthor(UnsplashPhoto photo)
     {
         try
         {
@@ -596,13 +615,23 @@ public class ChannelsViewModel : INotifyPropertyChanged
             var currentList = Properties.Settings.Default.UserFilterList ?? "";
             var users = currentList.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList();
 
-            if (users.Contains(username)) return;
-            users.Add(username);
-            Properties.Settings.Default.UserFilterList = string.Join(",", users);
-            Properties.Settings.Default.Save();
-            Logger.Information(@"Added author {0} to filter list.", username);
+            if (!users.Contains(username))
+            {
+                users.Add(username);
+                Properties.Settings.Default.UserFilterList = string.Join(",", users);
+                Properties.Settings.Default.Save();
+                Logger.Information(@"Added author {0} to filter list.", username);
+            }
 
-            await (await GetInstanceAsync()).RefreshPhotos();
+            // Sync Database
+            await Task.Run(() => DataBaseService.BlockAuthor(username));
+
+            // Sync UI without full refresh
+            var toRemove = Photos.Where(p => p.User.Username == username).ToList();
+            foreach (var p in toRemove)
+            {
+                Photos.Remove(p);
+            }
         }
         catch (Exception e)
         {

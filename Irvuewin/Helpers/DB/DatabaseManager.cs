@@ -153,6 +153,44 @@ namespace Irvuewin.Helpers.DB
             }
         }
 
+        public static void BlockAuthor(string username)
+        {
+            try
+            {
+                using var db = new LiteDatabase(DbPath);
+                var photos = db.GetCollection<UnsplashPhoto>(DbPhotoCollection);
+                var userPhotos = photos.Find(x => x.User.Username == username).ToList();
+                foreach (var p in userPhotos)
+                {
+                    p.IsBlocked = true;
+                }
+                photos.Update(userPhotos);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex, "Failed to block author in LiteDB");
+            }
+        }
+
+        public static void UnblockAuthor(string username)
+        {
+            try
+            {
+                using var db = new LiteDatabase(DbPath);
+                var photos = db.GetCollection<UnsplashPhoto>(DbPhotoCollection);
+                var userPhotos = photos.Find(x => x.User.Username == username).ToList();
+                foreach (var p in userPhotos)
+                {
+                    p.IsBlocked = false;
+                }
+                photos.Update(userPhotos);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex, "Failed to unblock author in LiteDB");
+            }
+        }
+
         [FilterByBlockList]
         [SmartFilter]
         [FilterBySize]

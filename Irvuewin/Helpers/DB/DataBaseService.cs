@@ -155,6 +155,16 @@ public class DataBaseService
         Task.Run(() => DatabaseManager.UpsertPhoto(photo));
     }
 
+    public static void BlockAuthor(string username)
+    {
+        Task.Run(() => DatabaseManager.BlockAuthor(username));
+    }
+
+    public static void UnblockAuthor(string username)
+    {
+        Task.Run(() => DatabaseManager.UnblockAuthor(username));
+    }
+
     /// <summary>
     /// Delete channel and it's photos
     /// </summary>
