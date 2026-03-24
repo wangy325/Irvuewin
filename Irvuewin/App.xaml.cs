@@ -11,6 +11,7 @@ using Irvuewin.Models.Unsplash;
 using Irvuewin.ViewModels;
 using System.Windows.Interop;
 using System.Windows.Media;
+using Irvuewin.Helpers.HTTP;
 using Irvuewin.Helpers.Logging;
 using Irvuewin.Views;
 using Serilog;

@@ -1,5 +1,6 @@
 using Irvuewin.Helpers.DB;
 using Irvuewin.Helpers.Events;
+using Irvuewin.Helpers.HTTP;
 using Irvuewin.Models.Unsplash;
 using Serilog;
 

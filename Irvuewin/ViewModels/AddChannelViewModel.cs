@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using Irvuewin.Helpers;
+using Irvuewin.Helpers.HTTP;
 using Irvuewin.Models.Unsplash;
 
 namespace Irvuewin.ViewModels;
@@ -79,7 +80,7 @@ public class AddChannelViewModel : INotifyPropertyChanged
 
     private static void OnUrlOpenButtonClick(object? obj)
     {
-        ICommonCommands.OpenUrl($"https://unsplash.com/{IAppConst.Collections}");
+        ICommonCommands.OpenUrl($"https://unsplash.com/{IAppConst.Collections}/{IAppConst.Attribution}");
     }
 
 

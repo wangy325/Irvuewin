@@ -3,6 +3,7 @@ using System.Timers;
 using System.Windows.Forms;
 using Irvuewin.Helpers.DB;
 using Irvuewin.Helpers.Events;
+using Irvuewin.Helpers.HTTP;
 using Irvuewin.Helpers.Utils;
 using Irvuewin.Models.Unsplash;
 using Irvuewin.ViewModels;

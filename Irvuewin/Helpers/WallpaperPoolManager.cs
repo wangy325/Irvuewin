@@ -1,5 +1,6 @@
 using Irvuewin.Helpers.DB;
 using Irvuewin.Helpers.Events;
+using Irvuewin.Helpers.HTTP;
 using Irvuewin.Models.Unsplash;
 using Serilog;
 using static Irvuewin.Helpers.IAppConst;
@@ -108,7 +109,6 @@ public class WallpaperPoolManager
         foreach (var channel in channels)
         {
             var maxAttempts = 5; 
-            var orient = Properties.Settings.Default.WallpaperOrientation;
             while (DataBaseService.LoadedPhotosCountExcluded(channel.Id) < PhotoPoolWaterMark && maxAttempts > 0)
             {
                 var currentChannel = DataBaseService.GetChannel(channel.Id);

@@ -1,13 +1,15 @@
 ﻿using System.Net.Http;
 using System.Net.Http.Headers;
+using Irvuewin.Helpers.Events;
 using Irvuewin.Models.Unsplash;
 using Newtonsoft.Json;
 using Serilog;
 
 
-namespace Irvuewin.Helpers
+namespace Irvuewin.Helpers.HTTP
 {
     using static IAppConst;
+
     public interface IHttpClient
     {
         Task<HttpResponseMessage> GetAsync(string url);
@@ -37,8 +39,7 @@ namespace Irvuewin.Helpers
             return _httpClient.GetAsync(url);
         }
     }
-    
-    
+
 
     public class UnsplashHttpService
     {
@@ -49,10 +50,11 @@ namespace Irvuewin.Helpers
         public UnsplashHttpService(IHttpClient service)
         {
             _client = service;
-            Logger.Debug("UnsplashApi initialized.");
+            EventBus.TriggerWallpaperDownLoad += OnWallpaperDownloadCallback;
+            Logger.Information("UnsplashApi initialized.");
         }
 
-        public async Task<T?> GetAsync<T>(string endpoint, string? query = null)
+        private async Task<T?> GetAsync<T>(string endpoint, string? query = null, bool callback = false)
         {
             var url = $"{BaseApiUrl}/{endpoint}";
             if (!string.IsNullOrEmpty(query))
@@ -64,6 +66,7 @@ namespace Irvuewin.Helpers
             {
                 var response = await _client.GetAsync(url);
                 response.EnsureSuccessStatusCode();
+                if (callback) return default;
                 var content = await response.Content.ReadAsStringAsync();
                 // TODO  System.Exception: Cannot unmarshal type TypeEnum
                 return JsonConvert.DeserializeObject<T>(content, JsonHelper.Settings);
@@ -116,6 +119,7 @@ namespace Irvuewin.Helpers
             {
                 url += $"?{query.ToQueryString()}";
             }
+
             return await GetAsync<List<UnsplashPhoto>>(url);
         }
 
@@ -160,11 +164,19 @@ namespace Irvuewin.Helpers
             var url = $"{Search}/{Collections}?query={keywords}&{query.ToQueryString()}";
             return await GetAsync<UnsplashSearchResult>(url);
         }
-        
+
         // Trigger Download
-        public async Task<string?> TriggerDownload(string url)
+        private async void DownloadCallback(Uri rawPath)
         {
-            return await GetAsync<string>(url);
+            // https://api.unsplash.com/photos/_0MA2Kzgb5s/download?ixid=xx
+            // Logger.Information(@"Download callback path {0}, query {1} ", rawPath.AbsolutePath, rawPath.Query);
+            await GetAsync<object>(rawPath.AbsolutePath, rawPath.Query, true);
+        }
+
+        private void OnWallpaperDownloadCallback(Uri rawUrl)
+        {
+            Logger.Information("Handle wallpaper download callback.");
+            DownloadCallback(rawUrl);
         }
     }
 }

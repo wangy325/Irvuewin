@@ -52,4 +52,12 @@ public static class EventBus
         Logger.Information("Publishing channel sync completed event for channel {channelId}", channelId);
         ChannelSyncCompleted?.Invoke(channelId);
     }
+
+    public static event Action<Uri>? TriggerWallpaperDownLoad;
+
+    public static void PublishTriggerWallpaperDownLoad(Uri rawUrl)
+    {
+        Logger.Information("Publishing Download wallpaper event");
+        TriggerWallpaperDownLoad?.Invoke(rawUrl);
+    }
 }

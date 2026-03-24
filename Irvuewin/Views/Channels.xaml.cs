@@ -39,13 +39,6 @@ public partial class Channels
         try
         {
             _isInitialized = false;
-            // 更新频道数据缓存
-            if (DataContext is ChannelsViewModel viewModel)
-            {
-                // TODO Double check 
-                // FileCacheManager.CacheChannels([..viewModel.Channels]);
-            }
-
             Logger.Information(@"Window Closed.");
         }
         catch 

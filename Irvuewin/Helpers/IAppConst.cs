@@ -40,7 +40,7 @@ public interface IAppConst
     const string Collections = "collections";
     const string User = "users";
     const string Search = "search";
-    const string Attribute = "?utm_source=MagicPaper&utm_medium=referral";
+    const string Attribution = "?utm_source=MagicPaper&utm_medium=referral";
 
     // LiteDB
     const string DbPhotoCollection = "photos";

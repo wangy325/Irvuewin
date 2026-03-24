@@ -8,6 +8,7 @@ using Irvuewin.Helpers.Utils;
 using System.Diagnostics;
 using Irvuewin.Helpers.DB;
 using Irvuewin.Helpers.Events;
+using Irvuewin.Helpers.HTTP;
 using static Irvuewin.Helpers.IAppConst;
 using Exception = System.Exception;
 
@@ -303,11 +304,6 @@ public class ChannelsViewModel : INotifyPropertyChanged
             Channels.Where(c => c != item)
                 .ToList()
                 .ForEach(c => c.IsChecked = false);
-            // Once app startup at 1st time
-            // And user checked channel from tray menu
-            // Channel's photo is not cached
-            // We need to preload photos
-            // Task.Run(() => LoadPhotosShardFromWeb(item.Id, DefaultQuery));
 
             // Update selected index to settings
             Properties.Settings.Default.UserCheckedChannel = CheckedChannelId;
@@ -504,12 +500,16 @@ public class ChannelsViewModel : INotifyPropertyChanged
 
     private static void OnViewPhoto(UnsplashPhoto photo)
     {
+        var attrUrl = string.Concat(photo.Links.Html.ToString(), Attribution);
+        // Logger.Information("View wallpaper on unsplash: {0}", attrUrl);
         ICommonCommands.OpenUrl(photo.Links.Html.ToString());
     }
 
     private static void OnViewAuthor(UnsplashPhoto photo)
     {
-        ICommonCommands.OpenUrl(photo.User.Links.Html.ToString());
+        var attrUrl = string.Concat(photo.User.Links.Html.ToString(), Attribution);
+        // Logger.Information("View author: {0}", attrUrl);
+        ICommonCommands.OpenUrl(attrUrl);
     }
 
 
@@ -567,7 +567,6 @@ public class ChannelsViewModel : INotifyPropertyChanged
             // 如果用户还在看某个频道，利用现成的翻页逻辑，继续硬着头皮往下翻一页
             if (SelectedChannel != null)
             {
-                // TODO 合理？
                 OnLoadMorePhotos(SelectedChannel);
             }
         });
@@ -577,12 +576,10 @@ public class ChannelsViewModel : INotifyPropertyChanged
     {
         System.Windows.Application.Current.Dispatcher.Invoke(() =>
         {
-            if (SelectedChannel != null && SelectedChannel.Id == channelId)
-            {
-                IsBusy = false;
-                Photos.Clear();
-                PreviewPhotos(channelId, UnsplashQueryParams.Create());
-            }
+            if (SelectedChannel == null || SelectedChannel.Id != channelId) return;
+            IsBusy = false;
+            Photos.Clear();
+            PreviewPhotos(channelId, UnsplashQueryParams.Create());
         });
     }
 }

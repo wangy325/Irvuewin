@@ -1,6 +1,7 @@
 using System.IO;
 using System.Net.Http;
 using System.Runtime.InteropServices;
+using Irvuewin.Helpers.Events;
 using Irvuewin.Models.Unsplash;
 using Microsoft.Win32;
 using Serilog;
@@ -254,6 +255,8 @@ namespace Irvuewin.Helpers.Utils
                     await using var fileStream = File.Create(localImagePath);
                     await imageStream.CopyToAsync(fileStream);
                     path = localImagePath;
+                    // unsplash api callback
+                    EventBus.PublishTriggerWallpaperDownLoad(photo.Links.DownloadLocation);
                 }
                 catch (Exception ex)
                 {

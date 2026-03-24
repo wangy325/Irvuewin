@@ -1,6 +1,7 @@
 ﻿#pragma warning disable CS8618
 using Irvuewin.Models.Unsplash;
 using Irvuewin.Helpers;
+using Irvuewin.Helpers.HTTP;
 
 namespace Irvuewin.Tests.Models.Unsplash
 {

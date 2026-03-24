@@ -6,6 +6,7 @@ using System.Windows.Input;
 using Irvuewin.Helpers;
 using Irvuewin.Helpers.DB;
 using Irvuewin.Helpers.Events;
+using Irvuewin.Helpers.HTTP;
 using Irvuewin.Helpers.Utils;
 using Irvuewin.Views;
 using Serilog;
@@ -157,9 +158,9 @@ public class TrayViewModel : INotifyPropertyChanged
                 Likes = photo.Likes.ToString(),
                 Downloads = photo.Downloads.ToString(),
                 Location = photo.Location.Name,
-                ProfileLink = photo.Links.Html.OriginalString,
+                ProfileLink = string.Concat(photo.Links.Html.OriginalString, IAppConst.Attribution),
                 Author = photo.User.Name,
-                AuthorProfilePageLink = photo.User.Links.Html.OriginalString
+                AuthorProfilePageLink = string.Concat(photo.User.Links.Html.OriginalString, IAppConst.Attribution)
             };
             AboutWallpaper = wpi;
             // Cache wallpaper info.
