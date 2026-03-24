@@ -207,45 +207,6 @@ public class ChannelsViewModel : INotifyPropertyChanged
         }
     }
 
-    /*/// <summary>
-    /// Load channel photos from web API and save it to LiteDB.
-    /// </summary>
-    /// <param name="cid">channel id</param>
-    /// <param name="query"><see cref="UnsplashQueryParams"/></param>
-    /// <returns>True if succeeded</returns>
-    public async Task<bool> LoadPhotosShardFromWeb(string cid, UnsplashQueryParams query)
-    {
-        // web  -> LiteDB
-        // load new photos from web API
-        var channel = DataBaseService.GetChannel(cid)!;
-        if (channel.AllPhotosLoaded) return false;
-        var httpService = IHttpClient.GetUnsplashHttpService();
-        if (await httpService.GetPhotosOfChannel(cid, query) is not { } photos)
-        {
-            // API error
-            return false;
-        }
-
-        // Update channel's shard and load flag if necessary
-        if (photos.Count == 0)
-        {
-            // Sometimes api gets 0 photo from channel
-            // Though channel contains photo(s)
-            // We assume that all photos are loaded
-            channel.AllPhotosLoaded = true;
-            await DataBaseService.UpdateChannel(channel);
-            return false;
-        }
-
-        await DataBaseService.CachePhotos(cid, photos);
-        // Ignore refresh channel's shard update
-        if (query.PerPage != PageSize) return true;
-        channel.Shard = query.Page;
-        await DataBaseService.UpdateChannel(channel);
-
-        return true;
-    }*/
-
     /// <summary>
     /// Load channel wallpapers to wallpaper gallery.<br/>
     /// Ultimate goal of this method is to update <see cref="Photos"/> UI control.
@@ -294,32 +255,6 @@ public class ChannelsViewModel : INotifyPropertyChanged
 
         return true;
     }
-
-    /*/// <summary>
-    /// Handler of raw channel photos.
-    /// </summary>
-    /// <param name="channelId">channel id</param>
-    /// <param name="photos">raw photo list</param>
-    [FilterByBlockList]
-    [FilterBySize(MinWidth = 1920, MinHeight = 1080)]
-    private static void ChannelPhotosHandler(
-        string channelId,
-        List<UnsplashPhoto> photos)
-    {
-        var cachePhotos = SimplyPhotosQueue(photos);
-
-        if (!CacheManager.TryGet<List<UnsplashPhoto>?>
-                (CachedWallpapers, channelId, out var val)
-            || val is null)
-        {
-            CacheManager.Set(CachedWallpapers, channelId, cachePhotos);
-        }
-        else
-        {
-            val.AddRange(cachePhotos);
-            CacheManager.Set(CachedWallpapers, channelId, val);
-        }
-    }*/
 
     /// <summary>
     /// This means user select a new channel from left side listbox to preview its photos.
@@ -403,7 +338,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
             }
 
             var dbChannel = DataBaseService.GetChannel(channel.Id);
-            if (dbChannel != null && dbChannel.AllPhotosLoaded)
+            if (dbChannel is { AllPhotosLoaded: true })
             {
                 // all photos loaded to LiteDB
                 // Expert to access more photos, that's not possible

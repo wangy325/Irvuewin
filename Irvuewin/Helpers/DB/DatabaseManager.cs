@@ -238,26 +238,23 @@ namespace Irvuewin.Helpers.DB
             }
         }
 
-        public static List<UnsplashPhoto> GetPhotos(string channelId)
+        /// <summary>
+        /// universe wallpaper orientation filter 
+        /// </summary>
+        /// <param name="query"></param>
+        /// <returns></returns>
+        private static ILiteQueryable<UnsplashPhoto> ApplyOrientationFilter(ILiteQueryable<UnsplashPhoto> query)
         {
-            try
+            return Properties.Settings.Default.WallpaperOrientation switch
             {
-                using var db = new LiteDatabase(DbPath);
-                var photos = db.GetCollection<UnsplashPhoto>(DbPhotoCollection);
-
-                // LiteDB index optimized array matching
-                return photos.Find(x => x.ChannelIds.Contains(channelId)).ToList();
-            }
-            catch (Exception ex)
-            {
-                Logger.Error(ex, "Failed to load photos from LiteDB");
-                return [];
-            }
-        }
-
-        public static List<UnsplashPhoto> GetPhotos(string channelId, int page, int pageSize)
-        {
-            return GetPhotosByOffset(channelId, (page - 1) * pageSize, pageSize);
+                // landscape
+                0 => query.Where(x => x.IsVertical == false),
+                // portrait
+                1 => query.Where(x => x.IsVertical == true),
+                // squarish
+                // 2 => query.Where(x => x.Width == x.Height),
+                _ => query
+            };
         }
 
         public static List<UnsplashPhoto> GetPhotosByOffset(string channelId, int skipCount, int takeCount)
@@ -270,16 +267,7 @@ namespace Irvuewin.Helpers.DB
                 var query = photos.Query()
                     .Where(x => x.IsFiltered == false && x.ChannelIds.Contains(channelId));
 
-                query = Properties.Settings.Default.WallpaperOrientation switch
-                {
-                    // landscape
-                    0 => query.Where(x => x.IsVertical == false),
-                    // portrait
-                    1 => query.Where(x => x.IsVertical == true),
-                    // squarish
-                    // 2 => query.Where(x => x.Width == x.Height),
-                    _ => query
-                };
+                query = ApplyOrientationFilter(query);
 
 
                 return query
@@ -295,17 +283,21 @@ namespace Irvuewin.Helpers.DB
             }
         }
 
-        public static UnsplashPhoto? GetPhoto(string channelId, int skip)
+        public static UnsplashPhoto? GetPhotoBySequence(string channelId, int skip)
         {
             try
             {
                 using var db = new LiteDatabase(DbPath);
                 var photos = db.GetCollection<UnsplashPhoto>(DbPhotoCollection);
 
-                return photos.Query()
-                    .Where(x => x.IsFiltered == false && x.ChannelIds.Contains(channelId))
+                var query = photos.Query()
+                    .Where(x => x.IsFiltered == false && x.ChannelIds.Contains(channelId));
+
+                query = ApplyOrientationFilter(query);
+
+                return query
                     .OrderBy(x => x.LocalSortIndex)
-                    .Skip(skip)
+                    .Skip(skip - 1)
                     .Limit(1)
                     .Single();
             }
@@ -334,17 +326,8 @@ namespace Irvuewin.Helpers.DB
                     ? query.Where(x => x.IsFiltered == false && x.ChannelIds.Contains(channelId))
                     : query.Where(x => x.ChannelIds.Contains(channelId));
 
-                query = Properties.Settings.Default.WallpaperOrientation switch
-                {
-                    // landscape
-                    0 => query.Where(x => x.IsVertical == false),
-                    // portrait
-                    1 => query.Where(x => x.IsVertical == true),
-                    // squarish
-                    // 2 => query.Where(x => x.Width == x.Height),
-                    _ => query
-                };
-                
+                query = ApplyOrientationFilter(query);
+
                 return query.Count();
             }
             catch (Exception ex)

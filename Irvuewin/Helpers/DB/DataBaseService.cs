@@ -72,21 +72,9 @@ public class DataBaseService
     /// Get specify page of channel's photo list from LiteDB.<br/>
     /// </summary>
     /// <param name="cid">channelId</param>
-    /// <param name="index"><see cref="UnsplashQueryParams"/>>share pagination fields</param>
+    /// <param name="skip">skip count</param>
+    /// <param name="take">number of photos take from DB</param>
     /// <returns><see cref="UnsplashPhoto"/> list, or null if cache file does not exist or exception occurs</returns>
-    public static List<UnsplashPhoto> LoadPhotosByShard(string cid, UnsplashQueryParams index)
-    {
-        try
-        {
-            return DatabaseManager.GetPhotos(cid, index.GetPage(), index.GetPerPage());
-        }
-        catch (Exception e)
-        {
-            Logger.Error(e, "LoadPhotosByShard error");
-            return [];
-        }
-    }
-
     public static List<UnsplashPhoto> LoadPhotosByOffset(string cid, int skip, int take)
     {
         try
@@ -100,11 +88,17 @@ public class DataBaseService
         }
     }
 
+    /// <summary>
+    /// used to get a wallpaper from channel when user change wallpaper by sequence
+    /// </summary>
+    /// <param name="cid">channel id</param>
+    /// <param name="sequence">sequence of wallpaper queue</param>
+    /// <returns></returns>
     public static UnsplashPhoto? GetPhotoBySequence(string cid, int sequence)
     {
         try
         {
-            return DatabaseManager.GetPhoto(cid, sequence);
+            return DatabaseManager.GetPhotoBySequence(cid, sequence);
         }
         catch (Exception e)
         {
@@ -123,31 +117,14 @@ public class DataBaseService
         return DatabaseManager.CountPhotos(channelId);
     }
 
+    /// <summary>
+    /// Load all cached photos count of specified channel by channelID. Excluding filtered photos.
+    /// </summary>
+    /// <param name="channelId"></param>
+    /// <returns></returns>
     public static int LoadedPhotosCountExcluded(string channelId)
     {
         return DatabaseManager.CountPhotos(channelId, true);
-    }
-
-    /// <summary>
-    /// Load all cached photos of specify chanel id.
-    /// </summary>
-    /// <param name="cid">channel id</param>
-    /// <returns>List of photos, or null if no photo cached or exception occured.</returns>
-    public static Task<List<UnsplashPhoto>?> LoadPhotosAsync(string cid)
-    {
-        return Task.Run(() =>
-        {
-            try
-            {
-                var photos = DatabaseManager.GetPhotos(cid);
-                return photos.Count > 0 ? photos : null;
-            }
-            catch (Exception e)
-            {
-                Logger.Error(e, "LoadPhotosAsync error");
-                return null;
-            }
-        });
     }
 
     public static void UpdatePhoto(UnsplashPhoto photo)
