@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using System.Net.Http;
 using System.Runtime.InteropServices;
 using Irvuewin.Models.Unsplash;
@@ -59,7 +59,7 @@ namespace Irvuewin.Helpers.Utils
         // 组合标志位，表示设置壁纸，并更新配置和通知其他应用
         private const uint Flags = SPIF_UPDATEINIFILE | SPIF_SENDCHANGE;
 
-        private static readonly IDesktopWallpaper DesktopWallpaper = (IDesktopWallpaper)new DesktopWallpaperClass();
+        // private static readonly IDesktopWallpaper DesktopWallpaper = (IDesktopWallpaper)new DesktopWallpaperClass();
 
         /// <summary>
         /// Setup wallpaper(s) for display(s).
@@ -74,19 +74,22 @@ namespace Irvuewin.Helpers.Utils
         public static async Task<WallpaperSetUpResult?> SetWallpaper(List<UnsplashPhoto> photos,
             string? imagePath = null)
         {
+            IDesktopWallpaper? desktopWallpaper = null;
             try
             {
+                desktopWallpaper = (IDesktopWallpaper)new DesktopWallpaperClass();
+
                 SetWallpaperMode();
                 const string deviceNamePrefix = "\\\\.\\DISPLAY";
                 var kvp = new Dictionary<string, string>();
-                var monitorCount = DesktopWallpaper.GetMonitorDevicePathCount();
+                var monitorCount = desktopWallpaper.GetMonitorDevicePathCount();
                 var path = await GetWallpaperFullPath(photos[0], imagePath);
                 if (photos.Count == 1)
                 {
                     for (uint i = 0; i < monitorCount; i++)
                     {
-                        DesktopWallpaper.GetMonitorDevicePathAt(i, out var monitorId);
-                        DesktopWallpaper.SetWallpaper(monitorId, path);
+                        desktopWallpaper.GetMonitorDevicePathAt(i, out var monitorId);
+                        desktopWallpaper.SetWallpaper(monitorId, path);
                     }
 
                     return new WallpaperSetUpResult { UnifiedWallpaperPath = path };
@@ -95,8 +98,8 @@ namespace Irvuewin.Helpers.Utils
                 for (uint i = 0; i < monitorCount;)
                 {
                     path = await GetWallpaperFullPath(photos[(int)i], imagePath);
-                    DesktopWallpaper.GetMonitorDevicePathAt(i, out var monitorId);
-                    DesktopWallpaper.SetWallpaper(monitorId, path);
+                    desktopWallpaper.GetMonitorDevicePathAt(i, out var monitorId);
+                    desktopWallpaper.SetWallpaper(monitorId, path);
                     kvp[deviceNamePrefix + ++i] = path;
                 }
 
@@ -106,6 +109,10 @@ namespace Irvuewin.Helpers.Utils
             {
                 Logger.Error(ex, @"Setting wallpaper error: {ExMessage}", ex.Message);
                 return null;
+            }
+            finally
+            {
+                if (desktopWallpaper != null) Marshal.ReleaseComObject(desktopWallpaper);
             }
         }
 
@@ -121,15 +128,18 @@ namespace Irvuewin.Helpers.Utils
         public static async Task<string?> SetWallpaperForSpecificMonitor(Display display, UnsplashPhoto? photo,
             string? imagePath = null)
         {
+            IDesktopWallpaper? desktopWallpaper = null;
             try
             {
+                desktopWallpaper = (IDesktopWallpaper)new DesktopWallpaperClass();
+
                 SetWallpaperMode();
 
                 var path = await GetWallpaperFullPath(photo, imagePath);
 
-                var monitorId = GetMonitorIdFromDisplay(display);
+                var monitorId = GetMonitorIdFromDisplay(desktopWallpaper, display);
                 if (monitorId == null) throw new NullReferenceException("MonitorId can not be null.");
-                DesktopWallpaper.SetWallpaper(monitorId, path);
+                desktopWallpaper.SetWallpaper(monitorId, path);
                 Logger.Information(@"Set wallpaper for {0}", display.Name);
                 return path;
             }
@@ -137,6 +147,10 @@ namespace Irvuewin.Helpers.Utils
             {
                 Logger.Error(ex, @"Setting wallpaper error: {0}", ex.Message);
                 return null;
+            }
+            finally
+            {
+                if (desktopWallpaper != null) Marshal.ReleaseComObject(desktopWallpaper);
             }
         }
 
@@ -187,14 +201,14 @@ namespace Irvuewin.Helpers.Utils
             }
         }
 
-        private static string? GetMonitorIdFromDisplay(Display display)
+        private static string? GetMonitorIdFromDisplay(IDesktopWallpaper desktopWallpaper, Display display)
         {
-            var count = DesktopWallpaper.GetMonitorDevicePathCount();
+            var count = desktopWallpaper.GetMonitorDevicePathCount();
 
             for (uint i = 0; i < count; i++)
             {
-                DesktopWallpaper.GetMonitorDevicePathAt(i, out var monitorId);
-                var rect = DesktopWallpaper.GetMonitorRECT(monitorId);
+                desktopWallpaper.GetMonitorDevicePathAt(i, out var monitorId);
+                var rect = desktopWallpaper.GetMonitorRECT(monitorId);
 
                 // position matcher
                 if (rect.left == display.Left && rect.top == display.Top)
@@ -253,16 +267,18 @@ namespace Irvuewin.Helpers.Utils
 
         public static string[] GetAllWallpapers()
         {
+            IDesktopWallpaper? desktopWallpaper = null;
             try
             {
-                var monitorCount = DesktopWallpaper.GetMonitorDevicePathCount();
+                desktopWallpaper = (IDesktopWallpaper)new DesktopWallpaperClass();
+                var monitorCount = desktopWallpaper.GetMonitorDevicePathCount();
 
                 var wallpapers = new string[monitorCount];
                 for (uint i = 0; i < monitorCount; i++)
                 {
-                    DesktopWallpaper.GetMonitorDevicePathAt(i, out var monitorId);
+                    desktopWallpaper.GetMonitorDevicePathAt(i, out var monitorId);
 
-                    var wallpaperPath = DesktopWallpaper.GetWallpaper(monitorId);
+                    var wallpaperPath = desktopWallpaper.GetWallpaper(monitorId);
                     wallpapers[i] = wallpaperPath;
                 }
 
@@ -272,6 +288,10 @@ namespace Irvuewin.Helpers.Utils
             {
                 Logger.Error(ex, @"Get wallpaper path error: {ExMessage}", ex.Message);
                 return [];
+            }
+            finally
+            {
+                if (desktopWallpaper != null) Marshal.ReleaseComObject(desktopWallpaper);
             }
         }
 
