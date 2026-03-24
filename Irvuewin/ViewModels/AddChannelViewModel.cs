@@ -6,6 +6,7 @@ using Irvuewin.Helpers;
 using Irvuewin.Models.Unsplash;
 
 namespace Irvuewin.ViewModels;
+
 using Serilog;
 
 public class AddChannelViewModel : INotifyPropertyChanged
@@ -21,12 +22,12 @@ public class AddChannelViewModel : INotifyPropertyChanged
 
 
     private ICommand SelectedChannelUpdatedCommand { get; }
-    
+
     public ICommand OpenUrlCommand { get; }
 
-    
-    
+
     private ObservableCollection<UnsplashChannel> _searchedChannelResult = [];
+
     public ObservableCollection<UnsplashChannel> SearchedChannelResult
     {
         get => _searchedChannelResult;
@@ -151,24 +152,17 @@ public class AddChannelViewModel : INotifyPropertyChanged
     // Search channels by keywords
     public async Task<List<UnsplashChannel>> SearchChannels(string keywords)
     {
-        UnsplashQueryParams query = new()
+        if (await _httpService.SearchChannels(keywords, UnsplashQueryParams.Create()) is not { Results: { } results } ||
+            !results.Any(_ => true)) return [..SearchedChannelResult];
+        var newChannels =
+            results.Where(c => SearchedChannelResult.All(r => r.Id != c.Id)).ToList();
+        // Do not toggle PreChannelsUpdated command
+        if (newChannels.Count <= 0) return [..SearchedChannelResult];
+        foreach (var channel in newChannels)
         {
-            Page = 1,
-            PerPage = 10,
-            Orientation = null
-        };
-        if (await _httpService.SearchChannels(keywords, query) is not { } res) return [..SearchedChannelResult];
-        if (res.Results is { } results && results.Any(_ => true))
-        {
-            var newChannels =
-                results.Where(c => SearchedChannelResult.All(r => r.Id != c.Id)).ToList();
-            // Do not toggle PreChannelsUpdated command
-            if (newChannels.Count <= 0) return [..SearchedChannelResult];
-            foreach (var channel in newChannels)
-            {
-                if (await ChannelFilter(channel)) SearchedChannelResult.Add(channel);
-            }
+            if (await ChannelFilter(channel)) SearchedChannelResult.Add(channel);
         }
+
         return [..SearchedChannelResult];
     }
 

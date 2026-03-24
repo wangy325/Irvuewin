@@ -164,6 +164,7 @@ namespace Irvuewin.Helpers.DB
                 {
                     p.IsBlocked = true;
                 }
+
                 photos.Update(userPhotos);
             }
             catch (Exception ex)
@@ -183,6 +184,7 @@ namespace Irvuewin.Helpers.DB
                 {
                     p.IsBlocked = false;
                 }
+
                 photos.Update(userPhotos);
             }
             catch (Exception ex)
@@ -253,12 +255,12 @@ namespace Irvuewin.Helpers.DB
             }
         }
 
-        public static List<UnsplashPhoto> GetPhotos(string channelId, int page, int pageSize, byte? orientation = null)
+        public static List<UnsplashPhoto> GetPhotos(string channelId, int page, int pageSize)
         {
-            return GetPhotosByOffset(channelId, (page - 1) * pageSize, pageSize, orientation);
+            return GetPhotosByOffset(channelId, (page - 1) * pageSize, pageSize);
         }
 
-        public static List<UnsplashPhoto> GetPhotosByOffset(string channelId, int skipCount, int takeCount, byte? orientation = null)
+        public static List<UnsplashPhoto> GetPhotosByOffset(string channelId, int skipCount, int takeCount)
         {
             try
             {
@@ -268,19 +270,17 @@ namespace Irvuewin.Helpers.DB
                 var query = photos.Query()
                     .Where(x => x.IsFiltered == false && x.ChannelIds.Contains(channelId));
 
-                if (orientation.HasValue)
+                query = Properties.Settings.Default.WallpaperOrientation switch
                 {
-                    query = orientation.Value switch
-                    {
-                        // landscape
-                        0 => query.Where(x => x.Width > x.Height),
-                        // portrait
-                        1 => query.Where(x => x.Height > x.Width),
-                        // squarish
-                        // 2 => query.Where(x => x.Width == x.Height),
-                        _ => query
-                    };
-                }
+                    // landscape
+                    0 => query.Where(x => x.IsVertical == false),
+                    // portrait
+                    1 => query.Where(x => x.IsVertical == true),
+                    // squarish
+                    // 2 => query.Where(x => x.Width == x.Height),
+                    _ => query
+                };
+
 
                 return query
                     .OrderBy(x => x.LocalSortIndex)
@@ -322,7 +322,7 @@ namespace Irvuewin.Helpers.DB
         /// <param name="channelId"></param>
         /// <param name="exclude">exclude filtered photos</param>
         /// <returns></returns>
-        public static int CountPhotos(string channelId, bool exclude = false, byte? orientation = null)
+        public static int CountPhotos(string channelId, bool exclude = false)
         {
             try
             {
@@ -334,22 +334,17 @@ namespace Irvuewin.Helpers.DB
                     ? query.Where(x => x.IsFiltered == false && x.ChannelIds.Contains(channelId))
                     : query.Where(x => x.ChannelIds.Contains(channelId));
 
-                if (orientation.HasValue)
+                query = Properties.Settings.Default.WallpaperOrientation switch
                 {
-                    if (orientation.Value == 1) // landscape
-                    {
-                        query = query.Where(x => x.Width > x.Height);
-                    }
-                    else if (orientation.Value == 2) // portrait
-                    {
-                        query = query.Where(x => x.Height > x.Width);
-                    }
-                    else if (orientation.Value == 3) // squarish
-                    {
-                        query = query.Where(x => x.Width == x.Height);
-                    }
-                }
-
+                    // landscape
+                    0 => query.Where(x => x.IsVertical == false),
+                    // portrait
+                    1 => query.Where(x => x.IsVertical == true),
+                    // squarish
+                    // 2 => query.Where(x => x.Width == x.Height),
+                    _ => query
+                };
+                
                 return query.Count();
             }
             catch (Exception ex)

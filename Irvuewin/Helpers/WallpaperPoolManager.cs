@@ -58,13 +58,8 @@ public class WallpaperPoolManager
         try
         {
             var channel = DataBaseService.GetChannel(channelId)!;
-
-            var query = new UnsplashQueryParams()
-            {
-                Page = channel.Shard,
-                PerPage = PageSize,
-                Orientation = Properties.Settings.Default.WallpaperOrientation
-            };
+            
+            var query = UnsplashQueryParams.Create().Page(channel.Shard);
 
             // 这里作为拉取unsplash壁纸的唯一入口
             if (await _apiService.GetPhotosOfChannel(channelId: channelId, query) is not { } photos) return false;
@@ -114,7 +109,7 @@ public class WallpaperPoolManager
         {
             var maxAttempts = 5; 
             var orient = Properties.Settings.Default.WallpaperOrientation;
-            while (DataBaseService.LoadedPhotosCountExcluded(channel.Id, orient) < PhotoPoolWaterMark && maxAttempts > 0)
+            while (DataBaseService.LoadedPhotosCountExcluded(channel.Id) < PhotoPoolWaterMark && maxAttempts > 0)
             {
                 var currentChannel = DataBaseService.GetChannel(channel.Id);
                 if (currentChannel == null || currentChannel.AllPhotosLoaded) break;

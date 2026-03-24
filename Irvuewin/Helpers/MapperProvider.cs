@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
 
+#pragma warning disable CS8618
+
 namespace Irvuewin.Helpers;
 
 /// <summary>

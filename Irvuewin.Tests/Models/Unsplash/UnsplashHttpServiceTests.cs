@@ -45,13 +45,7 @@ public class UnsplashHttpServiceTests
     public async Task GetAsyncPhotosOfChannel_ReturnsDeserializedUnsplashPhotoList()
     {
         // Arrange
-        var query = new UnsplashQueryParams
-        {
-            Page = 1,
-            PerPage = 2,
-            Orientation = 1
-        };
-
+        var query = UnsplashQueryParams.Create().Page(1).PerPage(2);
         var mockResponseContent = JsonConvert.SerializeObject(UnsplashDataSet.ExpectedPhotos, JsonHelper.Settings);
         var mockResponse = new HttpResponseMessage(HttpStatusCode.OK)
         {

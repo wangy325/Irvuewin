@@ -34,14 +34,9 @@ namespace Irvuewin.Tests.Models.Unsplash
         [TestMethod]
         public async Task GetPhotos_ReturnList()
         {
-            var query = new UnsplashQueryParams
-            {
-                Page = 1,
-                PerPage = 2,
-                Orientation = 1
-            };
+            
             // Act
-            var actualPhotos = await _httpService.GetPhotosOfChannel(UnsplashDataSet.ChannelId, query);
+            var actualPhotos = await _httpService.GetPhotosOfChannel(UnsplashDataSet.ChannelId, UnsplashQueryParams.Create());
 
             // Assert
             Assert.IsNotNull(actualPhotos);

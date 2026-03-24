@@ -63,10 +63,10 @@ public class ChannelsViewModel : INotifyPropertyChanged
     /// </summary>
     private string _checkedChannelId = Properties.Settings.Default.UserCheckedChannel;
 
-    public string CheckedChannelId
+    private string CheckedChannelId
     {
         get => _checkedChannelId;
-        private set
+        set
         {
             _checkedChannelId = value;
             OnPropertyChanged();
@@ -102,12 +102,6 @@ public class ChannelsViewModel : INotifyPropertyChanged
 
     // private int ShardIndex { get; set; } = 1;
     private bool IsBusy { get; set; }
-    private UnsplashQueryParams DefaultQuery => new()
-    {
-        Page = 1,
-        PerPage = PageSize,
-        Orientation = Properties.Settings.Default.WallpaperOrientation
-    };
 
     public ICommand ChannelSelected2 { get; }
     public ICommand ChannelChecked2 { get; }
@@ -171,7 +165,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
             .First(c => c.Id == _checkedChannelId);
 
         // Init checked channel Photos
-        PreviewPhotos(CheckedChannelId, DefaultQuery);
+        PreviewPhotos(CheckedChannelId, UnsplashQueryParams.Create());
         Logger.Information(@"ChannelsViewModel initialized.");
     }
 
@@ -263,13 +257,13 @@ public class ChannelsViewModel : INotifyPropertyChanged
     private bool PreviewPhotos(string channelId, UnsplashQueryParams query, bool append = false)
     {
         var skip = append ? Photos.Count : 0;
-        var take = query.PerPage;
+        var take = query.GetPerPage();
 
         // 获取频道最新状态，判断网络端是否已经全部拉取完毕
         var dbChannel = DataBaseService.GetChannel(channelId);
         var isAllLoaded = dbChannel?.AllPhotosLoaded ?? false;
 
-        if (DataBaseService.LoadPhotosByOffset(channelId, skip, take, query.Orientation)
+        if (DataBaseService.LoadPhotosByOffset(channelId, skip, take)
             is not { Count: > 0 } photos)
         {
             // 如果本地数据没读到，且网络端还没到底，再去请求拉取壁纸
@@ -347,7 +341,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
             FastCacheManager.Set(CachedWallpaperPreviewShard, item.Id, 1);
             SelectedChannel = item;
             Photos.Clear();
-            PreviewPhotos(item.Id, DefaultQuery);
+            PreviewPhotos(item.Id, UnsplashQueryParams.Create());
         }
         catch (Exception e)
         {
@@ -413,21 +407,16 @@ public class ChannelsViewModel : INotifyPropertyChanged
             {
                 // all photos loaded to LiteDB
                 // Expert to access more photos, that's not possible
-                if (Photos.Count >= DataBaseService.LoadedPhotoCount(channel.Id, Properties.Settings.Default.WallpaperOrientation))
+                if (Photos.Count >= DataBaseService.LoadedPhotosCountExcluded(channel.Id))
                 {
                     IsBusy = false;
                     return;
                 }
             }
+            
+            var query = UnsplashQueryParams.Create().Page(previewShard++);
 
-            UnsplashQueryParams query = new()
-            {
-                Page = previewShard++,
-                PerPage = PageSize,
-                Orientation = Properties.Settings.Default.WallpaperOrientation
-            };
-
-            Logger.Information(@"Loading more photos of channel {0},  UI virtual shard {1}", channel.Id, query.Page);
+            Logger.Information(@"Loading more photos of channel {0},  UI virtual shard {1}", channel.Id, query.GetPage());
             if (PreviewPhotos(channel.Id, query, true))
             {
                 // Update previewShard
@@ -477,7 +466,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
             if (channel.Id != SelectedChannel!.Id) continue;
             // Set photos
             // Some channels may not contain photos in specify orientation
-            PreviewPhotos(channel.Id, DefaultQuery);
+            PreviewPhotos(channel.Id, UnsplashQueryParams.Create());
         }
     }
 
@@ -657,7 +646,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
             {
                 IsBusy = false;
                 Photos.Clear();
-                PreviewPhotos(channelId, DefaultQuery);
+                PreviewPhotos(channelId, UnsplashQueryParams.Create());
             }
         });
     }

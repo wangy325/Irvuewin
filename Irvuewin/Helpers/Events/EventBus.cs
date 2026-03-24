@@ -17,7 +17,7 @@ public static class EventBus
 
     public static void PublishWallpaperChanged(string displayName, string photoId)
     {
-        Logger.Information("Publishing wallpaper changed event for display: {}", displayName);
+        Logger.Information("Publishing wallpaper changed event for display: {displayName}", displayName);
         WallpaperChangedEvent?.Invoke(null, new WallpaperChangedEventArgs(displayName, photoId));
     }
 

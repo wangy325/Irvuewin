@@ -2,11 +2,6 @@ using Irvuewin.Helpers.DB;
 using Irvuewin.Helpers.Events;
 using Irvuewin.Models.Unsplash;
 using Serilog;
-using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using static Irvuewin.Helpers.IAppConst;
 
 namespace Irvuewin.Helpers
 {
@@ -88,13 +83,8 @@ namespace Irvuewin.Helpers
             var channel = DataBaseService.GetChannel(channelId);
             if (channel == null) return;
 
-            var query = new UnsplashQueryParams
-            {
-                Page = 1,
-                PerPage = PageSize,
-                Orientation = Properties.Settings.Default.WallpaperOrientation
-            };
-
+            var query = UnsplashQueryParams.Create();
+            
             var photos = await _apiService.GetPhotosOfChannel(channelId, query);
             if (photos == null || photos.Count == 0)
             {
