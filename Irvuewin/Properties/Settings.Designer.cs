@@ -213,5 +213,17 @@ namespace Irvuewin.Properties {
                 this["UserFilterList"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string NextWallpaperChangeTime {
+            get {
+                return ((string)(this["NextWallpaperChangeTime"]));
+            }
+            set {
+                this["NextWallpaperChangeTime"] = value;
+            }
+        }
     }
 }

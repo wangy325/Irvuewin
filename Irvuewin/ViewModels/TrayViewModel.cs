@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Data;
@@ -58,14 +58,17 @@ public class TrayViewModel : INotifyPropertyChanged
 
     public int IntervalsItemCount => Intervals.Count;
 
-    private DateTimeOffset _nextWallpaperChangeTime;
-
     public DateTimeOffset NextWallpaperChangeTime
     {
-        get => _nextWallpaperChangeTime;
+        get => DateTimeOffset.TryParse(
+            Properties.Settings.Default.NextWallpaperChangeTime, out var t)
+            ? t
+            : DateTimeOffset.MinValue;
         set
         {
-            _nextWallpaperChangeTime = value;
+            Properties.Settings.Default.NextWallpaperChangeTime =
+                value == DateTimeOffset.MinValue ? "" : value.ToString("o");
+            Properties.Settings.Default.Save();
             OnPropertyChanged();
         }
     }

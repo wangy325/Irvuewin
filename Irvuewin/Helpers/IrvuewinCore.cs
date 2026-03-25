@@ -7,6 +7,7 @@ using Irvuewin.Helpers.HTTP;
 using Irvuewin.Helpers.Utils;
 using Irvuewin.Models.Unsplash;
 using Irvuewin.ViewModels;
+using Microsoft.Win32;
 using static Irvuewin.Helpers.IAppConst;
 using Application = System.Windows.Application;
 using Timer = System.Timers.Timer;
@@ -388,30 +389,64 @@ public static class IrvuewinCore
     /// </summary>
     private static Timer? _wallpaperTimer;
 
+    /// <summary>
+    /// Init wallpaper change timer when app startup
+    /// </summary>
     public static void InitWallpaperChangeScheduler()
     {
-        // ms
         var interval = Properties.Settings.Default.WallpaperChangeInterval;
         if (interval <= 0) return;
 
-        _wallpaperTimer = new Timer(interval * 60 * 1000);
+        var fullIntervalMs = interval * 60 * 1000d;
+        var startIntervalMs = fullIntervalMs;
+
+        // Check persisted next trigger time (survives sleep / crash / restart)
+        var persisted = Properties.Settings.Default.NextWallpaperChangeTime;
+        if (!string.IsNullOrEmpty(persisted) &&
+            DateTimeOffset.TryParse(persisted, out var nextTrigger))
+        {
+            var remaining = (nextTrigger - DateTimeOffset.Now).TotalMilliseconds;
+            if (remaining <= 0)
+            {
+                // Missed trigger (sleep / crash) → change immediately, then full interval
+                Logger.Information("Missed scheduled wallpaper change (was due {0}), triggering now.", nextTrigger);
+                ChangeAllWallpaper();
+            }
+            else
+            {
+                // Still time left → use the remaining time for the first tick
+                startIntervalMs = remaining;
+            }
+        }
+
+        _wallpaperTimer = new Timer(startIntervalMs);
         _wallpaperTimer.Elapsed += OnWallpaperTimerElapsed;
-        _wallpaperTimer.AutoReset = true;
+        _wallpaperTimer.AutoReset = false; // first tick may be a partial interval
         _wallpaperTimer.Enabled = true;
-        UpdateNextWallpaperChangeTriggerTime(interval);
+        UpdateNextWallpaperChangeTriggerTime(startIntervalMs);
+
+        // Subscribe to power events for sleep/resume handling
+        SystemEvents.PowerModeChanged += OnPowerModeChanged;
     }
 
+    /// <summary>
+    /// Setup/Update wallpaper change timer when user selected manually on tray menu.
+    /// </summary>
     public static void UpdateWallpaperChangeScheduler()
     {
-        var trayViewModel = Application.Current.Resources["TrayViewModel"] as TrayViewModel;
         var interval = Properties.Settings.Default.WallpaperChangeInterval;
         // non zero -> 0
         if (interval <= 0)
         {
-            // Release Timer
+            // Release Timer & power event
             _wallpaperTimer?.Stop();
             _wallpaperTimer = null;
-            trayViewModel!.NextWallpaperChangeTime = DateTimeOffset.MinValue;
+            SystemEvents.PowerModeChanged -= OnPowerModeChanged;
+            Application.Current.Dispatcher.InvokeAsync(() =>
+            {
+                var trayViewModel = Application.Current.Resources["TrayViewModel"] as TrayViewModel;
+                trayViewModel!.NextWallpaperChangeTime = DateTimeOffset.MinValue;
+            });
             return;
         }
 
@@ -424,19 +459,78 @@ public static class IrvuewinCore
 
         _wallpaperTimer.Stop();
         _wallpaperTimer.Interval = interval * 60 * 1000;
+        _wallpaperTimer.AutoReset = true;
         _wallpaperTimer.Start();
         UpdateNextWallpaperChangeTriggerTime(interval);
     }
 
-    private static void UpdateNextWallpaperChangeTriggerTime(ushort interval)
+    /// <summary>
+    /// recalculate next timer trigger time
+    /// </summary>
+    /// <param name="intervalMinutes"></param>
+    private static void UpdateNextWallpaperChangeTriggerTime(ushort intervalMinutes)
     {
-        var trayViewModel = Application.Current.Resources["TrayViewModel"] as TrayViewModel;
-        var nextTrigger = DateTimeOffset.Now.AddMinutes(interval);
-        trayViewModel!.NextWallpaperChangeTime = nextTrigger;
-        /*Application.Current.Dispatcher.InvokeAsync(() =>
+        UpdateNextWallpaperChangeTriggerTime(intervalMinutes * 60 * 1000d);
+    }
+
+    private static void UpdateNextWallpaperChangeTriggerTime(double intervalMs)
+    {
+        var nextTrigger = DateTimeOffset.Now.AddMilliseconds(intervalMs);
+        Application.Current.Dispatcher.InvokeAsync(() =>
         {
-            trayViewModel!.NextWallpaperChangeTime = DateTimeOffset.Now.AddMilliseconds(interval);
-        });*/
+            var trayViewModel = Application.Current.Resources["TrayViewModel"] as TrayViewModel;
+            trayViewModel!.NextWallpaperChangeTime = nextTrigger;
+        });
+    }
+
+    /// <summary>
+    /// Handle system sleep / resume to keep the wallpaper schedule accurate.
+    /// </summary>
+    private static void OnPowerModeChanged(object sender, PowerModeChangedEventArgs e)
+    {
+        if (e.Mode != PowerModes.Resume) return;
+        if (_wallpaperTimer == null) return;
+
+        var interval = Properties.Settings.Default.WallpaperChangeInterval;
+        if (interval <= 0) return;
+
+        var persisted = Properties.Settings.Default.NextWallpaperChangeTime;
+        if (string.IsNullOrEmpty(persisted) ||
+            !DateTimeOffset.TryParse(persisted, out var nextTrigger))
+        {
+            // No valid persisted time — restart with full interval
+            RestartTimerWithFullInterval(interval);
+            return;
+        }
+
+        var remaining = (nextTrigger - DateTimeOffset.Now).TotalMilliseconds;
+        if (remaining <= 0)
+        {
+            // Missed during sleep → change now, then restart full interval
+            Logger.Information("Resume: missed scheduled change (was due {0}), triggering now.", nextTrigger);
+            ChangeAllWallpaper();
+            RestartTimerWithFullInterval(interval);
+        }
+        else
+        {
+            // Still time left → restart with remaining time
+            Logger.Information("Resume: next wallpaper change in {0:F0}s.", remaining / 1000);
+            _wallpaperTimer.Stop();
+            _wallpaperTimer.Interval = remaining;
+            _wallpaperTimer.AutoReset = false;
+            _wallpaperTimer.Start();
+            UpdateNextWallpaperChangeTriggerTime(remaining);
+        }
+    }
+
+    private static void RestartTimerWithFullInterval(ushort intervalMinutes)
+    {
+        if (_wallpaperTimer == null) return;
+        _wallpaperTimer.Stop();
+        _wallpaperTimer.Interval = intervalMinutes * 60 * 1000d;
+        _wallpaperTimer.AutoReset = true;
+        _wallpaperTimer.Start();
+        UpdateNextWallpaperChangeTriggerTime(intervalMinutes);
     }
 
     private static void OnWallpaperTimerElapsed(object? sender, ElapsedEventArgs e)
@@ -445,7 +539,18 @@ public static class IrvuewinCore
         {
             Logger.Information(@"{DateTimeOffset:yyyy-MM-dd HH:mm:ss}: scheduled wallpaper change", DateTimeOffset.Now);
             ChangeAllWallpaper();
-            UpdateNextWallpaperChangeTriggerTime(Properties.Settings.Default.WallpaperChangeInterval);
+
+            var interval = Properties.Settings.Default.WallpaperChangeInterval;
+            // If the first tick was a partial interval, switch to full auto-reset
+            if (_wallpaperTimer is { AutoReset: false })
+            {
+                _wallpaperTimer.Stop();
+                _wallpaperTimer.Interval = interval * 60 * 1000d;
+                _wallpaperTimer.AutoReset = true;
+                _wallpaperTimer.Start();
+            }
+
+            UpdateNextWallpaperChangeTriggerTime(interval);
         }
         catch (Exception ex)
         {
