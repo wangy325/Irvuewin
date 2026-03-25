@@ -557,8 +557,7 @@
                                     </Style.Triggers>
                                 </Style>
                             </TextBlock.Style>
-                            <Hyperlink Command="{Binding OpenUrlCommand}"
-                                       CommandParameter="{Binding LatestReleaseUrl}"
+                            <Hyperlink Command="{Binding OpenUpdateWindowCommand}"
                                        Foreground="{DynamicResource AccentBrush}">
                                 <Run Text="{Binding UpdateStatusText}" />
                             </Hyperlink>

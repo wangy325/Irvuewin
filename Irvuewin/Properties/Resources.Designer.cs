@@ -906,6 +906,69 @@ namespace Irvuewin.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Update Now.
+        /// </summary>
+        public static string UpdateWindow_Download {
+            get {
+                return ResourceManager.GetString("UpdateWindow_Download", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Downloading: {0}%.
+        /// </summary>
+        public static string UpdateWindow_Downloading {
+            get {
+                return ResourceManager.GetString("UpdateWindow_Downloading", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Error downloading update..
+        /// </summary>
+        public static string UpdateWindow_Error {
+            get {
+                return ResourceManager.GetString("UpdateWindow_Error", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ignore.
+        /// </summary>
+        public static string UpdateWindow_Later {
+            get {
+                return ResourceManager.GetString("UpdateWindow_Later", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Starting download....
+        /// </summary>
+        public static string UpdateWindow_Starting {
+            get {
+                return ResourceManager.GetString("UpdateWindow_Starting", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to A new version of Irvuewin is available!.
+        /// </summary>
+        public static string UpdateWindow_Subtitle {
+            get {
+                return ResourceManager.GetString("UpdateWindow_Subtitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Update Available.
+        /// </summary>
+        public static string UpdateWindow_Title {
+            get {
+                return ResourceManager.GetString("UpdateWindow_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Wallpaper Details.
         /// </summary>
         public static string Wallpaper_Details {

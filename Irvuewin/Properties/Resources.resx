@@ -418,4 +418,25 @@
   <data name="Settings_About_MadeBy" xml:space="preserve">
     <value>Made with ❤ by wangy325</value>
   </data>
+  <data name="UpdateWindow_Title" xml:space="preserve">
+    <value>Update Available</value>
+  </data>
+  <data name="UpdateWindow_Subtitle" xml:space="preserve">
+    <value>A new version of Irvuewin is available!</value>
+  </data>
+  <data name="UpdateWindow_Later" xml:space="preserve">
+    <value>Ignore</value>
+  </data>
+  <data name="UpdateWindow_Download" xml:space="preserve">
+    <value>Update Now</value>
+  </data>
+  <data name="UpdateWindow_Starting" xml:space="preserve">
+    <value>Starting download...</value>
+  </data>
+  <data name="UpdateWindow_Downloading" xml:space="preserve">
+    <value>Downloading: {0}%</value>
+  </data>
+  <data name="UpdateWindow_Error" xml:space="preserve">
+    <value>Error downloading update.</value>
+  </data>
 </root>

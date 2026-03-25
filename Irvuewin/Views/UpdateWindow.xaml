@@ -1,0 +1,55 @@
+<helpers:LocationAwareWindow
+    x:Class="Irvuewin.Views.UpdateWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:helpers="clr-namespace:Irvuewin.Helpers"
+    Title="{Binding Source={x:Static helpers:Localization.Instance}, Path=[UpdateWindow_Title]}"
+    Height="400" Width="450"
+    WindowStartupLocation="CenterOwner"
+    ResizeMode="NoResize"
+    Background="{DynamicResource WindowBackgroundBrush}">
+
+    <helpers:LocationAwareWindow.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+    </helpers:LocationAwareWindow.Resources>
+
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,15">
+            <TextBlock Text="{Binding VersionName}" FontSize="20" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryTextBrush}" />
+            <TextBlock Text="{Binding Source={x:Static helpers:Localization.Instance}, Path=[UpdateWindow_Subtitle]}" FontSize="14" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,5,0,0" />
+        </StackPanel>
+
+        <!-- Release Notes Area -->
+        <Border Grid.Row="1" Background="{DynamicResource BorderBrush}" Opacity="0.1" CornerRadius="4" />
+        <ScrollViewer Grid.Row="1" Margin="10" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <TextBlock Text="{Binding ReleaseNotes}" TextWrapping="Wrap" Foreground="{DynamicResource PrimaryTextBrush}" FontFamily="Consolas" />
+        </ScrollViewer>
+
+        <!-- Footer Actions -->
+        <Grid Grid.Row="2" Margin="0,15,0,0">
+            <!-- Normal Buttons -->
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center"
+                        Visibility="{Binding IsNotDownloading, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <Button Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[UpdateWindow_Later]}"
+                        Command="{Binding CloseCommand}"
+                        Style="{StaticResource BottomButtonStyle}" MinWidth="100" Margin="0,0,10,0" />
+                <Button Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[UpdateWindow_Download]}"
+                        Command="{Binding DownloadCommand}"
+                        Style="{StaticResource BottomButtonStyle}" Background="{DynamicResource AccentBrush}" Foreground="White" MinWidth="100" />
+            </StackPanel>
+
+            <!-- Downloading Progress -->
+            <StackPanel Visibility="{Binding IsDownloading, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <TextBlock Text="{Binding ProgressText}" HorizontalAlignment="Center" Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,5" />
+                <ProgressBar Value="{Binding ProgressValue}" Minimum="0" Maximum="100" Height="6" />
+            </StackPanel>
+        </Grid>
+    </Grid>
+</helpers:LocationAwareWindow>

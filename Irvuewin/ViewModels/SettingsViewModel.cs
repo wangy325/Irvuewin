@@ -8,6 +8,7 @@ using System.Collections.ObjectModel;
 using Irvuewin.Helpers.DB;
 using Newtonsoft.Json.Linq;
 using Serilog;
+using Irvuewin.Models;
 using static Irvuewin.Helpers.IAppConst;
 
 namespace Irvuewin.ViewModels;
@@ -124,6 +125,7 @@ public class SettingsViewModel : INotifyPropertyChanged
     public ICommand RemoveFilteredUserCommand { get; }
     public ICommand OpenUrlCommand { get; }
     public ICommand CheckForUpdateCommand { get; }
+    public ICommand OpenUpdateWindowCommand { get; }
 
     public SettingsViewModel()
     {
@@ -134,6 +136,7 @@ public class SettingsViewModel : INotifyPropertyChanged
         RemoveFilteredUserCommand = new RelayCommand<string>(OnRemoveFilteredUser);
         OpenUrlCommand = new RelayCommand<string>(ICommonCommands.OpenUrl);
         CheckForUpdateCommand = new AsyncRelayCommand(OnCheckForUpdate);
+        OpenUpdateWindowCommand = new RelayCommand((_) => OnOpenUpdateWindow());
         LoadFilteredUsers();
 
         Properties.Settings.Default.PropertyChanged += (_, e) =>
@@ -333,8 +336,22 @@ public class SettingsViewModel : INotifyPropertyChanged
         Properties.Settings.Default.Save();
 
         await Task.Run(() => DataBaseService.UnblockAuthor(username));
-        await ChannelsViewModel.GetInstance().RefreshPhotos();
+        await (await ChannelsViewModel.GetInstanceAsync()).RefreshPhotos();
     }
+
+    private void OnOpenUpdateWindow()
+    {
+        if (_latestRelease != null)
+        {
+            Helpers.Utils.WindowManager.ShowWindow(
+                "UpdateWindow",
+                () => new Views.UpdateWindow(_latestRelease),
+                dialog: true
+            );
+        }
+    }
+
+    private GitHubRelease? _latestRelease;
 
     private async Task OnCheckForUpdate()
     {
@@ -347,8 +364,10 @@ public class SettingsViewModel : INotifyPropertyChanged
             client.DefaultRequestHeaders.Add("User-Agent", AppName);
             client.Timeout = TimeSpan.FromSeconds(10);
             var response = await client.GetStringAsync(GitHubLatestReleaseApi);
-            var json = JObject.Parse(response);
-            var tagName = json["tag_name"]?.ToString()?.TrimStart('v', 'V') ?? "";
+            var release = Newtonsoft.Json.JsonConvert.DeserializeObject<GitHubRelease>(response);
+            if (release == null) throw new Exception("Failed to parse release");
+
+            var tagName = release.tag_name?.TrimStart('v', 'V') ?? "";
 
             if (Version.TryParse(tagName, out var latestVersion) && 
                 Version.TryParse(AppVersion, out var currentVersion))
@@ -356,7 +375,8 @@ public class SettingsViewModel : INotifyPropertyChanged
                 if (latestVersion > currentVersion)
                 {
                     UpdateStatusText = string.Format(Localization.Instance["Settings_About_NewVersion"], tagName);
-                    LatestReleaseUrl = json["html_url"]?.ToString() ?? GitHubReleasesUrl;
+                    LatestReleaseUrl = release.html_url;
+                    _latestRelease = release;
                     HasNewVersion = true;
                 }
                 else
