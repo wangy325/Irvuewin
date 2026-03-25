@@ -58,7 +58,7 @@ is published in [WallpaperUtil](./Irvuewin/Helpers/Utils/WallpaperUtil.cs), and 
     {
         var attrUrl = string.Concat(photo.Links.Html.ToString(), Attribution);
         Logger.Information("View wallpaper on unsplash: {0}", attrUrl);
-        ICommonCommands.OpenUrl(photo.Links.Html.ToString());
+        ICommonCommands.OpenUrl(attrUrl);
     }
 
     private static void OnViewAuthor(UnsplashPhoto photo)
