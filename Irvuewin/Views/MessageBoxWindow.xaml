@@ -37,10 +37,11 @@
             </Grid.RowDefinitions>
 
             <!-- Title -->
-            <TextBlock x:Name="TitleText" Grid.Row="0"
+            <!--<TextBlock x:Name="TitleText" Grid.Row="0"
                        Text="Title"
                        FontSize="18" FontWeight="SemiBold"
                        Foreground="{DynamicResource DarkTextBrush}" Margin="0,0,0,15"/>
+                       -->
 
             <!-- Content Area -->
             <Grid Grid.Row="1" Margin="0,0,0,25">
@@ -69,7 +70,7 @@
 
             <!-- Buttons -->
             <StackPanel x:Name="ButtonPanel" Grid.Row="2" 
-                        Orientation="Horizontal" HorizontalAlignment="Right">
+                        Orientation="Horizontal" HorizontalAlignment="Center">
                 
                 <Button x:Name="BtnYes" Content="Yes" 
                         Click="Btn_Click" Visibility="Collapsed"
@@ -78,7 +79,7 @@
                 <Button x:Name="BtnNo" Content="No" 
                         Click="Btn_Click" Visibility="Collapsed"/>
                 
-                <Button x:Name="BtnOK" Content="OK" 
+                <Button x:Name="BtnOk" Content="OK" 
                         Click="Btn_Click" Visibility="Collapsed"
                         Background="{DynamicResource AccentBrush}" Foreground="{DynamicResource AccentForegroundBrush}" BorderBrush="{DynamicResource AccentBrush}"/>
                 

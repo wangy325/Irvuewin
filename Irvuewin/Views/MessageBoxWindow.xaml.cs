@@ -16,10 +16,10 @@ namespace Irvuewin.Views
         {
             var window = new MessageBoxWindow
             {
-                TitleText =
+                /*TitleText =
                 {
                     Text = caption
-                },
+                },*/
                 MessageText =
                 {
                     Text = messageBoxText
@@ -70,6 +70,9 @@ namespace Irvuewin.Views
                 case MessageBoxImage.Hand: System.Media.SystemSounds.Hand.Play(); break;
                 case MessageBoxImage.Asterisk: System.Media.SystemSounds.Asterisk.Play(); break;
                 case MessageBoxImage.Question: System.Media.SystemSounds.Question.Play(); break;
+                case MessageBoxImage.None:
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(icon), icon, null);
             }
 
             window.ShowDialog();
@@ -81,10 +84,10 @@ namespace Irvuewin.Views
             switch (button)
             {
                 case MessageBoxButton.OK:
-                    BtnOK.Visibility = Visibility.Visible;
+                    BtnOk.Visibility = Visibility.Visible;
                     break;
                 case MessageBoxButton.OKCancel:
-                    BtnOK.Visibility = Visibility.Visible;
+                    BtnOk.Visibility = Visibility.Visible;
                     BtnCancel.Visibility = Visibility.Visible;
                     break;
                 case MessageBoxButton.YesNo:
@@ -96,6 +99,8 @@ namespace Irvuewin.Views
                     BtnNo.Visibility = Visibility.Visible;
                     BtnCancel.Visibility = Visibility.Visible;
                     break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(button), button, null);
             }
         }
 
@@ -140,7 +145,7 @@ namespace Irvuewin.Views
         {
             if (Equals(sender, BtnYes)) Result = MessageBoxResult.Yes;
             else if (Equals(sender, BtnNo)) Result = MessageBoxResult.No;
-            else if (Equals(sender, BtnOK)) Result = MessageBoxResult.OK;
+            else if (Equals(sender, BtnOk)) Result = MessageBoxResult.OK;
             else if (Equals(sender, BtnCancel)) Result = MessageBoxResult.Cancel;
             
             Close();
