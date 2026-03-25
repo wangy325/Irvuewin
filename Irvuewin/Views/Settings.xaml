@@ -8,7 +8,6 @@
     xmlns:helpers="clr-namespace:Irvuewin.Helpers"
     xmlns:viewModels="clr-namespace:Irvuewin.ViewModels"
     xmlns:converters="clr-namespace:Irvuewin.Helpers.Converters"
-    xmlns:properties="clr-namespace:Irvuewin.Properties"
     mc:Ignorable="d"
     Title="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Window_Settings_Title]}"
     Height="470" Width="500" MinWidth="400" MaxWidth="500"
@@ -23,31 +22,28 @@
     <helpers:LocationAwareWindow.Resources>
         <!--合并资源-->
         <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-            </ResourceDictionary.MergedDictionaries>
-
             <converters:ByteToBooleanConverter x:Key="Byte2BoolConverter" />
             <converters:FloatToStringConverter x:Key="Float2StringConverter" />
 
             <!-- Center TabControl Style -->
             <Style x:Key="CenterTabControlStyle" TargetType="TabControl">
-                <Setter Property="Margin" Value="20"/>
-                <Setter Property="BorderThickness" Value="0"/>
-                <Setter Property="Background" Value="{DynamicResource WindowBackgroundBrush}"/>
+                <Setter Property="Margin" Value="20" />
+                <Setter Property="BorderThickness" Value="0" />
+                <Setter Property="Background" Value="{DynamicResource WindowBackgroundBrush}" />
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="TabControl">
                             <Grid>
                                 <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="*" />
                                 </Grid.RowDefinitions>
                                 <TabPanel x:Name="HeaderPanel"
                                           Grid.Row="0"
                                           Panel.ZIndex="1"
                                           IsItemsHost="True"
                                           HorizontalAlignment="Center"
-                                          Background="Transparent"/>
+                                          Background="Transparent" />
                                 <Border x:Name="ContentPanel"
                                         Grid.Row="1"
                                         BorderBrush="{TemplateBinding BorderBrush}"
@@ -56,7 +52,7 @@
                                     <ContentPresenter x:Name="PART_SelectedContentHost"
                                                       ContentSource="SelectedContent"
                                                       Margin="{TemplateBinding Padding}"
-                                                      SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+                                                      SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
                                 </Border>
                             </Grid>
                         </ControlTemplate>
@@ -66,7 +62,7 @@
 
             <!-- Settings TabItem Style -->
             <Style x:Key="SettingsTabItemStyle" TargetType="TabItem" BasedOn="{StaticResource TabStyle}">
-                <Setter Property="Width" Value="80"/>
+                <Setter Property="Width" Value="80" />
             </Style>
 
             <!-- wallpaper save path display style -->
@@ -104,7 +100,7 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <TabControl Grid.Row="0" 
+        <TabControl Grid.Row="0"
                     Style="{StaticResource CenterTabControlStyle}">
             <TabItem Header="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_Tab_General]}"
                      helpers:TabItemHelper.IconGeometry="{StaticResource Icon_General}"
@@ -165,22 +161,23 @@
                             <Setter Property="CommandParameter"
                                     Value="{Binding Tag, RelativeSource={RelativeSource Mode=Self} }" />
                         </Style>
-                        
+
                         <Style x:Key="LaunchAtLoginCheckBoxStyle" TargetType="CheckBox"
                                BasedOn="{StaticResource CheckBoxStyle}">
                             <Setter Property="IsChecked">
-                                    <Setter.Value>
-                                        <Binding Path = "LaunchAtLogin" Mode="TwoWay"
-                                                 UpdateSourceTrigger="PropertyChanged"/>
-                                    </Setter.Value>                                    
+                                <Setter.Value>
+                                    <Binding Path="LaunchAtLogin" Mode="TwoWay"
+                                             UpdateSourceTrigger="PropertyChanged" />
+                                </Setter.Value>
                             </Setter>
-                            <Setter Property="Command" Value="{Binding LaunchAtLoginCommand}"/>
-                            <Setter Property="CommandParameter" Value="{Binding Path=IsChecked, RelativeSource={RelativeSource Self}}"/>
+                            <Setter Property="Command" Value="{Binding LaunchAtLoginCommand}" />
+                            <Setter Property="CommandParameter"
+                                    Value="{Binding Path=IsChecked, RelativeSource={RelativeSource Self}}" />
                         </Style>
                     </Grid.Resources>
 
-                    <Separator Grid.ColumnSpan="5" 
-                               Margin="0, 10" 
+                    <Separator Grid.ColumnSpan="5"
+                               Margin="0, 10"
                                Style="{StaticResource SeparatorStyle}" />
                     <Label Grid.Row="1" Grid.Column="0"
                            Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_MultiMonitor]}"
@@ -198,13 +195,16 @@
                            Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_DisplayMode]}"
                            Style="{StaticResource LabelStyle}" />
                     <RadioButton Grid.Row="2" Grid.Column="1"
-                                 Tag="0" Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_Mode_Fill]}"
+                                 Tag="0"
+                                 Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_Mode_Fill]}"
                                  Style="{StaticResource DisplayModeRadioStyle}" />
                     <RadioButton Grid.Row="2" Grid.Column="2"
-                                 Tag="1" Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_Mode_Fit]}"
+                                 Tag="1"
+                                 Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_Mode_Fit]}"
                                  Style="{StaticResource DisplayModeRadioStyle}" />
                     <RadioButton Grid.Row="2" Grid.Column="3"
-                                 Tag="2" Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_Mode_Center]}"
+                                 Tag="2"
+                                 Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_Mode_Center]}"
                                  Style="{StaticResource DisplayModeRadioStyle}" />
                     <!--<RadioButton Grid.Row="2" Grid.Column="4" 
                                  Tag="3" Content="拉伸" 
@@ -225,7 +225,7 @@
                     <Label Grid.Row="4" Grid.Column="0"
                            Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_SavePath]}"
                            Style="{StaticResource LabelStyle}" />
-                    <Button Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="1"
+                    <Button Grid.Row="4" Grid.Column="1"
                             Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_Browse]}"
                             Style="{StaticResource ButtonStyle}"
                             Click="BrowseWallpaperSavePathButton_Click" />
@@ -241,8 +241,8 @@
                         </controls:PathDisplayControl.ToolTip>
                     </controls:PathDisplayControl>
 
-                    <Separator Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="5" 
-                               Margin="0, 10" 
+                    <Separator Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="5"
+                               Margin="0, 10"
                                Style="{StaticResource SeparatorStyle}" />
 
                     <Label Grid.Row="8" Grid.Column="0"
@@ -251,9 +251,6 @@
                     <CheckBox Grid.Row="8" Grid.Column="1" Grid.ColumnSpan="2"
                               Name="LaunchAtLoginCheckBox"
                               Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_Enable]}"
-                              IsChecked="{Binding LaunchAtLogin,
-                                         Mode=TwoWay,
-                                         UpdateSourceTrigger=PropertyChanged}"
                               Style="{StaticResource LaunchAtLoginCheckBoxStyle}" />
 
                     <Label Grid.Row="9" Grid.Column="0"
@@ -263,9 +260,15 @@
                               Style="{StaticResource ComboBoxStyle}"
                               SelectedValue="{Binding Language, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                               SelectedValuePath="Tag">
-                        <ComboBoxItem Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_Language_Auto]}" Tag="Auto" Style="{StaticResource ComboBoxItemStyle}" />
-                        <ComboBoxItem Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_Language_English]}" Tag="en-US" Style="{StaticResource ComboBoxItemStyle}" />
-                        <ComboBoxItem Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_Language_Chinese]}" Tag="zh-CN" Style="{StaticResource ComboBoxItemStyle}" />
+                        <ComboBoxItem
+                            Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_Language_Auto]}"
+                            Tag="Auto" Style="{StaticResource ComboBoxItemStyle}" />
+                        <ComboBoxItem
+                            Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_Language_English]}"
+                            Tag="en-US" Style="{StaticResource ComboBoxItemStyle}" />
+                        <ComboBoxItem
+                            Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_Language_Chinese]}"
+                            Tag="zh-CN" Style="{StaticResource ComboBoxItemStyle}" />
                     </ComboBox>
 
                     <Label Grid.Row="10" Grid.Column="0"
@@ -274,16 +277,19 @@
                     <ComboBox Grid.Row="10" Grid.Column="1" Grid.ColumnSpan="2"
                               Style="{StaticResource ComboBoxStyle}"
                               SelectedIndex="{Binding Theme, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
-                        <ComboBoxItem Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_Theme_Light]}" 
-                                      Tag="0" Style="{StaticResource ComboBoxItemStyle}" />
-                        <ComboBoxItem Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_Theme_Dark]}" 
-                                      Tag="1" Style="{StaticResource ComboBoxItemStyle}" />
-                        <ComboBoxItem Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_Theme_Auto]}"
-                                      Tag="2" Style="{StaticResource ComboBoxItemStyle}" />
+                        <ComboBoxItem
+                            Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_Theme_Light]}"
+                            Tag="0" Style="{StaticResource ComboBoxItemStyle}" />
+                        <ComboBoxItem
+                            Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_Theme_Dark]}"
+                            Tag="1" Style="{StaticResource ComboBoxItemStyle}" />
+                        <ComboBoxItem
+                            Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_Theme_Auto]}"
+                            Tag="2" Style="{StaticResource ComboBoxItemStyle}" />
                     </ComboBox>
                 </Grid>
             </TabItem>
-            
+
             <TabItem Header="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_Tab_Filter]}"
                      helpers:TabItemHelper.IconGeometry="{StaticResource Icon_Filter}"
                      Style="{StaticResource SettingsTabItemStyle}">
@@ -303,9 +309,9 @@
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
 
-                    <Separator Grid.ColumnSpan="4" 
-                               Margin="0, 10" 
-                               Style="{StaticResource SeparatorStyle}"/>
+                    <Separator Grid.ColumnSpan="4"
+                               Margin="0, 10"
+                               Style="{StaticResource SeparatorStyle}" />
 
                     <Label Grid.Row="1" Grid.Column="0"
                            Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_RatioPref]}"
@@ -315,9 +321,15 @@
                               SelectedIndex="{Binding WallpaperOrientation, 
                                                       Mode=TwoWay, 
                                                       UpdateSourceTrigger=PropertyChanged}">
-                        <ComboBoxItem Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_Ratio_Landscape]}" Style="{StaticResource ComboBoxItemStyle}" />
-                        <ComboBoxItem Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_Ratio_Portrait]}" Style="{StaticResource ComboBoxItemStyle}" />
-                        <ComboBoxItem Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_Ratio_Both]}" Style="{StaticResource ComboBoxItemStyle}" />
+                        <ComboBoxItem
+                            Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_Ratio_Landscape]}"
+                            Style="{StaticResource ComboBoxItemStyle}" />
+                        <ComboBoxItem
+                            Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_Ratio_Portrait]}"
+                            Style="{StaticResource ComboBoxItemStyle}" />
+                        <ComboBoxItem
+                            Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_Ratio_Both]}"
+                            Style="{StaticResource ComboBoxItemStyle}" />
                     </ComboBox>
 
                     <Label Grid.Row="2" Grid.Column="0"
@@ -328,9 +340,15 @@
                               SelectedIndex="{Binding SmartFilter,
                                                       Mode=TwoWay,
                                                       UpdateSourceTrigger=PropertyChanged}">
-                        <ComboBoxItem Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_Filter_None]}" Style="{StaticResource ComboBoxItemStyle}" />
-                        <ComboBoxItem Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_Filter_Portraits]}" Style="{StaticResource ComboBoxItemStyle}" />
-                        <ComboBoxItem Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_Filter_AllPeople]}" Style="{StaticResource ComboBoxItemStyle}" />
+                        <ComboBoxItem
+                            Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_Filter_None]}"
+                            Style="{StaticResource ComboBoxItemStyle}" />
+                        <ComboBoxItem
+                            Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_Filter_Portraits]}"
+                            Style="{StaticResource ComboBoxItemStyle}" />
+                        <ComboBoxItem
+                            Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_Filter_AllPeople]}"
+                            Style="{StaticResource ComboBoxItemStyle}" />
                     </ComboBox>
 
                     <Label Grid.Row="3" Grid.Column="0"
@@ -387,11 +405,12 @@
                                         <ColumnDefinition Width="*" />
                                         <ColumnDefinition Width="Auto" />
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="{Binding}" VerticalAlignment="Center" Margin="5,0"/>
+                                    <TextBlock Grid.Column="0" Text="{Binding}" VerticalAlignment="Center" Margin="5,0" />
                                     <Button Grid.Column="1" Content="✕" Width="16" Height="16" Margin="0"
                                             Command="{Binding DataContext.RemoveFilteredUserCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
                                             CommandParameter="{Binding}"
-                                            Style="{StaticResource ButtonStyle}" Foreground="{DynamicResource DangerBrush}" Cursor="Hand"
+                                            Style="{StaticResource ButtonStyle}"
+                                            Foreground="{DynamicResource DangerBrush}"
                                             ToolTip="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_UnhideAuthorTooltip]}" />
                                 </Grid>
                             </DataTemplate>
@@ -418,12 +437,16 @@
                                             </Border>
                                             <ControlTemplate.Triggers>
                                                 <Trigger Property="IsMouseOver" Value="True">
-                                                    <Setter TargetName="Bd" Property="Background" Value="{DynamicResource AccentBrush}" />
-                                                    <Setter Property="TextElement.Foreground" Value="{DynamicResource AccentForegroundBrush}" />
+                                                    <Setter TargetName="Bd" Property="Background"
+                                                            Value="{DynamicResource AccentBrush}" />
+                                                    <Setter Property="TextElement.Foreground"
+                                                            Value="{DynamicResource AccentForegroundBrush}" />
                                                 </Trigger>
                                                 <Trigger Property="IsSelected" Value="True">
-                                                    <Setter TargetName="Bd" Property="Background" Value="{DynamicResource ControlMouseOverBrush}" />
-                                                    <Setter Property="TextElement.Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+                                                    <Setter TargetName="Bd" Property="Background"
+                                                            Value="{DynamicResource ControlMouseOverBrush}" />
+                                                    <Setter Property="TextElement.Foreground"
+                                                            Value="{DynamicResource PrimaryTextBrush}" />
                                                 </Trigger>
                                             </ControlTemplate.Triggers>
                                         </ControlTemplate>
@@ -435,34 +458,184 @@
 
                 </Grid>
             </TabItem>
-            
+
             <TabItem Header="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_Tab_About]}"
                      helpers:TabItemHelper.IconGeometry="{StaticResource Icon_About}"
                      Style="{StaticResource SettingsTabItemStyle}">
-                <Grid Margin="10">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                    </Grid.RowDefinitions>
-                    <Label Grid.Row="0"
-                           Foreground="{DynamicResource PrimaryTextBrush}"
-                           Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_AboutContent]}"
-                           HorizontalContentAlignment="Center"/>
-                    
-                    <StackPanel Grid.Row="1" Orientation="Vertical" Margin="0,20,0,20">
-                        <Button Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_ClearCache]}"
-                                Style="{StaticResource BottomButtonStyle}"
-                                MinWidth="120" MaxWidth="160"
-                                Margin="0,10,0,0"
-                                Click="ClearCache_Click"/>
-                        <Button Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_ResetApp]}"
-                                Style="{StaticResource BottomButtonStyle}"
-                                MinWidth="120" MaxWidth="160"
-                                Margin="0,10,0,0"
-                                Background="{DynamicResource DangerBrush}" Foreground="White"
-                                Click="ResetApp_Click"/>
+                <TabItem.Resources>
+                    <Style x:Key="IconLinkButtonStyle" TargetType="Button">
+                        <Setter Property="Background" Value="Transparent" />
+                        <Setter Property="BorderThickness" Value="0" />
+                        <Setter Property="Cursor" Value="Hand" />
+                        <Setter Property="Width" Value="36" />
+                        <Setter Property="Height" Value="36" />
+                        <Setter Property="Padding" Value="8" />
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="Button">
+                                    <Border x:Name="Bd"
+                                            Background="{TemplateBinding Background}"
+                                            CornerRadius="6"
+                                            Padding="{TemplateBinding Padding}">
+                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="Bd" Property="Background"
+                                                    Value="{DynamicResource ControlMouseOverBrush}" />
+                                        </Trigger>
+                                        <Trigger Property="IsPressed" Value="True">
+                                            <Setter TargetName="Bd" Property="Background"
+                                                    Value="{DynamicResource AccentBrush}" />
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </TabItem.Resources>
+
+
+                <StackPanel>
+                    <Separator
+                        Margin="0, 10"
+                        Style="{StaticResource SeparatorStyle}" />
+                    <!-- App Branding -->
+                    <StackPanel HorizontalAlignment="Center" Margin="0,8,0,4">
+                        <Viewbox Width="48" Height="48" HorizontalAlignment="Center">
+                            <Path Data="{StaticResource Icon_AppLogo}"
+                                  Fill="{DynamicResource PrimaryTextBrush}"
+                                  Stretch="Uniform" />
+                        </Viewbox>
+                        <TextBlock Text="Irvue for Windows"
+                                   FontSize="16" FontWeight="SemiBold"
+                                   HorizontalAlignment="Center" Margin="0,6,0,0"
+                                   Foreground="{DynamicResource PrimaryTextBrush}" />
+                        <TextBlock
+                            Text="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_About_AppDesc]}"
+                            FontSize="12" Opacity="0.7"
+                            HorizontalAlignment="Center" Margin="0,2,0,0"
+                            Foreground="{DynamicResource SecondaryTextBrush}" />
+                        <TextBlock HorizontalAlignment="Center" Margin="0,2,0,0"
+                                   FontSize="11" Opacity="0.6"
+                                   Foreground="{DynamicResource SecondaryTextBrush}"
+                                   Text="{Binding AppVersion, StringFormat='v{0}'}" />
                     </StackPanel>
-                </Grid>
+
+                    <!-- Check for Updates -->
+                    <StackPanel HorizontalAlignment="Center" Margin="0,2,0,0">
+                        <Button
+                            Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_About_CheckUpdate]}"
+                            Command="{Binding CheckForUpdateCommand}"
+                            Style="{StaticResource BottomButtonStyle}"
+                            MinWidth="120" MaxWidth="160" />
+                        
+                        <TextBlock Text="{Binding UpdateStatusText}"
+                                   FontSize="11"
+                                   HorizontalAlignment="Center" Margin="0,3,0,0"
+                                   Foreground="{DynamicResource AccentBrush}">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Visibility" Value="Visible" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding HasNewVersion}" Value="True">
+                                            <Setter Property="Visibility" Value="Collapsed" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+
+                        <TextBlock FontSize="11" HorizontalAlignment="Center" Margin="0,3,0,0">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding HasNewVersion}" Value="True">
+                                            <Setter Property="Visibility" Value="Visible" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                            <Hyperlink Command="{Binding OpenUrlCommand}"
+                                       CommandParameter="{Binding LatestReleaseUrl}"
+                                       Foreground="{DynamicResource AccentBrush}">
+                                <Run Text="{Binding UpdateStatusText}" />
+                            </Hyperlink>
+                        </TextBlock>
+                    </StackPanel>
+
+                    <!-- GitHub Links Row -->
+                    <!-- <Separator Margin="0,6" Style="{StaticResource SeparatorStyle}" /> -->
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,0">
+                        <!-- GitHub Repo -->
+                        <Button Style="{StaticResource IconLinkButtonStyle}"
+                                Command="{Binding OpenUrlCommand}"
+                                CommandParameter="https://github.com/wangy325/Irvuewin"
+                                ToolTip="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_About_GitHub]}">
+                            <Path Data="{StaticResource Icon_GitHub}" Fill="{DynamicResource PrimaryTextBrush}"
+                                  Width="18" Height="18" Stretch="Uniform" />
+                        </Button>
+                        <!-- Report Issue -->
+                        <Button Style="{StaticResource IconLinkButtonStyle}" Margin="8,0,0,0"
+                                Command="{Binding OpenUrlCommand}"
+                                CommandParameter="https://github.com/wangy325/Irvuewin/issues"
+                                ToolTip="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_About_Issues]}">
+                            <Path Data="{StaticResource Icon_Bug}" Fill="{DynamicResource PrimaryTextBrush}"
+                                  Width="18" Height="18" Stretch="Uniform" />
+                        </Button>
+                        <!-- Release Notes -->
+                        <Button Style="{StaticResource IconLinkButtonStyle}" Margin="8,0,0,0"
+                                Command="{Binding OpenUrlCommand}"
+                                CommandParameter="https://github.com/wangy325/Irvuewin/releases"
+                                ToolTip="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_About_Releases]}">
+                            <Path Data="{StaticResource Icon_Update}" Fill="{DynamicResource PrimaryTextBrush}"
+                                  Width="18" Height="18" Stretch="Uniform" />
+                        </Button>
+                        <!-- License -->
+                        <Button Style="{StaticResource IconLinkButtonStyle}" Margin="8,0,0,0"
+                                Command="{Binding OpenUrlCommand}"
+                                CommandParameter="https://github.com/wangy325/Irvuewin/blob/main/LICENSE.txt"
+                                ToolTip="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_About_License]}">
+                            <Path Data="{StaticResource Icon_Document}" Fill="{DynamicResource PrimaryTextBrush}"
+                                  Width="18" Height="18" Stretch="Uniform" />
+                        </Button>
+                    </StackPanel>
+
+                    <!-- Maintenance Actions -->
+                    <!-- <Separator Margin="0,6" Style="{StaticResource SeparatorStyle}" /> -->
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,2,0,0">
+                        <Button
+                            Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_ClearCache]}"
+                            Style="{StaticResource BottomButtonStyle}"
+                            MinWidth="120" MaxWidth="160"
+                            Click="ClearCache_Click" />
+                        <Button
+                            Content="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_ResetApp]}"
+                            Style="{StaticResource BottomButtonStyle}"
+                            MinWidth="120" MaxWidth="160"
+                            Margin="10,0,0,0"
+                            Background="{DynamicResource DangerBrush}" Foreground="White"
+                            Click="ResetApp_Click" />
+                    </StackPanel>
+
+                    <!-- Credits -->
+                    <Separator Margin="0,6" Style="{StaticResource SeparatorStyle}" />
+                    <StackPanel HorizontalAlignment="Center" Margin="0,0,0,4">
+                        <TextBlock FontSize="11" HorizontalAlignment="Center"
+                                   Foreground="{DynamicResource SecondaryTextBrush}"
+                                   helpers:HyperlinkTextHelper.FormatText="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_About_PhotosBy], Mode=OneWay}"
+                                   helpers:HyperlinkTextHelper.LinkText="Unsplash"
+                                   helpers:HyperlinkTextHelper.LinkCommand="{Binding OpenUrlCommand}"
+                                   helpers:HyperlinkTextHelper.LinkCommandParameter="https://unsplash.com?utm_source=MagicPaper&amp;utm_medium=referral"
+                                   helpers:HyperlinkTextHelper.LinkForeground="{DynamicResource AccentBrush}" />
+                        <TextBlock
+                            Text="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Settings_About_MadeBy]}"
+                            FontSize="11" HorizontalAlignment="Center" Margin="0,2,0,0"
+                            Foreground="{DynamicResource SecondaryTextBrush}" />
+                    </StackPanel>
+
+                </StackPanel>
             </TabItem>
         </TabControl>
 

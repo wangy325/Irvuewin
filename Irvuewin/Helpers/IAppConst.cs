@@ -1,4 +1,4 @@
-﻿using static System.Environment;
+using static System.Environment;
 using static System.Environment.SpecialFolder;
 
 namespace Irvuewin.Helpers;
@@ -41,6 +41,13 @@ public interface IAppConst
     const string User = "users";
     const string Search = "search";
     const string Attribution = "?utm_source=MagicPaper&utm_medium=referral";
+
+    // GitHub
+    const string GitHubRepoUrl = "https://github.com/wangy325/Irvuewin";
+    const string GitHubIssuesUrl = "https://github.com/wangy325/Irvuewin/issues";
+    const string GitHubReleasesUrl = "https://github.com/wangy325/Irvuewin/releases";
+    const string GitHubLatestReleaseApi = "https://api.github.com/repos/wangy325/Irvuewin/releases/latest";
+    const string GitHubLicenseUrl = "https://github.com/wangy325/Irvuewin/blob/main/LICENSE.txt";
 
     // LiteDB
     const string DbPhotoCollection = "photos";

@@ -276,6 +276,123 @@ namespace Irvuewin.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Beautiful wallpapers from Unsplash.
+        /// </summary>
+        public static string Settings_About_AppDesc {
+            get {
+                return ResourceManager.GetString("Settings_About_AppDesc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Checking....
+        /// </summary>
+        public static string Settings_About_Checking {
+            get {
+                return ResourceManager.GetString("Settings_About_Checking", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Check for Updates.
+        /// </summary>
+        public static string Settings_About_CheckUpdate {
+            get {
+                return ResourceManager.GetString("Settings_About_CheckUpdate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Photos provided by Unsplash.
+        /// </summary>
+        public static string Settings_About_Credits {
+            get {
+                return ResourceManager.GetString("Settings_About_Credits", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to GitHub Repository.
+        /// </summary>
+        public static string Settings_About_GitHub {
+            get {
+                return ResourceManager.GetString("Settings_About_GitHub", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Report an Issue.
+        /// </summary>
+        public static string Settings_About_Issues {
+            get {
+                return ResourceManager.GetString("Settings_About_Issues", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to MIT License.
+        /// </summary>
+        public static string Settings_About_License {
+            get {
+                return ResourceManager.GetString("Settings_About_License", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Made with ❤ by wangy325.
+        /// </summary>
+        public static string Settings_About_MadeBy {
+            get {
+                return ResourceManager.GetString("Settings_About_MadeBy", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to New version {0} available!.
+        /// </summary>
+        public static string Settings_About_NewVersion {
+            get {
+                return ResourceManager.GetString("Settings_About_NewVersion", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Photos provided by {0}.
+        /// </summary>
+        public static string Settings_About_PhotosBy {
+            get {
+                return ResourceManager.GetString("Settings_About_PhotosBy", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Release Notes.
+        /// </summary>
+        public static string Settings_About_Releases {
+            get {
+                return ResourceManager.GetString("Settings_About_Releases", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You&apos;re up to date!.
+        /// </summary>
+        public static string Settings_About_UpToDate {
+            get {
+                return ResourceManager.GetString("Settings_About_UpToDate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Version {0}.
+        /// </summary>
+        public static string Settings_About_Version {
+            get {
+                return ResourceManager.GetString("Settings_About_Version", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to An Irvue like application for Windows....
         /// </summary>
         public static string Settings_AboutContent {
@@ -380,6 +497,15 @@ namespace Irvuewin.Properties {
         public static string Settings_Folder_Error {
             get {
                 return ResourceManager.GetString("Settings_Folder_Error", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Hidden Authors:.
+        /// </summary>
+        public static string Settings_HiddenAuthors {
+            get {
+                return ResourceManager.GetString("Settings_HiddenAuthors", resourceCulture);
             }
         }
         
@@ -632,6 +758,15 @@ namespace Irvuewin.Properties {
         public static string Settings_Theme_Light {
             get {
                 return ResourceManager.GetString("Settings_Theme_Light", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unhide.
+        /// </summary>
+        public static string Settings_UnhideAuthorTooltip {
+            get {
+                return ResourceManager.GetString("Settings_UnhideAuthorTooltip", resourceCulture);
             }
         }
         

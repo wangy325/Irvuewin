@@ -379,4 +379,43 @@
   <data name="Settings_UnhideAuthorTooltip" xml:space="preserve">
     <value>取消隐藏</value>
   </data>
+  <data name="Settings_About_AppDesc" xml:space="preserve">
+    <value>来自 Unsplash 的精美壁纸</value>
+  </data>
+  <data name="Settings_About_Version" xml:space="preserve">
+    <value>版本 {0}</value>
+  </data>
+  <data name="Settings_About_CheckUpdate" xml:space="preserve">
+    <value>检查更新</value>
+  </data>
+  <data name="Settings_About_UpToDate" xml:space="preserve">
+    <value>已是最新版本！</value>
+  </data>
+  <data name="Settings_About_NewVersion" xml:space="preserve">
+    <value>发现新版本 {0}！</value>
+  </data>
+  <data name="Settings_About_Checking" xml:space="preserve">
+    <value>检查中...</value>
+  </data>
+  <data name="Settings_About_GitHub" xml:space="preserve">
+    <value>GitHub 仓库</value>
+  </data>
+  <data name="Settings_About_Issues" xml:space="preserve">
+    <value>反馈问题</value>
+  </data>
+  <data name="Settings_About_Releases" xml:space="preserve">
+    <value>更新日志</value>
+  </data>
+  <data name="Settings_About_License" xml:space="preserve">
+    <value>MIT 开源许可证</value>
+  </data>
+  <data name="Settings_About_Credits" xml:space="preserve">
+    <value>图片由 Unsplash 提供</value>
+  </data>
+  <data name="Settings_About_PhotosBy" xml:space="preserve">
+    <value>图片由 {0}提供</value>
+  </data>
+  <data name="Settings_About_MadeBy" xml:space="preserve">
+    <value>由 wangy325 用 ❤ 制作</value>
+  </data>
 </root>

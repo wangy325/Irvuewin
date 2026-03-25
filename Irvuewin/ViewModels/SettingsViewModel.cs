@@ -1,20 +1,24 @@
 using System.ComponentModel;
+using System.Net.Http;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using Irvuewin.Helpers;
 using System.Collections.ObjectModel;
-using System.Linq;
 using Irvuewin.Helpers.DB;
+using Newtonsoft.Json.Linq;
+using Serilog;
+using static Irvuewin.Helpers.IAppConst;
 
 namespace Irvuewin.ViewModels;
 
-///<summary>
 ///Author: wangy325
 ///Date: 2020/01/01 18:18:18
 ///Desc: 
-///</summary>
 public class SettingsViewModel : INotifyPropertyChanged
 {
+    private static readonly ILogger Logger = Log.ForContext<SettingsViewModel>();
+
     public event PropertyChangedEventHandler? PropertyChanged;
 
     private bool _openSavedWallpaper = Properties.Settings.Default.OpenSavedWallpaper;
@@ -61,11 +65,65 @@ public class SettingsViewModel : INotifyPropertyChanged
         }
     }
 
+    // ---- About Page Properties ----
+
+    public string AppVersion => Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? "1.0.0";
+
+    private string _updateStatusText = "";
+    public string UpdateStatusText
+    {
+        get => _updateStatusText;
+        set
+        {
+            if (_updateStatusText == value) return;
+            _updateStatusText = value;
+            OnPropertyChanged();
+        }
+    }
+
+    private bool _hasNewVersion;
+    public bool HasNewVersion
+    {
+        get => _hasNewVersion;
+        set
+        {
+            if (_hasNewVersion == value) return;
+            _hasNewVersion = value;
+            OnPropertyChanged();
+        }
+    }
+
+    private string _latestReleaseUrl = GitHubReleasesUrl;
+    public string LatestReleaseUrl
+    {
+        get => _latestReleaseUrl;
+        set
+        {
+            if (_latestReleaseUrl == value) return;
+            _latestReleaseUrl = value;
+            OnPropertyChanged();
+        }
+    }
+
+    private bool _isCheckingUpdate;
+    public bool IsCheckingUpdate
+    {
+        get => _isCheckingUpdate;
+        set
+        {
+            if (_isCheckingUpdate == value) return;
+            _isCheckingUpdate = value;
+            OnPropertyChanged();
+        }
+    }
+
     public ICommand MultiDisplayCheckedCommand { get; }
     public ICommand DisplayModeCheckedCommand { get; }
     public ICommand LaunchAtLoginCommand { get; }
     public ICommand AsyncRefreshWallpaperCommand { get; }
     public ICommand RemoveFilteredUserCommand { get; }
+    public ICommand OpenUrlCommand { get; }
+    public ICommand CheckForUpdateCommand { get; }
 
     public SettingsViewModel()
     {
@@ -74,9 +132,11 @@ public class SettingsViewModel : INotifyPropertyChanged
         LaunchAtLoginCommand = new RelayCommand<bool>(OnLaunchAtLoginChecked);
         AsyncRefreshWallpaperCommand = new AsyncRelayCommand(OnOrientationChanged);
         RemoveFilteredUserCommand = new RelayCommand<string>(OnRemoveFilteredUser);
+        OpenUrlCommand = new RelayCommand<string>(ICommonCommands.OpenUrl);
+        CheckForUpdateCommand = new AsyncRelayCommand(OnCheckForUpdate);
         LoadFilteredUsers();
 
-        Properties.Settings.Default.PropertyChanged += (s, e) =>
+        Properties.Settings.Default.PropertyChanged += (_, e) =>
         {
             if (e.PropertyName == nameof(Properties.Settings.Default.UserFilterList))
             {
@@ -274,6 +334,53 @@ public class SettingsViewModel : INotifyPropertyChanged
 
         await Task.Run(() => DataBaseService.UnblockAuthor(username));
         await ChannelsViewModel.GetInstance().RefreshPhotos();
+    }
+
+    private async Task OnCheckForUpdate()
+    {
+        IsCheckingUpdate = true;
+        HasNewVersion = false;
+        UpdateStatusText = Localization.Instance["Settings_About_Checking"];
+        try
+        {
+            using var client = new HttpClient();
+            client.DefaultRequestHeaders.Add("User-Agent", AppName);
+            client.Timeout = TimeSpan.FromSeconds(10);
+            var response = await client.GetStringAsync(GitHubLatestReleaseApi);
+            var json = JObject.Parse(response);
+            var tagName = json["tag_name"]?.ToString()?.TrimStart('v', 'V') ?? "";
+
+            if (Version.TryParse(tagName, out var latestVersion) && 
+                Version.TryParse(AppVersion, out var currentVersion))
+            {
+                if (latestVersion > currentVersion)
+                {
+                    UpdateStatusText = string.Format(Localization.Instance["Settings_About_NewVersion"], tagName);
+                    LatestReleaseUrl = json["html_url"]?.ToString() ?? GitHubReleasesUrl;
+                    HasNewVersion = true;
+                }
+                else
+                {
+                    UpdateStatusText = Localization.Instance["Settings_About_UpToDate"];
+                    HasNewVersion = false;
+                }
+            }
+            else
+            {
+                UpdateStatusText = Localization.Instance["Settings_About_UpToDate"];
+                HasNewVersion = false;
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.Warning(ex, "Failed to check for updates");
+            UpdateStatusText = Localization.Instance["Settings_About_UpToDate"];
+            HasNewVersion = false;
+        }
+        finally
+        {
+            IsCheckingUpdate = false;
+        }
     }
 
     private void OnPropertyChanged([CallerMemberName] string? propertyName = null)

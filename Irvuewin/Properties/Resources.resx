@@ -379,4 +379,43 @@
   <data name="Settings_UnhideAuthorTooltip" xml:space="preserve">
     <value>Unhide</value>
   </data>
+  <data name="Settings_About_AppDesc" xml:space="preserve">
+    <value>Beautiful wallpapers from Unsplash</value>
+  </data>
+  <data name="Settings_About_Version" xml:space="preserve">
+    <value>Version {0}</value>
+  </data>
+  <data name="Settings_About_CheckUpdate" xml:space="preserve">
+    <value>Check for Updates</value>
+  </data>
+  <data name="Settings_About_UpToDate" xml:space="preserve">
+    <value>You're up to date!</value>
+  </data>
+  <data name="Settings_About_NewVersion" xml:space="preserve">
+    <value>New version {0} available!</value>
+  </data>
+  <data name="Settings_About_Checking" xml:space="preserve">
+    <value>Checking...</value>
+  </data>
+  <data name="Settings_About_GitHub" xml:space="preserve">
+    <value>GitHub Repository</value>
+  </data>
+  <data name="Settings_About_Issues" xml:space="preserve">
+    <value>Report an Issue</value>
+  </data>
+  <data name="Settings_About_Releases" xml:space="preserve">
+    <value>Release Notes</value>
+  </data>
+  <data name="Settings_About_License" xml:space="preserve">
+    <value>MIT License</value>
+  </data>
+  <data name="Settings_About_Credits" xml:space="preserve">
+    <value>Photos provided by Unsplash</value>
+  </data>
+  <data name="Settings_About_PhotosBy" xml:space="preserve">
+    <value>Photos provided by {0}</value>
+  </data>
+  <data name="Settings_About_MadeBy" xml:space="preserve">
+    <value>Made with ❤ by wangy325</value>
+  </data>
 </root>
