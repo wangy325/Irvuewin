@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Channels_NoPhotos" xml:space="preserve">
-    <value>该频道没有照片！</value>
+    <value>该频道没有符合条件的照片</value>
   </data>
   <data name="Channels_Refresh" xml:space="preserve">
     <value>刷新壁纸</value>

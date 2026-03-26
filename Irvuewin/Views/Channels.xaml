@@ -25,6 +25,7 @@
     <helpers:LocationAwareWindow.Resources>
         <ResourceDictionary>
             <converters:ImageUrlToBitmapConverter x:Key="ImageUrlToBitmapConverter" />
+            <!-- <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" /> -->
             <Style x:Key="ChannelContextMenuStyle" TargetType="ContextMenu"
                    BasedOn="{StaticResource ContextMenuStyle}">
                 <Setter Property="Width" Value="Auto" />
@@ -159,7 +160,7 @@
                                 <MenuItem
                                     Header="{Binding Source={x:Static helpers:Localization.Instance}, Path=[ContextMenu_SetWallpaper]}"
                                     Command="{Binding SetAsWallpaperCommand}"
-                                    CommandParameter="{Binding Path=PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
+                                    CommandParameter="{Binding Path=PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
                                 <MenuItem
                                     Header="{Binding Source={x:Static helpers:Localization.Instance}, Path=[ContextMenu_Download]}"
                                     Command="{Binding DownloadPhotoCommand}"
@@ -336,22 +337,30 @@
                 </ItemsControl.ItemsPanel>
             </vwp:VirtualizingItemsControl>
 
-            <!-- DO NOT WORK -->
-            <TextBlock Grid.Row="3"
-                       Text="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Channels_NoPhotos]}"
-                       Visibility="Collapsed">
-                <TextBlock.Style>
-                    <Style TargetType="TextBlock">
+            <!-- Empty State -->
+            <!--Visibility="{Binding RelativeSource={RelativeSource AncestorType=helpers:LocationAwareWindow}, 
+                        Path=DataContext.(vm:ChannelsViewModel.IsPhotosEmpty), 
+                        Converter={StaticResource BooleanToVisibilityConverter}}"-->
+            <StackPanel Grid.Row="2"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center">
+                <StackPanel.Style>
+                    <Style TargetType="StackPanel">
+                        <Setter Property="Visibility" Value="Collapsed"/>
                         <Style.Triggers>
                             <DataTrigger
-                                Binding="{Binding RelativeSource={RelativeSource AncestorType=helpers:LocationAwareWindow}, Path=DataContext.(vm:ChannelsViewModel.Photos).Count}"
-                                Value="0">
+                                Binding="{Binding Path=DataContext.IsPhotosEmpty, RelativeSource={RelativeSource AncestorType=helpers:LocationAwareWindow}}" Value="True">
                                 <Setter Property="Visibility" Value="Visible" />
                             </DataTrigger>
                         </Style.Triggers>
                     </Style>
-                </TextBlock.Style>
-            </TextBlock>
+                </StackPanel.Style>
+
+                <TextBlock Text="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Channels_NoPhotos]}"
+                           Foreground="{DynamicResource SecondaryTextBrush}"
+                           FontSize="16"
+                           HorizontalAlignment="Center" />
+            </StackPanel>
         </Grid>
     </Grid>
 </helpers:LocationAwareWindow>

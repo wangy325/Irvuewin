@@ -132,7 +132,7 @@ namespace Irvuewin.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to No photos available in this channel!.
+        ///   Looks up a localized string similar to No matching photos in current channel..
         /// </summary>
         public static string Channels_NoPhotos {
             get {

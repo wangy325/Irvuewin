@@ -29,6 +29,19 @@ public class ChannelsViewModel : INotifyPropertyChanged
 
     private string SavedChannelIds { get; set; } = Properties.Settings.Default.UserUnsplashChannels;
 
+    private bool _isPhotosEmpty;
+
+    public bool IsPhotosEmpty
+    {
+        get => _isPhotosEmpty;
+        set
+        {
+            _isPhotosEmpty = value;
+            OnPropertyChanged();
+        }
+    }
+
+
     private ObservableCollection<UnsplashPhoto> _photos = [];
 
     /// <summary>
@@ -41,7 +54,13 @@ public class ChannelsViewModel : INotifyPropertyChanged
         {
             _photos = value;
             OnPropertyChanged();
+            SyncPhotosState();
         }
+    }
+
+    private void SyncPhotosState()
+    {
+        IsPhotosEmpty = Photos.Count == 0;
     }
 
     private ObservableCollection<ChannelViewModel> _channels = [];
@@ -233,6 +252,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
             {
                 EventBus.PublishPoolLow(channelId);
             }
+            SyncPhotosState();
             return false;
         }
 
@@ -253,7 +273,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
         {
             EventBus.PublishPoolLow(channelId);
         }
-
+        SyncPhotosState();
         return true;
     }
 
@@ -397,6 +417,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
             if (channel.Id != SelectedChannel!.Id) continue;
             // Set photos
             // Some channels may not contain photos in specify orientation
+            Photos.Clear();
             PreviewPhotos(channel.Id, UnsplashQueryParams.Create());
         }
     }
@@ -518,6 +539,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
         photo.IsHidden = true;
         DataBaseService.UpdatePhoto(photo);
         Photos.Remove(photo);
+        SyncPhotosState();
     }
 
     private async void OnHideAuthor(UnsplashPhoto photo)
@@ -546,6 +568,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
             foreach (var p in toRemove)
             {
                 Photos.Remove(p);
+                SyncPhotosState();
             }
         }
         catch (Exception e)

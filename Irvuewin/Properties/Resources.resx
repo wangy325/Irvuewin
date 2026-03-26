@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Channels_NoPhotos" xml:space="preserve">
-    <value>No photos available in this channel!</value>
+    <value>No matching photos in current channel.</value>
   </data>
   <data name="Channels_Refresh" xml:space="preserve">
     <value>Refresh</value>
