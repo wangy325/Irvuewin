@@ -30,8 +30,9 @@ namespace Irvuewin.Helpers.Converters
                 {
                     bitmap.DecodePixelWidth = decodeWidth;
                 }
-                // 移除 CacheOption.OnLoad 防止它在 UI 线程同步阻塞下载
-                // 移除 Freeze() 防止冻结正在异步下载的图片导致空白
+                // Only keep IgnoreColorProfile to avoid overhead. 
+                // DelayCreation is removed as it causes blank images in some WPF virtualization scenarios.
+                bitmap.CreateOptions = BitmapCreateOptions.IgnoreColorProfile;
                 bitmap.EndInit();
                 return bitmap;
             }
