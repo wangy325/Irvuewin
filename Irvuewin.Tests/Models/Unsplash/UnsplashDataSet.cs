@@ -10,7 +10,7 @@ namespace Irvuewin.Tests.Models.Unsplash;
 ///</summary>
 public static class UnsplashDataSet
 {
-    public static string BaseUrl = "https://api.unsplash.com";
+    public static string BaseUrl = "https://unsplash-api-proxy.wangy325.workers.dev";
     public static string PhotoId = "0RbbLWm6rLk";
     public static string ChannelId = "raoebyzOILQ";
     

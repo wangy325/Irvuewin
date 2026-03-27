@@ -1,6 +1,5 @@
 ﻿#pragma warning disable CS8618
 using Irvuewin.Models.Unsplash;
-using Irvuewin.Helpers;
 using Irvuewin.Helpers.HTTP;
 
 namespace Irvuewin.Tests.Models.Unsplash
@@ -37,7 +36,7 @@ namespace Irvuewin.Tests.Models.Unsplash
         {
             
             // Act
-            var actualPhotos = await _httpService.GetPhotosOfChannel(UnsplashDataSet.ChannelId, UnsplashQueryParams.Create());
+            var actualPhotos = await _httpService.GetPhotosOfChannel(UnsplashDataSet.ChannelId, UnsplashQueryParams.Create().PerPage(2));
 
             // Assert
             Assert.IsNotNull(actualPhotos);
