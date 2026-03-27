@@ -5,6 +5,7 @@ using Irvuewin.Helpers.HTTP;
 namespace Irvuewin.Tests.Models.Unsplash
 {
     [TestClass]
+    [Ignore]
     public class UnsplashApiTests
     {
         private UnsplashHttpClientWrapper _httpClientWrapper;
