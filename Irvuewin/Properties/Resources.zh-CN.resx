@@ -439,4 +439,13 @@
   <data name="UpdateWindow_Error" xml:space="preserve">
     <value>下载更新时发生错误。</value>
   </data>
+  <data name="Channel_Likes_Title" xml:space="preserve">
+    <value>我喜欢的</value>
+  </data>
+  <data name="ContextMenu_Like" xml:space="preserve">
+    <value>喜欢</value>
+  </data>
+  <data name="ContextMenu_Unlike" xml:space="preserve">
+    <value>取消喜欢</value>
+  </data>
 </root>

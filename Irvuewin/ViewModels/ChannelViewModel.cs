@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using Irvuewin.Helpers;
@@ -25,7 +25,11 @@ public class ChannelViewModel : UnsplashChannel, INotifyPropertyChanged
     }
 
     [BsonIgnore]
+    public bool IsReserved { get; set; }
+
+    [BsonIgnore]
     public ICommand ChannelSelected { set; get; } = new RelayCommand<ChannelViewModel>(OnChannelSelected);
+
     
     [BsonIgnore]
     public ICommand ChannelChecked { set; get; } = new RelayCommand<ChannelViewModel>(OnChannelChecked);

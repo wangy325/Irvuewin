@@ -167,7 +167,14 @@ public static class IrvuewinCore
         var httpService = IHttpClient.GetUnsplashHttpService();
         if (random)
         {
-            photos = await httpService.GetRandomPhotoInChannel(channelId, wallpaperCount);
+            if (channelId == LikesChannelId)
+            {
+                photos = DataBaseService.GetRandomLikedPhotos(wallpaperCount);
+            }
+            else
+            {
+                photos = await httpService.GetRandomPhotoInChannel(channelId, wallpaperCount);
+            }
         }
         else
         {
@@ -280,6 +287,14 @@ public static class IrvuewinCore
         if (sequence <= totalLoaded)
         {
             var photo = DataBaseService.GetPhotoBySequence(channelId, sequence)!;
+            return (sequence + 1, photo);
+        }
+
+        // Likes channel is local only, no fetching from web
+        if (channelId == LikesChannelId)
+        {
+            sequence = 1;
+            var photo = DataBaseService.GetPhotoBySequence(channelId, sequence);
             return (sequence + 1, photo);
         }
 

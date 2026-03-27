@@ -6,8 +6,10 @@ namespace Irvuewin.Helpers;
 public interface IAppConst
 {
     const int PageSize = 12;
+    const string LikesChannelId = "likes";
 
     static readonly string DefaultWallpaperDownloadDir = GetFolderPath(MyPictures);
+
 
     const string AppName = "Irvuewin";
 

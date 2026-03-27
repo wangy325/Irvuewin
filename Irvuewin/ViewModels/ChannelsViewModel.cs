@@ -9,8 +9,8 @@ using System.Diagnostics;
 using Irvuewin.Helpers.DB;
 using Irvuewin.Helpers.Events;
 using Irvuewin.Helpers.HTTP;
-using static Irvuewin.Helpers.IAppConst;
 using Exception = System.Exception;
+using static Irvuewin.Helpers.IAppConst;
 
 
 namespace Irvuewin.ViewModels;
@@ -132,6 +132,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
     public ICommand ViewAuthorCommand { get; }
     public ICommand HidePhotoCommand { get; }
     public ICommand HideAuthorCommand { get; }
+    public ICommand LikePhotoCommand { get; }
 
 
     private static readonly Lazy<Task<ChannelsViewModel>> Instance = new(Init);
@@ -154,6 +155,8 @@ public class ChannelsViewModel : INotifyPropertyChanged
         ViewAuthorCommand = new RelayCommand<UnsplashPhoto>(OnViewAuthor);
         HidePhotoCommand = new RelayCommand<UnsplashPhoto>(OnHidePhoto);
         HideAuthorCommand = new RelayCommand<UnsplashPhoto>(OnHideAuthor);
+        LikePhotoCommand = new RelayCommand<UnsplashPhoto>(OnLikePhoto);
+
         // binding EventBus
         EventBus.WallpapersReplenished += OnWallpaperReplenished;
         EventBus.ChannelSyncCompleted += OnChannelSyncCompleted;
@@ -196,34 +199,53 @@ public class ChannelsViewModel : INotifyPropertyChanged
     /// </summary>
     private async Task LoadChannels()
     {
-        var channelIds = SavedChannelIds.Split(',');
-        if (DataBaseService.LoadChannels() is { } cachedChannels
-            && cachedChannels.Count == channelIds.Length)
+        var channelIds = SavedChannelIds.Split(',', StringSplitOptions.RemoveEmptyEntries);
+        var cachedChannels = DataBaseService.LoadChannels() ?? [];
+
+        // Ensure Likes channel exists in DB and load it
+        var likesDb = cachedChannels.FirstOrDefault(c => c.Id == LikesChannelId);
+        if (likesDb == null)
         {
-            // Load from LiteDB
-            List<ChannelViewModel> channelViewModels = [];
-            channelViewModels.AddRange(
-                cachedChannels.Select(item => MapperProvider.Mapper.Map<ChannelViewModel>(item)));
-            Channels = [..channelViewModels];
-            foreach (var channel in Channels)
+            likesDb = new UnsplashChannel
             {
-                FastCacheManager.Set(CachedWallpaperPreviewShard, channel.Id, 1);
-            }
+                Id = LikesChannelId,
+                Title = Localization.Instance["Channel_Likes_Title"],
+                AllPhotosLoaded = true
+            };
+            await DataBaseService.UpdateChannel(likesDb);
         }
-        else
+
+        List<ChannelViewModel> channelViewModels = [];
+
+        // 1. Add Likes channel at top
+        var likesVM = MapperProvider.Mapper.Map<ChannelViewModel>(likesDb);
+        likesVM.Title = Localization.Instance["Channel_Likes_Title"];
+        likesVM.IsReserved = true;
+        likesVM.AllPhotosLoaded = true;
+        channelViewModels.Add(likesVM);
+
+        // 2. Add other Unsplash channels
+        var httpService = IHttpClient.GetUnsplashHttpService();
+        foreach (var id in channelIds)
         {
-            // Load from web api
-            var httpService = IHttpClient.GetUnsplashHttpService();
-            foreach (var id in channelIds)
+            var dbChannel = cachedChannels.FirstOrDefault(item => item.Id == id);
+            if (dbChannel != null)
             {
+                channelViewModels.Add(MapperProvider.Mapper.Map<ChannelViewModel>(dbChannel));
+            }
+            else
+            {
+                // Load from web api if missing in DB
                 if (await httpService.GetChannelById(id) is not { } channel) continue;
                 await DataBaseService.UpdateChannel(channel);
-                Channels.Add(MapperProvider.Mapper.Map<ChannelViewModel>(channel));
-                // Init channel's photo preview shard index to FastCache
-                FastCacheManager.Set(CachedWallpaperPreviewShard, id, 1);
+                channelViewModels.Add(MapperProvider.Mapper.Map<ChannelViewModel>(channel));
             }
+        }
 
-            Logger.Information(@"Loaded {ChannelsCount} channels from web.", Channels.Count);
+        Channels = [..channelViewModels];
+        foreach (var channel in Channels)
+        {
+            FastCacheManager.Set(CachedWallpaperPreviewShard, channel.Id, 1);
         }
     }
 
@@ -248,7 +270,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
             is not { Count: > 0 } photos)
         {
             // 如果本地数据没读到，且网络端还没到底，再去请求拉取壁纸
-            if (!isAllLoaded)
+            if (!isAllLoaded && channelId != LikesChannelId)
             {
                 EventBus.PublishPoolLow(channelId);
             }
@@ -269,7 +291,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
         }
 
         // 如果本次加载的数量偏少，试图去预加载，但前提是网络端还有剩余数据
-        if (photos.Count < PageSize / 2 && !isAllLoaded)
+        if (photos.Count < PageSize / 2 && !isAllLoaded && channelId != LikesChannelId)
         {
             EventBus.PublishPoolLow(channelId);
         }
@@ -384,6 +406,39 @@ public class ChannelsViewModel : INotifyPropertyChanged
         }
     }
 
+    private async void OnLikePhoto(UnsplashPhoto photo)
+    {
+        try
+        {
+            var isLiked = !photo.IsLiked;
+            await DataBaseService.UpdatePhotoLikedStatus(photo.Id, isLiked);
+            
+            // Sync current instance
+            photo.IsLiked = isLiked;
+            photo.LikedAt = isLiked ? DateTimeOffset.UtcNow.Ticks : 0;
+
+            if (SelectedChannel?.Id == LikesChannelId)
+            {
+                if (!isLiked)
+                {
+                    Photos.Remove(photo);
+                    SyncPhotosState();
+                }
+                else
+                {
+                    // If somehow we liked a photo while in Likes channel (though unlikely unless we have a 'recommendation' or something)
+                    // we might want to refresh. But usually you like from OTHER channels.
+                    Photos.Insert(0, photo);
+                    SyncPhotosState();
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            Logger.Error(e, "Like photo error");
+        }
+    }
+
     /// <summary>
     /// Refresh channel photos cache.<br/>
     /// Triggered when user change wallpaper filter rules. 
@@ -391,6 +446,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
     /// <param name="channel"></param>
     public Task RefreshPhotos(UnsplashChannel channel)
     {
+        if (channel.Id == LikesChannelId) return Task.CompletedTask; // Liked channel do nothing
         IsBusy = true;
         EventBus.PublishForceSync(channel.Id);
         Logger.Information(@"Dispatched force sync for channel {ChannelId}", channel.Id);
@@ -404,6 +460,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
     {
         foreach (var channel in Channels)
         {
+            if (channel.Id == LikesChannelId) continue;
             // DataBaseService.RemoveChannelPhotos(channel.Id);
             EventBus.PublishPoolLow(channel.Id);
 
@@ -449,13 +506,17 @@ public class ChannelsViewModel : INotifyPropertyChanged
 
     public void DeleteSelectedChannel(string channelId)
     {
-        SavedChannelIds = string.Join(",", SavedChannelIds.Split(",").Where(item => item != channelId));
+        var item = Channels.FirstOrDefault(c => c.Id == channelId);
+        if (item == null || item.IsReserved) return;
+
+        SavedChannelIds = string.Join(",", SavedChannelIds.Split(",").Where(id => id != channelId));
+
 
         Properties.Settings.Default.UserUnsplashChannels = SavedChannelIds;
         Properties.Settings.Default.Save();
 
-        var item = Channels.FirstOrDefault(c => c.Id == channelId);
-        if (item != null) Channels.Remove(item);
+        Channels.Remove(item);
+
 
         // Refresh shard index and wallpaper sequence
         IrvuewinCore.DelChannel(channelId);
