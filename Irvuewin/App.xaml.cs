@@ -15,7 +15,6 @@ using Irvuewin.Helpers.HTTP;
 using Irvuewin.Helpers.Logging;
 using Irvuewin.Views;
 using Serilog;
-using Application = System.Windows.Application;
 using Localization = Irvuewin.Helpers.Localization;
 
 namespace Irvuewin
@@ -30,7 +29,7 @@ namespace Irvuewin
         private TaskbarIcon? _taskbarIcon;
         private bool _isExit;
 
-        private ChannelsViewModel? _channelsViewModel;
+        // private ChannelsViewModel? _channelsViewModel;
 
         // Used for tray menu position
         private DpiAnchorWindow? _anchorWindow;
@@ -73,25 +72,35 @@ namespace Irvuewin
             var mapper = config.CreateMapper();
             MapperProvider.Mapper = mapper;
 
-            // Create ChannelsViewModel singleton instance
-            _channelsViewModel = Task.Run(ChannelsViewModel.GetInstanceAsync).Result;
-            Resources.Add("ChannelsViewModel", _channelsViewModel);
+            // Initialize ChannelsViewModel asynchronously to avoid blocking UI thread
+            _ = Task.Run(async () =>
+            {
+                var vm = await ChannelsViewModel.GetInstanceAsync();
+                // _channelsViewModel = vm;
+                
+                await Dispatcher.InvokeAsync(() =>
+                {
+                    if (Resources.Contains("ChannelsViewModel")) Resources["ChannelsViewModel"] = vm;
+                    else Resources.Add("ChannelsViewModel", vm);
+
+                    // Sync to TrayViewModel
+                    if (Current.Resources["TrayViewModel"] is TrayViewModel trayViewModel)
+                    {
+                        trayViewModel.AddedChannels = vm.Channels;
+                    }
+
+                    // Pre-create Channels window hidden to warm up UI
+                    _ = WindowManager.PreloadWindow(nameof(Channels), () => new Channels());
+                }, System.Windows.Threading.DispatcherPriority.ApplicationIdle);
+            });
             
             // Init Wallpaper pool and Sync Worker
             WallpaperPoolManager.Initialize(IHttpClient.GetUnsplashHttpService());
             UnsplashSyncWorker.Initialize(IHttpClient.GetUnsplashHttpService());
 
-            //  Create a copy of Channels in TrayViewModel
-            var trayViewModel = Current.Resources["TrayViewModel"] as TrayViewModel;
-            trayViewModel!.AddedChannels = _channelsViewModel.Channels;
-
             // Load wallpaper sequence cache
             var randomWallpaper = Irvuewin.Properties.Settings.Default.RandomWallpaper;
             Logger.Information("RandomWallpaper: {RandomWallpaper}", randomWallpaper);
-
-            // Async Change wallpaper when app start
-            // TrayMenuHelper.CheckPointer();
-            // _ = TrayMenuHelper.ChangeAllWallpaper().ConfigureAwait(false);
 
             // Init wallpaper change schedule Timer
             IrvuewinCore.InitWallpaperChangeScheduler();
@@ -102,13 +111,23 @@ namespace Irvuewin
                 _taskbarIcon.ForceCreate();
             }
 
-            // Preload ContextMenu asynchronously to avoid lag on first right-click
-            Application.Current.Dispatcher.InvokeAsync(() =>
+            // Enhanced preloading of ContextMenu
+            Dispatcher.InvokeAsync(() =>
             {
                 if (FindResource("TrayContextMenu") is not ContextMenu contextMenu) return;
                 _trayContextMenu = contextMenu;
+                
+                // Force layout pass to warm up bindings and templates
+                _trayContextMenu.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
                 _trayContextMenu.ApplyTemplate();
+                
                 _trayContextMenu.Closed += (_, _) => _anchorWindow?.Hide();
+                
+                // Also preload the About submenu if possible
+                if (_trayContextMenu.Items.OfType<MenuItem>().FirstOrDefault(m => m.Name == "AboutCurrentWallpaper") is { } aboutMenu)
+                {
+                    aboutMenu.ApplyTemplate();
+                }
             }, System.Windows.Threading.DispatcherPriority.Background);
 
             base.OnStartup(e);

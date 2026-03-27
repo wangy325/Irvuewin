@@ -1,4 +1,4 @@
-﻿using System.Drawing;
+using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
@@ -52,11 +52,22 @@ namespace Irvuewin.Helpers
 
         private const int EnumCurrentSettings = -1;
 
-        private static readonly List<Display> Displays = [];
+        private static List<Display>? _cachedDisplays;
+        private static bool _isCacheDirty = true;
+
+        static DisplayInfoHelper()
+        {
+            Microsoft.Win32.SystemEvents.DisplaySettingsChanged += (_, _) => _isCacheDirty = true;
+        }
 
         public static List<Display> GetDisplayInfo()
         {
-            Displays.Clear();
+            if (!_isCacheDirty && _cachedDisplays != null)
+            {
+                return _cachedDisplays;
+            }
+
+            var newDisplays = new List<Display>();
             var screens = Screen.AllScreens;
             foreach (var screen in screens)
             {
@@ -65,8 +76,7 @@ namespace Irvuewin.Helpers
 
                 if (!EnumDisplaySettings(screen.DeviceName, EnumCurrentSettings, ref dm)) continue;
 
-                // var index = _displays.FindIndex(d => d.Name == screen.DeviceName);
-                Displays.Add(new Display
+                newDisplays.Add(new Display
                 {
                     Name = screen.DeviceName,
                     Width = dm.dmPelsWidth,
@@ -82,9 +92,9 @@ namespace Irvuewin.Helpers
                 });
             }
 
-            // _displays.ForEach(d => d.DsrEnabled = IsDsrEnabled(d));
-
-            return Displays;
+            _cachedDisplays = newDisplays;
+            _isCacheDirty = false;
+            return _cachedDisplays;
         }
 
 

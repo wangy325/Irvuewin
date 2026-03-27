@@ -14,6 +14,7 @@ namespace Irvuewin.Helpers.Utils
             if (Windows.TryGetValue(key, out var reference) &&
                 reference.TryGetTarget(out var window))
             {
+                if (window.Visibility != Visibility.Visible) window.Show();
                 window.Activate();
                 return;
             }
@@ -24,6 +25,32 @@ namespace Irvuewin.Helpers.Utils
             Windows[key] = new WeakReference<Window>(newWindow);
             if (!dialog) newWindow.Show();
             else newWindow.ShowDialog();
+        }
+
+        public static T PreloadWindow<T>(string key, Func<T> windowFactory) where T : Window
+        {
+            if (Windows.TryGetValue(key, out var reference) &&
+                reference.TryGetTarget(out var window))
+            {
+                return (T)window;
+            }
+
+            var newWindow = windowFactory();
+            newWindow.Closed += (_, _) => Windows.Remove(key);
+
+            // Force the window to initialize its handle and template
+            // We use Show followed by immediate Hide to force the full WPF rendering pipeline
+            // but we start with Opacity 0 to avoid flickers
+            var originalOpacity = newWindow.Opacity;
+            newWindow.Opacity = 0;
+            newWindow.ShowInTaskbar = false;
+            newWindow.Show();
+            newWindow.Hide();
+            newWindow.Opacity = originalOpacity;
+            newWindow.ShowInTaskbar = true;
+
+            Windows[key] = new WeakReference<Window>(newWindow);
+            return newWindow;
         }
 
 
