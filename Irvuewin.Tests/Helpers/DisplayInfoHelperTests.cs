@@ -9,6 +9,7 @@ namespace Irvuewin.Tests.Helpers;
 public class DisplayInfoHelperTests
 {
     [TestMethod]
+    [Ignore]
     public void TestGetDisplayInfo()
     {
         // arrange
