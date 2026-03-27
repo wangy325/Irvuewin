@@ -3,6 +3,9 @@ using Serilog;
 
 namespace Irvuewin.Helpers.DB;
 
+using static IAppConst;
+
+
 public class DataBaseService
 {
     private static readonly ILogger Logger = Log.ForContext<DataBaseService>();
@@ -15,8 +18,22 @@ public class DataBaseService
     /// <returns>null if no channel find.</returns>
     public static UnsplashChannel? GetChannel(string cid)
     {
-        return DatabaseManager.GetChannelById(cid);
+        var channel = DatabaseManager.GetChannelById(cid);
+        if (channel != null) return channel;
+
+        if (cid == LikesChannelId)
+        {
+            return new UnsplashChannel
+            {
+                Id = LikesChannelId,
+                Title = "Likes",
+                AllPhotosLoaded = true
+            };
+        }
+        return null;
     }
+
+
 
     /// <summary>
     /// Async update channel (sequence) info 
@@ -132,7 +149,18 @@ public class DataBaseService
         Task.Run(() => DatabaseManager.UpsertPhoto(photo));
     }
 
+    public static Task UpdatePhotoLikedStatus(string photoId, bool isLiked)
+    {
+        return Task.Run(() => DatabaseManager.UpdatePhotoLikedStatus(photoId, isLiked));
+    }
+
+    public static List<UnsplashPhoto> GetRandomLikedPhotos(int count)
+    {
+        return DatabaseManager.GetRandomLikedPhotos(count);
+    }
+
     public static void BlockAuthor(string username)
+
     {
         Task.Run(() => DatabaseManager.BlockAuthor(username));
     }

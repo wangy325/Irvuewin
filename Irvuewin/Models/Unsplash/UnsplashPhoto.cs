@@ -1,4 +1,4 @@
-﻿// YApi QuickType插件生成，具体参考文档:https://plugins.jetbrains.com/plugin/18847-yapi-quicktype/documentation
+// YApi QuickType插件生成，具体参考文档:https://plugins.jetbrains.com/plugin/18847-yapi-quicktype/documentation
 
 #pragma warning disable CS8618
 
@@ -139,6 +139,8 @@ namespace Irvuewin.Models.Unsplash
         // Used exclusively by LiteDB for querying photos by channel.
         [JsonIgnore] public List<string> ChannelIds { get; set; } = [];
         [JsonIgnore] public long LocalSortIndex { get; set; }
+        [JsonProperty("is_liked")] public bool IsLiked { get; set; }
+        [JsonProperty("liked_at")] public long LikedAt { get; set; }
 
         public static UnsplashPhoto? FromJson(string json) =>
             JsonConvert.DeserializeObject<UnsplashPhoto>(json, JsonHelper.Settings);

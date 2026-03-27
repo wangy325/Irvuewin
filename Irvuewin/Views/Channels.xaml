@@ -13,7 +13,8 @@
     mc:Ignorable="d"
     Title="{Binding Source={x:Static helpers:Localization.Instance}, Path=[Window_Channels_Title]}"
     Height="720" Width="960" MinWidth="500"
-    Background="{DynamicResource WindowBackgroundBrush}" ShowInTaskbar="False" ResizeMode="NoResize"
+    Background="{DynamicResource WindowBackgroundBrush}" 
+    ShowInTaskbar="False" ResizeMode="NoResize"
     WindowStartupLocation="CenterScreen">
 
     <!-- <helpers:LocationAwareWindow.DataContext> -->
@@ -67,21 +68,43 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
 
-                        <Image Grid.Column="0"
-                               Source="{Binding CoverPhoto.Urls.Small, Converter={StaticResource ImageUrlToBitmapConverter}, ConverterParameter=60}">
-                            <Image.Style>
-                                <Style TargetType="Image">
-                                    <Setter Property="Stretch" Value="UniformToFill" />
-                                    <Setter Property="Clip">
-                                        <Setter.Value>
-                                            <RectangleGeometry RadiusX="5" RadiusY="5"
-                                                               Rect="10,0,40,40" />
-                                        </Setter.Value>
-                                    </Setter>
-                                </Style>
-                            </Image.Style>
-                        </Image>
+                        <Grid Grid.Column="0">
+                            <Image Source="{Binding CoverPhoto.Urls.Small, Converter={StaticResource ImageUrlToBitmapConverter}, ConverterParameter=60}">
+                                <Image.Style>
+                                    <Style TargetType="Image">
+                                        <Setter Property="Stretch" Value="UniformToFill" />
+                                        <Setter Property="Clip">
+                                            <Setter.Value>
+                                                <RectangleGeometry RadiusX="5" RadiusY="5"
+                                                                   Rect="10,0,40,40" />
+                                            </Setter.Value>
+                                        </Setter>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Id}" Value="likes">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Image.Style>
+                            </Image>
+                            <Path Data="{StaticResource Icon_Like}" 
+                                  Fill="{DynamicResource PrimaryTextBrush}"
+                                  Width="30" Height="30" Stretch="Uniform"
+                                  HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <Path.Style>
+                                    <Style TargetType="Path">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Id}" Value="likes">
+                                                <Setter Property="Visibility" Value="Visible" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Path.Style>
+                            </Path>
+                        </Grid>
                         <TextBlock Grid.Column="1"
+
                                    Text="{Binding Title}"
                                    Style="{StaticResource TextBlockStyle}"
                                    TextTrimming="CharacterEllipsis"
@@ -181,6 +204,20 @@
                                     Header="{Binding Source={x:Static helpers:Localization.Instance}, Path=[ContextMenu_HideAuthor]}"
                                     Command="{Binding HideAuthorCommand}"
                                     CommandParameter="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
+                                <Separator />
+                                <MenuItem Command="{Binding LikePhotoCommand}"
+                                          CommandParameter="{Binding Path=PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}">
+                                    <MenuItem.Style>
+                                        <Style TargetType="MenuItem" BasedOn="{StaticResource {x:Type MenuItem}}">
+                                            <Setter Property="Header" Value="{Binding Source={x:Static helpers:Localization.Instance}, Path=[ContextMenu_Like]}" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Path=PlacementTarget.DataContext.IsLiked, RelativeSource={RelativeSource AncestorType=ContextMenu}}" Value="True">
+                                                    <Setter Property="Header" Value="{Binding Source={x:Static helpers:Localization.Instance}, Path=[ContextMenu_Unlike]}" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </MenuItem.Style>
+                                </MenuItem>
                             </ContextMenu>
                         </Grid.ContextMenu>
                         <Grid.RowDefinitions>
@@ -269,8 +306,17 @@
                                         VerticalAlignment="Top"
                                         HorizontalAlignment="Right"
                                         Background="{DynamicResource WindowBackgroundBrush}"
-                                        Click="Channels_Detail_Click"
-                                        Style="{StaticResource ButtonStyle}">
+                                        Click="Channels_Detail_Click">
+                                    <Button.Style>
+
+                                        <Style TargetType="Button" BasedOn="{StaticResource ButtonStyle}">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Path=DataContext.SelectedChannel.Id, RelativeSource={RelativeSource AncestorType=helpers:LocationAwareWindow}}" Value="likes">
+                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
                                     <Path Fill="{DynamicResource PrimaryTextBrush}" Data="{StaticResource Icon_Link}"
                                           Width="10" Height="10" Stretch="Uniform" />
                                 </Button>

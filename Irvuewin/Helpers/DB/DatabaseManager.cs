@@ -57,6 +57,8 @@ namespace Irvuewin.Helpers.DB
                 photos.EnsureIndex(x => x.Width);
                 photos.EnsureIndex(x => x.Height);
                 photos.EnsureIndex(x => x.User.Name);
+                photos.EnsureIndex(x => x.IsLiked);
+                photos.EnsureIndex(x => x.LikedAt);
                 photos.EnsureIndex("ChannelIds", "$.ChannelIds[*]");
             }
             catch (Exception ex)
@@ -150,6 +152,24 @@ namespace Irvuewin.Helpers.DB
             catch (Exception e)
             {
                 Logger.Error(e, "Update photo error.");
+            }
+        }
+
+        public static void UpdatePhotoLikedStatus(string photoId, bool isLiked)
+        {
+            try
+            {
+                using var db = new LiteDatabase(DbPath);
+                var photos = db.GetCollection<UnsplashPhoto>(DbPhotoCollection);
+                var photo = photos.FindById(photoId);
+                if (photo == null) return;
+                photo.IsLiked = isLiked;
+                photo.LikedAt = isLiked ? DateTimeOffset.UtcNow.Ticks : 0;
+                photos.Update(photo);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex, "Failed to update photo liked status");
             }
         }
 
@@ -264,11 +284,20 @@ namespace Irvuewin.Helpers.DB
                 using var db = new LiteDatabase(DbPath);
                 var photos = db.GetCollection<UnsplashPhoto>(DbPhotoCollection);
 
-                var query = photos.Query()
-                    .Where(x => x.IsFiltered == false && x.ChannelIds.Contains(channelId));
+                var query = photos.Query();
+                if (channelId == LikesChannelId)
+                {
+                    query = query.Where(x => x.IsFiltered == false && x.IsLiked);
+                    query = ApplyOrientationFilter(query);
+                    return query
+                        .OrderByDescending(x => x.LikedAt)
+                        .Skip(skipCount)
+                        .Limit(takeCount)
+                        .ToList();
+                }
 
+                query = query.Where(x => x.IsFiltered == false && x.ChannelIds.Contains(channelId));
                 query = ApplyOrientationFilter(query);
-
 
                 return query
                     .OrderBy(x => x.LocalSortIndex)
@@ -290,9 +319,19 @@ namespace Irvuewin.Helpers.DB
                 using var db = new LiteDatabase(DbPath);
                 var photos = db.GetCollection<UnsplashPhoto>(DbPhotoCollection);
 
-                var query = photos.Query()
-                    .Where(x => x.IsFiltered == false && x.ChannelIds.Contains(channelId));
+                var query = photos.Query();
+                if (channelId == LikesChannelId)
+                {
+                    query = query.Where(x => x.IsFiltered == false && x.IsLiked);
+                    query = ApplyOrientationFilter(query);
+                    return query
+                        .OrderByDescending(x => x.LikedAt)
+                        .Skip(skip - 1)
+                        .Limit(1)
+                        .Single();
+                }
 
+                query = query.Where(x => x.IsFiltered == false && x.ChannelIds.Contains(channelId));
                 query = ApplyOrientationFilter(query);
 
                 return query
@@ -322,9 +361,19 @@ namespace Irvuewin.Helpers.DB
                 var photos = db.GetCollection<UnsplashPhoto>(DbPhotoCollection);
                 // return photos.Count(x => x.ChannelIds.Contains(channelId));
                 var query = photos.Query();
-                query = exclude
-                    ? query.Where(x => x.IsFiltered == false && x.ChannelIds.Contains(channelId))
-                    : query.Where(x => x.ChannelIds.Contains(channelId));
+
+                if (channelId == LikesChannelId)
+                {
+                    query = exclude
+                        ? query.Where(x => x.IsFiltered == false && x.IsLiked)
+                        : query.Where(x => x.IsLiked);
+                }
+                else
+                {
+                    query = exclude
+                        ? query.Where(x => x.IsFiltered == false && x.ChannelIds.Contains(channelId))
+                        : query.Where(x => x.ChannelIds.Contains(channelId));
+                }
 
                 query = ApplyOrientationFilter(query);
 
@@ -348,7 +397,7 @@ namespace Irvuewin.Helpers.DB
                 foreach (var photo in relatedPhotos)
                 {
                     photo.ChannelIds.Remove(channelId);
-                    if (photo.ChannelIds.Count == 0)
+                    if (photo.ChannelIds.Count == 0 && !photo.IsLiked)
                     {
                         photos.Delete(photo.Id);
                     }
@@ -363,5 +412,26 @@ namespace Irvuewin.Helpers.DB
                 Logger.Error(ex, "Failed to clear channel photos from LiteDB");
             }
         }
+
+        public static List<UnsplashPhoto> GetRandomLikedPhotos(int count)
+        {
+            try
+            {
+                using var db = new LiteDatabase(DbPath);
+                var photos = db.GetCollection<UnsplashPhoto>(DbPhotoCollection);
+                var query = photos.Query().Where(x => x.IsFiltered == false && x.IsLiked);
+                query = ApplyOrientationFilter(query);
+                var likedPhotos = query.ToList();
+                if (likedPhotos.Count == 0) return [];
+
+                var random = new Random();
+                return likedPhotos.OrderBy(x => random.Next()).Take(count).ToList();
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex, "Failed to get random liked photos");
+                return [];
+            }
+        }
     }
-}
+}
