@@ -13,11 +13,13 @@ public static class FileUtils
 
     public static readonly string CachedWallpaperFolder = Path.Combine(AppDataFolder, WallpaperCacheFolder);
     public static readonly string CachedResourceFolder = Path.Combine(AppDataFolder, ChannelCacheFolder);
+    private static readonly string WindowPosFileFolder = Path.Combine(AppDataFolder, WindowPositionFolder);
 
     static FileUtils()
     {
         Directory.CreateDirectory(CachedWallpaperFolder);
         Directory.CreateDirectory(CachedResourceFolder);
+        Directory.CreateDirectory(WindowPosFileFolder);
     }
 
     /// <summary>
@@ -28,7 +30,7 @@ public static class FileUtils
     public static string WindowPositionPath(string key)
     {
         var fileName = $"{key}.{CachedConfigFileFormat}";
-        return Path.Combine(AppDataFolder, fileName);
+        return Path.Combine(WindowPosFileFolder, fileName);
     }
 
     // key -> cached file name

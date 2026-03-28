@@ -14,7 +14,8 @@ public interface IAppConst
     const string AppName = "Irvuewin";
 
     const string WallpaperCacheFolder = "splash";
-    const string ChannelCacheFolder = "channel";
+    const string ChannelCacheFolder = "db";
+    const string WindowPositionFolder = "pos";
 
     const string CachedConfigFileFormat = "xml";
     const string CachedResourceFileFormat = "json";
@@ -54,8 +55,6 @@ public interface IAppConst
     // LiteDB
     const string DbPhotoCollection = "photos";
     const string DbChannelCollection = "collections";
-    const string DbJobsCollection = "jobs";
-    const string DbFiltersCollection = "filter";
     
     // body keywords
     static readonly string[] PhotoFilterWords = ["woman", "women", "man", "men", "people", "boy", "girl", "baby", "person"];

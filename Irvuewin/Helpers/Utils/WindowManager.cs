@@ -38,16 +38,11 @@ namespace Irvuewin.Helpers.Utils
             var newWindow = windowFactory();
             newWindow.Closed += (_, _) => Windows.Remove(key);
 
-            // Force the window to initialize its handle and template
-            // We use Show followed by immediate Hide to force the full WPF rendering pipeline
-            // but we start with Opacity 0 to avoid flickers
-            var originalOpacity = newWindow.Opacity;
-            newWindow.Opacity = 0;
-            newWindow.ShowInTaskbar = false;
-            newWindow.Show();
-            newWindow.Hide();
-            newWindow.Opacity = originalOpacity;
-            newWindow.ShowInTaskbar = true;
+            // Force the window to initialize its handle and template without showing it.
+            // This avoids the "black window" flicker reported by the user.
+            var interopHelper = new System.Windows.Interop.WindowInteropHelper(newWindow);
+            interopHelper.EnsureHandle();
+            newWindow.ApplyTemplate();
 
             Windows[key] = new WeakReference<Window>(newWindow);
             return newWindow;
