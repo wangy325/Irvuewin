@@ -141,6 +141,21 @@ namespace Irvuewin.Helpers.DB
             }
         }
 
+        public static UnsplashPhoto? GetPhotoById(string photoId)
+        {
+            try
+            {
+                using var db = new LiteDatabase(DbPath);
+                var photos = db.GetCollection<UnsplashPhoto>(DbPhotoCollection);
+                return photos.FindById(photoId);
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e, "Failed to get photo by id");
+                return null;
+            }
+        }
+
         public static void UpsertPhoto(UnsplashPhoto photo)
         {
             try

@@ -249,6 +249,9 @@
   <data name="Tray_DownloadWallpaper" xml:space="preserve">
     <value>下载壁纸</value>
   </data>
+  <data name="Tray_LikeWallpaper" xml:space="preserve">
+    <value>添加到我的喜欢</value>
+  </data>
   <data name="Tray_Exit" xml:space="preserve">
     <value>退出</value>
   </data>

@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -11,9 +12,11 @@ using Irvuewin.Models.Unsplash;
 using Irvuewin.ViewModels;
 using System.Windows.Interop;
 using System.Windows.Media;
+using Irvuewin.Helpers.DB;
 using Irvuewin.Helpers.HTTP;
 using Irvuewin.Helpers.Logging;
 using Irvuewin.Views;
+using Microsoft.Extensions.Logging.Abstractions;
 using Serilog;
 using Localization = Irvuewin.Helpers.Localization;
 
@@ -67,9 +70,11 @@ namespace Irvuewin
             }
 
             // AutoMapper config
-            var config = new MapperConfiguration(cfg =>
-                cfg.CreateMap<UnsplashChannel, ChannelViewModel>());
-            var mapper = config.CreateMapper();
+            var mapperCfg = new MapperConfiguration(cfg =>
+                {
+                    cfg.CreateMap<UnsplashChannel, ChannelViewModel>();
+                }, new NullLoggerFactory());
+            var mapper = mapperCfg.CreateMapper();
             MapperProvider.Mapper = mapper;
 
             // Initialize ChannelsViewModel asynchronously to avoid blocking UI thread
@@ -215,6 +220,13 @@ namespace Irvuewin
             }
         }
 
+        private void LikeCurrentWallpaper_Click(object sender, RoutedEventArgs e)
+        {
+            if (!FastCacheManager.TryGet(IrvuewinCore.CurrentPointerDisplay.Name, out string? photoId) ||
+                photoId is null) return;
+            DataBaseService.UpdatePhotoLikedStatus(photoId, true);
+        }
+
         //----------------------------- Channels ---------------------------//
 
         // 打开频道管理页
@@ -306,6 +318,20 @@ namespace Irvuewin
                 }
 
                 if (_trayContextMenu == null) return;
+
+                // Update LikeCurrentWallpaper state
+                if (_trayContextMenu.Items.OfType<MenuItem>().FirstOrDefault(m => m.Name == "LikeCurrentWallpaper") is { } likeMenuItem)
+                {
+                    IrvuewinCore.CheckPointer();
+                    if (FastCacheManager.TryGet(IrvuewinCore.CurrentPointerDisplay.Name, out string? photoId) && photoId is not null)
+                    {
+                        likeMenuItem.IsEnabled = !DataBaseService.IsPhotoLiked(photoId);
+                    }
+                    else
+                    {
+                        likeMenuItem.IsEnabled = false;
+                    }
+                }
 
                 _trayContextMenu.PlacementTarget = _anchorWindow;
                 _trayContextMenu.Placement = PlacementMode.Bottom;

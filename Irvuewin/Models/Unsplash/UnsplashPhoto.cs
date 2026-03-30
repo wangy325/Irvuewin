@@ -44,7 +44,7 @@ namespace Irvuewin.Models.Unsplash
 
         [JsonProperty("asset_type")] public AssetType AssetType { get; set; }
 
-        [JsonProperty("location")] public Location Location { get; set; }
+        [JsonProperty("location")] public Location? Location { get; set; }
 
         [JsonProperty("exif")] public Exif Exif { get; set; }
     }

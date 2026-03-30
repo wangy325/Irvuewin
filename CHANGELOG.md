@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 
 
+## [1.0.8] - 2026-03-30
+
+### Features
+
+- **Tray Menu Interaction**: Integrated "Add to Likes" capability directly into the system tray context menu for more efficient wallpaper management.
+
+### Bug Fixes
+
+- **Localization**: Resolved a bug where the "Likes" channel title failed to update immediately after switching the application's language preference.
+- **Visual Fidelity**: Refined image decoding and rendering in the wallpaper preview to provide a sharper, more premium viewing experience.
+
 
 ## [1.0.7] - 2026-03-28
 

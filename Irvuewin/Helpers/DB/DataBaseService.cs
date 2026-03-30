@@ -159,6 +159,17 @@ public class DataBaseService
         return DatabaseManager.GetRandomLikedPhotos(count);
     }
 
+    public static UnsplashPhoto? GetPhotoById(string photoId)
+    {
+        return DatabaseManager.GetPhotoById(photoId);
+    }
+
+    public static bool IsPhotoLiked(string photoId)
+    {
+        var photo = DatabaseManager.GetPhotoById(photoId);
+        return photo?.IsLiked ?? false;
+    }
+
     public static void BlockAuthor(string username)
 
     {
