@@ -5,8 +5,8 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/wangy325/Irvue-win/releases"><img src="https://img.shields.io/github/v/release/wangy325/Irvue-win?style=flat-square&color=black" alt="Release"></a>
-  <a href="LICENSE.txt"><img src="https://img.shields.io/github/license/wangy325/Irvue-win?style=flat-square&color=blue" alt="License"></a>
+  <a href="https://github.com/wangy325/Irvuewin/releases"><img src="https://img.shields.io/github/v/release/wangy325/Irvuewin?style=flat-square&color=black" alt="Release"></a>
+  <a href="LICENSE.txt"><img src="https://img.shields.io/github/license/wangy325/Irvuewin?style=flat-square&color=orange" alt="License"></a>
   <img src="https://img.shields.io/badge/平台-Windows-0078d7?style=flat-square&logo=windows" alt="Platform">
   <img src="https://img.shields.io/badge/框架-.NET%209.0-512bd4?style=flat-square&logo=dotnet" alt="Framework">
 </p>
@@ -110,7 +110,7 @@
 
 ## 📜 开源协议
 
-本项目采用 MIT 协议开源 - 详情请参阅 [LICENSE](LICENSE.txt) 文件。
+本项目采用 GNU General Public License v3.0 协议开源 - 详情请参阅 [LICENSE](LICENSE.txt) 文件。
 
 ---
 

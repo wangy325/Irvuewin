@@ -5,8 +5,8 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/wangy325/Irvue-win/releases"><img src="https://img.shields.io/github/v/release/wangy325/Irvue-win?style=flat-square&color=black" alt="Release"></a>
-  <a href="LICENSE.txt"><img src="https://img.shields.io/github/license/wangy325/Irvue-win?style=flat-square&color=blue" alt="License"></a>
+  <a href="https://github.com/wangy325/Irvuewin/releases"><img src="https://img.shields.io/github/v/release/wangy325/Irvuewin?style=flat-square&color=black" alt="Release"></a>
+  <a href="LICENSE.txt"><img src="https://img.shields.io/github/license/wangy325/Irvuewin?style=flat-square&color=orange" alt="License"></a>
   <img src="https://img.shields.io/badge/Platform-Windows-0078d7?style=flat-square&logo=windows" alt="Platform">
   <img src="https://img.shields.io/badge/Framework-.NET%209.0-512bd4?style=flat-square&logo=dotnet" alt="Framework">
 </p>
@@ -22,7 +22,7 @@
   <a href="#-features--highlights">Features</a> •
   <a href="#-screenshots">Screenshots</a> •
   <a href="#-getting-started">Getting Started</a> •
-  <a href="#-development">Development</a>
+  <a href="#-credits">Credits</a>
 </p>
 
 ---
@@ -110,7 +110,7 @@ Create your own wallpaper sources:
 
 ## 📜 License
 
-This project is licensed under the MIT License - see the [LICENSE.txt](LICENSE.txt) file for details.
+This project is licensed under the GNU General Public License v3.0 - see the [LICENSE](LICENSE.txt) file for details.
 
 ---
 
