@@ -249,6 +249,9 @@
   <data name="Tray_DownloadWallpaper" xml:space="preserve">
     <value>Download Wallpaper</value>
   </data>
+  <data name="Tray_LikeWallpaper" xml:space="preserve">
+    <value>Add to Likes</value>
+  </data>
   <data name="Tray_Exit" xml:space="preserve">
     <value>Exit</value>
   </data>

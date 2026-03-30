@@ -6,7 +6,6 @@ using System.Windows.Input;
 using Irvuewin.Helpers;
 using Irvuewin.Helpers.DB;
 using Irvuewin.Helpers.Events;
-using Irvuewin.Helpers.HTTP;
 using Irvuewin.Helpers.Utils;
 using Irvuewin.Views;
 using Serilog;
@@ -117,61 +116,58 @@ public class TrayViewModel : INotifyPropertyChanged
     private Dictionary<string, WallpaperInfo> LocalWallpaperInfoCache { get; } = new();
 
     private static string? _lastDisplayName;
-    
+
     private static void OnCheckDisplay(object? param)
     {
         IrvuewinCore.CheckPointer();
-        var sid = IrvuewinCore.CurrentPointerDisplay.Name;
+        var displayName = IrvuewinCore.CurrentPointerDisplay.Name;
         var tray = System.Windows.Application.Current.Resources["TrayViewModel"] as TrayViewModel;
 
         // Update wallpaper info manually when necessary
         if (_lastDisplayName is not null)
         {
-            if (sid == _lastDisplayName) return;
-            _lastDisplayName = sid;
+            if (displayName == _lastDisplayName) return;
+            _lastDisplayName = displayName;
             // Get from in-memory cache
             tray!.AboutWallpaper =
-                tray.LocalWallpaperInfoCache.TryGetValue(sid, out var wip) ? wip : new WallpaperInfo();
+                tray.LocalWallpaperInfoCache.TryGetValue(displayName, out var wip) ? wip : new WallpaperInfo();
         }
         else
         {
-            _lastDisplayName = sid;
+            _lastDisplayName = displayName;
         }
     }
 
     private void OnWallpaperChanged(object? sender, EventBus.WallpaperChangedEventArgs e)
     {
         // Update info immediately when wallpaper changes
-        System.Windows.Application.Current.Dispatcher.InvokeAsync(async () =>
+        System.Windows.Application.Current.Dispatcher.Invoke(() =>
         {
-            await UpdateWallpaperInfo(e.DisplayName);
+            UpdateWallpaperInfo(e.DisplayName);
         });
+        // UpdateWallpaperInfo(e.DisplayName);
     }
 
-    private async Task UpdateWallpaperInfo(string displayName)
+    private void UpdateWallpaperInfo(string displayName)
     {
-        Logger.Debug("Update tray wallpaper info.");
         if (!FastCacheManager.TryGet(displayName, out string? photoId) || photoId is null) return;
 
-        var httpService = IHttpClient.GetUnsplashHttpService();
-        if (await httpService.GetPhotoInfoById(photoId) is { } photo)
+        if (DataBaseService.GetPhotoById(photoId) is not { } photo) return;
+        var wpi = new WallpaperInfo
         {
-            var wpi = new WallpaperInfo
-            {
-                Likes = photo.Likes.ToString(),
-                Downloads = photo.Downloads.ToString(),
-                Location = photo.Location.Name,
-                ProfileLink = string.Concat(photo.Links.Html.OriginalString, IAppConst.Attribution),
-                Author = photo.User.Name,
-                AuthorProfilePageLink = string.Concat(photo.User.Links.Html.OriginalString, IAppConst.Attribution)
-            };
-            AboutWallpaper = wpi;
-            // Cache wallpaper info.
-            LocalWallpaperInfoCache[displayName] = wpi;
-        }
+            Likes = photo.Likes.ToString(),
+            Downloads = photo.Downloads.ToString(),
+            Location = photo.Location?.Name ?? string.Empty,
+            ProfileLink = string.Concat(photo.Links.Html.OriginalString, IAppConst.Attribution),
+            Author = photo.User.Name,
+            AuthorProfilePageLink = string.Concat(photo.User.Links.Html.OriginalString, IAppConst.Attribution)
+        };
+        AboutWallpaper = wpi;
+        // Cache wallpaper info.
+        LocalWallpaperInfoCache[displayName] = wpi;
+        Logger.Debug("Update tray wallpaper info.");
     }
 
-    
 
     private static void OnAddNewChannel(object? obj)
     {
