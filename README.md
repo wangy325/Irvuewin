@@ -22,7 +22,8 @@
   <a href="#-features--highlights">Features</a> •
   <a href="#-screenshots">Screenshots</a> •
   <a href="#-getting-started">Getting Started</a> •
-  <a href="#-credits">Credits</a>
+  <a href="#-credits">Credits</a> •
+  <a href="./README_CN.md">简体中文</a>
 </p>
 
 ---
