@@ -69,7 +69,7 @@
                         </Grid.ColumnDefinitions>
 
                         <Grid Grid.Column="0">
-                            <Image Source="{Binding CoverPhoto.Urls.Small, Converter={StaticResource ImageUrlToBitmapConverter}, ConverterParameter=60}">
+                            <Image Source="{Binding CoverPhoto.Urls.Small, Converter={StaticResource ImageUrlToBitmapConverter}, ConverterParameter=100}">
                                 <Image.Style>
                                     <Style TargetType="Image">
                                         <Setter Property="Stretch" Value="UniformToFill" />

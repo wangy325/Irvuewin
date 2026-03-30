@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Runtime.CompilerServices;
+using System.Runtime.CompilerServices; 
+using System.Windows.Data;
 using System.Windows.Input;
 using Irvuewin.Helpers;
 using Irvuewin.Models.Unsplash;
@@ -160,6 +161,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
         // binding EventBus
         EventBus.WallpapersReplenished += OnWallpaperReplenished;
         EventBus.ChannelSyncCompleted += OnChannelSyncCompleted;
+        Localization.Instance.PropertyChanged += OnLocalizationChanged;
     }
 
     public static Task<ChannelsViewModel> GetInstanceAsync()
@@ -218,11 +220,11 @@ public class ChannelsViewModel : INotifyPropertyChanged
         List<ChannelViewModel> channelViewModels = [];
 
         // 1. Add Likes channel at top
-        var likesVM = MapperProvider.Mapper.Map<ChannelViewModel>(likesDb);
-        likesVM.Title = Localization.Instance["Channel_Likes_Title"];
-        likesVM.IsReserved = true;
-        likesVM.AllPhotosLoaded = true;
-        channelViewModels.Add(likesVM);
+        var likesVm = MapperProvider.Mapper.Map<ChannelViewModel>(likesDb);
+        likesVm.Title = Localization.Instance["Channel_Likes_Title"];
+        likesVm.IsReserved = true;
+        likesVm.AllPhotosLoaded = true;
+        channelViewModels.Add(likesVm);
 
         // 2. Add other Unsplash channels
         var httpService = IHttpClient.GetUnsplashHttpService();
@@ -664,6 +666,24 @@ public class ChannelsViewModel : INotifyPropertyChanged
             IsBusy = false;
             Photos.Clear();
             PreviewPhotos(channelId, UnsplashQueryParams.Create());
+        });
+    }
+
+    private void OnLocalizationChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName != Binding.IndexerName) return;
+        System.Windows.Application.Current.Dispatcher.Invoke(() =>
+        {
+            var likesVm = Channels.FirstOrDefault(c => c.Id == LikesChannelId);
+            if (likesVm != null)
+            {
+                likesVm.Title = Localization.Instance["Channel_Likes_Title"];
+            }
+
+            if (CheckedChannelId == LikesChannelId)
+            {
+                CheckedChannelName = Localization.Instance["Channel_Likes_Title"];
+            }
         });
     }
 }

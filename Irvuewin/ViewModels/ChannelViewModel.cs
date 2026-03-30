@@ -9,6 +9,18 @@ namespace Irvuewin.ViewModels;
 
 public class ChannelViewModel : UnsplashChannel, INotifyPropertyChanged
 {
+    [BsonIgnore]
+    public new string Title
+    {
+        get => base.Title;
+        set
+        {
+            if (base.Title == value) return;
+            base.Title = value;
+            OnPropertyChanged();
+        }
+    }
+
     private bool _isChecked;
 
     // 'Checked' means that app will update wallpaper from this channel.
