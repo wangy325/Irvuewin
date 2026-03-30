@@ -9,6 +9,12 @@ An [Irvue](https://apps.apple.com/us/app/irvue/id1039633667?mt=12) like windows 
 - [x] 优化photo show case 当photo为空时的显示
 - [x] 优化应用启动速度
 - [x] Refactor: Use LiteDB
+- [ ] 图片预览的质量调整
+- [ ] 菜单栏添加「喜欢」照片快捷入口
+- [ ] 添加可自定义全局快捷键
+- [ ] 重构照片拉取的逻辑（随机拉取定量照片？）可以减轻大量业务逻辑
+  - 如何定量？按照百分比并限制最大最小定量看起来是一个可行的方案
+  - 壁纸预览的分组——按照操作时间分组
 
 ## Features
 
