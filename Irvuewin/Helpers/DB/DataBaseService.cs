@@ -1,10 +1,11 @@
+using System.ComponentModel.Design;
+using Irvuewin.Helpers.HTTP;
 using Irvuewin.Models.Unsplash;
 using Serilog;
 
 namespace Irvuewin.Helpers.DB;
 
 using static IAppConst;
-
 
 public class DataBaseService
 {
@@ -30,9 +31,9 @@ public class DataBaseService
                 AllPhotosLoaded = true
             };
         }
+
         return null;
     }
-
 
 
     /// <summary>
@@ -157,6 +158,19 @@ public class DataBaseService
     public static List<UnsplashPhoto> GetRandomLikedPhotos(int count)
     {
         return DatabaseManager.GetRandomLikedPhotos(count);
+    }
+
+    public static async Task<List<UnsplashPhoto>?> GetRandomPhotosFromUnsplash(string cid, int wc)
+    {
+        var httpService = IHttpClient.GetUnsplashHttpService();
+        var photos = await httpService.GetRandomPhotoInChannel(cid, wc);
+        // save photo to LiteDB? yes
+        if (photos is { Count: > 0 })
+        {
+            await Task.Run(() => DatabaseManager.UpsertPhotos(cid, photos));
+        }
+
+        return photos;
     }
 
     public static UnsplashPhoto? GetPhotoById(string photoId)
