@@ -603,6 +603,7 @@ public class ChannelsViewModel : INotifyPropertyChanged
         DataBaseService.UpdatePhoto(photo);
         Photos.Remove(photo);
         SyncPhotosState();
+        EventBus.PublishPhotoHidden();
     }
 
     private async void OnHideAuthor(UnsplashPhoto photo)

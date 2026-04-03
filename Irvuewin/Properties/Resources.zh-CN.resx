@@ -451,4 +451,30 @@
   <data name="ContextMenu_Unlike" xml:space="preserve">
     <value>取消喜欢</value>
   </data>
+  <data name="Settings_HiddenItems" xml:space="preserve">
+    <value>隐藏内容管理:</value>
+  </data>
+  <data name="Settings_ManageHiddenItems" xml:space="preserve">
+    <value>管理...</value>
+  </data>
+  <data name="HiddenItems_WindowTitle" xml:space="preserve">
+    <value>隐藏内容管理</value>
+  </data>
+  <data name="HiddenItems_Tab_Authors" xml:space="preserve">
+    <value>隐藏的作者</value>
+  </data>
+  <data name="HiddenItems_Tab_Photos" xml:space="preserve">
+    <value>隐藏的图片</value>
+  </data>
+  <data name="HiddenItems_NoAuthors" xml:space="preserve">
+    <value>没有隐藏的作者</value>
+  </data>
+  <data name="HiddenItems_NoPhotos" xml:space="preserve">
+    <value>没有隐藏的图片</value>
+  </data>
+  <data name="HiddenItems_UnhideTooltip" xml:space="preserve">
+    <value>取消隐藏</value>
+  </data>
+
 </root>
+

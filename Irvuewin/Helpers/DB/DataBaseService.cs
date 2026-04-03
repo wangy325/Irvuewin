@@ -208,6 +208,24 @@ public class DataBaseService
         });
     }
 
+    public static List<UnsplashPhoto> GetHiddenPhotos()
+    {
+        try
+        {
+            return DatabaseManager.GetHiddenPhotos();
+        }
+        catch (Exception e)
+        {
+            Logger.Error(e, "GetHiddenPhotos error");
+            return [];
+        }
+    }
+
+    public static void UnhidePhoto(string photoId)
+    {
+        Task.Run(() => DatabaseManager.UnhidePhoto(photoId));
+    }
+
     // public static void RemoveChannelPhotos(string channelId)
     // {
     //     Task.Run(() => DatabaseManager.RemoveChannelPhotos(channelId));

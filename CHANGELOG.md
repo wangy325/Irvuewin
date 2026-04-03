@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.9] - 2026-04-03
+
+### Features
+
+- **Settings**: Added a "Hidden Items" section in the settings page for managing hidden wallpapers and hidden authors.
+
+### Bug Fixes
+
+- **Random Mode**: Fixed an issue where wallpapers in random mode were not being saved to the database, causing metadata updates to fail.
+
 
 ## [1.0.8] - 2026-03-30
 

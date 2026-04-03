@@ -451,4 +451,29 @@
   <data name="ContextMenu_Unlike" xml:space="preserve">
     <value>Unlike</value>
   </data>
+  <data name="Settings_HiddenItems" xml:space="preserve">
+    <value>Hidden Items:</value>
+  </data>
+  <data name="Settings_ManageHiddenItems" xml:space="preserve">
+    <value>Manage...</value>
+  </data>
+  <data name="HiddenItems_WindowTitle" xml:space="preserve">
+    <value>Hidden Items</value>
+  </data>
+  <data name="HiddenItems_Tab_Authors" xml:space="preserve">
+    <value>Hidden Authors</value>
+  </data>
+  <data name="HiddenItems_Tab_Photos" xml:space="preserve">
+    <value>Hidden Photos</value>
+  </data>
+  <data name="HiddenItems_NoAuthors" xml:space="preserve">
+    <value>No hidden authors</value>
+  </data>
+  <data name="HiddenItems_NoPhotos" xml:space="preserve">
+    <value>No hidden photos</value>
+  </data>
+  <data name="HiddenItems_UnhideTooltip" xml:space="preserve">
+    <value>Unhide</value>
+  </data>
+
 </root>

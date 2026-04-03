@@ -60,4 +60,11 @@ public static class EventBus
         Logger.Information("Publishing Download wallpaper event");
         TriggerWallpaperDownLoad?.Invoke(rawUrl);
     }
+    // Hidden items changed - notify HiddenItemsWindow
+    public static event Action? PhotoHidden;
+
+    public static void PublishPhotoHidden()
+    {
+        PhotoHidden?.Invoke();
+    }
 }
