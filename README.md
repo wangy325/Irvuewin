@@ -70,7 +70,7 @@ Create your own wallpaper sources:
 <p align="left">
   <b>Native Tray Menu</b><br>
   <i>Access everything quickly from your system tray.</i><br>
-  <img src="./Irvuewin/Asserts/Shots/tray_en.png" width="300" alt="Tray Menu">
+  <img src="./Irvuewin/Assets/tray.png" width="400" alt="Tray Menu">
 </p>
 
 <br>
@@ -78,7 +78,7 @@ Create your own wallpaper sources:
 <p align="left">
   <b>Powerful Settings</b><br>
   <i>Tailor every detail of your wallpaper rotation and filtering.</i><br>
-  <img src="./Irvuewin/Asserts/Shots/settings_en.png" width="450" alt="Settings Panel">
+  <img src="./Irvuewin/Assets/settings.gif" width="450" alt="Settings Panel">
 </p>
 
 <br>
@@ -87,7 +87,7 @@ Create your own wallpaper sources:
 <p align="left">
   <b>Channel Management</b><br>
   <i>Organize and subscribe to your favorite photo sources.</i><br>
-  <img src="./Irvuewin/Asserts/Shots/channels_en.png" width="550" alt="Channel Management">
+  <img src="./Irvuewin/Assets/channels.gif" width="600" alt="Channel Management">
 </p>
 
 <br>
@@ -95,7 +95,7 @@ Create your own wallpaper sources:
 <p align="left">
   <b>Add New Channel</b><br>
   <i>Discover content by keywords, collections, or photographers.</i><br>
-  <img src="./Irvuewin/Asserts/Shots/add_channels_en.png" width="400" alt="Add Channel">
+  <img src="./Irvuewin/Assets/add_channel.gif" width="600" alt="Add Channel">
 </p>
 
 ---

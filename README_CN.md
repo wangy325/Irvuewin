@@ -69,7 +69,7 @@
 <p align="left">
   <b>原生托盘菜单</b><br>
   <i>通过系统托盘快速访问所有功能。</i><br>
-  <img src="./Irvuewin/Asserts/Shots/tray.png" width="300" alt="托盘菜单">
+  <img src="./Irvuewin/Assets/tray.png" width="400" alt="托盘菜单">
 </p>
 
 <br>
@@ -77,7 +77,7 @@
 <p align="left">
   <b>强大的设置面板</b><br>
   <i>精细化定制壁纸轮换、过滤与显示效果。</i><br>
-  <img src="./Irvuewin/Asserts/Shots/settings.png" width="450" alt="设置">
+  <img src="./Irvuewin/Assets/settings.gif" width="450" alt="设置">
 </p>
 
 <br>
@@ -86,7 +86,7 @@
 <p align="left">
   <b>画册/频道管理</b><br>
   <i>全面组织并订阅您感兴趣的图片源。</i><br>
-  <img src="./Irvuewin/Asserts/Shots/channels.png" width="550" alt="画册管理">
+  <img src="./Irvuewin/Assets/channels.gif" width="600" alt="画册管理">
 </p>
 
 <br>
@@ -94,7 +94,7 @@
 <p align="left">
   <b>添加新画册</b><br>
   <i>通过关键词、专题画册或摄影师发现精彩内容。</i><br>
-  <img src="./Irvuewin/Asserts/Shots/add_channels.png" width="400" alt="添加画册">
+  <img src="./Irvuewin/Assets/add_channel.gif" width="600" alt="添加画册">
 </p>
 
 ---
