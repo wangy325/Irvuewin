@@ -141,11 +141,11 @@ public class TrayViewModel : INotifyPropertyChanged
     private void OnWallpaperChanged(object? sender, EventBus.WallpaperChangedEventArgs e)
     {
         // Update info immediately when wallpaper changes
-        System.Windows.Application.Current.Dispatcher.Invoke(() =>
-        {
-            UpdateWallpaperInfo(e.DisplayName);
-        });
-        // UpdateWallpaperInfo(e.DisplayName);
+        // System.Windows.Application.Current.Dispatcher.Invoke(() =>
+        // {
+        //     UpdateWallpaperInfo(e.DisplayName);
+        // });
+        UpdateWallpaperInfo(e.DisplayName);
     }
 
     private void UpdateWallpaperInfo(string displayName)
@@ -165,7 +165,7 @@ public class TrayViewModel : INotifyPropertyChanged
         AboutWallpaper = wpi;
         // Cache wallpaper info.
         LocalWallpaperInfoCache[displayName] = wpi;
-        Logger.Debug("Update tray wallpaper info.");
+        Logger.Information("Update tray wallpaper info.");
     }
 
 

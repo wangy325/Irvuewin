@@ -164,7 +164,7 @@ public static class IrvuewinCore
 
         List<UnsplashPhoto>? photos = [];
         var newSeq = 0;
-        var httpService = IHttpClient.GetUnsplashHttpService();
+        // var httpService = IHttpClient.GetUnsplashHttpService();
         if (random)
         {
             if (channelId == LikesChannelId)
@@ -173,7 +173,8 @@ public static class IrvuewinCore
             }
             else
             {
-                photos = await httpService.GetRandomPhotoInChannel(channelId, wallpaperCount);
+                photos = await DataBaseService.GetRandomPhotosFromUnsplash(channelId, wallpaperCount);
+                // photos = await httpService.GetRandomPhotoInChannel(channelId, wallpaperCount);
             }
         }
         else
