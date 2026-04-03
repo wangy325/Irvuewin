@@ -401,6 +401,38 @@ namespace Irvuewin.Helpers.DB
             }
         }
 
+        public static List<UnsplashPhoto> GetHiddenPhotos()
+        {
+            try
+            {
+                using var db = new LiteDatabase(DbPath);
+                var photos = db.GetCollection<UnsplashPhoto>(DbPhotoCollection);
+                return photos.Find(x => x.IsHidden == true).ToList();
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex, "Failed to get hidden photos from LiteDB");
+                return [];
+            }
+        }
+
+        public static void UnhidePhoto(string photoId)
+        {
+            try
+            {
+                using var db = new LiteDatabase(DbPath);
+                var photos = db.GetCollection<UnsplashPhoto>(DbPhotoCollection);
+                var photo = photos.FindById(photoId);
+                if (photo == null) return;
+                photo.IsHidden = false;
+                photos.Update(photo);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex, "Failed to unhide photo in LiteDB");
+            }
+        }
+
         public static void RemoveChannelPhotos(string channelId)
         {
             try

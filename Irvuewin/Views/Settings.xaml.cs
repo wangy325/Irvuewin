@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using System.Windows;
 using Irvuewin.Helpers;
 using Irvuewin.ViewModels;
@@ -114,5 +114,13 @@ public partial class Settings
             System.Windows.Forms.Application.Restart();
             Application.Current.Shutdown();
         }
+    }
+    private void ManageHiddenItems_Click(object sender, RoutedEventArgs e)
+    {
+        Helpers.Utils.WindowManager.ShowWindow(
+            "HiddenItemsWindow",
+            () => new HiddenItemsWindow(),
+            dialog: true
+        );
     }
 }
