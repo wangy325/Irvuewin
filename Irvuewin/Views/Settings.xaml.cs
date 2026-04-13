@@ -1,6 +1,7 @@
 using System.IO;
 using System.Windows;
 using Irvuewin.Helpers;
+using Irvuewin.Helpers.Utils;
 using Irvuewin.ViewModels;
 using Serilog;
 using Localization = Irvuewin.Helpers.Localization;
@@ -71,15 +72,8 @@ public partial class Settings
             MessageBoxButton.YesNo,
             MessageBoxImage.Question);
 
-        if (result == MessageBoxResult.Yes)
-        {
-            var cachePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Irvuewin", "splash");
-            // Delete cache logic
-            if (Directory.Exists(cachePath))
-            {
-                Directory.Delete(cachePath, true);
-            }
-        }
+        if (result != MessageBoxResult.Yes) return;
+        _ = WallpaperUtil.PerformLRUCacheCleanUp();
     }
 
     private void ResetApp_Click(object sender, RoutedEventArgs e)
@@ -90,30 +84,14 @@ public partial class Settings
             MessageBoxButton.YesNo,
             MessageBoxImage.Question);
 
-        if (result == MessageBoxResult.Yes)
-        {
-            var appDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Irvuewin");
-            // Logger.Debug(@"Reset app {appDataPath}",  appDataPath);
+        if (result != MessageBoxResult.Yes) return;
+        // Logger.Debug(@"Reset app {appDataPath}",  appDataPath);
             
-            // Close and flush the logger to release the lock on the log file
-            Log.CloseAndFlush();
-            
-            // Reset logic
-            if (Directory.Exists(appDataPath))
-            {
-                try
-                {
-                    Directory.Delete(appDataPath, true);
-                }
-                catch (Exception)
-                {
-                    // Ignore exceptions (e.g., if some files are still locked)
-                    // The app will restart and can handle partial state or overwrite on next run
-                }
-            }
-            System.Windows.Forms.Application.Restart();
-            Application.Current.Shutdown();
-        }
+        // Close and flush the logger to release the lock on the log file
+        Log.CloseAndFlush();
+        FileUtils.ResetApp();
+        System.Windows.Forms.Application.Restart();
+        Application.Current.Shutdown();
     }
     private void ManageHiddenItems_Click(object sender, RoutedEventArgs e)
     {

@@ -65,4 +65,18 @@ public static class FileUtils
             Directory.Delete(dir, recursive: true);
     }
     
+    // Reset Application
+    public static void ResetApp()
+    {
+        try
+        {
+            Directory.Delete(AppDataFolder, true);
+        }
+        catch (Exception)
+        {
+            // Ignore exceptions (e.g., if some files are still locked)
+            // The app will restart and can handle partial state or overwrite on next run
+        }
+    }
+
 }

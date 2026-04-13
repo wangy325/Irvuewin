@@ -308,7 +308,7 @@ namespace Irvuewin.Helpers.Utils
         /// <summary>
         /// LRU /unsplash directory clean up
         /// </summary>
-        private static async Task PerformLRUCacheCleanUp()
+        public static async Task PerformLRUCacheCleanUp()
         {
             await Task.Run(() =>
             {
