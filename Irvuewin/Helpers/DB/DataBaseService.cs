@@ -230,4 +230,8 @@ public class DataBaseService
     // {
     //     Task.Run(() => DatabaseManager.RemoveChannelPhotos(channelId));
     // }
+    public static List<string> GetLikedPhotoIds()
+    {
+        return DatabaseManager.GetLikedPhotsIds();
+    }
 }

@@ -123,6 +123,15 @@ namespace Irvuewin.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Likes.
+        /// </summary>
+        public static string Channel_Likes_Title {
+            get {
+                return ResourceManager.GetString("Channel_Likes_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Can not delete reserved channel.
         /// </summary>
         public static string Channel_Reserved_Channel {
@@ -186,11 +195,29 @@ namespace Irvuewin.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Like.
+        /// </summary>
+        public static string ContextMenu_Like {
+            get {
+                return ResourceManager.GetString("ContextMenu_Like", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Set as Wallpaper.
         /// </summary>
         public static string ContextMenu_SetWallpaper {
             get {
                 return ResourceManager.GetString("ContextMenu_SetWallpaper", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unlike.
+        /// </summary>
+        public static string ContextMenu_Unlike {
+            get {
+                return ResourceManager.GetString("ContextMenu_Unlike", resourceCulture);
             }
         }
         
@@ -209,6 +236,60 @@ namespace Irvuewin.Properties {
         public static string ContextMenu_ViewPhoto {
             get {
                 return ResourceManager.GetString("ContextMenu_ViewPhoto", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No hidden authors.
+        /// </summary>
+        public static string HiddenItems_NoAuthors {
+            get {
+                return ResourceManager.GetString("HiddenItems_NoAuthors", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No hidden photos.
+        /// </summary>
+        public static string HiddenItems_NoPhotos {
+            get {
+                return ResourceManager.GetString("HiddenItems_NoPhotos", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Hidden Authors.
+        /// </summary>
+        public static string HiddenItems_Tab_Authors {
+            get {
+                return ResourceManager.GetString("HiddenItems_Tab_Authors", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Hidden Photos.
+        /// </summary>
+        public static string HiddenItems_Tab_Photos {
+            get {
+                return ResourceManager.GetString("HiddenItems_Tab_Photos", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unhide.
+        /// </summary>
+        public static string HiddenItems_UnhideTooltip {
+            get {
+                return ResourceManager.GetString("HiddenItems_UnhideTooltip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Hidden Items.
+        /// </summary>
+        public static string HiddenItems_WindowTitle {
+            get {
+                return ResourceManager.GetString("HiddenItems_WindowTitle", resourceCulture);
             }
         }
         
@@ -330,7 +411,7 @@ namespace Irvuewin.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to MIT License.
+        ///   Looks up a localized string similar to GPLv3 License.
         /// </summary>
         public static string Settings_About_License {
             get {
@@ -510,6 +591,15 @@ namespace Irvuewin.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Hidden Items:.
+        /// </summary>
+        public static string Settings_HiddenItems {
+            get {
+                return ResourceManager.GetString("Settings_HiddenItems", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Language:.
         /// </summary>
         public static string Settings_Language {
@@ -551,6 +641,15 @@ namespace Irvuewin.Properties {
         public static string Settings_LaunchAtStartup {
             get {
                 return ResourceManager.GetString("Settings_LaunchAtStartup", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Manage....
+        /// </summary>
+        public static string Settings_ManageHiddenItems {
+            get {
+                return ResourceManager.GetString("Settings_ManageHiddenItems", resourceCulture);
             }
         }
         
@@ -839,6 +938,15 @@ namespace Irvuewin.Properties {
         public static string Tray_Exit {
             get {
                 return ResourceManager.GetString("Tray_Exit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Add to Likes.
+        /// </summary>
+        public static string Tray_LikeWallpaper {
+            get {
+                return ResourceManager.GetString("Tray_LikeWallpaper", resourceCulture);
             }
         }
         

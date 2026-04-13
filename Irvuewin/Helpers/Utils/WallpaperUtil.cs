@@ -1,6 +1,7 @@
 using System.IO;
 using System.Net.Http;
 using System.Runtime.InteropServices;
+using Irvuewin.Helpers.DB;
 using Irvuewin.Helpers.Events;
 using Irvuewin.Models.Unsplash;
 using Microsoft.Win32;
@@ -156,7 +157,7 @@ namespace Irvuewin.Helpers.Utils
         }
 
         // set all displays' wallpaper by link/local disk path
-        [Obsolete("Use SetWallpaper or SetWallpaperForSpecificMonitor(Display) instead") ]
+        [Obsolete("Use SetWallpaper or SetWallpaperForSpecificMonitor(Display) instead")]
         public static async Task<string?> SetWallpaperLegacy(UnsplashPhoto? photo, string? path = null)
         {
             SetWallpaperMode();
@@ -224,7 +225,7 @@ namespace Irvuewin.Helpers.Utils
         /// </summary>
         /// <param name="photo">UnsplashPhoto</param>
         /// <param name="imagePath">wallpaper local full disk path, nullable</param>
-        /// <returns>Wallpaper's file path if successes, or throw ex</returns>
+        /// <returns>Wallpaper's file path(find or download from unsplash) if successes, or throw ex</returns>
         public static async Task<string> GetWallpaperFullPath(UnsplashPhoto? photo, string? imagePath)
         {
             string path;
@@ -257,6 +258,8 @@ namespace Irvuewin.Helpers.Utils
                     path = localImagePath;
                     // unsplash api callback
                     EventBus.PublishTriggerWallpaperDownLoad(photo.Links.DownloadLocation);
+                    // fire LRU wallpaper clean up
+                     _ = PerformLRUCacheCleanUp();
                 }
                 catch (Exception ex)
                 {
@@ -268,7 +271,11 @@ namespace Irvuewin.Helpers.Utils
             return path;
         }
 
-        public static string[] GetAllWallpapers()
+        /// <summary>
+        /// Get full disk path of current wallpaper(s) via system API
+        /// </summary>
+        /// <returns></returns>
+        public static string[] GetCurrentWallpapers()
         {
             IDesktopWallpaper? desktopWallpaper = null;
             try
@@ -296,6 +303,63 @@ namespace Irvuewin.Helpers.Utils
             {
                 if (desktopWallpaper != null) Marshal.ReleaseComObject(desktopWallpaper);
             }
+        }
+
+        /// <summary>
+        /// LRU /unsplash directory clean up
+        /// </summary>
+        private static async Task PerformLRUCacheCleanUp()
+        {
+            await Task.Run(() =>
+            {
+                try
+                {
+                    var cacheDir = new DirectoryInfo(FileUtils.CachedWallpaperFolder);
+                    if (!cacheDir.Exists) return;
+                    var allFiles = cacheDir.GetFiles("*.jpg").ToList();
+                    if (allFiles.Count == 0) return;
+
+                    var protectedPaths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+                    var activeWallpapers = GetCurrentWallpapers().Where(p => !string.IsNullOrEmpty(p));
+                    foreach (var wp in activeWallpapers)
+                    {
+                        protectedPaths.Add(wp);
+                    }
+
+                    var likedPhotoIds = DataBaseService.GetLikedPhotoIds();
+                    foreach (var id in likedPhotoIds) protectedPaths.Add(Path.Combine(cacheDir.FullName, id + ".jpg"));
+
+                    var candidateFiles = allFiles
+                        .Where(f => !protectedPaths.Contains(f.FullName))
+                        .OrderBy(f => f.LastWriteTime)
+                        .ToList();
+
+                    var totalCount = candidateFiles.Count;
+                    var totalBytes = candidateFiles.Sum(f => f.Length);
+
+                    foreach (var file in candidateFiles.TakeWhile(_ =>
+                                 totalCount > IAppConst.MaxCacheCount || totalBytes > IAppConst.MaxCacheSizeBytes))
+                    {
+                        try
+                        {
+                            var sizeToReduce = file.Length;
+                            file.Delete();
+                            totalCount--;
+                            totalBytes -= sizeToReduce;
+                            // Logger.Information(@"delete photo: {0}", file.FullName);
+                        }
+                        catch (IOException)
+                        {
+                            // ignore file occupied
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error(ex, "执行壁纸缓存 LRU 清理时出现异常");
+                }
+            });
         }
 
         public class WallpaperSetUpResult

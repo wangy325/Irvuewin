@@ -410,7 +410,7 @@
     <value>更新日志</value>
   </data>
   <data name="Settings_About_License" xml:space="preserve">
-    <value>MIT 开源许可证</value>
+    <value>GPLv3 开源许可证</value>
   </data>
   <data name="Settings_About_Credits" xml:space="preserve">
     <value>图片由 Unsplash 提供</value>

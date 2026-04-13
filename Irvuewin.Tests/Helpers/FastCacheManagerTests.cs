@@ -1,5 +1,4 @@
-﻿using Irvuewin.Helpers;
-using Irvuewin.Helpers.DB;
+﻿using Irvuewin.Helpers.DB;
 
 namespace Irvuewin.Tests.Helpers;
 

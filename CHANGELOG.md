@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.10] - 2026-04-14
+
+### Features
+
+- **Storage Optimization**: Auto clean up cached wallpapers using LRU algorithm.
+
+### Bug Fixes
+
+
+
+
 ## [1.0.9] - 2026-04-03
 
 ### Features

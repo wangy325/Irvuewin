@@ -43,7 +43,7 @@ public class DisplayInfoHelperTests
         {
             var display = displays[i];
             var expect = expectList[i];
-            Log.Information(@"{DisplayName} {DisplayWidth}x{DisplayHeight}", display.Name, display.Width, display.Height);
+            Console.WriteLine(@"{0} {1}x{2}", display.Name, display.Width, display.Height);
             Assert.AreEqual(expect.Width, display.Width);
             Assert.AreEqual(expect.Height, display.Height);
         }

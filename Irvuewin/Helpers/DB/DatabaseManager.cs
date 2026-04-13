@@ -480,5 +480,16 @@ namespace Irvuewin.Helpers.DB
                 return [];
             }
         }
+
+        public static List<string> GetLikedPhotsIds()
+        {
+            using var db = new LiteDatabase(DbPath);
+            var photos = db.GetCollection<UnsplashPhoto>(DbPhotoCollection);
+            var likedIds = photos.Query()
+                .Where(x => x.IsFiltered == false && x.IsLiked)
+                .Select(x => x.Id)
+                .ToList();
+            return likedIds;
+        }
     }
-}
+}

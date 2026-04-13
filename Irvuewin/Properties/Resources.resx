@@ -410,7 +410,7 @@
     <value>Release Notes</value>
   </data>
   <data name="Settings_About_License" xml:space="preserve">
-    <value>MIT License</value>
+    <value>GPLv3 License</value>
   </data>
   <data name="Settings_About_Credits" xml:space="preserve">
     <value>Photos provided by Unsplash</value>
@@ -476,4 +476,4 @@
     <value>Unhide</value>
   </data>
 
-</root>
+</root>

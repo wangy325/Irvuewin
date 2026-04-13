@@ -61,4 +61,8 @@ public interface IAppConst
     
     // watermark 
     const int PhotoPoolWaterMark = 20;
+    
+    // photo cache control
+    const int MaxCacheCount = 64;
+    const long MaxCacheSizeBytes = 1024 * 1024 * 192; // 192MB
 }
