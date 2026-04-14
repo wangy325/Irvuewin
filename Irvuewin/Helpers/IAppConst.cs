@@ -60,9 +60,12 @@ public interface IAppConst
     static readonly string[] PhotoFilterWords = ["woman", "women", "man", "men", "people", "boy", "girl", "baby", "person"];
     
     // watermark 
-    const int PhotoPoolWaterMark = 20;
+    const int PhotoPoolWaterMark = 12;
     
     // photo cache control
     const int MaxCacheCount = 64;
     const long MaxCacheSizeBytes = 1024 * 1024 * 192; // 192MB
+    
+    // prohibit API abuse
+    const int MaxPhotoPoolSize = 24;
 }

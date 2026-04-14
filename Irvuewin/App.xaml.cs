@@ -101,7 +101,7 @@ namespace Irvuewin
             
             // Init Wallpaper pool and Sync Worker
             WallpaperPoolManager.Initialize(IHttpClient.GetUnsplashHttpService());
-            UnsplashSyncWorker.Initialize(IHttpClient.GetUnsplashHttpService());
+            // UnsplashSyncWorker.Initialize(IHttpClient.GetUnsplashHttpService());
 
             // Load wallpaper sequence cache
             var randomWallpaper = Irvuewin.Properties.Settings.Default.RandomWallpaper;

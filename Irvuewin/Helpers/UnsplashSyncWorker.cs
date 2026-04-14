@@ -6,6 +6,7 @@ using Serilog;
 
 namespace Irvuewin.Helpers
 {
+    [Obsolete("Redesign photo load logic")]
     public class UnsplashSyncWorker
     {
         private static readonly ILogger Logger = Log.ForContext<UnsplashSyncWorker>();

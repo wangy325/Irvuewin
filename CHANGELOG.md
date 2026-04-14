@@ -7,10 +7,7 @@ All notable changes to this project will be documented in this file.
 ### Features
 
 - **Storage Optimization**: Auto clean up cached wallpapers using LRU algorithm.
-
-### Bug Fixes
-
-
+- **Wallpaper Preview**: Redesign wallpaper load and refresh logic to prohibit api abusing.
 
 
 ## [1.0.9] - 2026-04-03

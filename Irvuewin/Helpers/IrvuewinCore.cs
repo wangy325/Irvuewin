@@ -3,7 +3,6 @@ using System.Timers;
 using System.Windows.Forms;
 using Irvuewin.Helpers.DB;
 using Irvuewin.Helpers.Events;
-using Irvuewin.Helpers.HTTP;
 using Irvuewin.Helpers.Utils;
 using Irvuewin.Models.Unsplash;
 using Irvuewin.ViewModels;
@@ -299,7 +298,7 @@ public static class IrvuewinCore
             return (sequence + 1, photo);
         }
 
-        // One extreme condition: all photos already loaded, and sequence
+        // One extreme condition: all photos already loaded(Reach Limit), and sequence
         // is equal to (or exceeds) photos count.
         // On this condition, we need to reset sequence completely to maintain the loop without getting stuck.
         if (channel.AllPhotosLoaded)
@@ -308,31 +307,29 @@ public static class IrvuewinCore
             var loopedPhoto = DataBaseService.GetPhotoBySequence(channelId, sequence);
             return (sequence + 1, loopedPhoto);
         }
-        else
+
+        // Instead of firing an asynchronous UI event that returns early, we explicitly ask the manager
+        // to fetch another page from Unsplash and block until it completes.
+        var success = await WallpaperPoolManager.Instance.FetchWallpapersAsync(channelId);
+
+        if (success)
         {
-            // Instead of firing an asynchronous UI event that returns early, we explicitly ask the manager
-            // to fetch another page from Unsplash and block until it completes.
-            var success = await WallpaperPoolManager.Instance.FetchWallpapersAsync(channelId);
-
-            if (success)
+            // Re-evaluate if we now have enough valid photos to satisfy the sequence.
+            totalLoaded = DataBaseService.LoadedPhotosCountExcluded(channelId);
+            if (sequence <= totalLoaded)
             {
-                // Re-evaluate if we now have enough valid photos to satisfy the sequence.
-                totalLoaded = DataBaseService.LoadedPhotosCountExcluded(channelId);
-                if (sequence <= totalLoaded)
-                {
-                    var fetchedPhoto = DataBaseService.GetPhotoBySequence(channelId, sequence);
-                    return (sequence + 1, fetchedPhoto);
-                }
+                var fetchedPhoto = DataBaseService.GetPhotoBySequence(channelId, sequence);
+                return (sequence + 1, fetchedPhoto);
             }
-
-            // 1) The network request failed or is already fetching.
-            // 2) Or the API returned photos but the filters rejected ALL of them
-            // In either case, we fall back to sequence 1 temporarily so the auto-change scheduler successfully changes the wallpaper
-            // instead of aborting and leaving the user with a frozen sequence.
-            sequence = 1;
-            var fallbackPhoto = DataBaseService.GetPhotoBySequence(channelId, sequence);
-            return (sequence + 1, fallbackPhoto);
         }
+
+        // 1) The network request failed or is already fetching.
+        // 2) Or the API returned photos but the filters rejected ALL of them
+        // In either case, we fall back to sequence 1 temporarily so the auto-change scheduler successfully changes the wallpaper
+        // instead of aborting and leaving the user with a frozen sequence.
+        sequence = 1;
+        var fallbackPhoto = DataBaseService.GetPhotoBySequence(channelId, sequence);
+        return (sequence + 1, fallbackPhoto);
     }
 
     /// <summary>

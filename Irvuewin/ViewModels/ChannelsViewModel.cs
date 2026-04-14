@@ -446,13 +446,35 @@ public class ChannelsViewModel : INotifyPropertyChanged
     /// Triggered when user change wallpaper filter rules. 
     /// </summary>
     /// <param name="channel"></param>
-    public Task RefreshPhotos(UnsplashChannel channel)
+    public async Task RefreshPhotos(UnsplashChannel channel)
     {
-        if (channel.Id == LikesChannelId) return Task.CompletedTask; // Liked channel do nothing
+        if (channel.Id == LikesChannelId) return; // Liked channel do nothing
         IsBusy = true;
-        EventBus.PublishForceSync(channel.Id);
-        Logger.Information(@"Dispatched force sync for channel {ChannelId}", channel.Id);
-        return Task.CompletedTask;
+        // EventBus.PublishForceSync(channel.Id);
+        
+        if (channel.Id == LikesChannelId)
+        {
+            IsBusy = false;
+            return;
+        }
+
+        // remove old photos
+        DataBaseService.RemoveChannelPhotos(channel.Id);
+            
+        EventBus.PublishPoolLow(channel.Id);
+
+        // reset channel sequence
+        channel.Sequence = 1;
+        channel.Shard = 1; // 重置壁纸池的分片页码为首页
+        channel.AllPhotosLoaded = false;
+        await DataBaseService.UpdateChannel(channel);
+        FastCacheManager.Set(CachedWallpaperPreviewShard, channel.Id, 1);
+
+        Photos.Clear();
+        PreviewPhotos(channel.Id, UnsplashQueryParams.Create());
+        IsBusy = false;
+        // Logger.Information(@"Dispatched force sync for channel {ChannelId}", channel.Id);
+        Logger.Information(@"Refresh photos for channel {ChannelId}", channel.Id);
     }
 
     /// <summary>
@@ -463,7 +485,9 @@ public class ChannelsViewModel : INotifyPropertyChanged
         foreach (var channel in Channels)
         {
             if (channel.Id == LikesChannelId) continue;
+            // remove old photos
             // DataBaseService.RemoveChannelPhotos(channel.Id);
+            
             EventBus.PublishPoolLow(channel.Id);
 
             // reset channel sequence

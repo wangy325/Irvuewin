@@ -226,10 +226,10 @@ public class DataBaseService
         Task.Run(() => DatabaseManager.UnhidePhoto(photoId));
     }
 
-    // public static void RemoveChannelPhotos(string channelId)
-    // {
-    //     Task.Run(() => DatabaseManager.RemoveChannelPhotos(channelId));
-    // }
+    public static void RemoveChannelPhotos(string channelId)
+    {
+        Task.Run(() => DatabaseManager.RemoveChannelPhotos(channelId));
+    }
     public static List<string> GetLikedPhotoIds()
     {
         return DatabaseManager.GetLikedPhotsIds();

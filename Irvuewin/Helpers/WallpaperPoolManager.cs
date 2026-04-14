@@ -18,7 +18,9 @@ public class WallpaperPoolManager
     private static WallpaperPoolManager? _instance;
     private static readonly Lock Lock = new();
 
-    public static WallpaperPoolManager Instance => _instance ?? throw new InvalidOperationException("WallpaperPoolManager is not initialized. Call Initialize() first.");
+    public static WallpaperPoolManager Instance => _instance ??
+                                                   throw new InvalidOperationException(
+                                                       "WallpaperPoolManager is not initialized. Call Initialize() first.");
 
     public static void Initialize(UnsplashHttpService apiService)
     {
@@ -52,6 +54,11 @@ public class WallpaperPoolManager
         return FetchMoreWallpapersInternalAsync(channelId);
     }
 
+    /// <summary>
+    /// Only entrance of pulling unsplash photos.
+    /// </summary>
+    /// <param name="channelId"></param>
+    /// <returns></returns>
     private async Task<bool> FetchMoreWallpapersInternalAsync(string channelId)
     {
         if (_isFetching) return false;
@@ -59,14 +66,20 @@ public class WallpaperPoolManager
         try
         {
             var channel = DataBaseService.GetChannel(channelId)!;
+            var poolSize = DataBaseService.LoadedPhotosCountExcluded(channelId);
+            if (poolSize >= MaxPhotoPoolSize)
+            {
+                // assume all photos loaded
+                channel.AllPhotosLoaded = true;
+                return false; 
+            }
+
+            // var query = UnsplashQueryParams.Create().Page(channel.Shard);
+            // if (await _apiService.GetPhotosOfChannel(channelId: channelId, query) is not { } photos) return false;
             
-            var query = UnsplashQueryParams.Create().Page(channel.Shard);
-
-            // 这里作为拉取unsplash壁纸的唯一入口
-            if (await _apiService.GetPhotosOfChannel(channelId: channelId, query) is not { } photos) return false;
-            // break;
-
-
+            // update v 1.0.10: get random wallpaper  
+            if (await _apiService.GetRandomPhotoInChannel(channelId, PageSize) is not { } photos) return false;
+            
             // Update channel's shard and load flag if necessary
             if (photos.Count == 0)
             {
@@ -74,19 +87,18 @@ public class WallpaperPoolManager
                 // Though channel contains photo(s)
                 // We assume that all photos are loaded
                 channel.AllPhotosLoaded = true;
-                // await DataBaseService.UpdateChannel(channel);
-                // break;
+                await DataBaseService.UpdateChannel(channel);
+                return false;
             }
             else
             {
-                channel.Shard++; // 只有真正获取到了数据才递增分片翻页
+                // 只有真正获取到了数据才递增分片翻页
+                channel.Shard++; 
                 await DataBaseService.CachePhotos(channelId, photos);
+                EventBus.PublishWallpapersReplenished();
+                await DataBaseService.UpdateChannel(channel);
+                return true;
             }
-
-            // update channel after all
-            await DataBaseService.UpdateChannel(channel);
-            EventBus.PublishWallpapersReplenished();
-            return true;
         }
         catch (Exception ex)
         {
@@ -108,7 +120,7 @@ public class WallpaperPoolManager
         if (channels is not { Count: > 0 }) return;
         foreach (var channel in channels)
         {
-            var maxAttempts = 5; 
+            var maxAttempts = 5;
             while (DataBaseService.LoadedPhotosCountExcluded(channel.Id) < PhotoPoolWaterMark && maxAttempts > 0)
             {
                 var currentChannel = DataBaseService.GetChannel(channel.Id);
@@ -120,6 +132,7 @@ public class WallpaperPoolManager
                 maxAttempts--;
             }
         }
+
         Logger.Information("Water marker Check.");
     }
 }
